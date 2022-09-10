@@ -1,4 +1,4 @@
-#include "SDL.h"
+#include <SDL2\SDL.h>
 #define MAX_CONTROLLERS 4
 
 extern SDL_GameController* ControllerHandles[MAX_CONTROLLERS];

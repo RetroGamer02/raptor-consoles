@@ -1,4 +1,4 @@
-#include "SDL.h"
+#include <SDL2\SDL.h>
 #include "stdio.h"
 #include "common.h"
 #include "prefapi.h"

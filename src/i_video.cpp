@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <SDL2\SDL.h>
+#include "sdl2\SDL_opengl.h"
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -102,8 +102,8 @@ int video_display = 0;
 
 // Screen width and height, from configuration file.
 
-int window_width = 800;
-int window_height = 600;
+int window_width = 400;
+int window_height = 240;
 
 // Fullscreen mode, 0x0 for SDL_WINDOW_FULLSCREEN_DESKTOP.
 
@@ -1178,7 +1178,7 @@ static void SetVideoMode(void)
 {
     int w, h;
     int x, y;
-    unsigned int rmask, gmask, bmask, amask;
+    Uint32 rmask, gmask, bmask, amask;
     int bpp;
     int window_flags = 0, renderer_flags = 0;
     SDL_DisplayMode mode;

@@ -37,30 +37,30 @@
 //
 void I_LASTSCR(void)
 {
-    unsigned char* screendata;
-    int y;
-    int indent;
-
+    //unsigned char* screendata;
+    //int y;
+    //int indent;
+    //Fixme
     // Set up text mode screen
 
-    TXT_Init();
+    //TXT_Init();
 
-    TXT_SetWindowTitle("Raptor");
+    //TXT_SetWindowTitle("Raptor");
     // SDL2-TODO I_InitWindowTitle();
     // SDL2-TODO I_InitWindowIcon();
 
     // Write the data to the screen memory
 
-    screendata = TXT_GetScreenData();
+    //screendata = TXT_GetScreenData();
 
-    indent = (LASTSCR_W - TXT_SCREEN_W) / 2;
+    //indent = (LASTSCR_W - TXT_SCREEN_W) / 2;
 
-    for (y = 0; y < TXT_SCREEN_H; ++y)
+    /*for (y = 0; y < TXT_SCREEN_H; ++y)
     {
         memcpy(screendata + (y * TXT_SCREEN_W * 2),
             LASTSCR + (y * LASTSCR_W + indent) * 2,
             TXT_SCREEN_W * 2);
-    }
+    }*/
 
     // Wait for a keypress
 
@@ -68,16 +68,16 @@ void I_LASTSCR(void)
 
     while (true)
     {
-        TXT_UpdateScreen();
+        //TXT_UpdateScreen();
         I_GetEvent();
 
         if (joy_ack || kbd_ack || mouse_b1_ack || mouse_b2_ack || mouse_b3_ack)
             break;
 
-        TXT_Sleep(0);
+        //TXT_Sleep(0);
     }
 
     // Shut down text mode screen
 
-    TXT_Shutdown();
+    //TXT_Shutdown();
 }

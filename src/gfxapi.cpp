@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdint.h>
-#include "SDL.h"
+#include <SDL2\SDL.h>
 #include "common.h"
 #include "gfxapi.h"
 #include "i_video.h"

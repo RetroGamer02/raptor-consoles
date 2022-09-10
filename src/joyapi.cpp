@@ -1,4 +1,4 @@
-#include "SDL.h"
+#include <SDL2\SDL.h>
 #include "i_video.h"
 #include "joyapi.h"
 
@@ -98,6 +98,37 @@ void I_HandleJoystickEvent(SDL_Event *sdlevent)
 			joy_ack = 1;
 	}
 }
+
+typedef enum
+{
+    SDL_CONTROLLER_TYPE_UNKNOWN = 0,
+    SDL_CONTROLLER_TYPE_XBOX360,
+    SDL_CONTROLLER_TYPE_XBOXONE,
+    SDL_CONTROLLER_TYPE_PS3,
+    SDL_CONTROLLER_TYPE_PS4,
+    SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO,
+    SDL_CONTROLLER_TYPE_VIRTUAL,
+    SDL_CONTROLLER_TYPE_PS5
+} SDL_GameControllerType;
+
+/**
+ *  Start a rumble effect
+ *  Each call to this function cancels any previous rumble effect, and calling it with 0 intensity stops any rumbling.
+ *
+ *  \param gamecontroller The controller to vibrate
+ *  \param low_frequency_rumble The intensity of the low frequency (left) rumble motor, from 0 to 0xFFFF
+ *  \param high_frequency_rumble The intensity of the high frequency (right) rumble motor, from 0 to 0xFFFF
+ *  \param duration_ms The duration of the rumble effect, in milliseconds
+ *
+ *  \return 0, or -1 if rumble isn't supported on this controller
+ */
+extern DECLSPEC int SDLCALL SDL_GameControllerRumble(SDL_GameController *gamecontroller, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
+
+/**
+ *  Get the type of a game controller.
+ *  This can be called before any controllers are opened.
+ */
+extern DECLSPEC SDL_GameControllerType SDLCALL SDL_GameControllerTypeForIndex(int joystick_index);
 
 void GetJoyButtonMapping(void)
 {

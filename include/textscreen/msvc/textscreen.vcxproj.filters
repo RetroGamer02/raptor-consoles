@@ -124,7 +124,7 @@
     <ClInclude Include="..\include\txt_scrollpane.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\txt_sdl.h">
+    <ClInclude Include="..\include\SDL2\SDL.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\include\txt_separator.h">
