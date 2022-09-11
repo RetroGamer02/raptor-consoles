@@ -122,13 +122,13 @@ typedef enum
  *
  *  \return 0, or -1 if rumble isn't supported on this controller
  */
-extern DECLSPEC int SDLCALL SDL_GameControllerRumble(SDL_GameController *gamecontroller, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
+//extern DECLSPEC int SDLCALL SDL_GameControllerRumble(SDL_GameController *gamecontroller, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
 
 /**
  *  Get the type of a game controller.
  *  This can be called before any controllers are opened.
  */
-extern DECLSPEC SDL_GameControllerType SDLCALL SDL_GameControllerTypeForIndex(int joystick_index);
+//extern DECLSPEC SDL_GameControllerType SDLCALL SDL_GameControllerTypeForIndex(int joystick_index);
 
 void GetJoyButtonMapping(void)
 {
@@ -136,25 +136,7 @@ void GetJoyButtonMapping(void)
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-		switch (SDL_GameControllerTypeForIndex(ControllerIndex))
-		{
-		case SDL_CONTROLLER_TYPE_PS3:
-		case SDL_CONTROLLER_TYPE_PS4:
-		case SDL_CONTROLLER_TYPE_PS5:
-			AButtonconvert = 0;
-			BButtonconvert = 1;
-			XButtonconvert = 3;
-			YButtonconvert = 2;
-			break;
-		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
-		case SDL_CONTROLLER_TYPE_XBOX360:
-		case SDL_CONTROLLER_TYPE_XBOXONE:
-			AButtonconvert = 0;
-			BButtonconvert = 1;
-			XButtonconvert = 2;
-			YButtonconvert = 3;
-			break;
-		default:
+		
 			if ((AButtonconvert == 0) && (BButtonconvert == 0) && (XButtonconvert == 0) && (YButtonconvert == 0))
 			{
 				AButtonconvert = 0;
@@ -163,7 +145,7 @@ void GetJoyButtonMapping(void)
 				YButtonconvert = 3;
 			}
 			break;
-		}
+		
 	}
 }
 
@@ -173,8 +155,8 @@ void IPT_CalJoyRumbleLow(void)
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-		if (ControllerHandles[ControllerIndex])
-            SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x3fff, 0x3fff, 1000);
+		//if (ControllerHandles[ControllerIndex])
+            //SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x3fff, 0x3fff, 1000);
     }
 }
 
@@ -184,8 +166,8 @@ void IPT_CalJoyRumbleMedium(void)
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-		if (ControllerHandles[ControllerIndex])
-		    SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x7ffe, 0x7ffe, 1000);
+		//if (ControllerHandles[ControllerIndex])
+		    //SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x7ffe, 0x7ffe, 1000);
 	}
 }
 
@@ -195,8 +177,8 @@ void IPT_CalJoyRumbleHigh(void)
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-		if (ControllerHandles[ControllerIndex])
-		    SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0xbffd, 0xbffd, 1000);
+		//if (ControllerHandles[ControllerIndex])
+		    //SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0xbffd, 0xbffd, 1000);
     }
 }
 
