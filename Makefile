@@ -31,16 +31,17 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
+CTRULIB		:=	$(DEVKITPRO)/libcitruold
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	src
-INCLUDES	:=	src include/SDL2 include/textscreen/include include/TimGM6mb include/TinySoundFont
+INCLUDES	:=	./src $(PORTLIBS)/include/SDL2 ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_VER					:= 0001
-APP_TITLE				:= Raptor 3DS
+APP_VER						:= 0001
+APP_TITLE					:= Raptor 3DS
 APP_DESCRIPTION				:= Raptor for 3DS
-APP_AUTHOR				:= RetroGamer02
+APP_AUTHOR					:= RetroGamer02
 PRODUCT_CODE				:= CTR-Rap
 
 #BANNER_AUDIO				:= resource/banner.wav
