@@ -3,6 +3,7 @@
 #include <string.h>
 #include "common.h"
 #include "prefapi.h"
+#include "rap.h"
 #ifdef _WIN32
 #include <io.h>
 #endif // _WIN32
@@ -263,13 +264,13 @@ static int INI_SaveFile(const char *section, const char *key, const char *value,
     return 1;
 }
 
-static char preference[PATH_MAX];
+static char preference[PATH_MAX] = "sdmc:/";
 
 int INI_InitPreference(const char *section)
 {
     if (section)
         strcpy(preference, section);
-    return !access(preference, 4);
+    return checkfile(preference);
 }
 
 int INI_GetPreferenceLong(const char *section, const char *key, int defValue)

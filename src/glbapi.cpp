@@ -8,6 +8,7 @@
 #include "common.h"
 #include "glbapi.h"
 #include "vmemapi.h"
+#include "rap.h"
 #ifdef _WIN32
 #include <io.h>
 #endif // _WIN32
@@ -33,7 +34,7 @@ char* strupr(char* s)
 #endif
 
 char prefix[] = "FILE";
-char exePath[PATH_MAX];
+char exePath[PATH_MAX] = "sdmc:/";
 const char *serial = "32768GLB";
 
 struct fitem_t {
@@ -46,7 +47,7 @@ struct fitem_t {
 };
 
 struct filedesc_t {
-    char path[PATH_MAX];
+    char path[PATH_MAX] = "sdmc:/";
     fitem_t *items;
     int itemcount;
     FILE *handle;
@@ -108,7 +109,7 @@ void GLB_DeCrypt(const char *key, void *buf, int size)
 FILE *GLB_FindFile(int a1, int a2, const char *mode)
 {
     FILE *h;
-    char buffer[PATH_MAX];
+    char buffer[PATH_MAX] = "sdmc:/";
     sprintf(buffer, "%s%04u.GLB", prefix, a2);
     h = fopen(buffer, mode);
     if (h == NULL)
@@ -120,7 +121,7 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
             if (a1)
                 return NULL;
             sprintf(buffer, "%s%04u.GLB", prefix, a2);
-            EXIT_Error("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
+            printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
         }
     }
     strcpy(filedesc[a2].path, buffer);
@@ -142,7 +143,7 @@ FILE *GLB_OpenFile(int a1, int a2, const char *mode)
         {
             if (a1)
                 return NULL;
-            EXIT_Error("GLB_OpenFile: %s, Error #%d,%s", fd->path, errno, strerror(errno));
+            printf("GLB_OpenFile: %s, Error #%d,%s", fd->path, errno, strerror(errno));
         }
     }
     else
@@ -172,7 +173,7 @@ int GLB_NumItems(int a1)
         return 0;
     fseek(handle, 0, SEEK_SET);
     if (!fread(&head, sizeof(head), 1, handle))
-        EXIT_Error("GLB_NumItems: Read failed!");
+        printf("GLB_NumItems: Read failed!");
     GLB_DeCrypt(serial, &head, sizeof(head));
     return head.offset;
 }
@@ -237,7 +238,7 @@ int GLB_InitSystem(const char *a1, int a2, const char *a3)
             fd->itemcount = j;
             fd->items = (fitem_t*)calloc(j, sizeof(fitem_t));
             if (!fd->items)
-                EXIT_Error("GLB_NumItems: memory ( init )");
+                printf("GLB_NumItems: memory ( init )");
             GLB_LoadIDT(fd);
             k++;
         }
@@ -279,7 +280,7 @@ char *GLB_FetchItem(int a1, int a2)
     fitem_t *fi;
     if (a1 == -1)
     {
-        EXIT_Error("GLB_FetchItem: empty handle.");
+        printf("GLB_FetchItem: empty handle.");
         return NULL;
     }
     uint16_t f = (a1 >> 16) & 0xffff;
@@ -321,7 +322,7 @@ char *GLB_FetchItem(int a1, int a2)
         }
     }
     if (!fi->mem.ptr && a2 != 0)
-        EXIT_Error("GLB_FetchItem: failed on %d bytes, mode=%d.", fi->length, a2);
+        printf("GLB_FetchItem: failed on %d bytes, mode=%d.", fi->length, a2);
     if (a2 == 1)
     {
         if (fVmem)
@@ -418,7 +419,7 @@ void GLB_FreeItem(int a1)
     fd = &filedesc[f];
     if (n >= (unsigned short)fd->itemcount)
     {
-        EXIT_Error("GLB_FreeItem - item out of range: %d > %d file %d.\n", n, fd->itemcount, f);
+        printf("GLB_FreeItem - item out of range: %d > %d file %d.\n", n, fd->itemcount, f);
     }
     fi = &fd->items[n];
     if (fi->mem.ptr)
@@ -479,8 +480,8 @@ int GLB_ReadFile(const char *a1, char *a2)
 {
     FILE *handle;
     int l;
-    char f_a0[PATH_MAX];
-    if (access(a1, 0) == -1)
+    char f_a0[PATH_MAX] = "sdmc:/";
+    if (!checkfile(a1) == -1)
     {
         strcpy(f_a0, exePath);
         strcat(f_a0, a1);
@@ -488,7 +489,8 @@ int GLB_ReadFile(const char *a1, char *a2)
     }
     handle = fopen(a1, "rb");
     if (handle == NULL)
-        EXIT_Error("LoadFile: Open failed!");
+        //EXIT_Error("LoadFile: Open failed!");
+        printf("LoadFile: Open failed!");
     fseek(handle, 0, SEEK_END);
     l = ftell(handle);
     rewind(handle);
@@ -497,7 +499,7 @@ int GLB_ReadFile(const char *a1, char *a2)
         if (!fread(a2, l, 1, handle))
         {
             fclose(handle);
-            EXIT_Error("GLB_LoadFile: Load failed!");
+            printf("GLB_LoadFile: Load failed!");
         }
     }
     fclose(handle);
@@ -510,13 +512,13 @@ void GLB_SaveFile(char *a1, char *a2, int a3)
 
     handle = fopen(a1, "wb");
     if (handle == NULL)
-        EXIT_Error("SaveFile: Open failed!");
+        printf("SaveFile: Open failed!");
     if (a3)
     {
         if (!fwrite(a2, a3, 1, handle))
         {
             fclose(handle);
-            EXIT_Error("GLB_SaveFile: Write failed!");
+            printf("GLB_SaveFile: Write failed!");
         }
     }
     fclose(handle);

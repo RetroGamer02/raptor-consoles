@@ -42,7 +42,7 @@ void GFX_InitTimer(void)
 #if SDL_VERSION_ATLEAST(2, 0, 5)
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 #endif
-    SDL_Init(SDL_INIT_TIMER);
+    //SDL_Init(SDL_INIT_TIMER); //Fixme
     timer_init = 1;
 }
 
@@ -142,7 +142,7 @@ void GFX_InitSystem(void)
     displaybuffer = (char*)malloc(64000);
     if (!displaybuffer)
     {
-        EXIT_Error("GFX_Init() - malloc");
+        printf("GFX_Init() - malloc");
         return;
     }
     memset(displaybuffer, 0, 64000);
@@ -154,7 +154,7 @@ void GFX_InitSystem(void)
     gtable = (char*)malloc(256);
     if (!ltable || !dtable || !gtable)
     {
-        EXIT_Error("GFX_Init() - malloc");
+        printf("GFX_Init() - malloc");
         return;
     }
 }
@@ -164,8 +164,9 @@ void GFX_InitVideo(char *pal)
     I_InitGraphics((uint8_t*)pal);
     displayscreen = (char*)I_VideoBuffer;
     GFX_MakeLightTable(pal, ltable, 9);
-    GFX_MakeLightTable(pal, dtable, -9);
-    GFX_MakeGreyTable(pal, gtable);
+    //printf("Made it here");
+    //GFX_MakeLightTable(pal, dtable, -9); //Fixme
+    //GFX_MakeGreyTable(pal, gtable); //Fixme
 }
 
 void GFX_EndSystem(void)

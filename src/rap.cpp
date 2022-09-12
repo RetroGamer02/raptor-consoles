@@ -32,6 +32,7 @@
 #include "joyapi.h"
 #include "i_lastscr.h"
 #include "fileids.h"
+#include <3ds.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -182,6 +183,7 @@ void ShutDown(int a1)
     if (!a1 && !godmode)
         WIN_Order();
 
+	gfxExit();
     //IPT_DeInit();
     //DMX_DeInit();
     //GFX_EndSystem();
@@ -998,6 +1000,39 @@ void RAP_InitMem(void)
     GLB_UseVM();
 }
 
+bool checkfile(const char* path)
+{
+	FILE* f = fopen(path, "r");
+	if (f)
+	{
+		return true;
+	} else {
+        return false;
+    }
+}
+
+void printfile(const char* path)
+{
+	FILE* f = fopen(path, "r");
+	if (f)
+	{
+		char mystring[100];
+		while (fgets(mystring, sizeof(mystring), f))
+		{
+			int a = strlen(mystring);
+			if (mystring[a-1] == '\n')
+			{
+				mystring[a-1] = 0;
+				if (mystring[a-2] == '\r')
+					mystring[a-2] = 0;
+			}
+			puts(mystring);
+		}
+		printf(">>EOF<<\n");
+		fclose(f);
+	}
+}
+
 int main(int argc, char *argv[])
 {
     char *shost, *reg_text, *pal;
@@ -1005,15 +1040,41 @@ int main(int argc, char *argv[])
 
     shost = getenv("S_HOST");
 
+    gfxInitDefault(); //3DS
+	consoleInit(GFX_TOP, NULL); //3DS
+
+    Result rc = sdmcInit();
+	if (rc)
+		printf("sdmcfs Init: %08lX\n", rc);
+	else
+	{
+		printf("sdmcfs Init Successful!\n");
+	}
+
     InitScreen();
 
     RAP_DataPath();
-    if (access(RAP_GetSetupPath(), 0))
+
+    //printf("SetupPath: ", RAP_GetSetupPath(), "\n");
+
+    /*if (access(RAP_GetSetupPath(), 0))
     {
         printf("\n\n** You must run SETUP first! **\n");
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", "** You must run SETUP first! **", NULL);
-        exit(0);
+        //exit(0);
+    }*/
+
+    if (!checkfile(RAP_GetSetupPath()))
+    {
+        printf("\n\n** You must run SETUP first! **\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            "Raptor", "** You must run SETUP first! **", NULL);
+    } else {
+        printf("\nSETUP Found\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            "Raptor", "** SETUP Found! **", NULL);
+        //printfile(RAP_GetSetupPath());
     }
 
     godmode = 0;
@@ -1033,7 +1094,7 @@ int main(int argc, char *argv[])
         }
         else if (!strcmp(argv[1], "PLAY"))
         {
-            if (!access(argv[2], 0))
+            if (checkfile(argv[2]))
             {
                 DEMO_SetFileName(argv[2]);
                 demo_flag = 2;
@@ -1046,11 +1107,11 @@ int main(int argc, char *argv[])
         printf("GOD mode enabled\n");
     cur_diff = 0;
 
-    if (!access("FILE0001.GLB", 0))
+    if (checkfile("sdmc:/FILE0001.GLB"))
         gameflag[0] = 1;
-    if (!access("FILE0002.GLB", 0))
+    if (checkfile("sdmc:/FILE0002.GLB"))
         gameflag[1] = 1;
-    if (!access("FILE0003.GLB", 0) && !access("FILE0004.GLB", 0))
+    if (checkfile("sdmc:/FILE0003.GLB") && checkfile("sdmc:/FILE0004.GLB"))
     {
         gameflag[2] = 1;
         gameflag[3] = 1;
@@ -1064,15 +1125,15 @@ int main(int argc, char *argv[])
         if (gameflag[i])
             eps++;
 
-    if (access("FILE0000.GLB", 0) || !eps)
+    if (!checkfile("sdmc:/FILE0000.GLB") || !eps)
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
-        exit(0);
+        //exit(0);
     }
     printf("Init -\n");
-    EXIT_Install(ShutDown);
+    //EXIT_Install(ShutDown);
     memset(bday, 0, sizeof(bday));
     bday[0].f_0 = 5;
     bday[0].f_4 = 16;
@@ -1109,19 +1170,23 @@ int main(int argc, char *argv[])
     if (bday_num != -1)
         printf("Birthday() = %s\n", bday[bday_num].f_c);
 
-    if (access(RAP_GetSetupPath(), 0))
-        EXIT_Error("You Must run SETUP.EXE First !!");
+    //if (access(RAP_GetSetupPath(), 0))
+        //EXIT_Error("You Must run SETUP.EXE First !!"); //Start here
 
-    if (!INI_InitPreference(RAP_GetSetupPath()))
-        EXIT_Error("SETUP Error");
+    //if (!INI_InitPreference(RAP_GetSetupPath()))
+        //EXIT_Error("SETUP Error");
 
     fflush(stdout);
-
+    printf("\nPassed fflush\n");
     KBD_Install();
+    printf("\nPassed KDB Install\n");
     GFX_InitSystem();
+    printf("\nPassed GFX Init\n");
     SWD_Install(0);
+    printf("\nPassed SWD Install\n");
     VIDEO_LoadPrefs();
     IPT_LoadPrefs();
+    printf("\nPassed Load prefs\n");
     switch (control)
     {
     default:
@@ -1167,6 +1232,7 @@ int main(int argc, char *argv[])
     SHADOW_Init();
     FLAME_Init();
     fflush(stdout);
+    
     if (v28)
     {
         ptrtex = (texture_t*)GLB_LockItem(FILE112_CURSOR_PIC);
@@ -1208,10 +1274,12 @@ int main(int argc, char *argv[])
     BONUS_Init();
     ANIMS_Init();
     SND_Setup();
+    
     GFX_SetPalRange(0, 239);
-    GFX_InitVideo(palette);
+    //GFX_InitVideo(palette); //Fixme
     SHADOW_MakeShades();
     RAP_ClearPlayer();
+    
     if (!godmode)
         INTRO_Credits();
     if (demo_flag != 2)
@@ -1231,11 +1299,14 @@ int main(int argc, char *argv[])
     game_wave[1] = 0;
     game_wave[2] = 0;
     game_wave[3] = 0;
+    
     do
     {
        WIN_MainMenu();
        WIN_MainLoop();
     } while (1);
-
+    
+    gfxExit();
+    sdmcExit();
     return 0;
 }
