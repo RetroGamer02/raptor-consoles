@@ -34,8 +34,8 @@
 #define PATH_MAX MAX_PATH
 #endif
 
-char g_data_path[PATH_MAX];
-char g_setup_path[PATH_MAX];
+char g_data_path[PATH_MAX] = "sdmc:/";
+char g_setup_path[PATH_MAX] = "sdmc:/";
 
 int hasdatapath = 0;
 
@@ -99,7 +99,7 @@ int RAP_IsPlayer(void)
 
 int RAP_AreSavedFiles(void)
 {
-    char v4c[PATH_MAX];
+    char v4c[PATH_MAX] = "sdmc:/";
     int v1c;
     for (v1c = 0; v1c < 10; v1c++)
     {
@@ -107,7 +107,7 @@ int RAP_AreSavedFiles(void)
             sprintf(v4c, fmt2, g_data_path, v1c);
         else
             sprintf(v4c, fmt, v1c);
-        if (!access(v4c, 0))
+        if (checkfile(v4c))
             return 1;
     }
     return 0;
@@ -120,6 +120,7 @@ int RAP_ReadFile(const char *a1, void *a2, int a3)
     if (!v14)
     {
         WIN_Msg("File open Error");
+        //printf("File open Error");
         return 0;
     }
     fread(a2, 1, a3, v14);
@@ -130,7 +131,7 @@ int RAP_ReadFile(const char *a1, void *a2, int a3)
 
 int RAP_FFSaveFile(void)
 {
-    char v50[PATH_MAX];
+    char v50[PATH_MAX] = "sdmc:/";
     int v1c, v20;
     v1c = 0;
     filepos = -1;
@@ -140,7 +141,7 @@ int RAP_FFSaveFile(void)
             sprintf(v50, fmt2, g_data_path, v20);
         else
             sprintf(v50, fmt, v20);
-        if (access(v50, 0) != 0)
+        if (!checkfile(v50) != 0)
         {
             RAP_ClearPlayer();
             filepos = v20;
@@ -154,7 +155,7 @@ int RAP_FFSaveFile(void)
 int RAP_IsSaveFile(player_t *a1)
 {
     player_t vb0;
-    char v58[PATH_MAX];
+    char v58[PATH_MAX] = "sdmc:/";
     int v1c, v24;
     FILE *v20;
     v1c = 0;
@@ -181,7 +182,7 @@ int RAP_IsSaveFile(player_t *a1)
 
 int RAP_LoadPlayer(void)
 {
-    char v6c[PATH_MAX];
+    char v6c[PATH_MAX] = "sdmc:/";
     int v1c, v24;
     FILE *v20;
     object_t v40;
@@ -227,7 +228,7 @@ int RAP_LoadPlayer(void)
 int RAP_SavePlayer(void)
 {
     int v1c;
-    char v5c[PATH_MAX];
+    char v5c[PATH_MAX] = "sdmc:/";
     FILE *v20;
     object_t *v28;
 
@@ -314,8 +315,8 @@ void RAP_FreeMap(void)
 
 int RAP_LoadWin(void)
 {
-    char v254[10][PATH_MAX];
-    char v68[PATH_MAX];
+    char v254[10][PATH_MAX] = {"", "sdmc:/"};
+    char v68[PATH_MAX] = "sdmc:/";
     int v30, v20, v24, v3c, v38, v1c, v2c, v28;
     player_t v108;
     wdlg_t vb0;
@@ -331,7 +332,7 @@ int RAP_LoadWin(void)
             sprintf(v68, fmt2, g_data_path, v1c);
         else
             sprintf(v68, fmt, v1c);
-        if (!access(v68, 0))
+        if (checkfile(v68))
         {
             if (v20 == -1)
                 v20= v1c;

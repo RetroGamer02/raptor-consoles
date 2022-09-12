@@ -108,7 +108,7 @@ int SND_InitSound(void)
     fx_device = FXDEV_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
+    music_card = INI_GetPreferenceLong("Music", "CardType", CARD_BLASTER);
     sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);

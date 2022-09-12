@@ -74,3 +74,4 @@ void RAP_LoadMap(void);
 int Do_Game(void);
 int RAP_LoadWin(void);
 void ShutDown(int a1);
+bool checkfile(const char* path);

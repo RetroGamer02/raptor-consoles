@@ -116,11 +116,11 @@ static int max_scaling_buffer_pixels = 16000000;
 // Run in full screen mode?  (int type for config code)
 
 // int fullscreen = true;
-int fullscreen; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+int fullscreen = true; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 
 // Aspect ratio correction mode
 
-int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+int aspect_ratio_correct = false; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 static int actualheight;
 
 // Force integer scales for resolution-independent rendering
@@ -194,8 +194,8 @@ unsigned int joywait = 0;
 
 void VIDEO_LoadPrefs(void)
 {
-    fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
-    aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
+    fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 1);
+    aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 0);
 }
 
 static bool MouseShouldBeGrabbed()
@@ -1412,7 +1412,7 @@ void I_InitGraphics(uint8_t *pal)
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        EXIT_Error("Failed to initialize video: %s", SDL_GetError());
+        printf("Failed to initialize video: %s", SDL_GetError());
     }
 
     // When in screensaver mode, run full screen and auto detect
