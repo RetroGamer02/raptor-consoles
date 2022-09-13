@@ -31,11 +31,11 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-CTRULIB		:=	$(DEVKITPRO)/libcitruold
+CTRULIB		:=	$(CURDIR)/libctru14
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	src
-INCLUDES	:=	./src $(PORTLIBS)/include/SDL2 ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
+INCLUDES	:=	./src $(PORTLIBS)/include/SDL ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
 APP_VER						:= 0001
@@ -65,7 +65,7 @@ CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -fno-short-enums -std=gnu++11
 ASFLAGS	:= $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lsdl2 -lctru -lm
+LIBS	:= -lsdl -lcitro3d -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

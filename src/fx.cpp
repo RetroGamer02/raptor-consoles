@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -47,7 +47,7 @@ struct fxitem_t {
 fxitem_t fx_items[36];
 int fx_loaded;
 
-SDL_AudioDeviceID fx_dev;
+//SDL_AudioDeviceID fx_dev;
 
 char cards[10][23] = {
     "None",
@@ -77,11 +77,9 @@ int SND_InitSound(void)
     int music_card, fx_card, fx_chans;
     char *genmidi = NULL;
     SDL_AudioSpec spec = {}, actual = {};
-    if (fx_init)
-        return 0;
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-        return 0;
+        printf("\nFailed to init audio %s", SDL_GetError());
 
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
@@ -90,11 +88,11 @@ int SND_InitSound(void)
     spec.callback = FX_Fill;
     spec.userdata = NULL;
 
-    if ((fx_dev = SDL_OpenAudioDevice(NULL, 0, &spec, &actual, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) == 0)
-    {
+    SDL_OpenAudio(&spec, NULL);
+    /*{
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
-    }
+    }*/
 
     fx_freq = actual.freq;
     if (actual.format != AUDIO_S16SYS || actual.channels != 2)
@@ -189,7 +187,7 @@ int SND_InitSound(void)
     if (fx_card == CARD_ADLIB || fx_card == CARD_MPU1 || fx_card == CARD_MPU2 || fx_card == CARD_MPU3)
         GSS_Init(fx_card, 0);
 
-    SDL_PauseAudioDevice(fx_dev, 0);
+    SDL_PauseAudio(0);
 
     fx_init = 1;
     return 1;
@@ -877,7 +875,7 @@ static int lockcount;
 void SND_Lock(void)
 {
     if (!lockcount)
-        SDL_LockAudioDevice(fx_dev);
+        SDL_LockAudio();
     lockcount++;
 }
 
@@ -885,5 +883,5 @@ void SND_Unlock(void)
 {
     lockcount--;
     if (!lockcount)
-        SDL_UnlockAudioDevice(fx_dev);
+        SDL_UnlockAudio();
 }

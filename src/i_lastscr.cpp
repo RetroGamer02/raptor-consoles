@@ -63,7 +63,7 @@ void I_LASTSCR(void)
     }*/
 
     // Wait for a keypress
-
+    printf("Shutdown");
     IMS_StartAck();
 
     while (true)

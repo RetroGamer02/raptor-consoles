@@ -15,7 +15,7 @@
 // Text mode emulation in SDL
 //
 
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -25,7 +25,6 @@
 #include "doomkeys.h"
 
 #include "txt_main.h"
-#include <SDL2\SDL.h>
 #include "txt_utf8.h"
 
 #if defined(_MSC_VER) && !defined(__cplusplus)

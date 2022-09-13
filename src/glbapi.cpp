@@ -143,7 +143,7 @@ FILE *GLB_OpenFile(int a1, int a2, const char *mode)
         {
             if (a1)
                 return NULL;
-            printf("GLB_OpenFile: %s, Error #%d,%s", fd->path, errno, strerror(errno));
+            printf("GLB_OpenFile: %s, Error #%d,%s", strcat("sdmc:/", fd->path), errno, strerror(errno));
         }
     }
     else

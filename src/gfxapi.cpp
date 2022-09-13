@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdint.h>
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #include "common.h"
 #include "gfxapi.h"
 #include "i_video.h"
@@ -43,6 +43,10 @@ void GFX_InitTimer(void)
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 #endif
     //SDL_Init(SDL_INIT_TIMER); //Fixme
+    /*if (SDL_Init(SDL_INIT_TIMER) != 0)
+    {
+        printf("Timer failed");
+    }*/
     timer_init = 1;
 }
 

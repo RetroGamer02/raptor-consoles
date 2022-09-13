@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
 
@@ -38,8 +38,8 @@ int TSF_Init (int option)
         char errmsg[255];
         fprintf(stderr, "Could not load %s\n", fn);
         sprintf(errmsg,"Could not load %s\n", fn);
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", errmsg, NULL);
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", errmsg, NULL);
         printf("Could not load SoundFont.");
         return 0;
     }

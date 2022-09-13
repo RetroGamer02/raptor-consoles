@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -33,6 +33,7 @@
 #include "i_lastscr.h"
 #include "fileids.h"
 #include <3ds.h>
+//#include <SDL/SDL_config_n3ds.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -1041,7 +1042,7 @@ int main(int argc, char *argv[])
     shost = getenv("S_HOST");
 
     gfxInitDefault(); //3DS
-	consoleInit(GFX_TOP, NULL); //3DS
+	consoleInit(GFX_BOTTOM, NULL); //3DS
 
     Result rc = sdmcInit();
 	if (rc)
@@ -1051,27 +1052,21 @@ int main(int argc, char *argv[])
 		printf("sdmcfs Init Successful!\n");
 	}
 
+    //sdmcWriteSafe(false);
+
     InitScreen();
 
     RAP_DataPath();
 
-    /*if (access(RAP_GetSetupPath(), 0))
-    {
-        printf("\n\n** You must run SETUP first! **\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** You must run SETUP first! **", NULL);
-        //exit(0);
-    }*/
-
     if (!checkfile(RAP_GetSetupPath()))
     {
         printf("\n\n** You must run SETUP first! **\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** You must run SETUP first! **", NULL);
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", "** You must run SETUP first! **", NULL);
     } else {
         printf("\nSETUP Found\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** SETUP Found! **", NULL);
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", "** SETUP Found! **", NULL);
         //printfile(RAP_GetSetupPath());
     }
 
@@ -1126,8 +1121,8 @@ int main(int argc, char *argv[])
     if (!checkfile("sdmc:/FILE0000.GLB") || !eps)
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
         //exit(0);
     }
     printf("Init -\n");
@@ -1277,7 +1272,7 @@ int main(int argc, char *argv[])
     GFX_InitVideo(palette);
     SHADOW_MakeShades();
     RAP_ClearPlayer();
-    
+
     if (!godmode)
         INTRO_Credits();
     if (demo_flag != 2)
