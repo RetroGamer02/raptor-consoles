@@ -164,9 +164,8 @@ void GFX_InitVideo(char *pal)
     I_InitGraphics((uint8_t*)pal);
     displayscreen = (char*)I_VideoBuffer;
     GFX_MakeLightTable(pal, ltable, 9);
-    //printf("Made it here");
-    //GFX_MakeLightTable(pal, dtable, -9); //Fixme
-    //GFX_MakeGreyTable(pal, gtable); //Fixme
+    GFX_MakeLightTable(pal, dtable, -9); //Fixmeold
+    GFX_MakeGreyTable(pal, gtable); //Fixmeold
 }
 
 void GFX_EndSystem(void)

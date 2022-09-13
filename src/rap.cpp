@@ -1055,8 +1055,6 @@ int main(int argc, char *argv[])
 
     RAP_DataPath();
 
-    //printf("SetupPath: ", RAP_GetSetupPath(), "\n");
-
     /*if (access(RAP_GetSetupPath(), 0))
     {
         printf("\n\n** You must run SETUP first! **\n");
@@ -1133,7 +1131,7 @@ int main(int argc, char *argv[])
         //exit(0);
     }
     printf("Init -\n");
-    //EXIT_Install(ShutDown);
+    EXIT_Install(ShutDown);
     memset(bday, 0, sizeof(bday));
     bday[0].f_0 = 5;
     bday[0].f_4 = 16;
@@ -1170,11 +1168,11 @@ int main(int argc, char *argv[])
     if (bday_num != -1)
         printf("Birthday() = %s\n", bday[bday_num].f_c);
 
-    //if (access(RAP_GetSetupPath(), 0))
-        //EXIT_Error("You Must run SETUP.EXE First !!"); //Start here
+    if (!checkfile(RAP_GetSetupPath()))
+        printf("You Must run SETUP.EXE First !!");
 
-    //if (!INI_InitPreference(RAP_GetSetupPath()))
-        //EXIT_Error("SETUP Error");
+    if (!INI_InitPreference(RAP_GetSetupPath()))
+        printf("SETUP Error");
 
     fflush(stdout);
     printf("\nPassed fflush\n");
@@ -1276,7 +1274,7 @@ int main(int argc, char *argv[])
     SND_Setup();
     
     GFX_SetPalRange(0, 239);
-    //GFX_InitVideo(palette); //Fixme
+    GFX_InitVideo(palette);
     SHADOW_MakeShades();
     RAP_ClearPlayer();
     

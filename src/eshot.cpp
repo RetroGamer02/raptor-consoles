@@ -196,7 +196,7 @@ void ESHOT_Shoot(enemy_t *a1, int a2)
         switch (v2c)
         {
         default:
-            EXIT_Error("ESHOT_Shoot() - Invalid EShot type");
+            printf("ESHOT_Shoot() - Invalid EShot type");
             break;
         case 0:                                              //Atplayer
             SND_3DPatch(28, v1c, v20);                      

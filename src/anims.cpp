@@ -7,6 +7,7 @@
 #include "rap.h"
 #include "tile.h"
 #include "fileids.h"
+#include <cstdio>
 
 anim_t first_anims, last_anims, anims[100];
 anim_t *free_anims;
@@ -66,7 +67,7 @@ int ANIMS_Register(int a1, int a2, int a3, int a4, int a5, int a6)
     int v10;
     v10 = curlib;
     if (curlib >= 25)
-        EXIT_Error("ANIMS_Register() - Max LIBs");
+        printf("ANIMS_Register() - Max LIBs");
     v14 = &animlib[curlib];
     curlib++;
     v14->f_0 = a1;

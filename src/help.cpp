@@ -37,7 +37,7 @@ void HELP_Win(const char *a1)
     v1c = 1;
     v20 = GLB_GetItemID(a1);
     if (v20 == -1)
-        EXIT_Error("HELP() - Invalid Page");
+        printf("HELP() - Invalid Page");
 
     curpage = v20 - startitem;
 

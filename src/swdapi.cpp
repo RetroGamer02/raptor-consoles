@@ -1248,7 +1248,7 @@ void SWD_Install(int a1)
     {
         movebuffer = (char*)malloc(4000 * 16);
         if (!movebuffer)
-            EXIT_Error("SWD_Init() - DosMemAlloc");
+            printf("SWD_Init() - DosMemAlloc");
     }
     else
         movebuffer = NULL;
@@ -1432,10 +1432,10 @@ int SWD_InitWindow(int a1)
                     {
                         vb = vd[j].f_84 * vd[j].f_88 + 20;
                         if (vb < 0 || vb > 64000)
-                            EXIT_Error("SWD Error: pic save to big...");
+                            printf("SWD Error: pic save to big...");
                         vd[j].f_90 = (texture_t*)malloc(vb);
                         if (!vd[j].f_90)
-                            EXIT_Error("SWD Error: out of memory");
+                            printf("SWD Error: out of memory");
                     }
                 }
             }
@@ -1537,7 +1537,7 @@ void SWD_SetFieldPtr(int a1, int a2)
 void FUN_0002d7c8(int a1)
 {
     if (!g_wins[a1].f_4)
-        EXIT_Error("SWD: SetActiveWindow #%u", a1);
+        printf("SWD: SetActiveWindow #%u", a1);
     active_window = a1;
 }
 
@@ -1564,7 +1564,7 @@ void SWD_DestroyWindow(int a1)
     va = g_wins[a1].f_c;
     PTR_ResetJoyStick();
     if (!g_wins[a1].f_4)
-        EXIT_Error("SWD: DestroyWindow %d", a1);
+        printf("SWD: DestroyWindow %d", a1);
     fl = (swdfield_t*)((char*)va + va->f_4c);
     for (i = 0; i < va->f_60; i++)
     {

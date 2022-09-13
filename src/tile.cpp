@@ -8,6 +8,7 @@
 #include "loadsave.h"
 #include "fx.h"
 #include "anims.h"
+#include <cstdio>
 
 int eitems[1350];
 int titems[1350];
@@ -61,7 +62,7 @@ tdel_t *TGet(void)
 {
     tdel_t *v1c;
     if (!free_delay)
-        EXIT_Error("TILEDELAY_Get() - Max ");
+        printf("TILEDELAY_Get() - Max ");
     v1c = free_delay;
     free_delay = free_delay->f_4;
     memset(v1c, 0, sizeof(tdel_t));

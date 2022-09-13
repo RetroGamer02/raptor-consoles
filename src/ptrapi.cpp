@@ -381,10 +381,10 @@ int PTR_Init(int control)
     g_drawcursor = 0;
     cursorsave = (char*)malloc(256);
     if (!cursorsave)
-        EXIT_Error("PTR_Init() - malloc");
+        printf("PTR_Init() - malloc");
     cursorpic = (char*)malloc(256);
     if (!cursorpic)
-        EXIT_Error("PTR_Init() - malloc");
+        printf("PTR_Init() - malloc");
     joyactive = 0;
     mousepresent = 0;
     joypresent = 0;

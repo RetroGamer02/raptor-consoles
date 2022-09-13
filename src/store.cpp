@@ -221,14 +221,14 @@ void STORE_Enter(void)
         {
             v24 = 1;
             if (mode == 0)
-                EXIT_Error("STORE Error ( BUY_MODE )");
+                printf("STORE Error ( BUY_MODE )");
             else
             {
                 Harrold(80);
                 mode = 0;
                 v30 = MakeBuyItems();
                 if (v30 < 1)
-                    EXIT_Error("STORE THING 2");
+                    printf("STORE THING 2");
             }
         }
         if (v24)

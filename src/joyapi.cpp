@@ -22,7 +22,7 @@ static unsigned int lastTime = 0;
 
 void IPT_CalJoy(void)
 {
-	SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
+	SDL_Init(SDL_INIT_GAMECONTROLLER); // | SDL_INIT_HAPTIC
 
 	MaxJoysticks = SDL_NumJoysticks();
 	ControllerIndex = 0;

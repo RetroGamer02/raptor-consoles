@@ -119,8 +119,8 @@ int RAP_ReadFile(const char *a1, void *a2, int a3)
     v14 = fopen(a1, "rb");
     if (!v14)
     {
-        WIN_Msg("File open Error");
-        //printf("File open Error");
+        //WIN_Msg("File open Error");
+        printf("File open Error");
         return 0;
     }
     fread(a2, 1, a3, v14);
@@ -219,7 +219,7 @@ int RAP_LoadPlayer(void)
     if (!OBJS_IsEquip(player.currentWeapon))
         OBJS_GetNext();
     if (OBJS_GetAmt(16) <= 0)
-        EXIT_Error("RAP_LoadPLayer() - Loaded DEAD player");
+        printf("RAP_LoadPLayer() - Loaded DEAD player");
     v1c = 1;
     RAP_SetPlayerDiff();
     return v1c;
@@ -234,9 +234,9 @@ int RAP_SavePlayer(void)
 
     v1c = 0;
     if (filepos == -1)
-        EXIT_Error("RAP_Save() ERR: Try to Save Invalid Player");
+        printf("RAP_Save() ERR: Try to Save Invalid Player");
     if (OBJS_GetAmt(16) <= 0)
-        EXIT_Error("RAP_Save() ERR: Try to save Dead player");
+        printf("RAP_Save() ERR: Try to save Dead player");
     if (hasdatapath)
         sprintf(v5c, fmt2, g_data_path, filepos);
     else
@@ -275,12 +275,12 @@ void RAP_LoadMap(void)
 {
     char v44[44];
     if (!gameflag[cur_game])
-        EXIT_Error("Loading Invalid map game %d", cur_game);
+        printf("Loading Invalid map game %d", cur_game);
     GLB_FreeAll();
     sprintf(v44, "MAP%uG%u_MAP", game_wave[cur_game] + 1, cur_game + 1);
     map_item = GLB_GetItemID(v44);
     if (map_item == -1)
-        EXIT_Error("RAP_LoadMap() - Invalid MAP.(%s)", v44);
+        printf("RAP_LoadMap() - Invalid MAP.(%s)", v44);
     ml = GLB_LockItem(map_item);
     mapmem = (map_t*)ml;
     csprite = (csprite_t*)(ml + 0x1524);
@@ -378,7 +378,7 @@ int RAP_LoadWin(void)
                 else
                     v20 += 10;
                 if (v20 < 0)
-                    EXIT_Error("Help");
+                    printf("Help");
                 v3c = 0;
                 for (v1c = 0; v1c < 10; v1c++)
                 {

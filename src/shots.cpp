@@ -9,6 +9,7 @@
 #include "tile.h"
 #include "eshot.h"
 #include "fileids.h"
+#include <cstdio>
 
 shot_t shots[70];
 
@@ -526,7 +527,7 @@ int SHOTS_PlayerShoot(int a1)
 
     v20 = &shot_lib[a1];
     if (a1 == -1)
-        EXIT_Error("SHOTS_PlayerShoot() type = EMPTY  ");
+        printf("SHOTS_PlayerShoot() type = EMPTY  ");
     if (v20->y)
         return 0;
     v20->y = v20->offsetY;
@@ -536,7 +537,7 @@ int SHOTS_PlayerShoot(int a1)
     switch (a1)
     {
     default:
-        EXIT_Error("SHOTS_PlayerShoot() - Invalid Shot type");
+        printf("SHOTS_PlayerShoot() - Invalid Shot type");
         break;
     case 0:
         if (!fx_gus)
@@ -913,7 +914,7 @@ void SHOTS_Think(void)
         switch (v1c->shotType)
         {
         default:
-            EXIT_Error("SHOTS_Think()");
+            printf("SHOTS_Think()");
             break;
         case 0:
             v20->TexturePtr = v1c->f_4[v20->currentFrame];
@@ -1121,7 +1122,7 @@ void SHOTS_Display(void)
         switch (v1c->shotLib->shotType)
         {
         default:
-            EXIT_Error("SHOTS_Display()");
+            printf("SHOTS_Display()");
             break;
         case 0:
             GFX_PutSprite(v1c->TexturePtr, v1c->x, v1c->y);

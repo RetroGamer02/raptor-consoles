@@ -21,7 +21,7 @@
 #include <cstring>
 #include <climits>
 #include <SDL2\SDL.h>
-#include "sdl2\SDL_opengl.h"
+#include "SDL2\SDL_opengl.h"
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -102,12 +102,12 @@ int video_display = 0;
 
 // Screen width and height, from configuration file.
 
-int window_width = 400;
+int window_width = 320;
 int window_height = 240;
 
 // Fullscreen mode, 0x0 for SDL_WINDOW_FULLSCREEN_DESKTOP.
 
-int fullscreen_width = 0, fullscreen_height = 0;
+int fullscreen_width = 320, fullscreen_height = 240;
 
 // Maximum number of pixels to use for intermediate scale buffer.
 
@@ -116,11 +116,11 @@ static int max_scaling_buffer_pixels = 16000000;
 // Run in full screen mode?  (int type for config code)
 
 // int fullscreen = true;
-int fullscreen = true; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+int fullscreen; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 
 // Aspect ratio correction mode
 
-int aspect_ratio_correct = false; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 static int actualheight;
 
 // Force integer scales for resolution-independent rendering
@@ -134,7 +134,7 @@ int vga_porch_flash = false;
 // Force software rendering, for systems which lack effective hardware
 // acceleration
 
-int force_software_renderer = false;
+int force_software_renderer = false; //Testme
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -194,8 +194,8 @@ unsigned int joywait = 0;
 
 void VIDEO_LoadPrefs(void)
 {
-    fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 1);
-    aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 0);
+    fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
+    aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
 }
 
 static bool MouseShouldBeGrabbed()
@@ -556,7 +556,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
     // Query renderer and limit to maximum texture dimensions of hardware:
     if (SDL_GetRendererInfo(renderer, &rinfo) != 0)
     {
-        EXIT_Error("CreateUpscaledTexture: SDL_GetRendererInfo() call failed: %s",
+        printf("CreateUpscaledTexture: SDL_GetRendererInfo() call failed: %s",
                 SDL_GetError());
     }
 
@@ -572,7 +572,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
     if ((*w_upscale < 1 && rinfo.max_texture_width > 0) ||
         (*h_upscale < 1 && rinfo.max_texture_height > 0))
     {
-        EXIT_Error("CreateUpscaledTexture: Can't create a texture big enough for "
+        printf("CreateUpscaledTexture: Can't create a texture big enough for "
                 "the whole screen! Maximum texture size %dx%d",
                 rinfo.max_texture_width, rinfo.max_texture_height);
     }
@@ -585,7 +585,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
 
     if (max_scaling_buffer_pixels < SCREENWIDTH * SCREENHEIGHT)
     {
-        EXIT_Error("CreateUpscaledTexture: max_scaling_buffer_pixels too small "
+        printf("CreateUpscaledTexture: max_scaling_buffer_pixels too small "
                 "to create a texture buffer: %d < %d",
                 max_scaling_buffer_pixels, SCREENWIDTH * SCREENHEIGHT);
     }
@@ -626,7 +626,7 @@ static void CreateUpscaledTexture(bool force)
     // window size (because of highdpi).
     if (SDL_GetRendererOutputSize(renderer, &w, &h) != 0)
     {
-        EXIT_Error("Failed to get renderer output size: %s", SDL_GetError());
+        printf("Failed to get renderer output size: %s", SDL_GetError());
     }
 
     // When the screen or window dimensions do not match the aspect ratio
@@ -734,6 +734,7 @@ void I_FinishUpdate (void)
         {
             return;
         }
+        
     }
 
     UpdateGrab();
@@ -797,7 +798,7 @@ void I_FinishUpdate (void)
     // Render this intermediate texture into the upscaled texture
     // using "nearest" integer scaling.
 
-    SDL_SetRenderTarget(renderer, texture_upscaled);
+    //SDL_SetRenderTarget(renderer, texture_upscaled); //Fixme
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 
     // Finally, render this upscaled texture to screen using linear scaling.
@@ -813,6 +814,7 @@ void I_FinishUpdate (void)
     // Restore background and undo the disk indicator, if it was drawn.
     V_RestoreDiskBackground();
 #endif
+
 }
 
 
@@ -1235,7 +1237,7 @@ static void SetVideoMode(void)
 
         if (screen == NULL)
         {
-            EXIT_Error("Error creating window for video startup: %s",
+            printf("Error creating window for video startup: %s",
             SDL_GetError());
         }
 
@@ -1253,7 +1255,7 @@ static void SetVideoMode(void)
 
     if (SDL_GetCurrentDisplayMode(video_display, &mode) != 0)
     {
-        EXIT_Error("Could not get display mode for video display #%d: %s",
+        printf("Could not get display mode for video display #%d: %s",
         video_display, SDL_GetError());
     }
 
@@ -1298,7 +1300,7 @@ static void SetVideoMode(void)
 
     if (renderer == NULL)
     {
-        EXIT_Error("Error creating renderer for screen window: %s",
+        printf("Error creating renderer for screen window: %s",
                 SDL_GetError());
     }
 
@@ -1414,7 +1416,7 @@ void I_InitGraphics(uint8_t *pal)
     {
         printf("Failed to initialize video: %s", SDL_GetError());
     }
-
+    
     // When in screensaver mode, run full screen and auto detect
     // screen dimensions (don't change video mode)
     if (screensaver_mode)
@@ -1430,7 +1432,7 @@ void I_InitGraphics(uint8_t *pal)
     {
         actualheight = SCREENHEIGHT;
     }
-
+    
     // Create the game window; this may switch graphic modes depending
     // on configuration.
     AdjustWindowSize();
@@ -1482,6 +1484,7 @@ void I_InitGraphics(uint8_t *pal)
     // Call I_ShutdownGraphics on quit
 
     // I_AtExit(I_ShutdownGraphics, true);
+    
 }
 
 // Bind all variables controlling video options into the configuration

@@ -89,7 +89,7 @@ char *M_StringJoin(const char *s, ...)
 
     if (result == NULL)
     {
-        EXIT_Error("M_StringJoin: Failed to allocate new string.");
+        printf("M_StringJoin: Failed to allocate new string.");
         return NULL;
     }
 

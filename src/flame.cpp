@@ -4,6 +4,7 @@
 #include "rap.h"
 #include "gfxapi.h"
 #include "windows.h"
+#include <cstdio>
 
 char stmem[4096];
 
@@ -55,10 +56,10 @@ void FLAME_Up(int a1, int a2, int a3, int a4)
         v18++;
         v28 = v20 >> 16;
         if (v28 >= 8)
-            EXIT_Error("flame > 8 %u", v20);
+            printf("flame > 8 %u", v20);
 
         if (v28 < 0)
-            EXIT_Error("flame < 0");
+            printf("flame < 0");
 
         GFX_Shade(v14, a3, _stable[v28]);
         v20 -= v10;

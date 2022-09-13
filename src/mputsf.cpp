@@ -40,7 +40,7 @@ int TSF_Init (int option)
         sprintf(errmsg,"Could not load %s\n", fn);
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", errmsg, NULL);
-        EXIT_Error("Could not load SoundFont.");
+        printf("Could not load SoundFont.");
         return 0;
     }
     
@@ -52,7 +52,7 @@ int TSF_Init (int option)
     if (SDL_OpenAudio(&OutputAudioSpec, NULL) < 0)
     {
         fprintf(stderr, "Could not open the audio hardware or the desired audio output format\n");
-        EXIT_Error("Could not open the audio hardware or the desired audio output format.");
+        printf("Could not open the audio hardware or the desired audio output format.");
         return 0;
     }
     return 1;

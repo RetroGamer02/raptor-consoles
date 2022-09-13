@@ -489,7 +489,6 @@ int GLB_ReadFile(const char *a1, char *a2)
     }
     handle = fopen(a1, "rb");
     if (handle == NULL)
-        //EXIT_Error("LoadFile: Open failed!");
         printf("LoadFile: Open failed!");
     fseek(handle, 0, SEEK_END);
     l = ftell(handle);

@@ -192,14 +192,14 @@ void ENEMY_LoadLib(void)
             g_numslibs++;
     }
     if (g_numslibs > 1 && !gameflag[2] && !gameflag[3])
-        EXIT_Error("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
+        printf("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
     for (v1c = 0; v1c < 4; v1c++)
     {
         if (spriteflag[v1c])
         {
             slib[v1c] = (slib_t*)GLB_LockItem(spriteitm[v1c]);
             if (!slib[v1c])
-                EXIT_Error("ENEMY_LoadSprites() - memory");
+                printf("ENEMY_LoadSprites() - memory");
             numslibs[v1c] = GLB_GetItemSize(spriteitm[v1c]);
             numslibs[v1c] /= sizeof(slib_t);
         }
@@ -238,7 +238,7 @@ enemy_t *ENEMY_Get(void)
 {
     enemy_t *v1c;
     if (!free_enemy)
-        EXIT_Error("ENEMY_Get() - Max Sprites");
+        printf("ENEMY_Get() - Max Sprites");
     numships++;
     v1c = free_enemy;
     free_enemy = free_enemy->f_4;
@@ -313,7 +313,7 @@ void ENEMY_Add(csprite_t *a1)
     switch (v1c->f_38)
     {
     default:
-        EXIT_Error("ENEMY_Add() - Invalid ANIMTYPE");
+        printf("ENEMY_Add() - Invalid ANIMTYPE");
         break;
     case 0:
         v20->f_98 = 1;
@@ -531,7 +531,7 @@ void ENEMY_Think(void)
                         switch (v20->f_38)
                         {
                         default:
-                            EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE1");
+                            printf("ENEMY_Think() - Invalid ANIMTYPE1");
                         case 0:
                             break;
                         case 1:
@@ -561,7 +561,7 @@ void ENEMY_Think(void)
                 switch (v20->f_38)
                 {
                 default:
-                    EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE2");
+                    printf("ENEMY_Think() - Invalid ANIMTYPE2");
                 case 0:
                     v1c->f_a8 = 1;
                     break;
