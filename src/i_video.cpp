@@ -200,7 +200,7 @@ void VIDEO_LoadPrefs(void)
 
 static bool MouseShouldBeGrabbed()
 {
-
+    return false;
 }
 
 void I_SetGrabMouseCallback(grabmouse_callback_t func)
@@ -210,7 +210,7 @@ void I_SetGrabMouseCallback(grabmouse_callback_t func)
 
 static void SetShowCursor(bool show)
 {
-
+    return;
 }
 
 void I_ShutdownGraphics(void)
@@ -247,27 +247,27 @@ static void AdjustWindowSize(void)
 
 static void HandleWindowEvent() //SDL_WindowEvent *event
 {
-
+    return;
 }
 
 void I_GetEvent(void)
 {
-
+    return;
 }
 
 static void UpdateGrab(void)
 {
-
+    return;
 }
 
 static void LimitTextureSize(int *w_upscale, int *h_upscale)
 {
-
+    return;
 }
 
 static void CreateUpscaledTexture(bool force)
 {
-
+    return;
 }
 
 //
@@ -275,7 +275,25 @@ static void CreateUpscaledTexture(bool force)
 //
 void I_FinishUpdate (void)
 {
+    if (!initialized)
+        return;
 
+    //UpdateGrab();
+
+    if (palette_to_set)
+    {
+        SDL_SetColors(screen, palette, 0, 256);
+        palette_to_set = false;
+    }
+
+    // Blit from the paletted 8-bit screen buffer to the intermediate
+    // 32-bit RGBA buffer that we can load into the texture.
+
+    SDL_LowerBlit(screen, &blit_rect, argbbuffer, &blit_rect);
+
+    SDL_Flip(screen);
+
+    //SDL_BlitSurface(screen, NULL, argbbuffer->pixels, argbbuffer->pitch);//Test
 }
 
 
@@ -366,19 +384,19 @@ void I_SetWindowTitle(const char *title)
 
 void I_InitWindowTitle(void)
 {
-
+    return;
 }
 
 // Set the application icon
 
 void I_InitWindowIcon(void)
 {
-
+    return;
 }
 
 void I_GraphicsCheckCommandLine(void)
 {
-
+    return;
 }
 
 // Check if we have been invoked as a screensaver by xscreensaver.
@@ -415,22 +433,165 @@ static void SetSDLVideoDriver(void)
 // display.
 static void CenterWindow(int *x, int *y, int w, int h)
 {
+    SDL_Rect bounds;
 
+    *x = bounds.x + SDL_max((bounds.w - w) / 2, 0);
+    *y = bounds.y + SDL_max((bounds.h - h) / 2, 0);
 }
 
 void I_GetWindowPosition(int *x, int *y, int w, int h)
 {
-
+    return;
 }
 
 static void SetVideoMode(void)
 {
- 
+ /*
+     * Initialize the display in a 640x480 8-bit palettized mode,
+     * requesting a software surface
+     */
+    screen = SDL_SetVideoMode(400, 240, 8, SDL_HWSURFACE);
+    if ( screen == NULL ) {
+        fprintf(stderr, "Couldn't set 640x480x8 video mode: %s\n",
+                        SDL_GetError());
+        //exit(1);
+    }
+}
+
+/*
+ * Return the pixel value at (x, y)
+ * NOTE: The surface must be locked before calling this!
+ */
+Uint32 getpixel(SDL_Surface *surface, int x, int y)
+{
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to retrieve */
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+    switch(bpp) {
+    case 1:
+        return *p;
+
+    case 2:
+        return *(Uint16 *)p;
+
+    case 3:
+        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            return p[0] << 16 | p[1] << 8 | p[2];
+        else
+            return p[0] | p[1] << 8 | p[2] << 16;
+
+    case 4:
+        return *(Uint32 *)p;
+
+    default:
+        return 0;       /* shouldn't happen, but avoids warnings */
+    }
+}
+
+/*
+ * Set the pixel at (x, y) to the given value
+ * NOTE: The surface must be locked before calling this!
+ */
+void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
+{
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to set */
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+    switch(bpp) {
+    case 1:
+        *p = pixel;
+        break;
+
+    case 2:
+        *(Uint16 *)p = pixel;
+        break;
+
+    case 3:
+        if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+            p[0] = (pixel >> 16) & 0xff;
+            p[1] = (pixel >> 8) & 0xff;
+            p[2] = pixel & 0xff;
+        } else {
+            p[0] = pixel & 0xff;
+            p[1] = (pixel >> 8) & 0xff;
+            p[2] = (pixel >> 16) & 0xff;
+        }
+        break;
+
+    case 4:
+        *(Uint32 *)p = pixel;
+        break;
+    }
 }
 
 void I_InitGraphics(uint8_t *pal)
 {
+    SDL_Event dummy;
 
+    /* Initialize the SDL library */
+    if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+        fprintf(stderr,
+                "Couldn't initialize SDL: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    /* Clean up on exit */
+    atexit(SDL_Quit);
+
+    SDL_ShowCursor(SDL_DISABLE);
+
+    SetVideoMode();
+
+       /* Code to set a yellow pixel at the center of the screen */
+
+        Uint32 yellow;
+
+    /* Map the color yellow to this display (R=0xff, G=0xFF, B=0x00)
+       Note:  If the display is palettized, you must set the palette first.
+    */
+    yellow = SDL_MapRGB(screen->format, 0xff, 0xff, 0x00);
+
+    SDL_FillRect(screen, NULL, 0);
+    I_SetPalette(pal);
+    SDL_SetPalette(screen, 0, palette, 0, 256);
+
+    /* Lock the screen for direct access to the pixels */
+    if ( SDL_MUSTLOCK(screen) ) {
+        if ( SDL_LockSurface(screen) < 0 ) {
+            fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
+            return;
+        }
+    }
+
+
+    putpixel(screen, screen->w / 2, screen->h / 2, yellow);
+
+    if ( SDL_MUSTLOCK(screen) ) {
+        SDL_UnlockSurface(screen);
+    }
+    
+    if (fullscreen && !screensaver_mode)
+    {
+        SDL_Delay(startup_delay);
+    }
+
+    // The actual 320x200 canvas that we draw to. This is the pixel buffer of
+    // the 8-bit paletted screen buffer that gets blit on an intermediate
+    // 32-bit RGBA screen buffer that gets loaded into a texture that gets
+    // finally rendered into our window or full screen in I_FinishUpdate().
+
+    I_VideoBuffer = (pixel_t*)screen->pixels;
+
+    //memset(I_VideoBuffer, 0, SCREENWIDTH * SCREENHEIGHT * sizeof(*I_VideoBuffer));
+
+    /* Update whole screen */
+    SDL_UpdateRect(screen,  0, 0, 0, 0);
+
+    while (SDL_PollEvent(&dummy));
+
+    initialized = true;
 }
 
 // Bind all variables controlling video options into the configuration
@@ -461,15 +622,15 @@ void I_BindVideoVariables(void)
 
 void I_GetMousePos(int *x, int *y)
 {
-
+    return;
 }
 
 void I_SetMousePos(int x, int y)
 {
-
+    return;
 }
 
 void closewindow(void)
 {
-    
+    return;
 }
