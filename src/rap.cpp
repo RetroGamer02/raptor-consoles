@@ -201,6 +201,7 @@ void ShutDown(int a1)
     GLB_FreeAll();
     IPT_CloJoy();                                    //Close Joystick
     SWD_End();
+    sdmcExit();
     free(g_highmem);
 }
 
@@ -1077,7 +1078,7 @@ int main(int argc, char *argv[])
     else
         godmode = 0;
 
-    if (argv[1])
+    /*if (argv[1])
     {
         if (!strcmp(argv[1], "REC"))
         {
@@ -1094,7 +1095,7 @@ int main(int argc, char *argv[])
                 printf("DEMO PLAYBACK enabled\n");
             }
         }
-    }
+    }*/
 
     if (godmode)
         printf("GOD mode enabled\n");
@@ -1299,7 +1300,7 @@ int main(int argc, char *argv[])
        WIN_MainLoop();
     } while (1);
     
-    gfxExit();
-    sdmcExit();
+    //gfxExit();
+    
     return 0;
 }

@@ -81,8 +81,8 @@ int SND_InitSound(void)
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         printf("\nFailed to init audio %s", SDL_GetError());
 
-    spec.freq = fx_freq;
-    spec.format = AUDIO_S16SYS;
+    spec.freq = 11025;
+    spec.format = AUDIO_S16;
     spec.channels = 2;
     spec.samples = 512;
     spec.callback = FX_Fill;
@@ -94,19 +94,19 @@ int SND_InitSound(void)
         return 0;
     }*/
 
-    fx_freq = actual.freq;
-    if (actual.format != AUDIO_S16SYS || actual.channels != 2)
+    //fx_freq = actual.freq;
+    /*if (actual.format != AUDIO_S16SYS || actual.channels != 2)
     {
         SDL_CloseAudio();
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
-    }
+    }*/
 
     dig_flag = 0;
     fx_device = FXDEV_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    music_card = INI_GetPreferenceLong("Music", "CardType", CARD_BLASTER);
+    music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
     sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);

@@ -78,14 +78,14 @@ void I_HandleJoystickEvent(SDL_Event *sdlevent)
 			Down = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], SDL_HAT_DOWN);
 			Left = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], SDL_HAT_LEFT);
 			Right = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], SDL_HAT_RIGHT);
-			Start = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 1);
-			Back = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 2);
-			LeftShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 3);
-			RightShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 4);
-			AButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 5);
-			BButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 6);
-			XButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 7);
-			YButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 8);
+			Start = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_RETURN);
+			Back = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_ESCAPE);
+			LeftShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_LSHIFT);
+			RightShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_RSHIFT);
+			AButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_a);
+			BButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_b);
+			XButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_x);
+			YButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_y);
 
 			StickX = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 1) / 8000;
 			StickY = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 2) / 8000;

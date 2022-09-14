@@ -39,10 +39,10 @@ int G3D_x, G3D_y, G3D_z, G3D_screenx, G3D_screeny;
 
 void GFX_InitTimer(void)
 {
-#if SDL_VERSION_ATLEAST(2, 0, 5)
-    SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
-#endif
-    //SDL_Init(SDL_INIT_TIMER); //Fixme
+//#if SDL_VERSION_ATLEAST(2, 0, 5)
+    //SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
+//#endif
+    SDL_Init(SDL_INIT_TIMER); //Fixme
     /*if (SDL_Init(SDL_INIT_TIMER) != 0)
     {
         printf("Timer failed");
