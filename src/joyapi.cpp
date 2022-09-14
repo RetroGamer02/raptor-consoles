@@ -1,6 +1,7 @@
 #include <SDL\SDL.h>
 #include "i_video.h"
 #include "joyapi.h"
+#include "3ds.h"
 
 int joy_ack;
 
@@ -10,8 +11,9 @@ bool AButton, BButton, XButton, YButton;
 
 int16_t StickX, StickY, TriggerLeft, TriggerRight;
 
-SDL_Joystick* ControllerHandles[MAX_CONTROLLERS];
-//SDL_Haptic* RumbleHandles[MAX_CONTROLLERS] ;
+SDL_Joystick* ControllerHandle;
+
+SDL_Event joyevent;
 
 int MaxJoysticks;
 int ControllerIndex;
@@ -23,74 +25,111 @@ static unsigned int lastTime = 0;
 void IPT_CalJoy(void)
 {
 	SDL_Init(SDL_INIT_JOYSTICK);
+	SDL_JoystickEventState(SDL_ENABLE);
 
-	MaxJoysticks = SDL_NumJoysticks();
-	ControllerIndex = 0;
 	AButtonconvert = 0;
 	BButtonconvert = 0;
 	XButtonconvert = 0;
 	YButtonconvert = 0;
 
-	for (JoystickIndex = 0; JoystickIndex < MaxJoysticks; ++JoystickIndex)
-	{
-		if (!SDL_JoystickOpened(JoystickIndex))
-		{
-			continue;
-		}
-		if (ControllerIndex >= MAX_CONTROLLERS)
-		{
-			break;
-		}
-		ControllerHandles[ControllerIndex] = SDL_JoystickOpen(JoystickIndex);
+   //printf("%i joysticks were found.\n\n", SDL_NumJoysticks() );
+    printf("The names of the joysticks are:\n");
+		
+    for(int i=0; i < SDL_NumJoysticks(); i++ ) 
+    {
+        printf("    %s\n at %d", SDL_JoystickName(i), i);
+    }
 
-	    ControllerIndex++;
-		GetJoyButtonMapping();
-	}
+	ControllerHandle = SDL_JoystickOpen(0);
+
+	//GetJoyButtonMapping();
 }
 
 void  IPT_CloJoy(void)
 {
-	for (ControllerIndex = 0; ControllerIndex < MAX_CONTROLLERS; ++ControllerIndex)
+	if (ControllerHandle)
 	{
-		if (ControllerHandles[ControllerIndex])
-		{
-			SDL_JoystickClose(ControllerHandles[ControllerIndex]);
-		}
+		SDL_JoystickClose(ControllerHandle);
 	}
 }
 
 void I_HandleJoystickEvent(SDL_Event *sdlevent)
 {
-	for (ControllerIndex = 0;
-		ControllerIndex < MAX_CONTROLLERS;
-		++ControllerIndex)
-	{
-		if (ControllerHandles[ControllerIndex] != 0)
-		{
-			Up = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], SDL_HAT_UP);
-			Down = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], SDL_HAT_DOWN);
-			Left = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], SDL_HAT_LEFT);
-			Right = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], SDL_HAT_RIGHT);
-			Start = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_RETURN);
-			Back = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_ESCAPE);
-			LeftShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_LSHIFT);
-			RightShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_RSHIFT);
-			AButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_a);
-			BButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_b);
-			XButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_x);
-			YButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], SDLK_y);
+		//if (ControllerHandle != 0)
+		//{
+			SDL_N3DSKeyBind(KEY_START, SDLK_RETURN);
+			SDL_N3DSKeyBind(KEY_SELECT, SDLK_ESCAPE);
 
-			StickX = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 1) / 8000;
-			StickY = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 2) / 8000;
-			TriggerLeft = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 3) / 8000;
-			TriggerRight = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 4) / 8000;
-	    }
-		if (sdlevent->type == SDL_JOYBUTTONUP) 
+			SDL_N3DSKeyBind(KEY_A, SDLK_a);
+			SDL_N3DSKeyBind(KEY_B, SDLK_b);
+			SDL_N3DSKeyBind(KEY_X, SDLK_x);
+			SDL_N3DSKeyBind(KEY_Y, SDLK_y);
+
+			SDL_N3DSKeyBind(KEY_ZL, SDLK_LSHIFT);
+			SDL_N3DSKeyBind(KEY_ZR, SDLK_RSHIFT);
+
+			SDL_N3DSKeyBind(KEY_CPAD_UP|KEY_CSTICK_UP, SDLK_UP);
+			SDL_N3DSKeyBind(KEY_CPAD_DOWN|KEY_CSTICK_DOWN, SDLK_DOWN);
+			SDL_N3DSKeyBind(KEY_CPAD_LEFT|KEY_CSTICK_LEFT, SDLK_LEFT);
+			SDL_N3DSKeyBind(KEY_CPAD_RIGHT|KEY_CSTICK_RIGHT, SDLK_RIGHT);
+
+			Up = SDL_JoystickGetHat(ControllerHandle, KEY_CPAD_UP);
+			Down = SDL_JoystickGetHat(ControllerHandle, KEY_CPAD_DOWN);
+			Left = SDL_JoystickGetHat(ControllerHandle, KEY_CPAD_LEFT);
+			Right = SDL_JoystickGetHat(ControllerHandle, KEY_CPAD_RIGHT);
+			Start = SDL_JoystickGetButton(ControllerHandle, KEY_START);
+			Back = SDL_JoystickGetButton(ControllerHandle, KEY_SELECT);
+			LeftShoulder = SDL_JoystickGetButton(ControllerHandle, KEY_ZL);
+			RightShoulder = SDL_JoystickGetButton(ControllerHandle, KEY_ZR);
+			AButton = SDL_JoystickGetButton(ControllerHandle, KEY_A);
+			BButton = SDL_JoystickGetButton(ControllerHandle, KEY_B);
+			XButton = SDL_JoystickGetButton(ControllerHandle, KEY_X);
+			YButton = SDL_JoystickGetButton(ControllerHandle, KEY_Y);
+
+			//StickX = SDL_JoystickGetAxis(ControllerHandle, 1) / 8000;
+			//StickY = SDL_JoystickGetAxis(ControllerHandle, 2) / 8000;
+			//TriggerLeft = SDL_JoystickGetAxis(ControllerHandle, 3) / 8000;
+			//TriggerRight = SDL_JoystickGetAxis(ControllerHandle, 4) / 8000;
+	    //}
+
+		/*if (sdlevent->SDL_JoyButtonEvent == SDL_JOYBUTTONUP) 
 			joy_ack = 0;
-		if (sdlevent->type == SDL_JOYBUTTONDOWN) 
+		if (sdlevent->type == SDL_JOYBUTTONDOWN)
+		{
 			joy_ack = 1;
-	}
+			printf("Pressed button");
+		}*/
+
+		/*while(SDL_PollEvent(&joyevent))
+    {  
+        switch(joyevent.type)
+        {  
+            case SDL_JOYBUTTONDOWN:
+			printf("Button Pressed?");			
+            break;
+
+			default:
+			printf("Default");
+			break;
+        }
+    }*/
 }
+
+/*void SDL_N3DSKeyBind(unsigned int hidkey, SDLKey key)
+{
+	SDL_N3DSKeyBind(KEY_A, SDLK_a);
+	SDL_N3DSKeyBind(KEY_B, SDLK_b);
+	SDL_N3DSKeyBind(KEY_X, SDLK_x);
+	SDL_N3DSKeyBind(KEY_Y, SDLK_y);
+
+	SDL_N3DSKeyBind(KEY_ZL, SDLK_LSHIFT);
+	SDL_N3DSKeyBind(KEY_ZR, SDLK_RSHIFT);
+
+	SDL_N3DSKeyBind(KEY_CPAD_UP|KEY_CSTICK_UP, SDLK_UP);
+	SDL_N3DSKeyBind(KEY_CPAD_DOWN|KEY_CSTICK_DOWN, SDLK_DOWN);
+	SDL_N3DSKeyBind(KEY_CPAD_LEFT|KEY_CSTICK_LEFT, SDLK_LEFT);
+	SDL_N3DSKeyBind(KEY_CPAD_RIGHT|KEY_CSTICK_RIGHT, SDLK_RIGHT);
+}*/
 
 /*typedef enum
 {
@@ -105,31 +144,13 @@ void I_HandleJoystickEvent(SDL_Event *sdlevent)
 } SDL_GameControllerType;*/
 
 /**
- *  Start a rumble effect
- *  Each call to this function cancels any previous rumble effect, and calling it with 0 intensity stops any rumbling.
- *
- *  \param gamecontroller The controller to vibrate
- *  \param low_frequency_rumble The intensity of the low frequency (left) rumble motor, from 0 to 0xFFFF
- *  \param high_frequency_rumble The intensity of the high frequency (right) rumble motor, from 0 to 0xFFFF
- *  \param duration_ms The duration of the rumble effect, in milliseconds
- *
- *  \return 0, or -1 if rumble isn't supported on this controller
- */
-//extern DECLSPEC int SDLCALL SDL_GameControllerRumble(SDL_GameController *gamecontroller, Uint16 low_frequency_rumble, Uint16 high_frequency_rumble, Uint32 duration_ms);
-
-/**
  *  Get the type of a game controller.
  *  This can be called before any controllers are opened.
  */
 //extern DECLSPEC SDL_GameControllerType SDLCALL SDL_GameControllerTypeForIndex(int joystick_index);
 
 void GetJoyButtonMapping(void)
-{
-	for (ControllerIndex = 0;
-		ControllerIndex < MAX_CONTROLLERS;
-		++ControllerIndex)
-	{
-		
+{		
 			if ((AButtonconvert == 0) && (BButtonconvert == 0) && (XButtonconvert == 0) && (YButtonconvert == 0))
 			{
 				AButtonconvert = 0;
@@ -137,42 +158,21 @@ void GetJoyButtonMapping(void)
 				XButtonconvert = 2;
 				YButtonconvert = 3;
 			}
-			break;
-		
-	}
 }
 
 void IPT_CalJoyRumbleLow(void)
 {
-	for (ControllerIndex = 0;
-		ControllerIndex < MAX_CONTROLLERS;
-		++ControllerIndex)
-	{
-		//if (ControllerHandles[ControllerIndex])
-            //SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x3fff, 0x3fff, 1000);
-    }
+
 }
 
 void IPT_CalJoyRumbleMedium(void)
 {
-	for (ControllerIndex = 0;
-		ControllerIndex < MAX_CONTROLLERS;
-		++ControllerIndex)
-	{
-		//if (ControllerHandles[ControllerIndex])
-		    //SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x7ffe, 0x7ffe, 1000);
-	}
+
 }
 
 void IPT_CalJoyRumbleHigh(void)
 {
-	for (ControllerIndex = 0;
-		ControllerIndex < MAX_CONTROLLERS;
-		++ControllerIndex)
-	{
-		//if (ControllerHandles[ControllerIndex])
-		    //SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0xbffd, 0xbffd, 1000);
-    }
+
 }
 
 void JOY_Wait(int a1)
