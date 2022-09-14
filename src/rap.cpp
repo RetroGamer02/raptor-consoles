@@ -1172,7 +1172,7 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
     printf("\nPassed fflush\n");
-    KBD_Install();
+    //KBD_Install();
     printf("\nPassed KDB Install\n");
     GFX_InitSystem();
     printf("\nPassed GFX Init\n");
@@ -1208,10 +1208,11 @@ int main(int argc, char *argv[])
         printf("Registered EXE!\n");
         fflush(stdout);
     }
+    
     GLB_InitSystem(argv[0], 6, 0);
     if (reg_flag)
     {
-        reg_text = GLB_GetItem(FILE000_ATENTION_TXT);
+        reg_text = GLB_GetItem(FILE000_ATENTION_TXT); //Crashes real 3DS
         printf("%s\n", reg_text);
         GLB_FreeItem(0);
     }

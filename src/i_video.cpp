@@ -464,7 +464,7 @@ void I_InitGraphics(uint8_t *pal)
      * Initialize the display in a 640x480 8-bit palettized mode,
      * requesting a software surface
      */
-    screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_HWACCEL | SDL_FULLSCREEN);
+    screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_HWACCEL);
     if ( screen == NULL ) {
         fprintf(stderr, "Couldn't set 400x240x8 video mode: %s\n",
                         SDL_GetError());

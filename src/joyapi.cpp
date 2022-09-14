@@ -22,7 +22,7 @@ static unsigned int lastTime = 0;
 
 void IPT_CalJoy(void)
 {
-	SDL_Init(SDL_INIT_JOYSTICK); // | SDL_INIT_HAPTIC
+	SDL_Init(SDL_INIT_JOYSTICK);
 
 	MaxJoysticks = SDL_NumJoysticks();
 	ControllerIndex = 0;
@@ -33,21 +33,16 @@ void IPT_CalJoy(void)
 
 	for (JoystickIndex = 0; JoystickIndex < MaxJoysticks; ++JoystickIndex)
 	{
-		/*if (!SDL_JoystickIndex(JoystickIndex))
+		if (!SDL_JoystickOpened(JoystickIndex))
 		{
 			continue;
 		}
 		if (ControllerIndex >= MAX_CONTROLLERS)
 		{
 			break;
-		}*/
+		}
 		ControllerHandles[ControllerIndex] = SDL_JoystickOpen(JoystickIndex);
-		/*RumbleHandles[ControllerIndex] = SDL_HapticOpen(JoystickIndex);
-		if (SDL_HapticRumbleInit(RumbleHandles[ControllerIndex]) != 0)
-		{
-			SDL_HapticClose(RumbleHandles[ControllerIndex]);
-			RumbleHandles[ControllerIndex] = 0;
-		}*/
+
 	    ControllerIndex++;
 		GetJoyButtonMapping();
 	}
@@ -59,8 +54,6 @@ void  IPT_CloJoy(void)
 	{
 		if (ControllerHandles[ControllerIndex])
 		{
-			//if (RumbleHandles[ControllerIndex])
-				//SDL_HapticClose(RumbleHandles[ControllerIndex]);
 			SDL_JoystickClose(ControllerHandles[ControllerIndex]);
 		}
 	}
@@ -92,10 +85,10 @@ void I_HandleJoystickEvent(SDL_Event *sdlevent)
 			TriggerLeft = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 3) / 8000;
 			TriggerRight = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 4) / 8000;
 	    }
-		/*if (sdlevent->type == SDL_CONTROLLERBUTTONUP) 
+		if (sdlevent->type == SDL_JOYBUTTONUP) 
 			joy_ack = 0;
-		if (sdlevent->type == SDL_CONTROLLERBUTTONDOWN) 
-			joy_ack = 1;*/
+		if (sdlevent->type == SDL_JOYBUTTONDOWN) 
+			joy_ack = 1;
 	}
 }
 
