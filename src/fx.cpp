@@ -13,13 +13,14 @@
 #include "rap.h"
 #include "gssapi.h"
 #include "fileids.h"
+#include <3ds.h>
 
 int music_volume;
 int dig_flag;
 int fx_device;
 int fx_volume;
 static int fx_init = 0;
-int fx_freq = 44100;
+int fx_freq = 32728;
 int music_song = -1;
 int fx_gus;
 int fx_channels;
@@ -48,6 +49,8 @@ fxitem_t fx_items[36];
 int fx_loaded;
 
 //SDL_AudioDeviceID fx_dev;
+
+_Bool isN3DS;
 
 char cards[10][23] = {
     "None",
@@ -81,9 +84,9 @@ int SND_InitSound(void)
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         printf("\nFailed to init audio %s", SDL_GetError());
 
-    spec.freq = 32728;
+    spec.freq = fx_freq;
     spec.format = AUDIO_S16;
-    spec.channels = 4;
+    spec.channels = 2;
     spec.samples = 512;
     spec.callback = FX_Fill;
     spec.userdata = NULL;
@@ -105,8 +108,16 @@ int SND_InitSound(void)
     dig_flag = 0;
     fx_device = FXDEV_NONE;
 
+    APT_CheckNew3DS(&isN3DS);
+
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
+    if(isN3DS)
+    {
+        //music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
+        music_card = CARD_BLASTER;
+    } else {
+        music_card = CARD_NONE;
+    }
     sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
