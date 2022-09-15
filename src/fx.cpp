@@ -50,8 +50,6 @@ int fx_loaded;
 
 //SDL_AudioDeviceID fx_dev;
 
-_Bool isN3DS;
-
 char cards[10][23] = {
     "None",
     "PC Speaker",
@@ -107,6 +105,8 @@ int SND_InitSound(void)
 
     dig_flag = 0;
     fx_device = FXDEV_NONE;
+
+    _Bool isN3DS;
 
     APT_CheckNew3DS(&isN3DS);
 

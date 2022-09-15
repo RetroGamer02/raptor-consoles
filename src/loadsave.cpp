@@ -479,7 +479,7 @@ const char *RAP_DataPath(void)
 {
     memset(g_data_path, 0, sizeof(g_data_path));
     hasdatapath = 0;
-    strcpy(g_setup_path, "SETUP.INI");
+    strcpy(g_setup_path, "sdmc:/3ds/raptor/SETUP.INI");
     return g_data_path;
 }
 

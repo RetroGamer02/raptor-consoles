@@ -1042,8 +1042,17 @@ int main(int argc, char *argv[])
 
     shost = getenv("S_HOST");
 
+    _Bool isN3DS;
+
+    APT_CheckNew3DS(&isN3DS);
+
     gfxInitDefault(); //3DS
 	consoleInit(GFX_BOTTOM, NULL); //3DS
+
+    if(isN3DS)
+    {
+        osSetSpeedupEnable(true);
+    }
 
     Result rc = sdmcInit();
 	if (rc)
