@@ -81,9 +81,9 @@ int SND_InitSound(void)
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         printf("\nFailed to init audio %s", SDL_GetError());
 
-    spec.freq = 44100;
+    spec.freq = 32728;
     spec.format = AUDIO_S16;
-    spec.channels = 2;
+    spec.channels = 4;
     spec.samples = 512;
     spec.callback = FX_Fill;
     spec.userdata = NULL;
