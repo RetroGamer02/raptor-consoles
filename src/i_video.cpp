@@ -193,7 +193,7 @@ unsigned int joywait = 0;
 
 void VIDEO_LoadPrefs(void)
 {
-    fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
+    //fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
     aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
 }
 
@@ -441,7 +441,13 @@ void I_InitGraphics(uint8_t *pal)
      * Initialize the display in a 640x480 8-bit palettized mode,
      * requesting a software surface
      */
-    screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+    if (aspect_ratio_correct == 1)
+    {
+        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+    } else {
+        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
+    }
+    
     if ( screen == NULL ) {
         fprintf(stderr, "Couldn't set 400x240x8 video mode: %s\n",
                         SDL_GetError());

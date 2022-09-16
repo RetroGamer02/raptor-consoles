@@ -118,9 +118,9 @@ int SND_InitSound(void)
     } else {
         music_card = CARD_NONE;
     }
-    sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
-    alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
-    alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
+    sys_midi = 0;
+    alsaclient = 128;
+    alsaport = 0;
 
     switch (music_card)
     {
@@ -144,8 +144,8 @@ int SND_InitSound(void)
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    fx_card = INI_GetPreferenceLong("SoundFX", "CardType", 0);
-    fx_chans = INI_GetPreferenceLong("SoundFX", "Channels", 2);
+    fx_card = 5;
+    fx_chans = 2;
     switch (fx_card)
     {
     default:

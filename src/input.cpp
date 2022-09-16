@@ -416,21 +416,6 @@ void IPT_LoadPrefs(void)
 {
     opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
     control = INI_GetPreferenceLong("Setup", "Control", 0);
-    haptic = INI_GetPreferenceLong("Setup", "Haptic", 1);
+    haptic = 0;
     joy_ipt_MenuNew = INI_GetPreferenceLong("Setup", "joy_ipt_MenuNew", 0);
-    k_Up = INI_GetPreferenceLong("Keyboard", "MoveUp", 0x48);
-    k_Down = INI_GetPreferenceLong("Keyboard", "MoveDn", 0x50);
-    k_Left = INI_GetPreferenceLong("Keyboard", "MoveLeft", 0x4b);
-    k_Right = INI_GetPreferenceLong("Keyboard", "MoveRight", 0x4d);
-    k_Fire = INI_GetPreferenceLong("Keyboard", "Fire", 0x1d);
-    k_FireSp = INI_GetPreferenceLong("Keyboard", "FireSp", 0x38);
-    k_ChangeSp = INI_GetPreferenceLong("Keyboard", "ChangeSp", 0x39);
-    k_Mega = INI_GetPreferenceLong("Keyboard", "MegaFire", 0x36);
-    m_lookup[0] = INI_GetPreferenceLong("Mouse", "Fire", 0);
-    m_lookup[1] = INI_GetPreferenceLong("Mouse", "FireSp", 1);
-    m_lookup[2] = INI_GetPreferenceLong("Mouse", "ChangeSp", 2);
-    j_lookup[0] = INI_GetPreferenceLong("JoyStick", "Fire", 0);
-    j_lookup[1] = INI_GetPreferenceLong("JoyStick", "FireSp", 1);
-    j_lookup[2] = INI_GetPreferenceLong("JoyStick", "ChangeSp", 2);
-    j_lookup[3] = INI_GetPreferenceLong("JoyStick", "MegaFire", 3);
 }

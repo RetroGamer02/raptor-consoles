@@ -411,7 +411,7 @@ void MUS_PlaySong(void *ptr, int loop, int fadein)
     if (!ptr)
         return;
 
-    SND_Lock();
+    //SND_Lock();
     if (music_active)
         MUS_StopSong(0);
     music_ptr = (char*)ptr;
@@ -427,17 +427,17 @@ void MUS_PlaySong(void *ptr, int loop, int fadein)
     MUS_Reset();
     if (fadein)
         MUS_SetupFader(1);
-    SND_Unlock();
+    //SND_Unlock();
 }
 
 void MUS_StopSong(int fadeout)
 {
     if (!music_init)
         return;
-    SND_Lock();
+    //SND_Lock();
     if (fadeout && MUS_SetupFader(0))
     {
-        SND_Unlock();
+        //SND_Unlock();
         return;
     }
     music_active = 0;
@@ -452,7 +452,7 @@ void MUS_StopSong(int fadeout)
             music_device->AllNotesOffEvent(i,0);
     }
     music_ptr = NULL;
-    SND_Unlock();
+    //SND_Unlock();
 }
 
 int MUS_SongPlaying(void)

@@ -203,7 +203,7 @@ int DSP_PatchIsPlaying(int handle)
     int i, stat;
     handle &= FXHAND_MASK;
     stat = 0;
-    SND_Lock();
+    //SND_Lock();
     for (i = 0; i < dsp_channelnum; i++)
     {
         if (dsp_channels[i].samples && dsp_channels[i].handle == handle)
@@ -212,7 +212,7 @@ int DSP_PatchIsPlaying(int handle)
             break;
         }
     }
-    SND_Unlock();
+    //SND_Unlock();
     return stat;
 }
 
@@ -325,7 +325,7 @@ void DSP_StopPatch(int handle)
 {
     int i;
     handle &= FXHAND_MASK;
-    SND_Lock();
+    //SND_Lock();
     for (i = 0; i < dsp_channelnum; i++)
     {
         if (dsp_channels[i].samples && dsp_channels[i].handle == handle)
@@ -334,5 +334,5 @@ void DSP_StopPatch(int handle)
             break;
         }
     }
-    SND_Unlock();
+    //SND_Unlock();
 }
