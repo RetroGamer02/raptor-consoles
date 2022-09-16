@@ -52,7 +52,7 @@ ICON        				:= rapicon.png
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:= -Xlinker -no-enum-size-warning -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
+ARCH	:= -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:= -Wall -g -O2 -mword-relocations \
 		 -ffunction-sections \
@@ -60,7 +60,7 @@ CFLAGS	:= -Wall -g -O2 -mword-relocations \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__3DS__ -DSDL_BUILDING_3DS
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -fno-short-enums -std=gnu++11
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS	:= $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
