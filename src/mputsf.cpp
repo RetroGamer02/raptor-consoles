@@ -21,8 +21,8 @@ void AudioCallback(void* data, uint8_t* stream, int len)
 int TSF_Init (int option)
 {
     SDL_AudioSpec OutputAudioSpec;
-    OutputAudioSpec.freq = 44100;
-    OutputAudioSpec.format = AUDIO_S16SYS;
+    OutputAudioSpec.freq = 11025;
+    OutputAudioSpec.format = AUDIO_S16;
     OutputAudioSpec.channels = 2;
     OutputAudioSpec.samples = 512;
     OutputAudioSpec.callback = AudioCallback;

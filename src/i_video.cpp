@@ -43,7 +43,6 @@
 // and (2) the renderer that scales the texture (see below) into this window.
 
 static SDL_Surface *screen;
-//static SDL_Renderer *renderer;
 
 // Window title
 
@@ -56,8 +55,8 @@ static const char *window_title = "";
 // is upscaled by an integer factor UPSCALE using "nearest" scaling and which
 // in turn is finally rendered to screen using "linear" scaling.
 
-static SDL_Surface *screenbuffer = NULL;
-static SDL_Surface *argbbuffer = NULL;
+//static SDL_Surface *screenbuffer = NULL;
+//static SDL_Surface *argbbuffer = NULL;
 //static SDL_Texture *texture = NULL;
 //static SDL_Texture *texture_upscaled = NULL;
 
@@ -210,7 +209,7 @@ void I_SetGrabMouseCallback(grabmouse_callback_t func)
 
 static void SetShowCursor(bool show)
 {
-    return;
+    
 }
 
 void I_ShutdownGraphics(void)
@@ -228,44 +227,32 @@ void I_ShutdownGraphics(void)
 // ratio consistent with the aspect_ratio_correct variable.
 static void AdjustWindowSize(void)
 {
-    if (aspect_ratio_correct || integer_scaling)
-    {
-        if (window_width * actualheight <= window_height * SCREENWIDTH)
-        {
-            // We round up window_height if the ratio is not exact; this leaves
-            // the result stable.
-            window_height = (window_width * actualheight + SCREENWIDTH - 1) / SCREENWIDTH;
-        }
-        else
-        {
-            window_width = window_height * SCREENWIDTH / actualheight;
-        }
-    }
+    
 }
 
 static void HandleWindowEvent() //SDL_WindowEvent *event
 {
-    return;
+    
 }
 
 void I_GetEvent(void)
 {
-    return;
+    
 }
 
 static void UpdateGrab(void)
 {
-    return;
+    
 }
 
 static void LimitTextureSize(int *w_upscale, int *h_upscale)
 {
-    return;
+    
 }
 
 static void CreateUpscaledTexture(bool force)
 {
-    return;
+    
 }
 
 //
@@ -286,9 +273,9 @@ void I_FinishUpdate (void)
 
     // Blit from the paletted 8-bit screen buffer to the intermediate
     // 32-bit RGBA buffer that we can load into the texture.
-    SDL_LowerBlit(screen, &blit_rect, argbbuffer, &blit_rect);
+    //SDL_LowerBlit(screen, &blit_rect, argbbuffer, &blit_rect);
 
-    SDL_Flip(argbbuffer);
+    SDL_Flip(screen);
 }
 
 
@@ -297,7 +284,7 @@ void I_FinishUpdate (void)
 //
 void I_ReadScreen (pixel_t* scr)
 {
-    memcpy(scr, I_VideoBuffer, SCREENWIDTH*SCREENHEIGHT*sizeof(*scr));
+    //memcpy(scr, I_VideoBuffer, SCREENWIDTH*SCREENHEIGHT*sizeof(*scr));
 }
 
 
@@ -379,33 +366,26 @@ void I_SetWindowTitle(const char *title)
 
 void I_InitWindowTitle(void)
 {
-    return;
+    
 }
 
 // Set the application icon
 
 void I_InitWindowIcon(void)
 {
-    return;
+    
 }
 
 void I_GraphicsCheckCommandLine(void)
 {
-    return;
+    
 }
 
 // Check if we have been invoked as a screensaver by xscreensaver.
 
 void I_CheckIsScreensaver(void)
 {
-    char *env;
-
-    env = getenv("XSCREENSAVER_WINDOW");
-
-    if (env != NULL)
-    {
-        screensaver_mode = true;
-    }
+    
 }
 
 static void SetSDLVideoDriver(void)
@@ -413,14 +393,14 @@ static void SetSDLVideoDriver(void)
     // Allow a default value for the SDL video driver to be specified
     // in the configuration file.
 
-    if (strcmp(video_driver, "") != 0)
+    /*if (strcmp(video_driver, "") != 0)
     {
         char *env_string;
 
         env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
         putenv(env_string);
         free(env_string);
-    }
+    }*/
 }
 
 // Check the display bounds of the display referred to by 'video_display' and
@@ -428,25 +408,22 @@ static void SetSDLVideoDriver(void)
 // display.
 static void CenterWindow(int *x, int *y, int w, int h)
 {
-    SDL_Rect bounds;
-
-    *x = bounds.x + SDL_max((bounds.w - w) / 2, 0);
-    *y = bounds.y + SDL_max((bounds.h - h) / 2, 0);
+  
 }
 
 void I_GetWindowPosition(int *x, int *y, int w, int h)
 {
-    return;
+  
 }
 
 static void SetVideoMode(void)
 {
- 
+  
 }
 
 void I_InitGraphics(uint8_t *pal)
 {
-    SDL_Event dummy;
+    //SDL_Event dummy;
 
     /* Initialize the SDL library */
     if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
@@ -464,7 +441,7 @@ void I_InitGraphics(uint8_t *pal)
      * Initialize the display in a 640x480 8-bit palettized mode,
      * requesting a software surface
      */
-    screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_HWACCEL);
+    screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
     if ( screen == NULL ) {
         fprintf(stderr, "Couldn't set 400x240x8 video mode: %s\n",
                         SDL_GetError());
@@ -487,7 +464,7 @@ void I_InitGraphics(uint8_t *pal)
 
     I_VideoBuffer = (pixel_t*)screen->pixels;
 
-    while (SDL_PollEvent(&dummy));
+    //while (SDL_PollEvent(&dummy));
 
     initialized = true;
 }
@@ -520,15 +497,15 @@ void I_BindVideoVariables(void)
 
 void I_GetMousePos(int *x, int *y)
 {
-    return;
+    
 }
 
 void I_SetMousePos(int x, int y)
 {
-    return;
+    
 }
 
 void closewindow(void)
 {
-    return;
+    
 }

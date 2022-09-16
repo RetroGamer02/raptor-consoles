@@ -20,7 +20,7 @@ int dig_flag;
 int fx_device;
 int fx_volume;
 static int fx_init = 0;
-int fx_freq = 11025;
+int fx_freq = 16364;//11025;
 int music_song = -1;
 int fx_gus;
 int fx_channels;
@@ -77,7 +77,7 @@ int SND_InitSound(void)
 {
     int music_card, fx_card, fx_chans;
     char *genmidi = NULL;
-    SDL_AudioSpec spec = {}, actual = {};
+    SDL_AudioSpec spec = {};
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         printf("\nFailed to init audio %s", SDL_GetError());
