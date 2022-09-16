@@ -250,7 +250,7 @@ int DSP_StartPatch(dsp_t *dsp, int sep, int pitch, int volume, int priority)
     if (dsp->format != 3 || dsp->length <= 32)
         return -1;
 
-    SND_Lock();
+    //SND_Lock(); //Fixme?
     for (i = 0; i < dsp_channelnum; i++)
     {
         if (!dsp_channels[i].samples)
@@ -280,7 +280,7 @@ int DSP_StartPatch(dsp_t *dsp, int sep, int pitch, int volume, int priority)
         }
         if (lowpriority < priority || lowpriority == 0)
         {
-            SND_Unlock();
+            //SND_Unlock(); //Fixme?
             return -1;
         }
 
