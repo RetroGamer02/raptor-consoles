@@ -151,6 +151,8 @@ char flatnames[4][14] = {
     "FLATSG4_ITM"
 };
 
+const char *newRegAttention[] = {"**************************************\nATTENTION! This version of RAPTOR is a\nCOMMERCIAL VERSION. DO NOT upload this\nto any bulletin boards or distribute it\nin any fashion. Please report software\npiracy to the S.P.A hotline by calling\n1-800-388-PIR8.\n**************************************\n"};
+
 flat_t *flatlib[4];
 
 void RAP_Bday(void)
@@ -176,7 +178,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n (c)1994 Cygnus Studios\n");
 }
 
 void ShutDown(int a1)
@@ -1180,16 +1182,16 @@ int main(int argc, char *argv[])
         printf("SETUP Error");
 
     fflush(stdout);
-    printf("\nPassed fflush\n");
-    //KBD_Install();
-    printf("\nPassed KDB Install\n");
+    //printf("\nPassed fflush\n");
+    KBD_Install();
+    //printf("\nPassed KDB Install\n");
     GFX_InitSystem();
-    printf("\nPassed GFX Init\n");
+    //printf("\nPassed GFX Init\n");
     SWD_Install(0);
-    printf("\nPassed SWD Install\n");
+    //printf("\nPassed SWD Install\n");
     VIDEO_LoadPrefs();
     IPT_LoadPrefs();
-    printf("\nPassed Load prefs\n");
+    //printf("\nPassed Load prefs\n");
     switch (control)
     {
     default:
@@ -1221,8 +1223,9 @@ int main(int argc, char *argv[])
     GLB_InitSystem(argv[0], 6, 0);
     if (reg_flag)
     {
-        reg_text = GLB_GetItem(FILE000_ATENTION_TXT); //Crashes real 3DS
-        printf("%s\n", reg_text);
+        //reg_text = GLB_GetItem(FILE000_ATENTION_TXT); //Crashes real 3DS
+        //printf("%s\n", reg_text);
+        printf("%s", newRegAttention[0]);
         GLB_FreeItem(0);
     }
     SND_InitSound();
