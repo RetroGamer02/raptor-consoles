@@ -38,6 +38,7 @@
 #include "musapi.h"
 #include "prefapi.h"
 #include "joyapi.h"
+#include <3ds.h>
 
 // These are (1) the window (or the full screen) that our game is rendered to
 // and (2) the renderer that scales the texture (see below) into this window.
@@ -193,6 +194,7 @@ unsigned int joywait = 0;
 
 void VIDEO_LoadPrefs(void)
 {
+    //Setup Items
     //fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
     aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
 }
@@ -204,7 +206,7 @@ static bool MouseShouldBeGrabbed()
 
 void I_SetGrabMouseCallback(grabmouse_callback_t func)
 {
-    grabmouse_callback = func;
+    
 }
 
 static void SetShowCursor(bool show)
@@ -237,7 +239,143 @@ static void HandleWindowEvent() //SDL_WindowEvent *event
 
 void I_GetEvent(void)
 {
-    
+    //Matrix containing the name of each key. Useful for printing when a key is pressed
+	char keysNames[32][32] = {
+		"KEY_A", "KEY_B", "KEY_SELECT", "KEY_START",
+		"KEY_DRIGHT", "KEY_DLEFT", "KEY_DUP", "KEY_DDOWN",
+		"KEY_R", "KEY_L", "KEY_X", "KEY_Y",
+		"", "", "KEY_ZL", "KEY_ZR",
+		"", "", "", "",
+		"KEY_TOUCH", "", "", "",
+		"KEY_CSTICK_RIGHT", "KEY_CSTICK_LEFT", "KEY_CSTICK_UP", "KEY_CSTICK_DOWN",
+		"KEY_CPAD_RIGHT", "KEY_CPAD_LEFT", "KEY_CPAD_UP", "KEY_CPAD_DOWN"
+	};
+
+    u32 kDownOld = 0, kHeldOld = 0, kUpOld = 0; //In these variables there will be information about keys detected in the previous frame
+
+    // Main loop
+	//while (aptMainLoop())
+	//{
+		//Scan all the inputs. This should be done once for each frame
+		hidScanInput();
+
+		//hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
+		u32 kDown = hidKeysDown();
+		//hidKeysHeld returns information about which buttons have are held down in this frame
+		u32 kHeld = hidKeysHeld();
+		//hidKeysUp returns information about which buttons have been just released
+		u32 kUp = hidKeysUp();
+
+		//if (kDown & KEY_START) break; // break in order to return to hbmenu
+
+        if (kDown & KEY_A)
+        {
+            AButton = 1;
+        }
+        if (kUp & KEY_A)
+        {
+            AButton = 0;
+        }
+        if (kDown & KEY_B)
+        {
+            BButton = 1;
+        }
+        if (kUp & KEY_B)
+        {
+            BButton = 0;
+        }
+        if (kDown & KEY_X)
+        {
+            XButton = 1;
+        }
+        if (kUp & KEY_X)
+        {
+            XButton = 0;
+        }
+        if (kDown & KEY_Y)
+        {
+            YButton = 1;
+        }
+        if (kUp & KEY_Y)
+        {
+            YButton = 0;
+        }
+        if (kDown & KEY_CPAD_LEFT)
+        {
+            Left = 1;
+        }
+        if (kUp & KEY_CPAD_LEFT)
+        {
+            Left = 0;
+        }
+        if (kDown & KEY_CPAD_RIGHT)
+        {
+            Right = 1;
+        }
+        if (kUp & KEY_CPAD_RIGHT)
+        {
+            Right = 0;
+        }
+        if (kDown & KEY_CPAD_UP)
+        {
+            Up = 1;
+        }
+        if (kUp & KEY_CPAD_UP)
+        {
+            Up = 0;
+        }
+        if (kDown & KEY_CPAD_DOWN)
+        {
+            Down = 1;
+        }
+        if (kUp & KEY_CPAD_DOWN)
+        {
+            Down = 0;
+        }
+
+		//Do the keys printing only if keys have changed
+		/*if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
+		{
+			//Clear console
+			consoleClear();
+
+			//These two lines must be rewritten because we cleared the whole console
+			printf("\x1b[1;1HPress Start to exit.");
+			printf("\x1b[2;1HCirclePad position:");
+
+			printf("\x1b[4;1H"); //Move the cursor to the fourth row because on the third one we'll write the circle pad position
+
+			//Check if some of the keys are down, held or up
+			int i;
+			for (i = 0; i < 32; i++)
+			{
+				if (kDown & BIT(i)) printf("%s down\n", keysNames[i]);
+				if (kHeld & BIT(i)) printf("%s held\n", keysNames[i]);
+				if (kUp & BIT(i)) printf("%s up\n", keysNames[i]);
+			}
+		}*/
+
+		//Set keys old values for the next frame
+		kDownOld = kDown;
+		kHeldOld = kHeld;
+		kUpOld = kUp;
+
+		circlePosition pos;
+
+		//Read the CirclePad position
+		hidCircleRead(&pos);
+
+		//Print the CirclePad position
+		if (pos.dx != 0000 || pos.dy != 0000)
+        printf("\x1b[3;1H%04d; %04d", pos.dx, pos.dy);
+
+		// Flush and swap framebuffers
+		//gfxFlushBuffers();
+		//gfxSwapBuffers();
+
+		//Wait for VBlank
+		//gspWaitForVBlank();
+	//}
 }
 
 static void UpdateGrab(void)
@@ -356,7 +494,7 @@ int I_GetPaletteIndex(int r, int g, int b)
 
 void I_SetWindowTitle(const char *title)
 {
-    window_title = title;
+    
 }
 
 //
@@ -390,17 +528,7 @@ void I_CheckIsScreensaver(void)
 
 static void SetSDLVideoDriver(void)
 {
-    // Allow a default value for the SDL video driver to be specified
-    // in the configuration file.
 
-    /*if (strcmp(video_driver, "") != 0)
-    {
-        char *env_string;
-
-        env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
-        putenv(env_string);
-        free(env_string);
-    }*/
 }
 
 // Check the display bounds of the display referred to by 'video_display' and
@@ -458,10 +586,10 @@ void I_InitGraphics(uint8_t *pal)
     I_SetPalette(pal);
     SDL_SetPalette(screen, 0, palette, 0, 256);
 
-    if (fullscreen && !screensaver_mode)
+    /*if (fullscreen && !screensaver_mode)
     {
         SDL_Delay(startup_delay);
-    }
+    }*/
 
     // The actual 320x200 canvas that we draw to. This is the pixel buffer of
     // the 8-bit paletted screen buffer that gets blit on an intermediate
