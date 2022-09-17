@@ -333,6 +333,20 @@ void I_GetEvent(void)
             Down = 0;
         }
 
+        circlePosition pos;
+
+		//Read the CirclePad position
+		hidCircleRead(&pos);
+
+        //if (pos.dx != 0000)
+        //{
+            StickX = pos.dx *-1;
+        //}
+        //if (pos.dy != 0000)
+        //{
+            StickY = pos.dy *-1;
+        //}
+
 		//Do the keys printing only if keys have changed
 		/*if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
 		{
@@ -360,14 +374,14 @@ void I_GetEvent(void)
 		kHeldOld = kHeld;
 		kUpOld = kUp;
 
-		circlePosition pos;
+		//circlePosition pos;
 
 		//Read the CirclePad position
-		hidCircleRead(&pos);
+		//hidCircleRead(&pos);
 
 		//Print the CirclePad position
-		if (pos.dx != 0000 || pos.dy != 0000)
-        printf("\x1b[3;1H%04d; %04d", pos.dx, pos.dy);
+		//if (pos.dx != 0000 || pos.dy != 0000)
+        //printf("\x1b[3;1H%04d; %04d", pos.dx, pos.dy);
 
 		// Flush and swap framebuffers
 		//gfxFlushBuffers();
