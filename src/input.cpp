@@ -76,50 +76,21 @@ void IPT_GetButtons(void)
 void IPT_GetJoyStick(void)
 {
     //Get Button
-    
     if (AButton)
     {
-        if (AButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (AButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (AButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (AButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[0] = 1; //Fire
     }
     if (BButton)
     {
-        if (BButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (BButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (BButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (BButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[1] = 1; //Change Special
     }
     if (XButton)
     {
-        if (XButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (XButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (XButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (XButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[2] = 1; //Mega
     }
     if (YButton)
     {
-        if (YButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (YButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (YButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (YButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[3] = 1; //Fire Special
     }
     if (TriggerRight > 0)                                         //Fire
         buttons[0] = 1;
