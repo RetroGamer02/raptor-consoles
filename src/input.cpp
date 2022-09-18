@@ -10,6 +10,7 @@
 #include "input.h"
 #include "i_video.h"
 #include "joyapi.h"
+#include <3ds.h>
 
 int control = 1;
 int haptic;
@@ -414,8 +415,9 @@ void IPT_FMovePlayer(int a1, int a2)
 
 void IPT_LoadPrefs(void)
 {
-    opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
-    control = INI_GetPreferenceLong("Setup", "Control", 0);
+    //Setup Items
+    opt_detail = 1;
+    control = 2;
     haptic = 0;
-    joy_ipt_MenuNew = INI_GetPreferenceLong("Setup", "joy_ipt_MenuNew", 0);
+    joy_ipt_MenuNew = 1;
 }

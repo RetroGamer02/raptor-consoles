@@ -40,7 +40,7 @@ ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
 APP_VER						:= 0001
 APP_TITLE					:= Raptor 3DS
-APP_DESCRIPTION				:= Raptor for 3DS
+APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
 APP_AUTHOR					:= RetroGamer02
 PRODUCT_CODE				:= CTR-Rap
 
@@ -54,7 +54,7 @@ ICON        				:= rapicon.png
 #---------------------------------------------------------------------------------
 ARCH	:= -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:= -Wall -g -O2 -mword-relocations \
+CFLAGS	:= -Wall -g -O3 -mword-relocations \
 		 -ffunction-sections \
 		$(ARCH)
 

@@ -27,17 +27,17 @@ int TSF_Init (int option)
     OutputAudioSpec.samples = 512;
     OutputAudioSpec.callback = AudioCallback;
     
-    char fn[128];
-    INI_GetPreference("Setup", "SoundFont", fn, 127, "SoundFont.sf2");
+    //char fn[128];
+    //INI_GetPreference("Setup", "SoundFont", fn, 127, "SoundFont.sf2");
 
     // Load the SoundFont from a file
-    g_TinySoundFont = tsf_load_filename(fn);
+    g_TinySoundFont = tsf_load_filename("TimGM6mb.sf2");
     
     if (!g_TinySoundFont)
     {
         char errmsg[255];
-        fprintf(stderr, "Could not load %s\n", fn);
-        sprintf(errmsg,"Could not load %s\n", fn);
+        fprintf(stderr, "Could not load %s\n", "TimGM6mb.sf2");
+        sprintf(errmsg,"Could not load %s\n", "TimGM6mb.sf2");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //"Raptor", errmsg, NULL);
         printf("Could not load SoundFont.");
