@@ -425,7 +425,7 @@ int WIN_AskBool(const char *a1)
     SWD_ShowAllWindows();
     GFX_DisplayUpdate();
     SND_Patch(20, 127);
-    PTR_DrawCursor(1);
+    PTR_DrawCursor(0);
     SWD_GetFieldXYL(v24, 6, &v30, &v34, &v20, &v3c);
     PTR_SetPos(v30 + (v20 >> 1), v34 + (v3c >> 1));
     SWD_SetActiveField(v24, 6);
@@ -600,7 +600,7 @@ int WIN_Register(void)
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 16);
     SWD_SetFieldPtr(v24, 5);
-    PTR_DrawCursor(1);
+    PTR_DrawCursor(0);
     while (1)
     {
         SWD_Dialog(&v80);
@@ -884,7 +884,7 @@ int WIN_Hangar(void)
         }
         hangto = 1;
         SWD_SetWindowPtr(v28);
-        PTR_DrawCursor(1);
+        PTR_DrawCursor(0);
         while (1)
         {
             v40++;
@@ -1224,7 +1224,7 @@ int WIN_ShipComp(void)
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 16);
     SWD_SetWindowPtr(v3c);
-    PTR_DrawCursor(1);
+    PTR_DrawCursor(0);
     while (1)
     {
         SWD_Dialog(&v94);
@@ -1687,7 +1687,7 @@ void WIN_MainMenu(void)
     GFX_FadeIn(palette, 10);
     SND_CacheIFX();
     SWD_SetWindowPtr(v20);
-    PTR_DrawCursor(1);
+    PTR_DrawCursor(0);
     ltable[0] = 0;
     do
     {
@@ -1719,7 +1719,7 @@ void WIN_MainMenu(void)
             FUN_00025c70(1);
             GLB_FreeAll();
             SND_CacheIFX();
-            PTR_DrawCursor(1);
+            PTR_DrawCursor(0);
         }
         if (keyboard[45] && keyboard[56])
             WIN_AskExit();
@@ -1740,7 +1740,7 @@ void WIN_MainMenu(void)
                 SWD_ShowAllWindows();
                 GFX_DisplayUpdate();
                 GFX_FadeIn(palette, 16);
-                PTR_DrawCursor(1);
+                PTR_DrawCursor(0);
                 break;
             case 2:
                 switch (RAP_LoadWin())
@@ -1770,7 +1770,7 @@ void WIN_MainMenu(void)
                 SWD_ShowAllWindows();
                 GFX_DisplayUpdate();
                 SND_PlaySong(87, 1, 1);
-                PTR_DrawCursor(1);
+                PTR_DrawCursor(0);
                 break;
             case 7:
                 if (ingameflag)
