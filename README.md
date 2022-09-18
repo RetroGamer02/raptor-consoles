@@ -1,4 +1,4 @@
-# Raptor
+# Raptor3ds
 Based on the reverse-engineered codebase from Raptor Call Of The Shadows by nukeykt,  skynettx, and wel97459.
 
 ## Media
