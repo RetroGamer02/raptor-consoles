@@ -387,7 +387,7 @@ void IPT_FMovePlayer(int a1, int a2)
 void IPT_LoadPrefs(void)
 {
     //Setup Items
-    opt_detail = 1;
+    opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
     control = 2;
     haptic = 0;
     joy_ipt_MenuNew = 1;
