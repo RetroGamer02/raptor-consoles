@@ -344,6 +344,10 @@ void WIN_Pause(void)
     SND_Patch(20, 127);
     while (!IMS_CheckAck())                                      //Pause Screen
     {
+        if (Start)
+        {
+            break;
+        }
     }
     SWD_DestroyWindow(v1c);
     GFX_DisplayUpdate();
