@@ -34,8 +34,8 @@
 #define PATH_MAX MAX_PATH
 #endif
 
-char g_data_path[PATH_MAX] = "sdmc:/";
-char g_setup_path[PATH_MAX] = "sdmc:/";
+char g_data_path[PATH_MAX];
+char g_setup_path[PATH_MAX];
 
 int hasdatapath = 0;
 
@@ -99,7 +99,7 @@ int RAP_IsPlayer(void)
 
 int RAP_AreSavedFiles(void)
 {
-    char v4c[PATH_MAX] = "sdmc:/";
+    char v4c[PATH_MAX];
     int v1c;
     for (v1c = 0; v1c < 10; v1c++)
     {
@@ -119,8 +119,7 @@ int RAP_ReadFile(const char *a1, void *a2, int a3)
     v14 = fopen(a1, "rb");
     if (!v14)
     {
-        //WIN_Msg("File open Error");
-        printf("File open Error");
+        WIN_Msg("File open Error");
         return 0;
     }
     fread(a2, 1, a3, v14);
@@ -131,7 +130,7 @@ int RAP_ReadFile(const char *a1, void *a2, int a3)
 
 int RAP_FFSaveFile(void)
 {
-    char v50[PATH_MAX] = "sdmc:/";
+    char v50[PATH_MAX];
     int v1c, v20;
     v1c = 0;
     filepos = -1;
@@ -155,7 +154,7 @@ int RAP_FFSaveFile(void)
 int RAP_IsSaveFile(player_t *a1)
 {
     player_t vb0;
-    char v58[PATH_MAX] = "sdmc:/";
+    char v58[PATH_MAX];
     int v1c, v24;
     FILE *v20;
     v1c = 0;
@@ -182,7 +181,7 @@ int RAP_IsSaveFile(player_t *a1)
 
 int RAP_LoadPlayer(void)
 {
-    char v6c[PATH_MAX] = "sdmc:/";
+    char v6c[PATH_MAX];
     int v1c, v24;
     FILE *v20;
     object_t v40;
@@ -228,7 +227,7 @@ int RAP_LoadPlayer(void)
 int RAP_SavePlayer(void)
 {
     int v1c;
-    char v5c[PATH_MAX] = "sdmc:/";
+    char v5c[PATH_MAX];
     FILE *v20;
     object_t *v28;
 
@@ -315,8 +314,8 @@ void RAP_FreeMap(void)
 
 int RAP_LoadWin(void)
 {
-    char v254[10][PATH_MAX] = {"", "sdmc:/"};
-    char v68[PATH_MAX] = "sdmc:/";
+    char v254[10][PATH_MAX];
+    char v68[PATH_MAX];
     int v30, v20, v24, v3c, v38, v1c, v2c, v28;
     player_t v108;
     wdlg_t vb0;
@@ -328,17 +327,27 @@ int RAP_LoadWin(void)
     memset(v254, 0, sizeof(v254));
     for (v1c = 0; v1c < 10; v1c++)
     {
-        if (hasdatapath)
-            sprintf(v68, fmt2, g_data_path, v1c);
-        else
-            sprintf(v68, fmt, v1c);
-        if (checkfile(v68))
-        {
-            if (v20 == -1)
-                v20= v1c;
-            strncpy(v254[v1c], v68, PATH_MAX);
-        }
+        
+        //if (hasdatapath)
+            //sprintf(v68, fmt2, g_data_path, v1c);
+        //else
+            //sprintf(v68, fmt, v1c);
+        //if (checkfile(strcat(v68, fmt -16))) //Fixme empty handle
+        //{
+            /*if (v20 == -1)
+            {
+                if (v1c == 9)
+                {
+                    printf("v20 = -1");
+                }
+            }*/
+            
+                //v20 = v1c;
+            //strncpy(v254[v1c], v68, PATH_MAX);
+        //}
+        
     }
+    WIN_Msg("Function is broken");
     if (v20 == -1)
         return-1;
     RAP_ReadFile(v254[v20], &v108, sizeof(v108));
