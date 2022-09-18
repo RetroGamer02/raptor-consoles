@@ -33,7 +33,7 @@ static int INI_OpenFile(const char *section, const char *key, const char *defaul
     vs = fopen(filename, "r");
     if (vs)
     {
-
+        //Fixme reads ini file out of bounds
         while (!v10 && fgets(v9c, 128, vs) != 0)
         {
             if (v9c[0] == '[')

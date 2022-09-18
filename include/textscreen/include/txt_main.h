@@ -21,7 +21,7 @@
 // For the moment, txt_sdl.c is the only implementation of the base 
 // text mode screen API:
 
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 
 // textscreen key values:
 // Key values are difficult because we have to support multiple conflicting

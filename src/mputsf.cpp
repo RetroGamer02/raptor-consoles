@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
 
@@ -21,25 +21,25 @@ void AudioCallback(void* data, uint8_t* stream, int len)
 int TSF_Init (int option)
 {
     SDL_AudioSpec OutputAudioSpec;
-    OutputAudioSpec.freq = 44100;
-    OutputAudioSpec.format = AUDIO_S16SYS;
+    OutputAudioSpec.freq = 11025;
+    OutputAudioSpec.format = AUDIO_S16;
     OutputAudioSpec.channels = 2;
     OutputAudioSpec.samples = 512;
     OutputAudioSpec.callback = AudioCallback;
     
-    char fn[128];
-    INI_GetPreference("Setup", "SoundFont", fn, 127, "SoundFont.sf2");
+    //char fn[128];
+    //INI_GetPreference("Setup", "SoundFont", fn, 127, "SoundFont.sf2");
 
     // Load the SoundFont from a file
-    g_TinySoundFont = tsf_load_filename(fn);
+    g_TinySoundFont = tsf_load_filename("TimGM6mb.sf2");
     
     if (!g_TinySoundFont)
     {
         char errmsg[255];
-        fprintf(stderr, "Could not load %s\n", fn);
-        sprintf(errmsg,"Could not load %s\n", fn);
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", errmsg, NULL);
+        fprintf(stderr, "Could not load %s\n", "TimGM6mb.sf2");
+        sprintf(errmsg,"Could not load %s\n", "TimGM6mb.sf2");
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", errmsg, NULL);
         printf("Could not load SoundFont.");
         return 0;
     }

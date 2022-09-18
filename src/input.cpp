@@ -1,4 +1,4 @@
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #include "stdio.h"
 #include "common.h"
 #include "prefapi.h"
@@ -10,6 +10,7 @@
 #include "input.h"
 #include "i_video.h"
 #include "joyapi.h"
+#include <3ds.h>
 
 int control = 1;
 int haptic;
@@ -75,50 +76,21 @@ void IPT_GetButtons(void)
 void IPT_GetJoyStick(void)
 {
     //Get Button
-    
     if (AButton)
     {
-        if (AButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (AButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (AButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (AButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[0] = 1; //Fire
     }
     if (BButton)
     {
-        if (BButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (BButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (BButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (BButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[1] = 1; //Change Special
     }
     if (XButton)
     {
-        if (XButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (XButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (XButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (XButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[2] = 1; //Mega
     }
     if (YButton)
     {
-        if (YButtonconvert == j_lookup[0])                        //Fire
-            buttons[0] = 1;
-        if (YButtonconvert == j_lookup[1])                        //Fire Special
-            buttons[1] = 1;
-        if (YButtonconvert == j_lookup[2])                        //Change Special
-            buttons[2] = 1;
-        if (YButtonconvert == j_lookup[3])                        //Mega
-            buttons[3] = 1;
+            buttons[3] = 1; //Fire Special
     }
     if (TriggerRight > 0)                                         //Fire
         buttons[0] = 1;
@@ -414,23 +386,9 @@ void IPT_FMovePlayer(int a1, int a2)
 
 void IPT_LoadPrefs(void)
 {
-    opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
-    control = INI_GetPreferenceLong("Setup", "Control", 0);
-    haptic = INI_GetPreferenceLong("Setup", "Haptic", 1);
-    joy_ipt_MenuNew = INI_GetPreferenceLong("Setup", "joy_ipt_MenuNew", 0);
-    k_Up = INI_GetPreferenceLong("Keyboard", "MoveUp", 0x48);
-    k_Down = INI_GetPreferenceLong("Keyboard", "MoveDn", 0x50);
-    k_Left = INI_GetPreferenceLong("Keyboard", "MoveLeft", 0x4b);
-    k_Right = INI_GetPreferenceLong("Keyboard", "MoveRight", 0x4d);
-    k_Fire = INI_GetPreferenceLong("Keyboard", "Fire", 0x1d);
-    k_FireSp = INI_GetPreferenceLong("Keyboard", "FireSp", 0x38);
-    k_ChangeSp = INI_GetPreferenceLong("Keyboard", "ChangeSp", 0x39);
-    k_Mega = INI_GetPreferenceLong("Keyboard", "MegaFire", 0x36);
-    m_lookup[0] = INI_GetPreferenceLong("Mouse", "Fire", 0);
-    m_lookup[1] = INI_GetPreferenceLong("Mouse", "FireSp", 1);
-    m_lookup[2] = INI_GetPreferenceLong("Mouse", "ChangeSp", 2);
-    j_lookup[0] = INI_GetPreferenceLong("JoyStick", "Fire", 0);
-    j_lookup[1] = INI_GetPreferenceLong("JoyStick", "FireSp", 1);
-    j_lookup[2] = INI_GetPreferenceLong("JoyStick", "ChangeSp", 2);
-    j_lookup[3] = INI_GetPreferenceLong("JoyStick", "MegaFire", 3);
+    //Setup Items
+    opt_detail = 1;
+    control = 2;
+    haptic = 0;
+    joy_ipt_MenuNew = 1;
 }

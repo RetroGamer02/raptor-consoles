@@ -1,4 +1,4 @@
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #include "common.h"
 #include "gssapi.h"
 #include "musapi.h"
@@ -197,7 +197,7 @@ int GSS_PlayPatch(void *gss, int sep, int pitch, int volume, int priority)
     if (format != 1 && format != 2)
         return -1;
 
-    SND_Lock();
+    //SND_Lock();
 
     if (gss_type != 0 && priority < gss_priority)
     {
@@ -231,7 +231,7 @@ int GSS_PlayPatch(void *gss, int sep, int pitch, int volume, int priority)
     }
     gss_handle = handle;
 
-    SND_Unlock();
+    //SND_Unlock();
     return handle | FXHAND_GSS1;
 }
 
@@ -240,7 +240,7 @@ void GSS_StopPatch(int handle)
     if (!gss_init)
         return;
     handle &= FXHAND_MASK;
-    SND_Lock();
+    //SND_Lock();
     if (handle == gss_handle)
     {
         switch (gss_type)
@@ -252,7 +252,7 @@ void GSS_StopPatch(int handle)
         }
         }
     }
-    SND_Unlock();
+    //SND_Unlock();
 }
 
 int GSS_PatchIsPlaying(int handle)
@@ -261,9 +261,9 @@ int GSS_PatchIsPlaying(int handle)
     if (!gss_init)
         return 0;
     handle &= FXHAND_MASK;
-    SND_Lock();
+    //SND_Lock();
     if (handle == gss_handle && gss_type != 0)
         stat = 1;
-    SND_Unlock();
+    //SND_Unlock();
     return stat;
 }

@@ -1447,6 +1447,7 @@ void WIN_MainLoop(void)
     v20 = 0;
     ingameflag = 1;
     SND_PlaySong(88, 1, 1);
+    
     while (1)
     {
         if (demo_flag != 1)

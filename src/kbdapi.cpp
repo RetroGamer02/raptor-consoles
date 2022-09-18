@@ -1,6 +1,6 @@
 #include <string.h>
 #include <ctype.h>
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #include "common.h"
 #include "i_video.h"
 
@@ -145,28 +145,11 @@ void I_HandleKeyboardEvent(SDL_Event *sdlevent)
 {
     int key = 0;
     if (sdlevent->type != SDL_KEYDOWN && sdlevent->type != SDL_KEYUP)
-        return;
-    switch (sdlevent->key.keysym.scancode)
     {
-    case SDL_SCANCODE_LCTRL:
-    case SDL_SCANCODE_RCTRL:
-        key = 0x1d;
-        break;
-    case SDL_SCANCODE_LSHIFT:
-        key = 0x2a;
-        break;
-    case SDL_SCANCODE_RSHIFT:
-        key = 0x36;
-        break;
-    case SDL_SCANCODE_LALT:
-    case SDL_SCANCODE_RALT:
-        key = 0x38;
-        break;
-    default:
         if (sdlevent->key.keysym.scancode >= 0 && sdlevent->key.keysym.scancode < 100)
             key = ScanCodeMap[sdlevent->key.keysym.scancode];
-        break;
     }
+
     if (!key)
         return;
 

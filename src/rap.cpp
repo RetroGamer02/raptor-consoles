@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <SDL2\SDL.h>
+#include <SDL\SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -150,6 +150,8 @@ char flatnames[4][14] = {
     "FLATSG4_ITM"
 };
 
+const char *newRegAttention[] = {"**************************************\n             ATTENTION! \n      This version of RAPTOR is \n        a COMMERCIAL VERSION. \n      DO NOT upload this to any \n bulletin boards or distribute it in \n            any fashion. \n    Please report software piracy \n   to the S.P.A hotline by calling\n          1-800-388-PIR8.\n**************************************\n"};
+
 flat_t *flatlib[4];
 
 void RAP_Bday(void)
@@ -175,15 +177,15 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n (c)1994 Cygnus Studios\n");
 }
 
 void ShutDown(int a1)
 {
-    if (!a1 && !godmode)
-        WIN_Order();
-
-	gfxExit();
+    //if (!a1 && !godmode)
+        //WIN_Order();
+    
+	//gfxExit();
     //IPT_DeInit();
     //DMX_DeInit();
     //GFX_EndSystem();
@@ -196,11 +198,13 @@ void ShutDown(int a1)
         LASTSCR = GLB_GetItem(FILE002_LASTSCR2_TXT); //Get ANSI Screen Fullversion from GLB to char*
     
     closewindow();                                   //Close Main Window
-    I_LASTSCR();                                     //Call to display ANSI Screen 
+    //I_LASTSCR();                                     //Call to display ANSI Screen 
     GLB_FreeAll();
-    IPT_CloJoy();                                    //Close Joystick
-    SWD_End();
-    free(g_highmem);
+    IPT_CloJoy(); 
+    sdmcExit();
+    exit(0);                                   //Close Joystick
+    //SWD_End();
+    //free(g_highmem);
 }
 
 void RAP_ClearSides(void)
@@ -504,12 +508,12 @@ void RAP_DisplayStats(void)
             if (damage)
             {
                 v2c = v34 = (texture_t*)GLB_GetItem(FILE111_WEPDEST_PIC);
-                GFX_PutSprite(v34, (320 - v2c->f_c) >> 1, 0xad);
+                GFX_PutSprite(v34, (320 - v2c->width) >> 1, 0xad);
             }
             if (startendwave == -1)
                 SND_Patch(22, 127);
             v2c = v34 = (texture_t*)GLB_GetItem(FILE110_SHLDLOW_PIC);
-            GFX_PutSprite(v34, (320 - v2c->f_c) >> 1, 0xb6);
+            GFX_PutSprite(v34, (320 - v2c->width) >> 1, 0xb6);
         }
     }
     g_oldshield = v20;
@@ -649,6 +653,8 @@ int Do_Game(void)
     v2c = 0;
     v30 = 0;
     draw_player = 1;
+
+    consoleClear();
 
     wsrand(game_wave[cur_game] << 10);
     fadeflag = 0;
@@ -1040,40 +1046,43 @@ int main(int argc, char *argv[])
 
     shost = getenv("S_HOST");
 
+    _Bool isN3DS;
+
+    APT_CheckNew3DS(&isN3DS);
+
     gfxInitDefault(); //3DS
-	consoleInit(GFX_TOP, NULL); //3DS
+	consoleInit(GFX_BOTTOM, NULL); //3DS
+
+    if(isN3DS)
+    {
+        osSetSpeedupEnable(true);
+    }
 
     Result rc = sdmcInit();
 	if (rc)
 		printf("sdmcfs Init: %08lX\n", rc);
 	else
-	{
+	/*{
 		printf("sdmcfs Init Successful!\n");
-	}
+	}*/
+
+    //sdmcWriteSafe(false);
 
     InitScreen();
 
     RAP_DataPath();
 
-    /*if (access(RAP_GetSetupPath(), 0))
-    {
-        printf("\n\n** You must run SETUP first! **\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** You must run SETUP first! **", NULL);
-        //exit(0);
-    }*/
-
     if (!checkfile(RAP_GetSetupPath()))
     {
         printf("\n\n** You must run SETUP first! **\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** You must run SETUP first! **", NULL);
-    } else {
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", "** You must run SETUP first! **", NULL);
+    } /*else {
         printf("\nSETUP Found\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** SETUP Found! **", NULL);
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", "** SETUP Found! **", NULL);
         //printfile(RAP_GetSetupPath());
-    }
+    }*/
 
     godmode = 0;
 
@@ -1082,7 +1091,7 @@ int main(int argc, char *argv[])
     else
         godmode = 0;
 
-    if (argv[1])
+    /*if (argv[1])
     {
         if (!strcmp(argv[1], "REC"))
         {
@@ -1099,7 +1108,7 @@ int main(int argc, char *argv[])
                 printf("DEMO PLAYBACK enabled\n");
             }
         }
-    }
+    }*/
 
     if (godmode)
         printf("GOD mode enabled\n");
@@ -1126,11 +1135,11 @@ int main(int argc, char *argv[])
     if (!checkfile("sdmc:/FILE0000.GLB") || !eps)
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
+        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            //"Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
         //exit(0);
     }
-    printf("Init -\n");
+    //printf("Init -\n");
     EXIT_Install(ShutDown);
     memset(bday, 0, sizeof(bday));
     bday[0].f_0 = 5;
@@ -1175,16 +1184,16 @@ int main(int argc, char *argv[])
         printf("SETUP Error");
 
     fflush(stdout);
-    printf("\nPassed fflush\n");
+    //printf("\nPassed fflush\n");
     KBD_Install();
-    printf("\nPassed KDB Install\n");
+    //printf("\nPassed KDB Install\n");
     GFX_InitSystem();
-    printf("\nPassed GFX Init\n");
+    //printf("\nPassed GFX Init\n");
     SWD_Install(0);
-    printf("\nPassed SWD Install\n");
+    //printf("\nPassed SWD Install\n");
     VIDEO_LoadPrefs();
     IPT_LoadPrefs();
-    printf("\nPassed Load prefs\n");
+    //printf("\nPassed Load prefs\n");
     switch (control)
     {
     default:
@@ -1194,7 +1203,7 @@ int main(int argc, char *argv[])
         usekb_flag = 1;
         break;
     case 2:
-        printf("PTR_Init()-Joystick\n");
+        //printf("PTR_Init()-Joystick\n");
         fflush(stdout);
         v28 = PTR_Init(2);
         usekb_flag = 0;
@@ -1212,18 +1221,20 @@ int main(int argc, char *argv[])
         printf("Registered EXE!\n");
         fflush(stdout);
     }
+    
     GLB_InitSystem(argv[0], 6, 0);
     if (reg_flag)
     {
-        reg_text = GLB_GetItem(FILE000_ATENTION_TXT);
-        printf("%s\n", reg_text);
+        //reg_text = GLB_GetItem(FILE000_ATENTION_TXT); //Crashes real 3DS
+        //printf("%s\n", reg_text);
+        printf("%s", newRegAttention[0]);
         GLB_FreeItem(0);
     }
     SND_InitSound();
     IPT_Init();
     GLB_FreeAll();
     RAP_InitMem();
-    printf("Loading Graphics\n");
+    //printf("Loading Graphics\n");
     pal = GLB_LockItem(FILE100_PALETTE_DAT);
     memset(pal, 0, 3);
     palette = pal;
@@ -1277,7 +1288,7 @@ int main(int argc, char *argv[])
     GFX_InitVideo(palette);
     SHADOW_MakeShades();
     RAP_ClearPlayer();
-    
+
     if (!godmode)
         INTRO_Credits();
     if (demo_flag != 2)
@@ -1304,7 +1315,7 @@ int main(int argc, char *argv[])
        WIN_MainLoop();
     } while (1);
     
-    gfxExit();
-    sdmcExit();
+    //gfxExit();
+    
     return 0;
 }
