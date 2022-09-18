@@ -150,7 +150,7 @@ char flatnames[4][14] = {
     "FLATSG4_ITM"
 };
 
-const char *newRegAttention[] = {"**************************************\nATTENTION! This version of RAPTOR is a\nCOMMERCIAL VERSION. DO NOT upload this\nto any bulletin boards or distribute it\nin any fashion. Please report software\npiracy to the S.P.A hotline by calling\n1-800-388-PIR8.\n**************************************\n"};
+const char *newRegAttention[] = {"**************************************\n             ATTENTION! \n      This version of RAPTOR is \n        a COMMERCIAL VERSION. \n      DO NOT upload this to any \n bulletin boards or distribute it in \n            any fashion. \n    Please report software piracy \n   to the S.P.A hotline by calling\n          1-800-388-PIR8.\n**************************************\n"};
 
 flat_t *flatlib[4];
 
@@ -653,6 +653,8 @@ int Do_Game(void)
     v30 = 0;
     draw_player = 1;
 
+    consoleClear();
+
     wsrand(game_wave[cur_game] << 10);
     fadeflag = 0;
     end_fadeflag = 0;
@@ -1059,9 +1061,9 @@ int main(int argc, char *argv[])
 	if (rc)
 		printf("sdmcfs Init: %08lX\n", rc);
 	else
-	{
+	/*{
 		printf("sdmcfs Init Successful!\n");
-	}
+	}*/
 
     //sdmcWriteSafe(false);
 
@@ -1074,12 +1076,12 @@ int main(int argc, char *argv[])
         printf("\n\n** You must run SETUP first! **\n");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //"Raptor", "** You must run SETUP first! **", NULL);
-    } else {
+    } /*else {
         printf("\nSETUP Found\n");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //"Raptor", "** SETUP Found! **", NULL);
         //printfile(RAP_GetSetupPath());
-    }
+    }*/
 
     godmode = 0;
 
@@ -1136,7 +1138,7 @@ int main(int argc, char *argv[])
             //"Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
         //exit(0);
     }
-    printf("Init -\n");
+    //printf("Init -\n");
     EXIT_Install(ShutDown);
     memset(bday, 0, sizeof(bday));
     bday[0].f_0 = 5;
@@ -1200,7 +1202,7 @@ int main(int argc, char *argv[])
         usekb_flag = 1;
         break;
     case 2:
-        printf("PTR_Init()-Joystick\n");
+        //printf("PTR_Init()-Joystick\n");
         fflush(stdout);
         v28 = PTR_Init(2);
         usekb_flag = 0;
@@ -1231,7 +1233,7 @@ int main(int argc, char *argv[])
     IPT_Init();
     GLB_FreeAll();
     RAP_InitMem();
-    printf("Loading Graphics\n");
+    //printf("Loading Graphics\n");
     pal = GLB_LockItem(FILE100_PALETTE_DAT);
     memset(pal, 0, 3);
     palette = pal;
