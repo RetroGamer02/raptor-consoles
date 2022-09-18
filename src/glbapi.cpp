@@ -109,7 +109,6 @@ void GLB_DeCrypt(const char *key, void *buf, int size)
 FILE *GLB_FindFile(int a1, int a2, const char *mode)
 {
     FILE *h;
-    //a2--;
     char buffer[PATH_MAX] = "sdmc:/";
     sprintf(buffer, "%s%04u.GLB", prefix, a2);
     h = fopen(buffer, mode);
@@ -284,12 +283,33 @@ char *GLB_FetchItem(int a1, int a2)
         printf("GLB_FetchItem: empty handle.");
         return NULL;
     }
+    
     uint16_t f = (a1 >> 16) & 0xffff;
     uint16_t n = (a1 >> 0) & 0xffff;
     fi = &filedesc[f].items[n];
+    /*if (fi->flags == NULL)
+    {
+        printf("File Error?");
+        return "File error?";
+    }*/
     if (a2 == 2)
-        fi->flags |= 0x80000000;
-    if (!fi->mem.ptr)
+    {
+        if (fi->flags == NULL)//Prevents crash here on real 3ds hardware.
+        {
+            fi->flags = 0x80000000;
+            //printf("Null file Flag");
+        } else {
+            fi->flags |= 0x80000000;
+        }
+    }
+    //fi->mem.ptr = "Null";
+    /*if (fi->mem.ptr == NULL)
+    {
+        printf("Null Ptr");
+        //return "Null";
+    }*/
+    
+    if (!fi->mem.ptr)//Crashes on read of mem ptr because its NULL?
     {
         fi->lock = 0;
         if (fi->length)
@@ -315,6 +335,7 @@ char *GLB_FetchItem(int a1, int a2)
         }
     }
     else if (a2 == 2)
+    //if (a2 == 2)
     {
         if (fVmem)
         {
@@ -322,14 +343,18 @@ char *GLB_FetchItem(int a1, int a2)
             VM_Lock(fi->mem.ptr);
         }
     }
+    
     if (!fi->mem.ptr && a2 != 0)
         printf("GLB_FetchItem: failed on %d bytes, mode=%d.", fi->length, a2);
+    
     if (a2 == 1)
     {
         if (fVmem)
             VM_Touch(&fi->mem);
     }
+    
     return fi->mem.ptr;
+    //return "Test";
 }
 
 char *GLB_CacheItem(int a1)
@@ -481,7 +506,7 @@ int GLB_ReadFile(const char *a1, char *a2)
 {
     FILE *handle;
     int l;
-    char f_a0[PATH_MAX] = "sdmc:/";
+    char f_a0[PATH_MAX];
     if (!checkfile(a1) == -1)
     {
         strcpy(f_a0, exePath);
