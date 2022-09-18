@@ -268,6 +268,22 @@ void I_GetEvent(void)
 
 		//if (kDown & KEY_START) break; // break in order to return to hbmenu
 
+        if (kDown & KEY_START)
+        {
+            Start = 1;
+        }
+        if (kUp & KEY_START)
+        {
+            Start = 0;
+        }
+        if (kDown & KEY_SELECT)
+        {
+            Back = 1;
+        }
+        if (kUp & KEY_SELECT)
+        {
+            Back = 0;
+        }
         if (kDown & KEY_A)
         {
             AButton = 1;
@@ -332,6 +348,22 @@ void I_GetEvent(void)
         {
             Down = 0;
         }
+        if (kDown & KEY_L)
+        {
+            LeftShoulder = 1;
+        }
+        if (kUp & KEY_L)
+        {
+            LeftShoulder = 0;
+        }
+        if (kDown & KEY_R)
+        {
+            RightShoulder = 1;
+        }
+        if (kUp & KEY_R)
+        {
+            RightShoulder = 0;
+        }
 
         circlePosition pos;
 
@@ -340,7 +372,7 @@ void I_GetEvent(void)
 
         //if (pos.dx != 0000)
         //{
-            StickX = pos.dx *-1;
+            StickX = pos.dx;
         //}
         //if (pos.dy != 0000)
         //{
