@@ -37,9 +37,9 @@
 //
 void I_LASTSCR(void)
 {
-    //unsigned char* screendata;
-    //int y;
-    //int indent;
+    unsigned char* screendata;
+    int y;
+    int indent;
     //Fixme
     // Set up text mode screen
 
@@ -64,7 +64,7 @@ void I_LASTSCR(void)
 
     // Wait for a keypress
     printf("Shutdown");
-    IMS_StartAck();
+    /*IMS_StartAck();
 
     while (true)
     {
@@ -75,9 +75,10 @@ void I_LASTSCR(void)
             break;
 
         //TXT_Sleep(0);
-    }
+    }*/
 
     // Shut down text mode screen
 
     //TXT_Shutdown();
+    ShutDown(0);
 }

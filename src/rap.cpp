@@ -182,10 +182,10 @@ void InitScreen(void)
 
 void ShutDown(int a1)
 {
-    if (!a1 && !godmode)
-        WIN_Order();
-
-	gfxExit();
+    //if (!a1 && !godmode)
+        //WIN_Order();
+    
+	//gfxExit();
     //IPT_DeInit();
     //DMX_DeInit();
     //GFX_EndSystem();
@@ -198,12 +198,13 @@ void ShutDown(int a1)
         LASTSCR = GLB_GetItem(FILE002_LASTSCR2_TXT); //Get ANSI Screen Fullversion from GLB to char*
     
     closewindow();                                   //Close Main Window
-    I_LASTSCR();                                     //Call to display ANSI Screen 
+    //I_LASTSCR();                                     //Call to display ANSI Screen 
     GLB_FreeAll();
-    IPT_CloJoy();                                    //Close Joystick
-    SWD_End();
+    IPT_CloJoy(); 
     sdmcExit();
-    free(g_highmem);
+    exit(0);                                   //Close Joystick
+    //SWD_End();
+    //free(g_highmem);
 }
 
 void RAP_ClearSides(void)
