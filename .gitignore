@@ -6,3 +6,7 @@ Makefile
 bin
 build
 .vscode
+*.3dsx
+*.elf
+*.lst
+*.bak
