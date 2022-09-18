@@ -2,7 +2,7 @@
 Based on the reverse-engineered codebase from Raptor Call Of The Shadows by nukeykt,  skynettx, and wel97459.
 
 ## Media
-Click on the ;ink to watch some videos showing the project in action  
+Click on the link to watch some videos showing the project in action  
 
 https://www.youtube.com/channel/UCYgpHKf7CRhP-SAtQnWR0OQ
 ## Installing
