@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <SDL\SDL.h>
+#include <SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -201,7 +201,7 @@ void ShutDown(int a1)
     //I_LASTSCR();                                     //Call to display ANSI Screen 
     GLB_FreeAll();
     IPT_CloJoy(); 
-    sdmcExit();
+    //sdmcExit();
     exit(0);                                   //Close Joystick
     //SWD_End();
     //free(g_highmem);
@@ -1058,10 +1058,10 @@ int main(int argc, char *argv[])
         osSetSpeedupEnable(true);
     }
 
-    Result rc = sdmcInit();
+    /*Result rc = sdmcInit();
 	if (rc)
 		printf("sdmcfs Init: %08lX\n", rc);
-	else
+	else*/
 	/*{
 		printf("sdmcfs Init Successful!\n");
 	}*/

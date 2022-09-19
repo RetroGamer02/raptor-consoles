@@ -31,7 +31,7 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-CTRULIB		:=	$(CURDIR)/libctru14
+CTRULIB		:=	$(CURDIR)/libctru18
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	src
@@ -71,7 +71,7 @@ LIBS	:= -lsdl -lcitro3d -lctru -lm
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CTRULIB) $(PORTLIBS)
+LIBDIRS	:= $(CTRULIB) $(CURDIR)/sdl12n3ds
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional

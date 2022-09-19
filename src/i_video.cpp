@@ -20,8 +20,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#include <SDL\SDL.h>
-#include "SDL2\SDL_opengl.h"
+#include <SDL.h>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN

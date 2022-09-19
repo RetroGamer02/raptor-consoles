@@ -1,4 +1,4 @@
-#include <SDL\SDL.h>
+#include <SDL.h>
 #include "common.h"
 #include "i_video.h"
 #include "ptrapi.h"

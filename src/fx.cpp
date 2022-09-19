@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <SDL\SDL.h>
+#include <SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"

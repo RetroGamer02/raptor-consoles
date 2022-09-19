@@ -1,5 +1,5 @@
 #ifdef _WIN32
-#include <SDL\SDL.h>
+#include <SDL.h>
 #include "common.h"
 #include "musapi.h"
 #include <windows.h>

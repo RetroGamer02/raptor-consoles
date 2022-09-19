@@ -1,4 +1,4 @@
-#include <SDL\SDL.h>
+#include <SDL.h>
 #define MAX_CONTROLLERS 4
 
 //#define KEY_F1			SDLK_F1			//Loose a life

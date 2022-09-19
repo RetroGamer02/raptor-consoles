@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <SDL\SDL.h>
+#include <SDL.h>
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
 
