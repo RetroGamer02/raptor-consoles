@@ -335,7 +335,6 @@ char *GLB_FetchItem(int a1, int a2)
         }
     }
     else if (a2 == 2)
-    //if (a2 == 2)
     {
         if (fVmem)
         {

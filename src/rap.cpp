@@ -1222,7 +1222,7 @@ int main(int argc, char *argv[])
         fflush(stdout);
     }
     
-    GLB_InitSystem(argv[0], 6, 0);
+    GLB_InitSystem(argv[0], 5, 0);
     if (reg_flag)
     {
         //reg_text = GLB_GetItem(FILE000_ATENTION_TXT); //Crashes real 3DS
