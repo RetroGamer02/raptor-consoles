@@ -89,7 +89,7 @@ int SND_InitSound(void)
     spec.callback = FX_Fill;
     spec.userdata = NULL;
 
-    SDL_OpenAudio(&spec, NULL);
+    SDL_OpenAudio(&spec, NULL); //Fixme? Causes Kernel errors in citra
     /*{
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;

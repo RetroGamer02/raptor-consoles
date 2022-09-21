@@ -1039,7 +1039,7 @@ void printfile(const char* path)
 	}
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     char *shost, *reg_text, *pal;
     int i, eps, v28, v20;
@@ -1049,6 +1049,7 @@ int main(int argc, char *argv[])
     _Bool isN3DS;
 
     APT_CheckNew3DS(&isN3DS);
+    //APT_SetAppCpuTimeLimit(80); //Speedup on real hardware enable when crash is fixed
 
     gfxInitDefault(); //3DS
 	consoleInit(GFX_BOTTOM, NULL); //3DS
@@ -1084,13 +1085,6 @@ int main(int argc, char *argv[])
         //printfile(RAP_GetSetupPath());
     }*/
 
-    godmode = 0;
-
-    if (shost != NULL && !strcmp(shost, gdmodestr))
-        godmode = 1;
-    else
-        godmode = 0;
-
     /*if (argv[1])
     {
         if (!strcmp(argv[1], "REC"))
@@ -1124,7 +1118,7 @@ int main(int argc, char *argv[])
         gameflag[3] = 1;
     }
 
-    if (gameflag[1] + gameflag[2])
+        if (gameflag[1] + gameflag[2])
         reg_flag = 1;
 
     eps = 0;
@@ -1141,6 +1135,14 @@ int main(int argc, char *argv[])
     }
     //printf("Init -\n");
     EXIT_Install(ShutDown);
+
+    godmode = 0;
+
+    if (shost != NULL && !strcmp(shost, gdmodestr))
+        godmode = 1;
+    else
+        godmode = 0;
+    
     memset(bday, 0, sizeof(bday));
     bday[0].f_0 = 5;
     bday[0].f_4 = 16;
@@ -1221,15 +1223,17 @@ int main(int argc, char *argv[])
         printf("Registered EXE!\n");
         fflush(stdout);
     }
-    
-    GLB_InitSystem(argv[0], 5, 0);
-    if (reg_flag)
+
+   //GLB_InitSystem(argv[0], 5, 0);
+   GLB_InitSystem("", 5, 0);
+   if (reg_flag)
     {
         //reg_text = GLB_GetItem(FILE000_ATENTION_TXT); //Crashes real 3DS
         //printf("%s\n", reg_text);
         printf("%s", newRegAttention[0]);
         GLB_FreeItem(0);
     }
+
     SND_InitSound();
     IPT_Init();
     GLB_FreeAll();
@@ -1316,6 +1320,6 @@ int main(int argc, char *argv[])
     } while (1);
     
     //gfxExit();
-    
+
     return 0;
 }
