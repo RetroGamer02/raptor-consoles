@@ -32,7 +32,6 @@ You have to take care of these files yourself.
 ## Build
 The project supports devkitpro 3ds dev environment.
 When you have installed git on your system you can clone the repository by type in `git clone https://github.com/RetroGamer02/raptor3ds.git`.
-You will also require nop90's 3ds SDL libs. https://github.com/nop90/SDL-3DS/releases. Simply copy the files to devkitpro's portlibs directory.
 
 Run msys2 and type make.
 
