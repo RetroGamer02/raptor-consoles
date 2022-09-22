@@ -6,28 +6,19 @@ Click on the link to watch some videos showing the project in action
 
 https://www.youtube.com/channel/UCYgpHKf7CRhP-SAtQnWR0OQ
 ## Installing
-You need the original assets (GLB files) from Raptor Call Of The Shadows v1.2 shareware or fullversion.
+You can use the original assets (GLB files) from Raptor Call Of The Shadows v1.2 fullversion.
 Important only the DOS version v1.2 is compatible!
 You have to take care of these files yourself.
 
-### Shareware
-1. Copy the following files to the SD Card root directory:  
-   ```
-   FILE0000.GLB  
-   FILE0001.GLB  
-   ```
-2. Copy the `raptor.3dsx` to the 3ds directory on your SD Card and SETUP to 3ds/Raptor/. 
+Copy the `raptor.3dsx` to the 3ds directory on your SD Card and SETUP to 3ds/Raptor/. 
 
 ### Fullversion
-1. Copy the following files to the SD Card root directory:  
-   ```
-   FILE0000.GLB  
-   FILE0001.GLB  
+Copy the following files to the SD Card root directory:  
+   ``` 
    FILE0002.GLB  
    FILE0003.GLB  
    FILE0004.GLB  
    ```
-2. Copy the `raptor.3dsx` to the 3ds directory on your SD Card and SETUP to 3ds/Raptor/. 
 
 ## Build
 The project supports devkitpro 3ds dev environment.
