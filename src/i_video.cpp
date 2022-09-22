@@ -256,35 +256,35 @@ void I_GetEvent(void)
         {
             YButton = 0;
         }
-        if (kDown & KEY_CPAD_LEFT)
+        if (kDown & KEY_DLEFT)
         {
             Left = 1;
         }
-        if (kUp & KEY_CPAD_LEFT)
+        if (kUp & KEY_DLEFT)
         {
             Left = 0;
         }
-        if (kDown & KEY_CPAD_RIGHT)
+        if (kDown & KEY_DRIGHT)
         {
             Right = 1;
         }
-        if (kUp & KEY_CPAD_RIGHT)
+        if (kUp & KEY_DRIGHT)
         {
             Right = 0;
         }
-        if (kDown & KEY_CPAD_UP)
+        if (kDown & KEY_DUP)
         {
             Up = 1;
         }
-        if (kUp & KEY_CPAD_UP)
+        if (kUp & KEY_DUP)
         {
             Up = 0;
         }
-        if (kDown & KEY_CPAD_DOWN)
+        if (kDown & KEY_DDOWN)
         {
             Down = 1;
         }
-        if (kUp & KEY_CPAD_DOWN)
+        if (kUp & KEY_DDOWN)
         {
             Down = 0;
         }
