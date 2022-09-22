@@ -34,7 +34,8 @@ char* strupr(char* s)
 #endif
 
 char prefix[] = "FILE";
-char exePath[PATH_MAX] = "sdmc:/";
+char exePathRom[PATH_MAX] = "romfs:/";
+char exePathSD[PATH_MAX] = "sdmc:/";
 const char *serial = "32768GLB";
 
 struct fitem_t {
@@ -47,7 +48,7 @@ struct fitem_t {
 };
 
 struct filedesc_t {
-    char path[PATH_MAX] = "sdmc:/";
+    char path[PATH_MAX];
     fitem_t *items;
     int itemcount;
     FILE *handle;
@@ -109,20 +110,35 @@ void GLB_DeCrypt(const char *key, void *buf, int size)
 FILE *GLB_FindFile(int a1, int a2, const char *mode)
 {
     FILE *h;
-    char buffer[PATH_MAX] = "sdmc:/";
-    sprintf(buffer, "%s%04u.GLB", prefix, a2);
+    char bufferRom[PATH_MAX] = "romfs:/";
+    char bufferSD[PATH_MAX] = "sdmc:/";
+    char buffer[PATH_MAX];
+    for (int i=0; i < PATH_MAX; i++)
+    {
+        buffer[i] = bufferRom[i];
+    }
+    sprintf(buffer, "%s%s%04u.GLB", buffer, prefix, a2);
     h = fopen(buffer, mode);
     if (h == NULL)
     {
-        sprintf(buffer, "%s%s%04u.GLB", exePath, prefix, a2);
+        for (int i=0; i < 8; i++)
+        {
+            buffer[i] = bufferSD[i];
+        }
         h = fopen(buffer, mode);
         if (h == NULL)
         {
-            if (a1)
-                return NULL;
-            sprintf(buffer, "%s%04u.GLB", prefix, a2);
-            printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
+            sprintf(buffer, "%s%s%04u.GLB", exePathSD, prefix, a2);
+            h = fopen(buffer, mode);
+            if (h == NULL)
+            {
+                if (a1)
+                    return NULL;
+                sprintf(buffer, "%s%04u.GLB", prefix, a2);
+                printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
+            }
         }
+        
     }
     strcpy(filedesc[a2].path, buffer);
     filedesc[a2].mode = mode;
@@ -215,9 +231,9 @@ int GLB_InitSystem(const char *a1, int a2, const char *a3)
     int i, j, k;
     filedesc_t *fd;
     char *t;
-    memset(exePath, 0, sizeof(exePath));
-    strcpy(exePath, a1);
-    t = strrchr(exePath, '\\');
+    memset(exePathRom, 0, sizeof(exePathRom));
+    strcpy(exePathRom, a1);
+    t = strrchr(exePathRom, '\\');
     if (t)
         t[1] = '\0';
     num_glbs = a2;
@@ -508,7 +524,7 @@ int GLB_ReadFile(const char *a1, char *a2)
     char f_a0[PATH_MAX];
     if (!checkfile(a1) == -1)
     {
-        strcpy(f_a0, exePath);
+        strcpy(f_a0, exePathRom);
         strcat(f_a0, a1);
         a1 = f_a0;
     }

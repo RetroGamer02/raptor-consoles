@@ -22,7 +22,7 @@
 
 
 
-char demo_name[PATH_MAX] = "sdmc:/";
+char demo_name[PATH_MAX];
 int cur_play;
 
 demo_t playback[2801];

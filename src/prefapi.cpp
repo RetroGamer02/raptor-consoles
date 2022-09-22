@@ -264,7 +264,7 @@ static int INI_SaveFile(const char *section, const char *key, const char *value,
     return 1;
 }
 
-static char preference[PATH_MAX] = "sdmc:/";
+static char preference[PATH_MAX];
 
 int INI_InitPreference(const char *section)
 {

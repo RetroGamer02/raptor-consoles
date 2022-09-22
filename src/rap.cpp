@@ -1059,6 +1059,14 @@ int main()
         osSetSpeedupEnable(true);
     }
 
+    Result rc = romfsInit();
+	if (rc)
+		printf("romfsInit: %08lX\n", rc);
+	else
+	{
+		printf("romfs Init Successful!\n");
+	}
+
     /*Result rc = sdmcInit();
 	if (rc)
 		printf("sdmcfs Init: %08lX\n", rc);
@@ -1108,7 +1116,7 @@ int main()
         printf("GOD mode enabled\n");
     cur_diff = 0;
 
-    if (checkfile("sdmc:/FILE0001.GLB"))
+    if (checkfile("romfs:/FILE0001.GLB"))
         gameflag[0] = 1;
     if (checkfile("sdmc:/FILE0002.GLB"))
         gameflag[1] = 1;
@@ -1126,7 +1134,7 @@ int main()
         if (gameflag[i])
             eps++;
 
-    if (!checkfile("sdmc:/FILE0000.GLB") || !eps)
+    if (!checkfile("romfs:/FILE0000.GLB") || !eps)
     {
         printf("All game data files \nNOT FOUND cannot proceed !!\n");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
