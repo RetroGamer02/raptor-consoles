@@ -80,14 +80,14 @@ int video_display = 0;
 // Screen width and height, from configuration file.
 
 int window_width = 320;
-int window_height = 240;
+int window_height = 200;
 
 // Aspect ratio correction mode
 
 int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 static int actualheight;
 
-int to_screen;
+int render_to_screen;
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -136,7 +136,7 @@ void VIDEO_LoadPrefs(void)
     //Setup Items
     //fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
     aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
-    to_screen = INI_GetPreferenceLong("Video", "to_screen", 1);
+    render_to_screen = INI_GetPreferenceLong("Video", "render_to_screen", 1);
 }
 
 static bool MouseShouldBeGrabbed()
@@ -551,16 +551,16 @@ void I_InitGraphics(uint8_t *pal)
      * Initialize the display in a 640x480 8-bit palettized mode,
      * requesting a software surface
      */
-    if (to_screen == 1)
+    if (render_to_screen == 1)
     {
-        if (aspect_ratio_correct == 1)
-        {
-            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
-        } else {
+        //if (aspect_ratio_correct == 1)
+        //{
+            //screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
+        //} else {
             screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
-        }
+        //}
     } else {
-        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_CONSOLETOP | SDL_BOTTOMSCR);
+        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_CONSOLETOP | SDL_BOTTOMSCR);
     }
     
     if ( screen == NULL ) {
