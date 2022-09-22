@@ -1128,7 +1128,7 @@ int main()
 
     if (!checkfile("sdmc:/FILE0000.GLB") || !eps)
     {
-        printf("All game data files NOT FOUND cannot proceed !!\n");
+        printf("All game data files \nNOT FOUND cannot proceed !!\n");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //"Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
         //exit(0);

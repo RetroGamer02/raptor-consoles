@@ -46,20 +46,6 @@ static SDL_Surface *screen;
 
 // Window title
 
-static const char *window_title = "";
-
-// These are (1) the 320x200x8 paletted buffer that we draw to (i.e. the one
-// that holds I_VideoBuffer), (2) the 320x200x32 RGBA intermediate buffer that
-// we blit the former buffer to, (3) the intermediate 320x200 texture that we
-// load the RGBA buffer to and that we render into another texture (4) which
-// is upscaled by an integer factor UPSCALE using "nearest" scaling and which
-// in turn is finally rendered to screen using "linear" scaling.
-
-//static SDL_Surface *screenbuffer = NULL;
-//static SDL_Surface *argbbuffer = NULL;
-//static SDL_Texture *texture = NULL;
-//static SDL_Texture *texture_upscaled = NULL;
-
 static SDL_Rect blit_rect = {
     0,
     0,
@@ -83,14 +69,6 @@ static bool initialized = false;
 static bool nomouse = false;
 int usemouse = 1;
 
-// Save screenshots in PNG format.
-
-// int png_screenshots = 0;
-
-// SDL video driver name
-
-const char *video_driver = "";
-
 // Window position:
 
 const char *window_position = "center";
@@ -104,36 +82,12 @@ int video_display = 0;
 int window_width = 320;
 int window_height = 240;
 
-// Fullscreen mode, 0x0 for SDL_WINDOW_FULLSCREEN_DESKTOP.
-
-int fullscreen_width = 320, fullscreen_height = 240;
-
-// Maximum number of pixels to use for intermediate scale buffer.
-
-static int max_scaling_buffer_pixels = 16000000;
-
-// Run in full screen mode?  (int type for config code)
-
-// int fullscreen = true;
-int fullscreen; //Defined in VIDEO_LoadPrefs to read config from setup.ini
-
 // Aspect ratio correction mode
 
 int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 static int actualheight;
 
-// Force integer scales for resolution-independent rendering
-
-int integer_scaling = false;
-
-// VGA Porch palette change emulation
-
-int vga_porch_flash = false;
-
-// Force software rendering, for systems which lack effective hardware
-// acceleration
-
-int force_software_renderer = false; //Testme
+int to_screen;
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -150,24 +104,10 @@ static bool nograbmouse_override = false;
 
 pixel_t *I_VideoBuffer = NULL;
 
-// If true, game is running as a screensaver
-
-bool screensaver_mode = false;
-
 // Flag indicating whether the screen is currently visible:
 // when the screen isnt visible, don't render the screen
 
 bool screenvisible = true;
-
-// If true, we display dots at the bottom of the screen to
-// indicate FPS.
-
-// static bool display_fps_dots;
-
-// If this is true, the screen is rendered but not blitted to the
-// video buffer.
-
-// static boolean noblit;
 
 // Callback function to invoke to determine whether to grab the
 // mouse pointer.
@@ -196,6 +136,7 @@ void VIDEO_LoadPrefs(void)
     //Setup Items
     //fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
     aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
+    to_screen = INI_GetPreferenceLong("Video", "to_screen", 1);
 }
 
 static bool MouseShouldBeGrabbed()
@@ -454,10 +395,6 @@ void I_FinishUpdate (void)
         palette_to_set = false;
     }
 
-    // Blit from the paletted 8-bit screen buffer to the intermediate
-    // 32-bit RGBA buffer that we can load into the texture.
-    //SDL_LowerBlit(screen, &blit_rect, argbbuffer, &blit_rect);
-
     SDL_Flip(screen);
 }
 
@@ -614,11 +551,16 @@ void I_InitGraphics(uint8_t *pal)
      * Initialize the display in a 640x480 8-bit palettized mode,
      * requesting a software surface
      */
-    if (aspect_ratio_correct == 1)
+    if (to_screen == 1)
     {
-        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+        if (aspect_ratio_correct == 1)
+        {
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+        } else {
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
+        }
     } else {
-        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
+        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_CONSOLETOP | SDL_BOTTOMSCR);
     }
     
     if ( screen == NULL ) {
