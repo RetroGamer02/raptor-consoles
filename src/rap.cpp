@@ -1242,7 +1242,13 @@ int main()
         GLB_FreeItem(0);
     }
 
-    SND_InitSound();
+    if (checkfile("sdmc:/3ds/dspfirm.cdc"))
+    {
+       SND_InitSound(); 
+    } else {
+        printf("DSP Firmware is missing!");
+    }
+    
     IPT_Init();
     GLB_FreeAll();
     RAP_InitMem();

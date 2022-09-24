@@ -41,7 +41,7 @@ ROMFS		:=	romfs
 APP_VER						:= 0001
 APP_TITLE					:= Raptor 3DS
 APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
-APP_AUTHOR					:= RetroGamer02
+APP_AUTHOR					:= RetroGamer02/Ryan
 PRODUCT_CODE				:= CTR-Rap
 
 #BANNER_AUDIO				:= resource/banner.wav
