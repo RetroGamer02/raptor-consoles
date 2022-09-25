@@ -277,79 +277,79 @@ void Rot_Color(char *a1, int a2, int a3)
 
 void InitMobj(mobj_t *m)
 {
-    m->trigger = 0;
-    m->dir_x = 1;
-    m->dir_y = 1;
-    m->max_x = m->dirX - m->x;
-    m->max_y = m->dirY - m->y;
-    if (m->max_x < 0)
+    m->done = 0;
+    m->addx = 1;
+    m->addy = 1;
+    m->delx = m->x2 - m->x;
+    m->dely = m->y2 - m->y;
+    if (m->delx < 0)
     {
-        m->max_x = -m->max_x;
-        m->dir_x = -m->dir_x;
+        m->delx = -m->delx;
+        m->addx = -m->addx;
     }
-    if (m->max_y < 0)
+    if (m->dely < 0)
     {
-        m->max_y = -m->max_y;
-        m->dir_y = -m->dir_y;
+        m->dely = -m->dely;
+        m->addy = -m->addy;
     }
-    if (m->max_x >= m->max_y)
+    if (m->delx >= m->dely)
     {
-        m->f_24 = -(m->max_y >> 1);
-        m->triggerDelay = m->max_x + 1;
+        m->err = -(m->dely >> 1);
+        m->maxloop = m->delx + 1;
     }
     else
     {
-        m->f_24 = m->max_x >> 1;
-        m->triggerDelay = m->max_y + 1;
+        m->err = m->delx >> 1;
+        m->maxloop = m->dely + 1;
     }
 }
 
 void MoveMobj(mobj_t *m)
 {
-    if (m->triggerDelay == 0)
+    if (m->maxloop == 0)
     {
-        m->trigger = 1;
+        m->done = 1;
         return;
     }
-    if (m->max_x >= m->max_y)
+    if (m->delx >= m->dely)
     {
-        m->x += m->dir_x;
-        m->f_24 += m->max_y;
-        if (m->f_24 > 0)
+        m->x += m->addx;
+        m->err += m->dely;
+        if (m->err > 0)
         {
-            m->y += m->dir_y;
-            m->f_24 -= m->max_x;
+            m->y += m->addy;
+            m->err -= m->delx;
         }
     }
     else
     {
-        m->y += m->dir_y;
-        m->f_24 += m->max_x;
-        if (m->f_24 > 0)
+        m->y += m->addy;
+        m->err += m->delx;
+        if (m->err > 0)
         {
-            m->x += m->dir_x;
-            m->f_24 -= m->max_y;
+            m->x += m->addx;
+            m->err -= m->dely;
         }
     }
-    m->triggerDelay--;
+    m->maxloop--;
 }
 
 int MoveSobj(mobj_t *m, int a2)
 {
     if (a2 == 0)
         return 0;
-    if (m->max_x >= m->max_y)
+    if (m->delx >= m->dely)
     {
         while (a2)
         {
             a2--;
-            m->triggerDelay--;
-            m->x += m->dir_x;
-            m->f_24 += m->max_y;
-            if (m->f_24 > 0)
+            m->maxloop--;
+            m->x += m->addx;
+            m->err += m->dely;
+            if (m->err > 0)
             {
-                m->y += m->dir_y;
-                m->f_24 -= m->max_x;
+                m->y += m->addy;
+                m->err -= m->delx;
             }
         }
     }
@@ -358,18 +358,18 @@ int MoveSobj(mobj_t *m, int a2)
         while (a2)
         {
             a2--;
-            m->triggerDelay--;
-            m->y += m->dir_y;
-            m->f_24 += m->max_x;
-            if (m->f_24 > 0)
+            m->maxloop--;
+            m->y += m->addy;
+            m->err += m->delx;
+            if (m->err > 0)
             {
-                m->x += m->dir_x;
-                m->f_24 -= m->max_y;
+                m->x += m->addx;
+                m->err -= m->dely;
             }
         }
     }
-    if (m->triggerDelay < 1)
-        m->trigger = 1;
+    if (m->maxloop < 1)
+        m->done = 1;
     return a2;
 }
 
@@ -518,13 +518,13 @@ void RAP_DisplayStats(void)
     }
     g_oldshield = v20;
     OBJS_DisplayStats();
-    sprintf(v4c, "%08u", player.money);
+    sprintf(v4c, "%08u", player.score);
     RAP_PrintNum(0x77, 2, v4c);
     if (demo_mode == 1)
         DEMO_DisplayStats();
     if (debugflag)
     {
-        sprintf(v4c, "%02u", player.waveProgression[cur_game]);
+        sprintf(v4c, "%02u", player.diff[cur_game]);
         RAP_PrintNum(0x12, 2, v4c);
         v1c = 32;
         for (i = 0; i < 16; i++)
@@ -688,7 +688,7 @@ int Do_Game(void)
     if (demo_flag == 1)
         DEMO_StartRec();
 
-    v30 = player.money;
+    v30 = player.score;
     IMS_StartAck();
     memset(buttons, 0, sizeof(buttons));
     do
@@ -800,8 +800,8 @@ int Do_Game(void)
             OBJS_Use(1);
             OBJS_Use(2);
             buttons[0] = 0;
-            if (player.currentWeapon != -1)
-                OBJS_Use(player.currentWeapon);
+            if (player.sweapon != -1)
+                OBJS_Use(player.sweapon);
         }
         if (buttons[1])
         {
@@ -840,10 +840,10 @@ int Do_Game(void)
         }
         gl_cnt++;
         TILE_Think();
-        ENEMY_Think();
+        ENEMY_Think(); //Crashes when shooting fixme
         ESHOT_Think();
         BONUS_Think();
-        SHOTS_Think();
+        SHOTS_Think(); //Crashes when shooting fixme
         ANIMS_Think();
         OBJS_Think();
         if (draw_player)
@@ -919,7 +919,7 @@ int Do_Game(void)
             OBJS_Add(16);
             OBJS_Add(16);
             OBJS_Add(16);
-            player.money = 0;
+            player.score = 0;
         }
         if (v28)
         {
@@ -957,7 +957,7 @@ int Do_Game(void)
                 RAP_ClearSides();
                 if (WIN_AskBool("Abort Mission ?"))
                 {
-                    player.money = v30;
+                    player.score = v30;
                     v2c = 1;
                     break;
                 }
@@ -1049,7 +1049,7 @@ int main()
     _Bool isN3DS;
 
     APT_CheckNew3DS(&isN3DS);
-    //APT_SetAppCpuTimeLimit(80); //Speedup on real hardware enable when crash is fixed
+    APT_SetAppCpuTimeLimit(50); //Speedup on real hardware enable when crash is fixed
 
     gfxInitDefault(); //3DS
 	consoleInit(GFX_BOTTOM, NULL); //3DS
@@ -1126,7 +1126,7 @@ int main()
         gameflag[3] = 1;
     }
 
-        if (gameflag[1] + gameflag[2])
+    if (gameflag[1] + gameflag[2])
         reg_flag = 1;
 
     eps = 0;
@@ -1246,9 +1246,9 @@ int main()
     {
        SND_InitSound(); 
     } else {
-        printf("DSP Firmware is missing!");
+        printf("DSP Firmware is missing!\n");
     }
-    
+
     IPT_Init();
     GLB_FreeAll();
     RAP_InitMem();
@@ -1286,19 +1286,20 @@ int main()
         else
             flatlib[i] = NULL;
     }
+    
     for (i = 0; i < 11; i++)
     {
         v20 = FILE105_N0_PIC + i;
-        numbers[i] = (texture_t*)GLB_LockItem(v20);
+        numbers[i] = (texture_t*)GLB_LockItem(v20); //Crashes real 3DS
     }
 
     FLAME_InitShades();
     HELP_Init();
     OBJS_Init();
     TILE_Init();
-    SHOTS_Init();
-    ESHOT_Init();
-    BONUS_Init();
+    SHOTS_Init(); //Crashes real 3DS
+    ESHOT_Init(); //Crashes real 3DS
+    BONUS_Init(); //Crashes real 3DS
     ANIMS_Init();
     SND_Setup();
     
@@ -1329,11 +1330,9 @@ int main()
     
     do
     {
-       WIN_MainMenu();
-       WIN_MainLoop();
+       WIN_MainMenu(); //Crashes real 3DS
+       WIN_MainLoop(); //Crashes real 3DS
     } while (1);
-    
-    //gfxExit();
 
     return 0;
 }

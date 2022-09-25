@@ -24,17 +24,23 @@ int adir[3] = {
 /***************************************************************************
 ANIMS_Clear () - Clears out All ANIM Objects
  ***************************************************************************/
-void ANIMS_Clear(
+void 
+ANIMS_Clear(
     void
 )
 {
     int loop;
+    
     first_anims.prev = NULL;
     first_anims.next = &last_anims;
+    
     last_anims.prev = &first_anims;
     last_anims.next = NULL;
+    
     free_anims = anims;
+    
     memset(anims, 0, sizeof(anims));
+    
     for (loop = 0; loop < MAX_ANIMS - 1; loop++)
         anims[loop].next = &anims[loop + 1];
 }
@@ -42,44 +48,59 @@ void ANIMS_Clear(
 /*-------------------------------------------------------------------------*
 ANIMS_Get () - Gets A Free ANIM from Link List
  *-------------------------------------------------------------------------*/
-anim_t *ANIMS_Get(
+anim_t 
+*ANIMS_Get(
     void
 )
 {
     anim_t *newa;
+    
     if (!free_anims)
         return NULL;
+    
     newa = free_anims;
     free_anims = free_anims->next;
+    
     memset(newa, 0, sizeof(anim_t));
+    
     newa->next = &last_anims;
     newa->prev = last_anims.prev;
+    
     last_anims.prev = newa;
     newa->prev->next = newa;
+    
     return newa;
 }
 
 /*-------------------------------------------------------------------------*
 ANIMS_Remove () Removes ANIM from Link List
  *-------------------------------------------------------------------------*/
-anim_t *ANIMS_Remove(
+anim_t 
+*ANIMS_Remove(
     anim_t *anim
 )
 {
     anim_t *next;
+    
     next = anim->prev;
+    
     anim->next->prev = anim->prev;
     anim->prev->next = anim->next;
+    
     memset(anim, 0, sizeof(anim_t));
+    
     anim->next = free_anims;
+    
     free_anims = anim;
+    
     return next;
 }
 
 /***************************************************************************
 ANIMS_Register () - Register a ANIM for USE with this stuff
  ***************************************************************************/
-int ANIMS_Register(
+int 
+ANIMS_Register(
     int item,              // INPUT : lumpnum of first frame
     int numframes,         // INPUT : number of frames
     int groundflag,        // INPUT : on the ground = TRUE
@@ -92,32 +113,40 @@ int ANIMS_Register(
     texture_t *h;
     int handle;
     handle = curlib;
+    
     if (curlib >= MAX_ANIMLIB)
         EXIT_Error("ANIMS_Register() - Max LIBs");
+    
     cur = &animlib[curlib];
     curlib++;
+    
     cur->item = item;
     cur->numframes = numframes;
     cur->groundflag = groundflag;
     cur->playerflag = playerflag;
     cur->transparent = transparent;
     cur->adir = adir;
+    
     h = (texture_t*)GLB_LockItem(item);
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
     GLB_FreeItem(item);
+    
     return handle;
 }
 
 /***************************************************************************
 ANIMS_Init () Initializes ANIM Stuff
  ***************************************************************************/
-void ANIMS_Init(
+void 
+ANIMS_Init(
     void
 )
 {
     ANIMS_Clear();
+    
     memset(animlib, 0, sizeof(animlib));
+    
     curlib = 0;
     
     // GROUND EXPLOSIONS
@@ -158,14 +187,17 @@ void ANIMS_Init(
 /***************************************************************************
 ANIMS_CachePics() - Cache registered anim pics
  ***************************************************************************/
-void ANIMS_CachePics(
+void 
+ANIMS_CachePics(
     void
 )
 {
     int loop;
     unsigned int frames;
     animlib_t *cur;
+    
     cur = animlib;
+    
     for (loop = 0; loop < curlib; loop++, cur++)
     {
         for (frames = 0; frames < (unsigned int)cur->numframes; frames++)
@@ -178,14 +210,17 @@ void ANIMS_CachePics(
 /***************************************************************************
 ANIMS_FreePics() - Free Up Anims Used
  ***************************************************************************/
-void ANIMS_FreePics(
+void 
+ANIMS_FreePics(
     void
 )
 {
     int loop;
     unsigned int frames;
     animlib_t *cur;
+    
     cur = animlib;
+    
     for (loop = 0; loop < curlib; loop++, cur++)
     {
         for (frames = 0; frames < (unsigned int)cur->numframes; frames++)
@@ -198,7 +233,8 @@ void ANIMS_FreePics(
 /***************************************************************************
 ANIMS_StartAnim () - Start An ANIM Playing
  ***************************************************************************/
-void ANIMS_StartAnim(
+void 
+ANIMS_StartAnim(
     int handle,            // INPUT : ANIM handle
     int x,                 // INPUT : x position
     int y                  // INPUT : y position
@@ -207,9 +243,11 @@ void ANIMS_StartAnim(
     animlib_t *lib;
     anim_t *cur;
     lib = &animlib[handle];
+    
     cur = ANIMS_Get();
     if (!cur)
         return;
+    
     cur->lib = lib;
     cur->x = x - lib->xoff;
     cur->y = y - lib->yoff;
@@ -219,16 +257,19 @@ void ANIMS_StartAnim(
 /***************************************************************************
 ANIMS_StartGAnim () - Start An ANIM Playing with groundflag == GROUND
  ***************************************************************************/
-void ANIMS_StartGAnim(
+void 
+ANIMS_StartGAnim(
     int handle,             // INPUT : ANIM handle        
     int x,                  // INPUT : x position
     int y                   // INPUT : y position
 )
 {
     anim_t *cur;
+    
     cur = ANIMS_Get();
     if (!cur)
         return;
+    
     cur->lib = &animlib[handle];
     cur->x = x;
     cur->y = y;
@@ -238,7 +279,8 @@ void ANIMS_StartGAnim(
 /***************************************************************************
 ANIMS_StartEAnim () - Start An ANIM Playing locked onto ENEMY
  ***************************************************************************/
-void ANIMS_StartEAnim(
+void 
+ANIMS_StartEAnim(
     enemy_t *en,            // INPUT : pointer to ENEMY
     int handle,             // INPUT : ANIM handle
     int x,                  // INPUT : x position
@@ -248,9 +290,11 @@ void ANIMS_StartEAnim(
     animlib_t *lib;
     anim_t *cur;
     lib = &animlib[handle];
+    
     cur = ANIMS_Get();
     if (!cur)
         return;
+    
     cur->en = en;
     cur->lib = &animlib[handle];
     cur->x = x - lib->xoff;
@@ -261,7 +305,8 @@ void ANIMS_StartEAnim(
 /***************************************************************************
 ANIMS_StartAAnim () - Start An ANIM Playing with groundflag == HIGH_AIR
  ***************************************************************************/
-void ANIMS_StartAAnim(
+void 
+ANIMS_StartAAnim(
     int handle,             // INPUT : ANIM handle
     int x,                  // INPUT : x position
     int y                   // INPUT : y position
@@ -270,9 +315,11 @@ void ANIMS_StartAAnim(
     animlib_t *lib;
     anim_t *cur;
     lib = &animlib[handle];
+    
     cur = ANIMS_Get();
     if (!cur)
         return;
+    
     cur->lib = &animlib[handle];
     cur->x = x - lib->xoff;
     cur->y = y - lib->yoff;
@@ -282,7 +329,8 @@ void ANIMS_StartAAnim(
 /***************************************************************************
 ANIMS_Think () - Does all thinking for ANIMS
  ***************************************************************************/
-void ANIMS_Think(
+void 
+ANIMS_Think(
     void
 )
 {
@@ -292,12 +340,15 @@ void ANIMS_Think(
     for (cur = first_anims.next; &last_anims != cur; cur = cur->next)
     {
         lib = cur->lib;
+        
         if (cur->curframe >= lib->numframes)
         {
             cur = ANIMS_Remove(cur);
             continue;
         }
+        
         cur->item = lib->item + cur->curframe;
+        
         if (lib->playerflag)
         {
             cur->dx = player_cx + cur->x;
@@ -307,6 +358,7 @@ void ANIMS_Think(
         {
             if (cur->en->item == -1)
                 cur->edone = 1;
+            
             if (!cur->edone)
             {
                 cur->dx = cur->en->mobj.x + cur->x;
@@ -318,6 +370,7 @@ void ANIMS_Think(
             cur->dx = cur->x;
             cur->dy = cur->y;
         }
+        
         switch (lib->adir)
         {
         case 0:
@@ -329,9 +382,12 @@ void ANIMS_Think(
             cur->y--;
             break;
         }
+        
         cur->y += adir[lib->adir];
+        
         if ((lib->groundflag == GROUND) && (scroll_flag))
             cur->y++;
+        
         cur->curframe++;
     }
 }
@@ -339,7 +395,8 @@ void ANIMS_Think(
 /***************************************************************************
 ANIMS_DisplayGround () - Displays All Active ANIMS on the Ground
  ***************************************************************************/
-void ANIMS_DisplayGround(
+void 
+ANIMS_DisplayGround(
     void
 )
 {
@@ -350,7 +407,9 @@ void ANIMS_DisplayGround(
     {
         if (cur->groundflag)
             continue;
+        
         pic = (texture_t*)GLB_GetItem(cur->item);
+        
         if (cur->lib->transparent)
             GFX_ShadeShape(1, pic, cur->dx, cur->dy);
         else
@@ -361,7 +420,8 @@ void ANIMS_DisplayGround(
 /***************************************************************************
 ANIMS_DisplaySky () - Displays All Active ANIMS in SKY
  ***************************************************************************/
-void ANIMS_DisplaySky(
+void 
+ANIMS_DisplaySky(
     void
 )
 {
@@ -372,9 +432,12 @@ void ANIMS_DisplaySky(
     {
         if (cur->groundflag != MID_AIR)
             continue;
+        
         pic = (texture_t*)GLB_GetItem(cur->item);
+        
         if (cur->lib->transparent)
             GFX_ShadeShape(1, pic, cur->dx, cur->dy);
+        
         else
             GFX_PutSprite(pic, cur->dx, cur->dy);
     }
@@ -383,7 +446,8 @@ void ANIMS_DisplaySky(
 /***************************************************************************
 ANIMS_DisplayHigh () - Displays All Active ANIMS in ABOVE PLAYER
  ***************************************************************************/
-void ANIMS_DisplayHigh(
+void 
+ANIMS_DisplayHigh(
     void
 )
 {
@@ -394,7 +458,9 @@ void ANIMS_DisplayHigh(
     {
         if (cur->groundflag != HIGH_AIR)
             continue;
+        
         pic = (texture_t*)GLB_GetItem(cur->item);
+        
         if (cur->lib->transparent)
             GFX_ShadeShape(1, pic, cur->dx, cur->dy);
         else

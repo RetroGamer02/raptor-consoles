@@ -223,7 +223,7 @@ void GLB_LoadIDT(filedesc_t *a1)
 
 void GLB_UseVM(void)
 {
-    fVmem = 1;
+    fVmem = 0;
 }
 
 int GLB_InitSystem(const char *a1, int a2, const char *a3)
@@ -310,7 +310,8 @@ char *GLB_FetchItem(int a1, int a2)
     }*/
     if (a2 == 2)
     {
-        if (fi->flags == NULL)//Prevents crash here on real 3ds hardware.
+        //Prevents crash here on real 3ds hardware.
+        if (fi->flags == NULL)
         {
             fi->flags = 0x80000000;
             //printf("Null file Flag");
@@ -322,7 +323,7 @@ char *GLB_FetchItem(int a1, int a2)
     /*if (fi->mem.ptr == NULL)
     {
         printf("Null Ptr");
-        //return "Null";
+        return "Null";
     }*/
     
     if (!fi->mem.ptr)//Crashes on read of mem ptr because its NULL?

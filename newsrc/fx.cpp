@@ -86,7 +86,7 @@ int SND_InitSound(void)
     spec.format = AUDIO_S16;
     spec.channels = 2;
     spec.samples = 512;
-    spec.callback = FX_Fill; //Crashes new citra builds
+    spec.callback = FX_Fill;
     spec.userdata = NULL;
 
     SDL_OpenAudio(&spec, NULL); //Fixme? Causes Kernel errors in citra

@@ -312,11 +312,11 @@ void I_GetEvent(void)
 
         //if (pos.dx != 0000)
         //{
-            StickX = pos.dx;
+            //StickX = pos.dx; //Spazes out on real 3DS
         //}
         //if (pos.dy != 0000)
         //{
-            StickY = pos.dy *-1;
+            //StickY = pos.dy *-1; //Spazes out on real 3DS
         //}
 
 		//Do the keys printing only if keys have changed
