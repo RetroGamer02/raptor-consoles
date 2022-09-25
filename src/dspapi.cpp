@@ -243,7 +243,7 @@ DSP_PatchIsPlaying(
     handle &= FXHAND_MASK;
     stat = 0;
     
-    SND_Lock();
+    //SND_Lock();
     
     for (i = 0; i < dsp_channelnum; i++)
     {
@@ -254,7 +254,7 @@ DSP_PatchIsPlaying(
         }
     }
     
-    SND_Unlock();
+    //SND_Unlock();
     
     return stat;
 }
@@ -312,7 +312,7 @@ DSP_StartPatch(
     if (dsp->format != 3 || dsp->length <= 32)
         return -1;
 
-    SND_Lock();
+    //SND_Lock();
     
     for (i = 0; i < dsp_channelnum; i++)
     {
@@ -346,7 +346,7 @@ DSP_StartPatch(
         
         if (lowpriority < priority || lowpriority == 0)
         {
-            SND_Unlock();
+            //SND_Unlock();
             return -1;
         }
 
@@ -383,7 +383,7 @@ DSP_StartPatch(
     chan->handle = handle;
     chan->samples = (samples << 8) / step;
 
-    SND_Unlock();
+    //SND_Unlock();
     
     return handle | FXHAND_DSP;
 }
@@ -399,7 +399,7 @@ DSP_StopPatch(
     int i;
     handle &= FXHAND_MASK;
     
-    SND_Lock();
+    //SND_Lock();
     
     for (i = 0; i < dsp_channelnum; i++)
     {
@@ -410,5 +410,5 @@ DSP_StopPatch(
         }
     }
     
-    SND_Unlock();
+    //SND_Unlock();
 }
