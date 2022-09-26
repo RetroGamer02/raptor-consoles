@@ -976,10 +976,13 @@ void GFX_PutSprite(texture_t *a1, int a2, int a3)
             v2c = v14->width;
             v30 = 1;
             v20 = vbp;
-            //Crashes real 3DS
-            /*if (GFX_ClipLines(&v20, &v24, &v28, &v2c, &v30))
-                memcpy(&displaybuffer[v24 + ylookup[v28]], v20, v2c);
-            v14 = (texture_t*)(vbp + v14->width);*/
+            //Fixes 3DS real hardware crash.
+            if (v28)
+            {
+                if (GFX_ClipLines(&v20, &v24, &v28, &v2c, &v30))
+                    memcpy(&displaybuffer[v24 + ylookup[v28]], v20, v2c);
+            }
+            v14 = (texture_t*)(vbp + v14->width);
         }
         break;
     }

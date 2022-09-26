@@ -17,6 +17,7 @@
 #include "joyapi.h"
 #include "input.h"
 #include "fileids.h"
+#include "stdio.h"
 
 #define NORM_SHOOT  -1
 #define START_SHOOT   0
@@ -244,7 +245,7 @@ void ENEMY_LoadLib(
     }
     
     if (g_numslibs > 1 && !gameflag[2] && !gameflag[3])
-        EXIT_Error("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
+        printf("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
     
     for (loop = 0; loop < 4; loop++)
     {
@@ -253,7 +254,7 @@ void ENEMY_LoadLib(
             slib[loop] = (slib_t*)GLB_LockItem(spriteitm[loop]);
             
             if (!slib[loop])
-                EXIT_Error("ENEMY_LoadSprites() - memory");
+                printf("ENEMY_LoadSprites() - memory");
             
             numslibs[loop] = GLB_GetItemSize(spriteitm[loop]);
             numslibs[loop] /= sizeof(slib_t);
@@ -311,7 +312,7 @@ enemy_t
     enemy_t *sh;
     
     if (!free_enemy)
-        EXIT_Error("ENEMY_Get() - Max Sprites");
+        printf("ENEMY_Get() - Max Sprites");
     
     numships++;
     
@@ -419,7 +420,7 @@ ENEMY_Add(
     switch (curlib->animtype)
     {
     default:
-        EXIT_Error("ENEMY_Add() - Invalid ANIMTYPE");
+        printf("ENEMY_Add() - Invalid ANIMTYPE");
         break;
     case GANIM_NORM:
         newe->anim_on = 1;
@@ -437,6 +438,9 @@ ENEMY_Add(
         break;
     }
     
+    
+    //if (curlib->flighttype < 3)
+    //{
     switch (curlib->flighttype)
     {
     case F_REPEAT:
@@ -450,9 +454,10 @@ ENEMY_Add(
         InitMobj(&newe->mobj);
         MoveMobj(&newe->mobj);
         break;
-    
+
+    //Contributes to crash?
     case F_GROUND:                                          
-        newe->groundflag = 1;
+        //newe->groundflag = 1;
         newe->mobj.x2 = newe->x;
         newe->mobj.y2 = 211;
         break;
@@ -473,6 +478,7 @@ ENEMY_Add(
         newe->mobj.y2 = 211;
         break;
     }
+    //}
     
     newe->suckagain = curlib->hits >> 4;
     
@@ -729,7 +735,7 @@ void ENEMY_Think(
                         switch (curlib->animtype)
                         {
                         default:
-                            EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE1");
+                            printf("ENEMY_Think() - Invalid ANIMTYPE1");
                         case GANIM_NORM:
                             break;
                         
@@ -763,7 +769,7 @@ void ENEMY_Think(
                 switch (curlib->animtype)
                 {
                 default:
-                    EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE2");
+                    printf("ENEMY_Think() - Invalid ANIMTYPE2");
                 case GANIM_NORM:
                     sprite->shoot_on = 1;
                     break;
@@ -905,7 +911,20 @@ void ENEMY_Think(
             {
                 sprite->mobj.x = sprite->mobj.x2;
                 sprite->mobj.y = sprite->mobj.y2;
-                sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos];
+
+                //printf("Flight X: %d Y: %d\n", sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos],sprite->mobj.y2 = sprite->sy + curlib->flighty[sprite->movepos]);
+                //printf("Sprite Movepos: %d\n", sprite->movepos);
+                //Fixes 3DS real hardware crash.
+                int fixedX = sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos];
+                if (sprite->movepos == 1)
+                {
+                    if (sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos] > 320)
+                    {
+                        fixedX = 320;
+                    }
+                }
+                
+                sprite->mobj.x2 = fixedX;
                 sprite->mobj.y2 = sprite->sy + curlib->flighty[sprite->movepos];
                 
                 InitMobj(&sprite->mobj);

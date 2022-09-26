@@ -1049,7 +1049,7 @@ int main()
     _Bool isN3DS;
 
     APT_CheckNew3DS(&isN3DS);
-    APT_SetAppCpuTimeLimit(50); //Speedup on real hardware enable when crash is fixed
+    APT_SetAppCpuTimeLimit(70); //Speedup on real hardware enable when crash is fixed
 
     gfxInitDefault(); //3DS
 	consoleInit(GFX_BOTTOM, NULL); //3DS

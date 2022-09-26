@@ -557,10 +557,10 @@ void I_InitGraphics(uint8_t *pal)
         //{
             //screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
         //} else {
-            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
         //}
     } else {
-        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_CONSOLETOP | SDL_BOTTOMSCR);
+        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT | SDL_CONSOLETOP | SDL_BOTTOMSCR);
     }
     
     if ( screen == NULL ) {

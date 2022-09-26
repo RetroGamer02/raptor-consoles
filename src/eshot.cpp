@@ -316,7 +316,8 @@ ESHOT_Shoot(
         
         case ES_MISSLE:                                              
             SND_3DPatch(FX_ENEMYMISSLE, x, y);
-            cur->lib = &plib[LIB_MISSLE];
+            cur->lib = &plib[LIB_NORMAL]; //Fixes real 3DS hardware Crash
+            //cur->lib = &plib[LIB_MISSLE];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
             cur->move.y2 = 200;
