@@ -457,7 +457,7 @@ ENEMY_Add(
 
     //Contributes to crash?
     case F_GROUND:                                          
-        //newe->groundflag = 1;
+        //newe->groundflag = 1; //Fixme
         newe->mobj.x2 = newe->x;
         newe->mobj.y2 = 211;
         break;
@@ -465,7 +465,7 @@ ENEMY_Add(
     case F_GROUNDRIGHT:                                           
         newe->x -= newe->width;
         newe->mobj.x = newe->sx = newe->x;
-        newe->groundflag = 1;
+        //newe->groundflag = 1; //Fixme
         newe->mobj.x2 = 335;
         newe->mobj.y2 = 211;
         break;
@@ -473,7 +473,7 @@ ENEMY_Add(
     case F_GROUNDLEFT:                                           
         newe->x += newe->width;
         newe->mobj.x = newe->sx = newe->x;
-        newe->groundflag = 1;
+        //newe->groundflag = 1; //Fixme
         newe->mobj.x2 = -newe->hlx;
         newe->mobj.y2 = 211;
         break;

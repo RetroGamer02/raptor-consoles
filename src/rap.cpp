@@ -150,7 +150,7 @@ char flatnames[4][14] = {
     "FLATSG4_ITM"
 };
 
-const char *newRegAttention[] = {"**************************************\n             ATTENTION! \n      This version of RAPTOR is \n        a COMMERCIAL VERSION. \n      DO NOT upload this to any \n bulletin boards or distribute it in \n            any fashion. \n    Please report software piracy \n   to the S.P.A hotline by calling\n          1-800-388-PIR8.\n**************************************\n"};
+const char *newRegAttention[] = {"****************************************              ATTENTION! \n       This version of RAPTOR is \n         a COMMERCIAL VERSION. \n       DO NOT upload this to any \n  bulletin boards or distribute it in \n             any fashion. \n     Please report software piracy \n    to the S.P.A hotline by calling\n            1-800-388-PIR8.\n****************************************"};
 
 flat_t *flatlib[4];
 
@@ -1236,7 +1236,7 @@ int main()
    GLB_InitSystem("", 5, 0);
    if (reg_flag)
     {
-        //reg_text = GLB_GetItem(FILE000_ATENTION_TXT); //Crashes real 3DS
+        //reg_text = GLB_GetItem(FILE000_ATENTION_TXT);
         //printf("%s\n", reg_text);
         printf("%s", newRegAttention[0]);
         GLB_FreeItem(0);
@@ -1290,7 +1290,7 @@ int main()
     for (i = 0; i < 11; i++)
     {
         v20 = FILE105_N0_PIC + i;
-        numbers[i] = (texture_t*)GLB_LockItem(v20); //Crashes real 3DS
+        numbers[i] = (texture_t*)GLB_LockItem(v20);
     }
 
     FLAME_InitShades();

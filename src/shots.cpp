@@ -570,7 +570,7 @@ int SHOTS_PlayerShoot(int a1)
         v1c->y = player_cy;
 
         v1c->mobj.x = v1c->x;
-        v1c->mobj.y = v1c->y;
+        v1c->mobj.y = v1c->y; //Gun 1 Fire start pos y
         v1c->mobj.x2 = v1c->x;
         v1c->mobj.y2 = 0;
         v1c->f_50 = player_cx;
@@ -901,7 +901,7 @@ void SHOTS_Think(void)
     enemy_t *v24;
     int i;
 
-    v1c = shot_lib;
+    v1c = shot_lib; //Fixme?
     for (i = 0; i <= 14; i++, v1c++)
     {
         if (v1c->y > 0)
@@ -952,8 +952,19 @@ void SHOTS_Think(void)
             v20->x += player_cx - v20->f_50;
         if (v1c->offsetPlayerY)
             v20->y += player_cy - v20->f_54;
+        
+        //Fixes crash on real 3DS hardware
+        if ((v20->y < 1))
+        {
+            v20->speedY = 1;
+        } else {
+            if (v20->speedY < v1c->maxSpeedY)
+                    v20->speedY++;
+                v20->currentFrame++;
+        }
+        
         //if (v20->f_10 + 16 < 0 || v20->f_c < 0 && v20->f_c > 320 && v20->f_10 > 200)
-        if ((v20->y + 16 < 0) || (v20->x < 0) || (v20->x > 320) || (v20->y > 200))
+        if ((v20->y < 1) || (v20->x < 0) || (v20->x > 320) || (v20->y > 200))
         {
             if (v1c->f_5c)
             {
@@ -961,12 +972,11 @@ void SHOTS_Think(void)
                 goto LAB_00015d11;
             }
         }
-        
+
         if (v20->f_4c == 0)
         {
-            if (v20->speedY < v1c->maxSpeedY)
-                v20->speedY++;
-            v20->currentFrame++;
+            //Code moved up
+            
             if (v20->currentFrame >= v1c->numberOfFrames)
             {
                 if (v1c->f_5c)
