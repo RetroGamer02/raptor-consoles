@@ -466,10 +466,10 @@ ESHOT_Think(
                 }
             }
             
-            if (shot->y >= 200 || shot->y < 0)
+            if (shot->y >= 199 || shot->y < 1 || shot->y == 200 || shot->y == 0)
                 shot->doneflag = 1;
             
-            if (shot->x >= 320 || shot->x < 0)
+            if (shot->x >= 319 || shot->x < 1 || shot->x == 320 || shot->x == 0)
                 shot->doneflag = 1;
             
             dx = abs(shot->x - player_cx);

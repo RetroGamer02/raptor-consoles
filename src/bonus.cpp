@@ -209,7 +209,7 @@ BONUS_Think(
         
         if (cur->curglow >= 4)
             cur->curglow = 0;
-        
+
         if (cur->x > x && cur->x < x2 && cur->y > y && cur->y < y2)
         {
             if (!cur->dflag && OBJS_GetAmt(S_ENERGY) > 0)
@@ -243,8 +243,8 @@ BONUS_Think(
                 continue;
             }
         }
-        
-        if (cur->gy > 200)
+        //Fixes real hardware crash here.
+        if (cur->gy > 168)
         {
             cur = BONUS_Remove(cur);
             continue;

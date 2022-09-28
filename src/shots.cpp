@@ -954,7 +954,7 @@ void SHOTS_Think(void)
             v20->y += player_cy - v20->f_54;
         
         //Fixes crash on real 3DS hardware
-        if ((v20->y < 1))
+        if ((v20->y < 1 || v20->y == 0))
         {
             v20->speedY = 1;
         } else {
@@ -963,14 +963,14 @@ void SHOTS_Think(void)
                 v20->currentFrame++;
         }
         
-        //if (v20->f_10 + 16 < 0 || v20->f_c < 0 && v20->f_c > 320 && v20->f_10 > 200)
-        if ((v20->y < 1) || (v20->x < 0) || (v20->x > 320) || (v20->y > 200))
+        //Fixes crash on real 3DS hardware
+        if ((v20->y < 1) || (v20->x < 1) || (v20->x > 319) || (v20->y > 199) || (v20->y == 0) || (v20->x == 0 ) || (v20->x == 320) || (v20->y == 200))
         {
-            if (v1c->f_5c)
-            {
+            //if (v1c->f_5c)
+            //{
                 v20->mobj.done = 1;
                 goto LAB_00015d11;
-            }
+            //}
         }
 
         if (v20->f_4c == 0)
