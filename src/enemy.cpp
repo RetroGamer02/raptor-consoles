@@ -438,9 +438,6 @@ ENEMY_Add(
         break;
     }
     
-    
-    //if (curlib->flighttype < 3)
-    //{
     switch (curlib->flighttype)
     {
     case F_REPEAT:
@@ -477,7 +474,6 @@ ENEMY_Add(
         newe->mobj.y2 = 211;
         break;
     }
-    //}
     
     newe->suckagain = curlib->hits >> 4;
     
@@ -1024,7 +1020,7 @@ void ENEMY_Think(
         {
             if (sprite->groundflag)
             {
-                //Crashes on real 3DS hardware.
+                //No longer crashes but maybe disable to prevent poping shadows.
                 SHADOW_GAdd(sprite->item, sprite->x, sprite->y);
             }
             else

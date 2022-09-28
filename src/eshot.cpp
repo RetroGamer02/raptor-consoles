@@ -316,8 +316,8 @@ ESHOT_Shoot(
         
         case ES_MISSLE:                                              
             SND_3DPatch(FX_ENEMYMISSLE, x, y);
-            cur->lib = &plib[LIB_NORMAL]; //Fixes real 3DS hardware Crash
-            //cur->lib = &plib[LIB_MISSLE];
+            //cur->lib = &plib[LIB_NORMAL]; //Fixes real 3DS hardware Crash
+            cur->lib = &plib[LIB_MISSLE];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
             cur->move.y2 = 200;
@@ -466,11 +466,17 @@ ESHOT_Think(
                 }
             }
             
-            if (shot->y >= 199 || shot->y < 1 || shot->y == 200 || shot->y == 0)
+            //Fixes crash on real 3DS hardware.
+            if (shot->y >= 192 || shot->y < 1)
+            {
+                shot->speed = 1;
                 shot->doneflag = 1;
-            
-            if (shot->x >= 319 || shot->x < 1 || shot->x == 320 || shot->x == 0)
+            }    
+                
+            if (shot->x >= 310 || shot->x < 10)
+            {
                 shot->doneflag = 1;
+            } 
             
             dx = abs(shot->x - player_cx);
             dy = abs(shot->y - player_cy);
