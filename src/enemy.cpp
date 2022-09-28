@@ -455,9 +455,8 @@ ENEMY_Add(
         MoveMobj(&newe->mobj);
         break;
 
-    //Contributes to crash?
     case F_GROUND:                                          
-        //newe->groundflag = 1; //Fixme
+        newe->groundflag = 1;
         newe->mobj.x2 = newe->x;
         newe->mobj.y2 = 211;
         break;
@@ -465,7 +464,7 @@ ENEMY_Add(
     case F_GROUNDRIGHT:                                           
         newe->x -= newe->width;
         newe->mobj.x = newe->sx = newe->x;
-        //newe->groundflag = 1; //Fixme
+        newe->groundflag = 1;
         newe->mobj.x2 = 335;
         newe->mobj.y2 = 211;
         break;
@@ -473,7 +472,7 @@ ENEMY_Add(
     case F_GROUNDLEFT:                                           
         newe->x += newe->width;
         newe->mobj.x = newe->sx = newe->x;
-        //newe->groundflag = 1; //Fixme
+        newe->groundflag = 1;
         newe->mobj.x2 = -newe->hlx;
         newe->mobj.y2 = 211;
         break;
@@ -1025,6 +1024,7 @@ void ENEMY_Think(
         {
             if (sprite->groundflag)
             {
+                //Crashes on real 3DS hardware.
                 SHADOW_GAdd(sprite->item, sprite->x, sprite->y);
             }
             else
