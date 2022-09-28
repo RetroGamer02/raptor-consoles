@@ -964,7 +964,7 @@ void SHOTS_Think(void)
         }
         
         //Fixes crash on real 3DS hardware
-        if ((v20->y < 1) || (v20->x < 1) || (v20->x > 319) || (v20->y > 199) || (v20->y == 0) || (v20->x == 0 ) || (v20->x == 320) || (v20->y == 200))
+        if ((v20->y < 1) || (v20->x < 1) || (v20->x > 319) || (v20->y > 199))
         {
             //if (v1c->f_5c)
             //{
@@ -1037,10 +1037,17 @@ void SHOTS_Think(void)
             if (ENEMY_DamageAir(v20->x, v20->y, v1c->damageAmount))
             {
                 v20->f_48 = 1;
-                if ((wrand() % 2) != 0)
-                    ANIMS_StartAnim(14, v20->x, v20->y);
-                else
-                    ANIMS_StartAnim(15, v20->x, v20->y);
+                //if (v20->y > 80 && v20->y < 280)
+                //{
+                    //Fixme?
+                    if ((wrand() % 2) != 0)
+                    {
+                        ANIMS_StartAnim(14, v20->x, v20->y);
+                    } else {
+                        
+                        ANIMS_StartAnim(15, v20->x, v20->y);                    
+                    }
+                //}
             }
             break;
         case 2:
@@ -1065,7 +1072,8 @@ void SHOTS_Think(void)
             if (ENEMY_DamageGround(v20->x, v20->y, 5))
             {
                 v20->f_48 = 1;
-                ANIMS_StartAnim(1, v20->x, v20->y);
+                //Fixes a crash on real 3DS hardware.
+                //ANIMS_StartAnim(1, v20->x, v20->y);
             }
             break;
         }
