@@ -1169,11 +1169,12 @@ void ENEMY_Think(
         
         y = sprite->y + sprite->height;
         
-        if (y > 0 && sprite->y < 200)
+        //Fixes crash on real 3DS hardware.
+        if (y > 1 && sprite->y < 199)
         {
             x = sprite->x + sprite->width;
             
-            if (x > 0 && sprite->x < 320)
+            if (x > 1 && sprite->x < 319)
             {
                 onscreen[cur_visable] = sprite;
                 cur_visable++;

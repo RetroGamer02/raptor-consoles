@@ -251,7 +251,7 @@ ESHOT_Shoot(
     x = enemy->x + enemy->lib->shootx[gun_num];
     y = enemy->y + enemy->lib->shooty[gun_num];
     
-    if (((x >= 0) && (x < 320)) && ((y >= 0) && (y < 200)))
+    if (((x >= 10) && (x < 310)) && ((y >= 1) && (y < 199)))
     {
         cur = ESHOT_Get();
         
@@ -287,7 +287,8 @@ ESHOT_Shoot(
             cur->move.x -= cur->lib->xoff;
             cur->move.y -= cur->lib->yoff;
             cur->move.x2 = cur->move.x;
-            cur->move.y2 = 200;
+            //Fixes crash on real 3DS hardware.
+            cur->move.y2 = 199;
             cur->speed = cur->lib->speed >> 1;
             cur->type = ES_ATDOWN;
             break;
@@ -320,7 +321,8 @@ ESHOT_Shoot(
             cur->lib = &plib[LIB_MISSLE];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
-            cur->move.y2 = 200;
+            //Fixes crash on real 3DS hardware.
+            cur->move.y2 = 199;
             cur->speed = enemy->speed + 1;
             cur->type = ES_MISSLE;
             break;
@@ -330,7 +332,8 @@ ESHOT_Shoot(
             cur->lib = &plib[LIB_LASER];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
-            cur->move.y2 = 200;
+            //Fixes crash on real 3DS hardware.
+            cur->move.y2 = 199;
             cur->speed = enemy->speed;
             cur->type = ES_LASER;
             break;
@@ -340,8 +343,9 @@ ESHOT_Shoot(
             cur->lib = &plib[LIB_MINES];
             cur->x = cur->move.x;
             cur->y = cur->move.y;
-            cur->move.x2 = 320;
-            cur->move.y2 = 200;
+            //Fixes crash on real 3DS hardware.
+            cur->move.x2 = 319;
+            cur->move.y2 = 199;
             cur->speed = 150;
             cur->pos = wrand() % 16;
             cur->type = ES_MINES;
@@ -352,7 +356,8 @@ ESHOT_Shoot(
             cur->lib = &plib[LIB_PLASMA];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
-            cur->move.y2 = 200;
+            //Fixes crash on real 3DS hardware.
+            cur->move.y2 = 199;
             cur->speed = 8;
             cur->type = ES_PLASMA;
             break;
@@ -372,10 +377,11 @@ ESHOT_Shoot(
         InitMobj(&cur->move);
         MoveSobj(&cur->move, 1);
         
-        if (cur->move.x < 0 || cur->move.x >= 320)
+        //Fixes crash on real 3DS hardware.
+        if (cur->move.x < 1 || cur->move.x >= 319)
             cur->move.done = 1;
         
-        if (cur->move.y < 0 || cur->move.y >= 200)
+        if (cur->move.y < 1 || cur->move.y >= 199)
             cur->move.done = 1;
         
         if (cur->move.done)
@@ -410,7 +416,8 @@ ESHOT_Think(
             {
                 shot->x = shot->en->x + shot->en->lib->shootx[shot->gun_num] - 4;
                 shot->y = shot->en->y + shot->en->lib->shooty[shot->gun_num];
-                shot->move.y2 = 200;  
+                //Fixes crash on real 3DS hardware.
+                shot->move.y2 = 199;  
                 
                 dx = abs(shot->x - player_cx);
                 
@@ -533,8 +540,8 @@ ESHOT_Display(
             h = lashit[shot->curframe - 1];
             
             y = shot->move.y2 - 8;
-            
-            if (y > 0 && y < 200)
+            //Fixes crash on real 3DS hardware.
+            if (y > 1 && y < 199)
             {
                 GFX_PutSprite(h, shot->x - (h->width >> 2), y);
             }
