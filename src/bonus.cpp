@@ -161,7 +161,7 @@ BONUS_Add(
     cur->curframe = 0;
     cur->x = MAP_LEFT + x;
     //Fixes crash on real 3DS hardware.
-    if (cur->y > 1)
+    if (y > 16)
     {
         cur->y = y;
     } else {
