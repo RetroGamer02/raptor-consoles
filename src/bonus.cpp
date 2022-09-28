@@ -7,6 +7,7 @@
 #include "objects.h"
 #include "fx.h"
 #include "fileids.h"
+#include "stdio.h"
 
 bonus_t bons[MAX_BONUS];
 bonus_t first_bonus, last_bonus;
@@ -159,7 +160,14 @@ BONUS_Add(
     cur->lib = OBJS_GetLib(type);
     cur->curframe = 0;
     cur->x = MAP_LEFT + x;
-    cur->y = y;
+    //Fixes crash on real 3DS hardware.
+    if (cur->y > 1)
+    {
+        cur->y = y;
+    } else {
+        cur->y = 16;
+    }
+    
     cur->pos = wrand() % 16;
 }
 
