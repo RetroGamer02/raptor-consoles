@@ -312,13 +312,13 @@ void I_GetEvent(void)
 
         if (pos.dx >= 15 || pos.dx <= -15)
         {
-            StickX = pos.dx;
+            StickX = pos.dx / 30;
         } else {
             StickX = 0;
         }
         if (pos.dy >= 15 || pos.dy <= -15)
         {
-            StickY = pos.dy *-1;
+            StickY = pos.dy / 30 *-1;
         } else {
             StickY = 0;
         }

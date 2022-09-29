@@ -462,7 +462,9 @@ ENEMY_Add(
         newe->x -= newe->width;
         newe->mobj.x = newe->sx = newe->x;
         newe->groundflag = 1;
-        newe->mobj.x2 = 335;
+        //newe->mobj.x2 = 335;
+        //Might fix a crash on real hardware.
+        newe->mobj.x2 = 319;
         newe->mobj.y2 = 211;
         break;
     
@@ -470,7 +472,9 @@ ENEMY_Add(
         newe->x += newe->width;
         newe->mobj.x = newe->sx = newe->x;
         newe->groundflag = 1;
-        newe->mobj.x2 = -newe->hlx;
+        //newe->mobj.x2 = -newe->hlx;
+        //Might fix a crash on real hardware.
+        newe->mobj.x2 = 1;
         newe->mobj.y2 = 211;
         break;
     }
@@ -915,7 +919,7 @@ void ENEMY_Think(
                 {
                     if (sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos] > 320)
                     {
-                        fixedX = 320;
+                        fixedX = 319;
                     }
                 }
                 
@@ -1064,7 +1068,9 @@ void ENEMY_Think(
                 }
             }
         }
-        
+        //Might fix a crash on real hardware.
+        if ((sprite->y > 1) || (sprite->x > 10) || (sprite->y < 199) || (sprite->x < 310))
+        {
         if (sprite->hits <= 0)
         {
             player.score += curlib->money;
@@ -1166,7 +1172,10 @@ void ENEMY_Think(
             
             continue;
         }
-        
+        } else {
+            printf("Possible crash avoided.\n");
+        }
+
         y = sprite->y + sprite->height;
         
         //Fixes crash on real 3DS hardware.

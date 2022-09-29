@@ -954,23 +954,26 @@ void SHOTS_Think(void)
             v20->y += player_cy - v20->f_54;
         
         //Fixes crash on real 3DS hardware
-        if ((v20->y < 1 || v20->y == 0))
+        if (v20->f_4c == 0)
         {
-            v20->speedY = 1;
-        } else {
-            if (v20->speedY < v1c->maxSpeedY)
-                    v20->speedY++;
-                v20->currentFrame++;
+            if ((v20->y < 1))
+            {
+                v20->speedY = 1;
+            } else {
+                if (v20->speedY < v1c->maxSpeedY)
+                        v20->speedY++;
+                    v20->currentFrame++;
+            }
         }
         
         //Fixes crash on real 3DS hardware
-        if ((v20->y < 1) || (v20->x < 1) || (v20->x > 319) || (v20->y > 199))
+        if ((v20->y + 16 < 1) || (v20->x < 1) || (v20->x > 319) || (v20->y > 199))
         {
-            //if (v1c->f_5c)
-            //{
+            if (v1c->f_5c)
+            {
                 v20->mobj.done = 1;
                 goto LAB_00015d11;
-            //}
+            }
         }
 
         if (v20->f_4c == 0)
@@ -1002,10 +1005,12 @@ void SHOTS_Think(void)
             if (v24)
             {
                 v20->f_48 = 1;
-                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
                 {
                     ANIMS_StartAnim(14, v20->x, v20->y);
                     ANIMS_StartEAnim(v24, 19, v24->hlx, v24->hly);
+                } else {
+                    printf("Error Enemy out of range.\n");
                 }
             }
             break;
@@ -1013,12 +1018,14 @@ void SHOTS_Think(void)
             if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
             {
                 v20->f_48 = 1;
-                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
                 {
                     if ((wrand() % 2) != 0)
                         ANIMS_StartAnim(14, v20->x, v20->y);
                     else
                         ANIMS_StartAnim(15, v20->x, v20->y);
+                } else {
+                    printf("Error Enemy out of range.\n");
                 }
             }
             break;
@@ -1027,7 +1034,7 @@ void SHOTS_Think(void)
             {
                 v20->f_48 = 1;
                 //Fixes crash on real 3DS hardware.
-                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
                 {
                     if ((wrand() % 2) != 0)
                         ANIMS_StartAnim(14, v20->x, v20->y);
@@ -1053,7 +1060,7 @@ void SHOTS_Think(void)
                 //if (v20->y > 80 && v20->y < 280)
                 //{
                     //Fixme?
-                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
                 {    
                     if ((wrand() % 2) != 0)
                     {
@@ -1062,6 +1069,8 @@ void SHOTS_Think(void)
                         
                         ANIMS_StartAnim(15, v20->x, v20->y);                    
                     }
+                } else {
+                    printf("Error Enemy out of range.\n");
                 }
             }
             break;
@@ -1069,9 +1078,11 @@ void SHOTS_Think(void)
             if (ENEMY_DamageGround(v20->x, v20->y, v1c->damageAmount))
             {
                 v20->f_48 = 1;
-                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
                 {
                     ANIMS_StartAnim(15, v20->x, v20->y);
+                } else {
+                    printf("Error Enemy out of range.\n");
                 }
             }
             else
