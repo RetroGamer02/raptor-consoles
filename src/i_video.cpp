@@ -310,14 +310,18 @@ void I_GetEvent(void)
 		//Read the CirclePad position
 		hidCircleRead(&pos);
 
-        //if (pos.dx != 0000)
-        //{
-            //StickX = pos.dx; //Spazes out on real 3DS
-        //}
-        //if (pos.dy != 0000)
-        //{
-            //StickY = pos.dy *-1; //Spazes out on real 3DS
-        //}
+        if (pos.dx >= 15 || pos.dx <= -15)
+        {
+            StickX = pos.dx;
+        } else {
+            StickX = 0;
+        }
+        if (pos.dy >= 15 || pos.dy <= -15)
+        {
+            StickY = pos.dy *-1;
+        } else {
+            StickY = 0;
+        }
 
 		//Do the keys printing only if keys have changed
 		/*if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
@@ -340,6 +344,8 @@ void I_GetEvent(void)
 				if (kUp & BIT(i)) printf("%s up\n", keysNames[i]);
 			}
 		}*/
+
+        //consoleClear();
 
 		//Set keys old values for the next frame
 		kDownOld = kDown;

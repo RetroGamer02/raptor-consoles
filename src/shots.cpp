@@ -901,7 +901,7 @@ void SHOTS_Think(void)
     enemy_t *v24;
     int i;
 
-    v1c = shot_lib; //Fixme?
+    v1c = shot_lib; 
     for (i = 0; i <= 14; i++, v1c++)
     {
         if (v1c->y > 0)
@@ -1002,28 +1002,41 @@ void SHOTS_Think(void)
             if (v24)
             {
                 v20->f_48 = 1;
-                ANIMS_StartAnim(14, v20->x, v20->y);
-                ANIMS_StartEAnim(v24, 19, v24->hlx, v24->hly);
+                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                {
+                    ANIMS_StartAnim(14, v20->x, v20->y);
+                    ANIMS_StartEAnim(v24, 19, v24->hlx, v24->hly);
+                }
             }
             break;
         case 3:
             if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
             {
                 v20->f_48 = 1;
-                if ((wrand() % 2) != 0)
-                    ANIMS_StartAnim(14, v20->x, v20->y);
-                else
-                    ANIMS_StartAnim(15, v20->x, v20->y);
+                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                {
+                    if ((wrand() % 2) != 0)
+                        ANIMS_StartAnim(14, v20->x, v20->y);
+                    else
+                        ANIMS_StartAnim(15, v20->x, v20->y);
+                }
             }
             break;
         case 0:
             if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
             {
                 v20->f_48 = 1;
-                if ((wrand() % 2) != 0)
-                    ANIMS_StartAnim(14, v20->x, v20->y);
-                else
-                    ANIMS_StartAnim(15, v20->x, v20->y);
+                //Fixes crash on real 3DS hardware.
+                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                {
+                    if ((wrand() % 2) != 0)
+                        ANIMS_StartAnim(14, v20->x, v20->y);
+                    else
+                        ANIMS_StartAnim(15, v20->x, v20->y);
+                } else {
+                    printf("Error Enemy out of range.\n");
+                }
+                
             }
             else
             {
@@ -1040,6 +1053,8 @@ void SHOTS_Think(void)
                 //if (v20->y > 80 && v20->y < 280)
                 //{
                     //Fixme?
+                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                {    
                     if ((wrand() % 2) != 0)
                     {
                         ANIMS_StartAnim(14, v20->x, v20->y);
@@ -1047,14 +1062,17 @@ void SHOTS_Think(void)
                         
                         ANIMS_StartAnim(15, v20->x, v20->y);                    
                     }
-                //}
+                }
             }
             break;
         case 2:
             if (ENEMY_DamageGround(v20->x, v20->y, v1c->damageAmount))
             {
                 v20->f_48 = 1;
-                ANIMS_StartAnim(15, v20->x, v20->y);
+                if ((v20->y > 1) || (v20->x > 1) || (v20->x < 319) || (v20->y < 199))
+                {
+                    ANIMS_StartAnim(15, v20->x, v20->y);
+                }
             }
             else
             {
