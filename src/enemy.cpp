@@ -462,9 +462,7 @@ ENEMY_Add(
         newe->x -= newe->width;
         newe->mobj.x = newe->sx = newe->x;
         newe->groundflag = 1;
-        //newe->mobj.x2 = 335;
-        //Might fix a crash on real hardware.
-        newe->mobj.x2 = 319;
+        newe->mobj.x2 = 335;
         newe->mobj.y2 = 211;
         break;
     
@@ -472,9 +470,7 @@ ENEMY_Add(
         newe->x += newe->width;
         newe->mobj.x = newe->sx = newe->x;
         newe->groundflag = 1;
-        //newe->mobj.x2 = -newe->hlx;
-        //Might fix a crash on real hardware.
-        newe->mobj.x2 = 1;
+        newe->mobj.x2 = -newe->hlx;
         newe->mobj.y2 = 211;
         break;
     }
