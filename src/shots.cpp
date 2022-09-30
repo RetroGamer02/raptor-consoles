@@ -1001,108 +1001,114 @@ void SHOTS_Think(void)
         switch (v1c->damageType)
         {
         default:
-            v24 = ENEMY_DamageEnergy(v20->x, v20->y, v1c->damageAmount);
-            if (v24)
+            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
             {
-                v20->f_48 = 1;
-                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                v24 = ENEMY_DamageEnergy(v20->x, v20->y, v1c->damageAmount);
+                if (v24)
                 {
-                    ANIMS_StartAnim(14, v20->x, v20->y);
-                    ANIMS_StartEAnim(v24, 19, v24->hlx, v24->hly);
-                } else {
-                    printf("Error Enemy out of range.\n");
+                    v20->f_48 = 1;
+                        ANIMS_StartAnim(14, v20->x, v20->y);
+                        ANIMS_StartEAnim(v24, 19, v24->hlx, v24->hly);
                 }
+            } else {
+                printf("Error Enemy out of range.\n");
             }
             break;
         case 3:
-            if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
+            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
             {
-                v20->f_48 = 1;
-                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
                 {
-                    if ((wrand() % 2) != 0)
-                        ANIMS_StartAnim(14, v20->x, v20->y);
-                    else
-                        ANIMS_StartAnim(15, v20->x, v20->y);
-                } else {
-                    printf("Error Enemy out of range.\n");
+                    v20->f_48 = 1;
+                        if ((wrand() % 2) != 0)
+                            ANIMS_StartAnim(14, v20->x, v20->y);
+                        else
+                            ANIMS_StartAnim(15, v20->x, v20->y);
                 }
+            } else {
+                printf("Error Enemy out of range.\n");
             }
             break;
         case 0:
-            if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
+            //Fixes crash on real 3DS hardware.
+            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
             {
-                v20->f_48 = 1;
-                //Fixes crash on real 3DS hardware.
-                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
                 {
-                    if ((wrand() % 2) != 0)
-                        ANIMS_StartAnim(14, v20->x, v20->y);
-                    else
-                        ANIMS_StartAnim(15, v20->x, v20->y);
+                    v20->f_48 = 1;
+                    //printf("Hit Test ");
+                        if ((wrand() % 2) != 0)
+                            ANIMS_StartAnim(14, v20->x, v20->y);
+                        else
+                            ANIMS_StartAnim(15, v20->x, v20->y);                    
                 } else {
-                    printf("Error Enemy out of range.\n");
+                    if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
+                    {
+                        //printf("Tile Hit Test ");
+                        v20->mobj.done = 1;
+                    }
                 }
-                
+            } else {
+                printf("Error Enemy out of range.\n");
             }
-            else
-            {
-                if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
-                {
-                    v20->mobj.done = 1;
-                }
-            }
+            
             break;
         case 1:
-            if (ENEMY_DamageAir(v20->x, v20->y, v1c->damageAmount))
-            {
-                v20->f_48 = 1;
-                //if (v20->y > 80 && v20->y < 280)
-                //{
-                    //Fixme?
-                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
-                {    
-                    if ((wrand() % 2) != 0)
-                    {
-                        ANIMS_StartAnim(14, v20->x, v20->y);
-                    } else {
-                        
-                        ANIMS_StartAnim(15, v20->x, v20->y);                    
-                    }
-                } else {
-                    printf("Error Enemy out of range.\n");
+            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+            {  
+                if (ENEMY_DamageAir(v20->x, v20->y, v1c->damageAmount))
+                {
+                    v20->f_48 = 1;
+                    //if (v20->y > 80 && v20->y < 280)
+                    //{
+                        //Fixme?
+                        if ((wrand() % 2) != 0)
+                        {
+                            ANIMS_StartAnim(14, v20->x, v20->y);
+                        } else {
+                            
+                            ANIMS_StartAnim(15, v20->x, v20->y);                    
+                        }
                 }
+            } else {
+                printf("Error Enemy out of range.\n");
             }
             break;
         case 2:
-            if (ENEMY_DamageGround(v20->x, v20->y, v1c->damageAmount))
+            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
             {
-                v20->f_48 = 1;
-                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                if (ENEMY_DamageGround(v20->x, v20->y, v1c->damageAmount))
                 {
-                    ANIMS_StartAnim(15, v20->x, v20->y);
+                    v20->f_48 = 1;
+                        ANIMS_StartAnim(15, v20->x, v20->y);
                 } else {
-                    printf("Error Enemy out of range.\n");
+                    if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                    {
+                        if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
+                        {
+                            printf("Ground Tile hit test ");
+                            v20->mobj.done = 1;
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
-                {
-                    v20->mobj.done = 1;
-                }
+            } else {
+                printf("Error Enemy out of range.\n");
             }
             break;
         case 4:
-            if (TILE_Bomb(v1c->damageAmount, v20->x, v20->y))
+            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
             {
-                v20->mobj.done = 1;
-            }
-            if (ENEMY_DamageGround(v20->x, v20->y, 5))
-            {
-                v20->f_48 = 1;
-                //Fixes a crash on real 3DS hardware.
-                //ANIMS_StartAnim(1, v20->x, v20->y);
+                if (TILE_Bomb(v1c->damageAmount, v20->x, v20->y))
+                {
+                    v20->mobj.done = 1;
+                }
+                if (ENEMY_DamageGround(v20->x, v20->y, 5))
+                {
+                    v20->f_48 = 1;
+                    //Fixes a crash on real 3DS hardware.
+                    //Try enabling later.
+                    //ANIMS_StartAnim(1, v20->x, v20->y);
+                }
             }
             break;
         }
@@ -1111,11 +1117,14 @@ void SHOTS_Think(void)
         {
             if (v20->f_4c)
             {
-                v20->f_4c = 0;
-                v20->mobj.x2 = v20->mobj.x + ((wrand() % 32) - 16);
-                v20->mobj.y2 = 0;
-                ANIMS_StartAnim(11, v20->mobj.x, v20->mobj.y);
-                InitMobj(&v20->mobj);
+                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                {
+                    v20->f_4c = 0;
+                    v20->mobj.x2 = v20->mobj.x + ((wrand() % 32) - 16);
+                    v20->mobj.y2 = 0;
+                    ANIMS_StartAnim(11, v20->mobj.x, v20->mobj.y);
+                    InitMobj(&v20->mobj);
+                }
             }
             else
             {
@@ -1129,7 +1138,10 @@ void SHOTS_Think(void)
                         v24->hits -= v1c->damageAmount;
                     }
                     startfadeflag = 1;
-                    ANIMS_StartAnim(20, 0, 0);
+                    if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                    {
+                        ANIMS_StartAnim(20, 0, 0);
+                    }
                     v20 = SHOTS_Remove(v20);
                     continue;
                 case 5:
@@ -1149,7 +1161,8 @@ void SHOTS_Think(void)
             else
             {
                 v20->mobj.y -= v20->speedY;
-                if (v20->mobj.y < 0)
+                //Might fix a crash on real 3DS hardware.
+                if (v20->mobj.y < 1)
                 {
                     v20->mobj.done = 1;
                     v20->f_48 = 1;

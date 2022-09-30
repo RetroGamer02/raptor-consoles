@@ -712,7 +712,7 @@ void ENEMY_Think(
     }
     
     cur_visable = 0;
-    
+
     for (sprite = first_enemy.next; &last_enemy != sprite; sprite = sprite->next)
     {
         curlib = sprite->lib;
@@ -1025,7 +1025,8 @@ void ENEMY_Think(
             if (sprite->groundflag)
             {
                 //No longer crashes but maybe disable to prevent poping shadows.
-                SHADOW_GAdd(sprite->item, sprite->x, sprite->y);
+                //Disabled untill Tank Shadow fix is done.
+                //SHADOW_GAdd(sprite->item, sprite->x, sprite->y);
             }
             else
             {
@@ -1044,30 +1045,36 @@ void ENEMY_Think(
             }
         }
         
+        
         if (!sprite->groundflag)
         {
-            if (player_cx > sprite->x && player_cx < sprite->x2)
+            //Might fix a crash on real 3DS hardware.
+            if ((sprite->y > 1) || (sprite->x > 10) || (sprite->y < 199) || (sprite->x < 310))
             {
-                if (player_cy > sprite->y && player_cy < sprite->y2)
+                if (player_cx > sprite->x && player_cx < sprite->x2)
                 {
-                    if ((haptic) && (control == 2))
+                    if (player_cy > sprite->y && player_cy < sprite->y2)
                     {
-                        IPT_CalJoyRumbleMedium();                                                            //Rumble when enemy hit
+                        if ((haptic) && (control == 2))
+                        {
+                            IPT_CalJoyRumbleMedium();                                                            //Rumble when enemy hit
+                        }
+                        sprite->hits -= (PLAYERWIDTH / 2);
+                        if (sprite->width > sprite->height)
+                            suben = sprite->width;
+                        else
+                            suben = sprite->height;
+                        
+                        OBJS_SubEnergy(suben >> 2);
+                        x = player_cx + (wrand() % 8) - 4;
+                        y = player_cy + (wrand() % 8) - 4;
+                        ANIMS_StartAnim(A_SMALL_AIR_EXPLO, x, y);
+                        SND_Patch(FX_CRASH, 127);
                     }
-                    sprite->hits -= (PLAYERWIDTH / 2);
-                    if (sprite->width > sprite->height)
-                        suben = sprite->width;
-                    else
-                        suben = sprite->height;
-                    
-                    OBJS_SubEnergy(suben >> 2);
-                    x = player_cx + (wrand() % 8) - 4;
-                    y = player_cy + (wrand() % 8) - 4;
-                    ANIMS_StartAnim(A_SMALL_AIR_EXPLO, x, y);
-                    SND_Patch(FX_CRASH, 127);
                 }
             }
         }
+        
         //Might fix a crash on real hardware.
         if ((sprite->y > 1) || (sprite->x > 10) || (sprite->y < 199) || (sprite->x < 310))
         {
