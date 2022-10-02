@@ -480,7 +480,7 @@ ESHOT_Think(
                 shot->doneflag = 1;
             }
                 
-            if (shot->x >= 300 || shot->x < 20)
+            if (shot->x >= 310 || shot->x < 10)
             {
                 shot->doneflag = 1;
             }

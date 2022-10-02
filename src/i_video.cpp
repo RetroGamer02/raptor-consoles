@@ -136,7 +136,7 @@ void VIDEO_LoadPrefs(void)
     //Setup Items
     //fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
     aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
-    render_to_screen = INI_GetPreferenceLong("Video", "render_to_screen", 1);
+    render_to_screen = INI_GetPreferenceLong("Video", "screen", 1);
 }
 
 static bool MouseShouldBeGrabbed()
