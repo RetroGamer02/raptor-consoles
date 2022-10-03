@@ -12,6 +12,7 @@
 #include "joyapi.h"
 #include "input.h"
 #include "fileids.h"
+#include "stdio.h"
 
 #define MAX_ESHOT 80
 
@@ -267,7 +268,7 @@ ESHOT_Shoot(
         switch (g_shoot_type)
         {
         default:
-            EXIT_Error("ESHOT_Shoot() - Invalid EShot type");
+            printf("ESHOT_Shoot() - Invalid EShot type");
             break;
         
         case ES_ATPLAYER:                                              
@@ -373,10 +374,29 @@ ESHOT_Shoot(
             cur->type = ES_COCONUTS;
             break;
         }
-        
+
         InitMobj(&cur->move);
         MoveSobj(&cur->move, 1);
-        
+
+        /*enemy_t *curenemy = enemy;
+        while (curenemy->prev != NULL)
+        {
+            //&& (cur->move.x >= curenemy->x && cur->move.x <= curenemy->width)
+            curenemy = curenemy->prev;
+            if ((cur->move.y >= curenemy->y && cur->move.y <= curenemy->height) && cur->lib == &plib[LIB_MISSLE])
+            {
+                printf("Missle test\n");
+                cur->move.done = 1;
+            }
+        }*/
+
+        if ((cur->gun_num == 2 || cur->gun_num == 3) && cur->en->speed == 5 && cur->lib == &plib[LIB_MISSLE])
+        {                
+            //Fixme better
+            cur->lib = &plib[LIB_NORMAL];
+            //cur->move.done = 1;
+        }
+
         //Fixes crash on real 3DS hardware.
         if (cur->move.x < 1 || cur->move.x >= 319)
             cur->move.done = 1;

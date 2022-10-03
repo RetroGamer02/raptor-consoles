@@ -554,8 +554,8 @@ void I_InitGraphics(uint8_t *pal)
     SDL_ShowCursor(SDL_DISABLE);
 
     /*
-     * Initialize the display in a 640x480 8-bit palettized mode,
-     * requesting a software surface
+     * Initialize the display in a 320x200 8-bit palettized mode,
+     * requesting a hardware surface
      */
     if (render_to_screen == 1)
     {
@@ -570,7 +570,7 @@ void I_InitGraphics(uint8_t *pal)
     }
     
     if ( screen == NULL ) {
-        fprintf(stderr, "Couldn't set 400x240x8 video mode: %s\n",
+        fprintf(stderr, "Couldn't set 320x200x8 video mode: %s\n",
                         SDL_GetError());
         //exit(1);
     }
@@ -601,7 +601,7 @@ void I_InitGraphics(uint8_t *pal)
 #if 0
 void I_BindVideoVariables(void)
 {
-    M_BindIntVariable("use_mouse",                 &usemouse);
+    /*M_BindIntVariable("use_mouse",                 &usemouse);
     M_BindIntVariable("fullscreen",                &fullscreen);
     M_BindIntVariable("video_display",             &video_display);
     M_BindIntVariable("aspect_ratio_correct",      &aspect_ratio_correct);
@@ -618,7 +618,7 @@ void I_BindVideoVariables(void)
     M_BindStringVariable("video_driver",           &video_driver);
     M_BindStringVariable("window_position",        &window_position);
     M_BindIntVariable("usegamma",                  &usegamma);
-    M_BindIntVariable("png_screenshots",           &png_screenshots);
+    M_BindIntVariable("png_screenshots",           &png_screenshots);*/
 }
 #endif
 

@@ -651,6 +651,7 @@ int INTRO_Credits(void)
             SND_Patch(23, 127);
         if (i == 45)
             SND_PlaySong(0x56, 1, 1);
+            //Fixme
         if (keyboard[1])
             break;
         now = GFX_GetFrameCount();

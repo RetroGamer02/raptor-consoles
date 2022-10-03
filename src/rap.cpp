@@ -177,7 +177,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.5\n");
 }
 
 void ShutDown(int a1)
@@ -840,10 +840,10 @@ int Do_Game(void)
         }
         gl_cnt++;
         TILE_Think();
-        ENEMY_Think(); //Crashes when shooting fixme
+        ENEMY_Think();
         ESHOT_Think();
         BONUS_Think();
-        SHOTS_Think(); //Crashes when shooting fixme
+        SHOTS_Think();
         ANIMS_Think();
         OBJS_Think();
         if (draw_player)

@@ -405,7 +405,7 @@ void SHOTS_Init(void)
     v1c = &shot_lib[11];
     v1c->f_0 = FILE1cb_MEGABM_BLK;
     v1c->f_2c = 1;
-    v1c->removeType = 0xb;
+    v1c->removeType = 11;//0xb
     v1c->damageAmount = 0x32;
     v1c->startSpeed = 2;
     v1c->maxSpeedY = 2;
@@ -1086,7 +1086,6 @@ void SHOTS_Think(void)
                     {
                         if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
                         {
-                            printf("Ground Tile hit test ");
                             v20->mobj.done = 1;
                         }
                     }
@@ -1107,7 +1106,7 @@ void SHOTS_Think(void)
                     v20->f_48 = 1;
                     //Fixes a crash on real 3DS hardware.
                     //Try enabling later.
-                    //ANIMS_StartAnim(1, v20->x, v20->y);
+                    ANIMS_StartAnim(1, v20->x, v20->y);
                 }
             }
             break;
@@ -1140,7 +1139,8 @@ void SHOTS_Think(void)
                     startfadeflag = 1;
                     if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
                     {
-                        ANIMS_StartAnim(20, 0, 0);
+                        //Crashes real 3DS hardware.
+                        //ANIMS_StartAnim(20, 0, 0);
                     }
                     v20 = SHOTS_Remove(v20);
                     continue;
