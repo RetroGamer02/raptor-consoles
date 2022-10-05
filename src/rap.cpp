@@ -1000,7 +1000,7 @@ int Do_Game(void)
 
 void RAP_InitMem(void)
 {
-    unsigned int heapsize = 0x495FF0;                       
+    unsigned int heapsize = 0x7A1200;//0x495FF0                    
     g_highmem = (char*)calloc(heapsize, 1);
     VM_InitMemory(g_highmem, heapsize);
     GLB_UseVM();
@@ -1297,9 +1297,9 @@ int main()
     HELP_Init();
     OBJS_Init();
     TILE_Init();
-    SHOTS_Init(); //Crashes real 3DS
-    ESHOT_Init(); //Crashes real 3DS
-    BONUS_Init(); //Crashes real 3DS
+    SHOTS_Init();
+    ESHOT_Init();
+    BONUS_Init();
     ANIMS_Init();
     SND_Setup();
     
