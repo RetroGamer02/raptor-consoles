@@ -84,9 +84,10 @@ int window_height = 200;
 
 // Aspect ratio correction mode
 
-int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+//int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 static int actualheight;
 
+int aspect_1to1;
 int render_to_screen;
 
 // Time to wait for the screen to settle on startup before starting the
@@ -135,7 +136,7 @@ void VIDEO_LoadPrefs(void)
 {
     //Setup Items
     //fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
-    aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
+    aspect_1to1 = INI_GetPreferenceLong("Video", "aspect_1to1", 0);
     render_to_screen = INI_GetPreferenceLong("Video", "screen", 1);
 }
 
@@ -559,14 +560,19 @@ void I_InitGraphics(uint8_t *pal)
      */
     if (render_to_screen == 1)
     {
-        //if (aspect_ratio_correct == 1)
-        //{
-            //screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
-        //} else {
+        if (aspect_1to1 == 1)
+        {
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+        } else {
             screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
-        //}
+        }
     } else {
-        screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT | SDL_CONSOLETOP | SDL_BOTTOMSCR);
+        if (aspect_1to1 == 1)
+        {
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_CONSOLETOP | SDL_BOTTOMSCR);
+        } else {    
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT | SDL_CONSOLETOP | SDL_BOTTOMSCR);
+        }
     }
     
     if ( screen == NULL ) {

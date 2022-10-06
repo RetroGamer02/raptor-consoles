@@ -19,6 +19,7 @@
 #include "joyapi.h"
 #include "input.h"
 #include "fileids.h"
+#include "3ds.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -330,7 +331,9 @@ int RAP_LoadWin(void)
         if (hasdatapath)
             sprintf(v68, fmt2, g_data_path, v1c);
         else
+        {
             sprintf(v68, fmt, v1c);
+        }
         if (checkfile(v68))
         {
             if (v20 == -1)
@@ -338,7 +341,6 @@ int RAP_LoadWin(void)
             strncpy(v254[v1c], v68, PATH_MAX);
         }
     }
-    //WIN_Msg("Function is broken");
     if (v20 == -1)
         return-1;
     RAP_ReadFile(v254[v20], &v108, sizeof(v108));

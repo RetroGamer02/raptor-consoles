@@ -177,7 +177,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.5\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.5.2\n");
 }
 
 void ShutDown(int a1)
@@ -1011,6 +1011,7 @@ bool checkfile(const char* path)
 	FILE* f = fopen(path, "r");
 	if (f)
 	{
+        fclose(f);
 		return true;
 	} else {
         return false;
