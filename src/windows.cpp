@@ -429,6 +429,7 @@ int WIN_AskBool(const char *a1)
     SWD_GetFieldXYL(v24, 6, &v30, &v34, &v20, &v3c);
     PTR_SetPos(v30 + (v20 >> 1), v34 + (v3c >> 1));
     SWD_SetActiveField(v24, 6);
+    GFX_DisplayUpdate();//Added
 
     while (1)
     {
@@ -527,6 +528,7 @@ int WIN_AskDiff(void)
     GFX_DisplayUpdate();
     SWD_GetFieldXYL(v24, 8, &v28, &v2c, &v20, &v30);
     PTR_SetPos(v28 + (v20 >> 1), v2c + (v30 >> 1));
+    GFX_DisplayUpdate();//Added
     while (1)
     {
         SWD_Dialog(&v7c);
@@ -601,6 +603,7 @@ int WIN_Register(void)
     GFX_FadeIn(palette, 16);
     SWD_SetFieldPtr(v24, 5);
     PTR_DrawCursor(0);
+    GFX_DisplayUpdate();//Added
     while (1)
     {
         SWD_Dialog(&v80);
@@ -1225,6 +1228,7 @@ int WIN_ShipComp(void)
     GFX_FadeIn(palette, 16);
     SWD_SetWindowPtr(v3c);
     PTR_DrawCursor(0);
+    GFX_DisplayUpdate();//Added
     while (1)
     {
         SWD_Dialog(&v94);
@@ -1688,6 +1692,7 @@ void WIN_MainMenu(void)
     SND_CacheIFX();
     SWD_SetWindowPtr(v20);
     PTR_DrawCursor(0);
+    GFX_DisplayUpdate();//Added
     ltable[0] = 0;
     do
     {
@@ -1720,6 +1725,7 @@ void WIN_MainMenu(void)
             GLB_FreeAll();
             SND_CacheIFX();
             PTR_DrawCursor(0);
+            GFX_DisplayUpdate();//Added
         }
         if (keyboard[45] && keyboard[56])
             WIN_AskExit();

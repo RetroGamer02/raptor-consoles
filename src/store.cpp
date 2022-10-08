@@ -155,14 +155,15 @@ void Harrold(int a1)
     SWD_SetFieldItem(window, 7, a1);
     SWD_ShowAllWindows();
     GFX_DisplayUpdate();
-    IMS_WaitTimedSwd(10);
-    IMS_WaitTimedSwd(10);
+    //IMS_WaitTimedSwd(10);
+    IMS_WaitTimedSwd(8);//10
     SWD_SetFieldItem(window, 7, -1);
     SWD_SetFieldItem(window, 2, v1c);
     SWD_SetFieldItem(window, 3, v20);
     SWD_SetFieldItem(window, 4, v24);
     SWD_SetFieldItem(window, 5, v28);
     SWD_SetFieldItem(window, 6, v2c);
+    GFX_DisplayUpdate();//Added
 }
 
 void STORE_Enter(void)
@@ -194,6 +195,7 @@ void STORE_Enter(void)
     PTR_DrawCursor(0);
     OBJS_GetNum();
     Harrold(0x4c);
+    GFX_DisplayUpdate();//Added
     cur_item = 0;
     mode = 0;
     if (mode == 0)
