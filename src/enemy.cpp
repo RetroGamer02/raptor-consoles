@@ -1045,8 +1045,8 @@ void ENEMY_Think(
         if (!sprite->groundflag)
         {
             //Might fix a crash on real 3DS hardware.
-            if ((sprite->y > 1) || (sprite->x > 10) || (sprite->y < 199) || (sprite->x < 310))
-            {
+            //if ((sprite->y > 1) || (sprite->x > 10) || (sprite->y < 199) || (sprite->x < 310))
+            //{
                 if (player_cx > sprite->x && player_cx < sprite->x2)
                 {
                     if (player_cy > sprite->y && player_cy < sprite->y2)
@@ -1068,12 +1068,9 @@ void ENEMY_Think(
                         SND_Patch(FX_CRASH, 127);
                     }
                 }
-            }
+            //}
         }
         
-        //Might fix a crash on real hardware.
-        if ((sprite->y > 1) || (sprite->x > 10) || (sprite->y < 199) || (sprite->x < 310))
-        {
         if (sprite->hits <= 0)
         {
             player.score += curlib->money;
@@ -1174,9 +1171,6 @@ void ENEMY_Think(
             sprite = ENEMY_Remove(sprite);
             
             continue;
-        }
-        } else {
-            printf("Possible crash avoided.\n");
         }
 
         y = sprite->y + sprite->height;

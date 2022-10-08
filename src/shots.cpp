@@ -956,9 +956,10 @@ void SHOTS_Think(void)
         //Fixes crash on real 3DS hardware
         if (v20->f_4c == 0)
         {
-            if ((v20->y < 1))
+            if ((v20->y < 2))
             {
-                v20->speedY = 1;
+                //v20->speedY = 1;
+                v20->mobj.done = 1;
             } else {
                 if (v20->speedY < v1c->maxSpeedY)
                         v20->speedY++;
