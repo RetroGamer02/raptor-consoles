@@ -177,7 +177,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.5.4\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.6.1\n");
 }
 
 void ShutDown(int a1)
@@ -1018,28 +1018,6 @@ bool checkfile(const char* path)
     }
 }
 
-void printfile(const char* path)
-{
-	FILE* f = fopen(path, "r");
-	if (f)
-	{
-		char mystring[100];
-		while (fgets(mystring, sizeof(mystring), f))
-		{
-			int a = strlen(mystring);
-			if (mystring[a-1] == '\n')
-			{
-				mystring[a-1] = 0;
-				if (mystring[a-2] == '\r')
-					mystring[a-2] = 0;
-			}
-			puts(mystring);
-		}
-		printf(">>EOF<<\n");
-		fclose(f);
-	}
-}
-
 int main()
 {
     char *shost, *reg_text, *pal;
@@ -1050,10 +1028,10 @@ int main()
     _Bool isN3DS;
 
     APT_CheckNew3DS(&isN3DS);
-    APT_SetAppCpuTimeLimit(70); //Speedup on real hardware enable when crash is fixed
+    APT_SetAppCpuTimeLimit(70);
 
-    gfxInitDefault(); //3DS
-	consoleInit(GFX_BOTTOM, NULL); //3DS
+    gfxInitDefault();
+	consoleInit(GFX_BOTTOM, NULL);
 
     if(isN3DS)
     {
@@ -1061,12 +1039,12 @@ int main()
     }
 
     Result rc = romfsInit();
-	if (rc)
+	/*if (rc)
 		printf("romfsInit: %08lX\n", rc);
 	else
 	{
 		printf("romfs Init Successful!\n");
-	}
+	}*/
 
     /*Result rc = sdmcInit();
 	if (rc)
@@ -1076,23 +1054,16 @@ int main()
 		printf("sdmcfs Init Successful!\n");
 	}*/
 
-    //sdmcWriteSafe(false);
-
     InitScreen();
 
     RAP_DataPath();
 
     if (!checkfile(RAP_GetSetupPath()))
     {
-        printf("\n\n** You must run SETUP first! **\n");
+        printf("\n\n** You must copy SETUP first! **\n");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //"Raptor", "** You must run SETUP first! **", NULL);
-    } /*else {
-        printf("\nSETUP Found\n");
-        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            //"Raptor", "** SETUP Found! **", NULL);
-        //printfile(RAP_GetSetupPath());
-    }*/
+    }
 
     /*if (argv[1])
     {
@@ -1189,22 +1160,17 @@ int main()
         printf("Birthday() = %s\n", bday[bday_num].f_c);
 
     if (!checkfile(RAP_GetSetupPath()))
-        printf("You Must run SETUP.EXE First !!");
+        printf("You Must Copy SETUP First !!");
 
     if (!INI_InitPreference(RAP_GetSetupPath()))
         printf("SETUP Error");
 
     fflush(stdout);
-    //printf("\nPassed fflush\n");
     KBD_Install();
-    //printf("\nPassed KDB Install\n");
     GFX_InitSystem();
-    //printf("\nPassed GFX Init\n");
     SWD_Install(0);
-    //printf("\nPassed SWD Install\n");
     VIDEO_LoadPrefs();
     IPT_LoadPrefs();
-    //printf("\nPassed Load prefs\n");
     switch (control)
     {
     default:

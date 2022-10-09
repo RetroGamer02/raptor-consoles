@@ -53,8 +53,6 @@ static SDL_Rect blit_rect = {
     SCREENHEIGHT
 };
 
-static uint32_t pixel_format;
-
 // palette
 
 static SDL_Color palette[256];
@@ -82,18 +80,8 @@ int video_display = 0;
 int window_width = 320;
 int window_height = 200;
 
-// Aspect ratio correction mode
-
-//int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
-static int actualheight;
-
-int aspect_1to1;
+int aspect_1to1; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 int render_to_screen;
-
-// Time to wait for the screen to settle on startup before starting the
-// game (ms)
-
-static int startup_delay = 1000;
 
 // Grab the mouse? (int type for config code). nograbmouse_override allows
 // this to be temporarily disabled via the command line.
@@ -115,16 +103,6 @@ bool screenvisible = true;
 
 static grabmouse_callback_t grabmouse_callback = NULL;
 
-// Does the window currently have focus?
-
-static bool window_focused = true;
-
-// Window resize state.
-
-static bool need_resize = false;
-static unsigned int last_resize_time;
-#define RESIZE_DELAY 500
-
 // Gamma correction level to use
 
 int usegamma = 0;
@@ -135,7 +113,6 @@ unsigned int joywait = 0;
 void VIDEO_LoadPrefs(void)
 {
     //Setup Items
-    //fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
     aspect_1to1 = INI_GetPreferenceLong("Video", "aspect_1to1", 0);
     render_to_screen = INI_GetPreferenceLong("Video", "screen", 1);
 }
@@ -165,19 +142,6 @@ void I_ShutdownGraphics(void)
     }
 }
 
-
-// Adjust window_width / window_height variables to be an an aspect
-// ratio consistent with the aspect_ratio_correct variable.
-static void AdjustWindowSize(void)
-{
-    
-}
-
-static void HandleWindowEvent() //SDL_WindowEvent *event
-{
-    
-}
-
 void I_GetEvent(void)
 {
     //Matrix containing the name of each key. Useful for printing when a key is pressed
@@ -193,10 +157,7 @@ void I_GetEvent(void)
 	};
 
     u32 kDownOld = 0, kHeldOld = 0, kUpOld = 0; //In these variables there will be information about keys detected in the previous frame
-
-    // Main loop
-	//while (aptMainLoop())
-	//{
+    
 		//Scan all the inputs. This should be done once for each frame
 		hidScanInput();
 
@@ -324,66 +285,10 @@ void I_GetEvent(void)
             StickY = 0;
         }
 
-		//Do the keys printing only if keys have changed
-		/*if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
-		{
-			//Clear console
-			consoleClear();
-
-			//These two lines must be rewritten because we cleared the whole console
-			printf("\x1b[1;1HPress Start to exit.");
-			printf("\x1b[2;1HCirclePad position:");
-
-			printf("\x1b[4;1H"); //Move the cursor to the fourth row because on the third one we'll write the circle pad position
-
-			//Check if some of the keys are down, held or up
-			int i;
-			for (i = 0; i < 32; i++)
-			{
-				if (kDown & BIT(i)) printf("%s down\n", keysNames[i]);
-				if (kHeld & BIT(i)) printf("%s held\n", keysNames[i]);
-				if (kUp & BIT(i)) printf("%s up\n", keysNames[i]);
-			}
-		}*/
-
-        //consoleClear();
-
 		//Set keys old values for the next frame
 		kDownOld = kDown;
 		kHeldOld = kHeld;
 		kUpOld = kUp;
-
-		//circlePosition pos;
-
-		//Read the CirclePad position
-		//hidCircleRead(&pos);
-
-		//Print the CirclePad position
-		//if (pos.dx != 0000 || pos.dy != 0000)
-        //printf("\x1b[3;1H%04d; %04d", pos.dx, pos.dy);
-
-		// Flush and swap framebuffers
-		//gfxFlushBuffers();
-		//gfxSwapBuffers();
-
-		//Wait for VBlank
-		//gspWaitForVBlank();
-	//}
-}
-
-static void UpdateGrab(void)
-{
-    
-}
-
-static void LimitTextureSize(int *w_upscale, int *h_upscale)
-{
-    
-}
-
-static void CreateUpscaledTexture(bool force)
-{
-    
 }
 
 //
@@ -402,7 +307,8 @@ void I_FinishUpdate (void)
         palette_to_set = false;
     }
 
-    SDL_Flip(screen);
+    //SDL_Flip(screen); //If Double Buffering
+    SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
 
@@ -515,25 +421,7 @@ void I_CheckIsScreensaver(void)
     
 }
 
-static void SetSDLVideoDriver(void)
-{
-
-}
-
-// Check the display bounds of the display referred to by 'video_display' and
-// set x and y to a location that places the window in the center of that
-// display.
-static void CenterWindow(int *x, int *y, int w, int h)
-{
-  
-}
-
 void I_GetWindowPosition(int *x, int *y, int w, int h)
-{
-  
-}
-
-static void SetVideoMode(void)
 {
   
 }
@@ -584,11 +472,6 @@ void I_InitGraphics(uint8_t *pal)
     SDL_FillRect(screen, NULL, 0);
     I_SetPalette(pal);
     SDL_SetPalette(screen, 0, palette, 0, 256);
-
-    /*if (fullscreen && !screensaver_mode)
-    {
-        SDL_Delay(startup_delay);
-    }*/
 
     // The actual 320x200 canvas that we draw to. This is the pixel buffer of
     // the 8-bit paletted screen buffer that gets blit on an intermediate

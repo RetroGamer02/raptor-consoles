@@ -303,28 +303,17 @@ char *GLB_FetchItem(int a1, int a2)
     uint16_t f = (a1 >> 16) & 0xffff;
     uint16_t n = (a1 >> 0) & 0xffff;
     fi = &filedesc[f].items[n];
-    /*if (fi->flags == NULL)
-    {
-        printf("File Error?");
-        return "File error?";
-    }*/
+
     if (a2 == 2)
     {
         //Prevents crash here on real 3ds hardware.
         if (fi->flags == NULL)
         {
             fi->flags = 0x80000000;
-            //printf("Null file Flag");
         } else {
             fi->flags |= 0x80000000;
         }
     }
-    //fi->mem.ptr = "Null";
-    /*if (fi->mem.ptr == NULL)
-    {
-        printf("Null Ptr");
-        return "Null";
-    }*/
     
     if (!fi->mem.ptr)//Crashes on read of mem ptr because its NULL?
     {
@@ -370,7 +359,6 @@ char *GLB_FetchItem(int a1, int a2)
     }
     
     return fi->mem.ptr;
-    //return "Test";
 }
 
 char *GLB_CacheItem(int a1)

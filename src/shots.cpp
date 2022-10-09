@@ -1107,7 +1107,7 @@ void SHOTS_Think(void)
                     v20->f_48 = 1;
                     //Fixes a crash on real 3DS hardware.
                     //Try enabling later.
-                    ANIMS_StartAnim(1, v20->x, v20->y);
+                    //ANIMS_StartAnim(1, v20->x, v20->y);
                 }
             }
             break;
@@ -1138,11 +1138,11 @@ void SHOTS_Think(void)
                         v24->hits -= v1c->damageAmount;
                     }
                     startfadeflag = 1;
-                    if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+                    /*if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
                     {
                         //Crashes real 3DS hardware.
                         //ANIMS_StartAnim(20, 0, 0);
-                    }
+                    }*/
                     v20 = SHOTS_Remove(v20);
                     continue;
                 case 5:

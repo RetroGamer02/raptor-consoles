@@ -20,7 +20,7 @@ int dig_flag;
 int fx_device;
 int fx_volume;
 static int fx_init = 0;
-int fx_freq = 10000;//16364
+int fx_freq = 10000;
 int music_song = -1;
 int fx_gus;
 int fx_channels;
@@ -113,7 +113,6 @@ int SND_InitSound(void)
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
     if(isN3DS)
     {
-        //music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
         music_card = CARD_BLASTER;
     } else {
         music_card = CARD_NONE;
