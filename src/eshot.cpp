@@ -390,23 +390,30 @@ ESHOT_Shoot(
             }
         }*/
 
+        //printf("Enemy speed: %d\n", cur->en->speed);
         //printf("Enemy height: %d\n", cur->en->height);
-
-        if (cur->gun_num == 2 && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
+        //printf("Enemy width: %d\n", cur->en->width);
+        if (cur->en->speed == 3 && cur->en->height == 32 && cur->en->width == 40 && cur->lib == &plib[LIB_MISSLE])
+        {
+            //Fixme better
+            cur->lib = &plib[LIB_NORMAL];
+            //cur->move.done = 1;
+        } else if (cur->en->speed == 4 && cur->en->height == 32 && cur->en->width == 40 && cur->lib == &plib[LIB_MISSLE])
+        {
+            //Fixme better
+            cur->lib = &plib[LIB_NORMAL];
+            //cur->move.done = 1;
+        } else if (cur->gun_num == 2 && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
         {                
             //Fixme better
             cur->lib = &plib[LIB_NORMAL];
             //cur->move.done = 1;
-        }
-
-        if ((cur->gun_num == 0 || cur->gun_num == 1) && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
+        } else if ((cur->gun_num == 0 || cur->gun_num == 1) && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
         {                
             //Fixme better
             cur->lib = &plib[LIB_NORMAL];
             //cur->move.done = 1;
-        }
-
-        if ((cur->gun_num == 2 || cur->gun_num == 3) && cur->en->speed == 5 && cur->lib == &plib[LIB_MISSLE])
+        } else if ((cur->gun_num == 2 || cur->gun_num == 3) && cur->en->speed == 5 && cur->lib == &plib[LIB_MISSLE])
         {                
             //Fixme better
             cur->lib = &plib[LIB_NORMAL];
