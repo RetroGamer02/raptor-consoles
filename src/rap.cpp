@@ -177,7 +177,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.6.1\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.6.2\n");
 }
 
 void ShutDown(int a1)
@@ -1000,7 +1000,7 @@ int Do_Game(void)
 
 void RAP_InitMem(void)
 {
-    unsigned int heapsize = 0x7A1200;//0x495FF0                    
+    unsigned int heapsize = 0x495FF0;//0x495FF0   0x7A1200                 
     g_highmem = (char*)calloc(heapsize, 1);
     VM_InitMemory(g_highmem, heapsize);
     GLB_UseVM();
