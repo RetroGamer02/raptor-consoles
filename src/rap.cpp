@@ -181,7 +181,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.6.4\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.6.5\n");
 }
 
 void ShutDown(int a1)
@@ -1165,9 +1165,9 @@ int main()
 
     if (checkfile("romfs:/FILE0001.GLB"))
         gameflag[0] = 1;
-    if (checkfile("sdmc:/FILE0002.GLB"))
+    if (checkfile("sdmc:/3ds/Raptor/FILE0002.GLB"))
         gameflag[1] = 1;
-    if (checkfile("sdmc:/FILE0003.GLB") && checkfile("sdmc:/FILE0004.GLB"))
+    if (checkfile("sdmc:/3ds/Raptor/FILE0003.GLB") && checkfile("sdmc:/3ds/Raptor/FILE0004.GLB"))
     {
         gameflag[2] = 1;
         gameflag[3] = 1;
