@@ -11,6 +11,8 @@
 #include "windows.h"
 #include "fileids.h"
 
+#include "joyapi.h"
+
 movie_t frm[90];
 
 int INTRO_City(void)

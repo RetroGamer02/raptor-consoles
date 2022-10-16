@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include "i_video.h"
 #include "joyapi.h"
 

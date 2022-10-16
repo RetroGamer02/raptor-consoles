@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include "common.h"
 #include "gssapi.h"
 #include "musapi.h"

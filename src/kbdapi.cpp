@@ -1,6 +1,6 @@
 #include <string.h>
 #include <ctype.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include "common.h"
 #include "i_video.h"
 

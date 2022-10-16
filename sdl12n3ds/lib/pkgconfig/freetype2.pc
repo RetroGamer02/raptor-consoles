@@ -1,0 +1,14 @@
+prefix=/opt/devkitpro/portlibs/3ds
+exec_prefix=/opt/devkitpro/portlibs/3ds
+libdir=/opt/devkitpro/portlibs/3ds/lib
+includedir=/opt/devkitpro/portlibs/3ds/include
+
+Name: FreeType 2
+URL: https://freetype.org
+Description: A free, high-quality, and portable font engine.
+Version: 22.0.16
+Requires:
+Requires.private: zlib, libpng
+Libs: -L${libdir} -lfreetype
+Libs.private: -lbz2
+Cflags: -I${includedir}/freetype2

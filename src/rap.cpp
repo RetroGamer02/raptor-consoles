@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -33,6 +33,10 @@
 #include "i_lastscr.h"
 #include "fileids.h"
 #include <3ds.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -1006,6 +1010,65 @@ void RAP_InitMem(void)
     GLB_UseVM();
 }
 
+int cp(const char *to, const char *from)
+{
+    int fd_to, fd_from;
+    char buf[4096];
+    ssize_t nread;
+    int saved_errno;
+
+    fd_from = open(from, O_RDONLY);
+    if (fd_from < 0)
+        return -1;
+
+    fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if (fd_to < 0)
+        goto out_error;
+
+    while (nread = read(fd_from, buf, sizeof buf), nread > 0)
+    {
+        char *out_ptr = buf;
+        ssize_t nwritten;
+
+        do {
+            nwritten = write(fd_to, out_ptr, nread);
+
+            if (nwritten >= 0)
+            {
+                nread -= nwritten;
+                out_ptr += nwritten;
+            }
+            else if (errno != EINTR)
+            {
+                goto out_error;
+            }
+        } while (nread > 0);
+    }
+
+    if (nread == 0)
+    {
+        if (close(fd_to) < 0)
+        {
+            fd_to = -1;
+            goto out_error;
+        }
+        close(fd_from);
+
+        /* Success! */
+        return 0;
+    }
+
+  out_error:
+    saved_errno = errno;
+
+    close(fd_from);
+    if (fd_to >= 0)
+        close(fd_to);
+
+    errno = saved_errno;
+    return -1;
+}
+
 bool checkfile(const char* path)
 {
 	FILE* f = fopen(path, "r");
@@ -1039,9 +1102,9 @@ int main()
     }
 
     Result rc = romfsInit();
-	/*if (rc)
+	if (rc)
 		printf("romfsInit: %08lX\n", rc);
-	else
+	/*else
 	{
 		printf("romfs Init Successful!\n");
 	}*/
@@ -1054,15 +1117,27 @@ int main()
 		printf("sdmcfs Init Successful!\n");
 	}*/
 
+    DIR* dir = opendir("3ds/Raptor");
+    if (dir) {
+        closedir(dir);
+    } else if (ENOENT == errno) {
+        //printf("Raptor directory error: %d\n" ,errno);
+        mkdir("3ds/Raptor", 0700);
+    } else {
+        printf("Raptor directory unknown error.\n");
+    }
+
     InitScreen();
 
     RAP_DataPath();
 
     if (!checkfile(RAP_GetSetupPath()))
     {
-        printf("\n\n** You must copy SETUP first! **\n");
+        //printf("\n\n** You must copy SETUP first! **\n");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //"Raptor", "** You must run SETUP first! **", NULL);
+
+        cp("3ds/Raptor/SETUP.INI","romfs:/SETUP.INI");
     }
 
     /*if (argv[1])
@@ -1160,10 +1235,10 @@ int main()
         printf("Birthday() = %s\n", bday[bday_num].f_c);
 
     if (!checkfile(RAP_GetSetupPath()))
-        printf("You Must Copy SETUP First !!");
+        printf("You Must Copy SETUP First !!\n");
 
     if (!INI_InitPreference(RAP_GetSetupPath()))
-        printf("SETUP Error");
+        printf("SETUP Error\n");
 
     fflush(stdout);
     KBD_Install();
