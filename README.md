@@ -10,10 +10,10 @@ You can use the original assets (GLB files) from Raptor Call Of The Shadows v1.2
 Important only the DOS version v1.2 is compatible!
 You have to take care of these files yourself.
 
-Copy the `raptor.3dsx` to the 3ds directory on your SD Card and SETUP to 3ds/Raptor/. 
+Copy the `raptor.3dsx` to the 3ds directory on your SD Card.
 
 ### Fullversion
-Copy the following files to the SD Card root directory:  
+Copy the following files to the 3ds/Raptor directory:  
    ``` 
    FILE0002.GLB  
    FILE0003.GLB  
