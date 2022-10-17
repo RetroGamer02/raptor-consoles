@@ -35,11 +35,11 @@ CTRULIB		:=	$(CURDIR)/libctru20
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	src
-INCLUDES	:=	./src $(PORTLIBS)/include/SDL ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
+INCLUDES	:=	./src ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_VER						:= 0650
-APP_TITLE					:= Raptor 3DS V0.6.5
+APP_VER						:= 0660
+APP_TITLE					:= Raptor 3DS V0.6.6
 APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
 APP_AUTHOR					:= RetroGamer02/Ryan
 PRODUCT_CODE				:= CTR-RAP
@@ -55,7 +55,7 @@ ICON        				:= rapicon.png
 ARCH	:= -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:= -Wall -g -O3 -mword-relocations \
-		 -ffunction-sections \
+		 -ffunction-sections -ffast-math -fallow-store-data-races \
 		$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__3DS__ -DSDL_BUILDING_3DS

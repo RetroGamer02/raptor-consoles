@@ -20,7 +20,7 @@ int dig_flag;
 int fx_device;
 int fx_volume;
 static int fx_init = 0;
-int fx_freq = 12250;//11025
+int fx_freq = 11025;//11025 12250
 int music_song = -1;
 int fx_gus;
 int fx_channels;
