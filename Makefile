@@ -55,7 +55,7 @@ ICON        				:= rapicon.png
 ARCH	:= -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:= -Wall -g -O3 -mword-relocations \
-		 -ffunction-sections -ffast-math -fallow-store-data-races \
+		 -ffunction-sections -ffast-math \
 		$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__3DS__ -DSDL_BUILDING_3DS

@@ -1372,8 +1372,8 @@ int main()
     
     do
     {
-       WIN_MainMenu(); //Crashes real 3DS
-       WIN_MainLoop(); //Crashes real 3DS
+       WIN_MainMenu();
+       WIN_MainLoop();
     } while (1);
 
     return 0;
