@@ -31,3 +31,6 @@ Special thanks to [nukeykt](https://github.com/nukeykt) and [wel97459](https://g
 Also many thanks to [schellingb](https://github.com/schellingb) for the great TinySoundFont library and to all contributors from the
 [chocolate-doom project](https://github.com/chocolate-doom) for the awesome libtextscreen. Furthermore, many thanks to Tim Brechbill for the TimGM6mb
 soundfont.
+
+## Raptor3DS Thanks
+Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
