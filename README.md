@@ -22,6 +22,9 @@ Copy the following files to the 3ds/Raptor directory:
    FILE0004.GLB  
    ```
 
+## Cheats
+Having trouble in your game? Try pressing Start and Y at the same time while in game! Warning will erase your current score/cash.
+
 ## Build
 The project supports devkitpro 3ds dev environment.
 When you have installed git on your system you can clone the repository by type in `git clone https://github.com/RetroGamer02/raptor3ds.git`.
