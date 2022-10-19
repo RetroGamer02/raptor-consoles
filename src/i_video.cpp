@@ -37,7 +37,6 @@
 #include "musapi.h"
 #include "prefapi.h"
 #include "joyapi.h"
-
 #include <3ds.h>
 
 // These are (1) the window (or the full screen) that our game is rendered to

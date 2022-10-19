@@ -38,13 +38,13 @@ SOURCES		:=	src
 INCLUDES	:=	./src ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_VER						:= 0670
-APP_TITLE					:= Raptor 3DS V0.6.7
+APP_VER						:= 0070
+APP_TITLE					:= Raptor 3DS V0.7.0
 APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
 APP_AUTHOR					:= RetroGamer02/Ryan
 PRODUCT_CODE				:= CTR-RAP
 
-#BANNER_AUDIO				:= resource/banner.wav
+BANNER_AUDIO				:= RapIntro.wav
 BANNER_IMAGE				:= rapbanner.png
 ICON        				:= rapicon.png
 
