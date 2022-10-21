@@ -39,3 +39,6 @@ soundfont.
 
 ## Raptor3DS Thanks
 Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
+
+## Custom Lib Source
+https://github.com/RetroGamer02/SDL-3DS
