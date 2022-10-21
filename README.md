@@ -41,4 +41,5 @@ soundfont.
 Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
 
 ## Custom Lib Source
+SDL 1.2 for libCtru 1.9.0 and libCitro3D 1.6.0
 https://github.com/RetroGamer02/SDL-3DS
