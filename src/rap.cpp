@@ -181,7 +181,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.7.0\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.7.1\n");
 }
 
 void ShutDown(int a1)
@@ -189,7 +189,6 @@ void ShutDown(int a1)
     //if (!a1 && !godmode)
         //WIN_Order();
     
-	//gfxExit();
     //IPT_DeInit();
     //DMX_DeInit();
     //GFX_EndSystem();
@@ -203,6 +202,7 @@ void ShutDown(int a1)
     
     closewindow();                                   //Close Main Window
     //I_LASTSCR();                                     //Call to display ANSI Screen 
+    //gfxExit();
     GLB_FreeAll();
     IPT_CloJoy(); 
     //sdmcExit();
@@ -1094,13 +1094,17 @@ int main()
 
     shost = getenv("S_HOST");
 
-    _Bool isN3DS;
+    //_Bool isN3DS;
 
-    APT_CheckNew3DS(&isN3DS);
+    //APT_CheckNew3DS(&isN3DS);
     APT_SetAppCpuTimeLimit(70);
 
     gfxInitDefault();
+    
 	consoleInit(GFX_BOTTOM, NULL);
+
+    gfxSetDoubleBuffering(GFX_TOP, false);
+    gfxSetDoubleBuffering(GFX_BOTTOM, false);
 
     //if(isN3DS)
     //{
@@ -1301,6 +1305,7 @@ int main()
     GLB_FreeAll();
     RAP_InitMem();
     //printf("Loading Graphics\n");
+    
     pal = GLB_LockItem(FILE100_PALETTE_DAT);
     memset(pal, 0, 3);
     palette = pal;

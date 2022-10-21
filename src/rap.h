@@ -157,4 +157,3 @@ int Do_Game(void);
 int RAP_LoadWin(void);
 void ShutDown(int a1);
 bool checkfile(const char* path);
-void printfile(const char* path);
