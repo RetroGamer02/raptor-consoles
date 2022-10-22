@@ -22,6 +22,11 @@ Copy the following files to the 3ds/Raptor directory:
    FILE0004.GLB  
    ```
 
+## Config
+For most options 0 is off and 1 is on.
+In the setup.ini aspect1to1 has changed to screen_mode. The setup will default it to fit to height.
+Screen mode 0 is fit to height, 1 is 1to1 aspect ratio, and 2 is fullscreen.
+
 ## Cheats
 Having trouble in your game? Try pressing Start and Y at the same time while in game! Warning will erase your current score/cash.
 
