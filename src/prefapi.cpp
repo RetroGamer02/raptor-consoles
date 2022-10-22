@@ -362,5 +362,5 @@ int INI_DeletePreference(const char *section, const char *key)
 {
     if (!section)
         return 0;
-    return INI_SaveFile(section, key, NULL, preference);
+    return INI_SaveFile(section, key, "", preference);
 }
