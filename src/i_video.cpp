@@ -80,7 +80,7 @@ int video_display = 0;
 int window_width = 320;
 int window_height = 200;
 
-int aspect_1to1; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+int screen_mode; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 int render_to_screen;
 
 // Grab the mouse? (int type for config code). nograbmouse_override allows
@@ -113,7 +113,10 @@ unsigned int joywait = 0;
 void VIDEO_LoadPrefs(void)
 {
     //Setup Items
-    aspect_1to1 = INI_GetPreferenceLong("Video", "aspect_1to1", 0);
+    INI_DeletePreference("Video", "aspect_1to1");
+    screen_mode = INI_GetPreferenceLong("Video", "screen_mode", 0);
+    if (screen_mode == 0)
+        INI_PutPreferenceLong("Video", "screen_mode", 0);
     render_to_screen = INI_GetPreferenceLong("Video", "screen", 1);
 }
 
@@ -448,9 +451,12 @@ void I_InitGraphics(uint8_t *pal)
      */
     if (render_to_screen == 1)
     {
-        if (aspect_1to1 == 1)
+        if (screen_mode == 1)
         {
             screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+        } else if (screen_mode == 2)
+        {
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
         } else {
             screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
         }

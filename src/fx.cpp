@@ -83,7 +83,7 @@ int SND_InitSound(void)
         printf("\nFailed to init audio %s", SDL_GetError());
 
     spec.freq = fx_freq;
-    spec.format = AUDIO_S16;
+    spec.format = AUDIO_S16SYS;
     spec.channels = 2;
     spec.samples = 512;
     spec.callback = FX_Fill; //Crashes new citra builds
