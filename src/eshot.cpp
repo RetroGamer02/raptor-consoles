@@ -390,34 +390,35 @@ ESHOT_Shoot(
             }
         }*/
 
-        //printf("Enemy speed: %d\n", cur->en->speed);
-        //printf("Enemy height: %d\n", cur->en->height);
-        //printf("Enemy width: %d\n", cur->en->width);
-        if (cur->en->speed == 3 && cur->en->height == 32 && cur->en->width == 40 && cur->lib == &plib[LIB_MISSLE])
+        /*if (cur->lib == &plib[LIB_MISSLE])
         {
-            //Fixme better
+            printf("Enemy speed: %d\n", cur->en->speed);
+            printf("Enemy height: %d\n", cur->en->height);
+            printf("Enemy width: %d\n", cur->en->width);
+        }*/
+        
+        /*For some reason the 3DS has a huge problem with lib missle 
+        so its replaced with normal shots for the following cases.
+        This needs a better fix but will be used untill one is found.*/
+        if (cur->en->speed == 6 && cur->en->height == 32 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
+        {
+            //In this case it works on rookie but not higher. Reason unknown.
             cur->lib = &plib[LIB_NORMAL];
-            //cur->move.done = 1;
+        } else if (cur->en->speed == 3 && cur->en->height == 32 && cur->en->width == 40 && cur->lib == &plib[LIB_MISSLE])
+        {
+            cur->lib = &plib[LIB_NORMAL];
         } else if (cur->en->speed == 4 && cur->en->height == 32 && cur->en->width == 40 && cur->lib == &plib[LIB_MISSLE])
         {
-            //Fixme better
             cur->lib = &plib[LIB_NORMAL];
-            //cur->move.done = 1;
         } else if (cur->gun_num == 2 && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
         {                
-            //Fixme better
             cur->lib = &plib[LIB_NORMAL];
-            //cur->move.done = 1;
         } else if ((cur->gun_num == 0 || cur->gun_num == 1) && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
         {                
-            //Fixme better
             cur->lib = &plib[LIB_NORMAL];
-            //cur->move.done = 1;
         } else if ((cur->gun_num == 2 || cur->gun_num == 3) && cur->en->speed == 5 && cur->lib == &plib[LIB_MISSLE])
         {                
-            //Fixme better
             cur->lib = &plib[LIB_NORMAL];
-            //cur->move.done = 1;
         }
 
         //Fixes crash on real 3DS hardware.
@@ -519,7 +520,7 @@ ESHOT_Think(
             //Fixes crash on real 3DS hardware.
             if (shot->y >= 192 || shot->y <= 8)
             {
-                shot->speed = 1;
+                //shot->speed = 1;
                 shot->doneflag = 1;
             }
                 

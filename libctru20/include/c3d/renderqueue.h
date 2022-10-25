@@ -14,9 +14,7 @@ struct C3D_RenderTarget_tag
 	bool linked;
 	gfxScreen_t screen;
 	gfx3dSide_t side;
-	C3D_ClearBits clearBits;
 	u32 transferFlags;
-	u32 clearColor, clearDepth;
 };
 
 // Flags for C3D_FrameBegin
@@ -65,6 +63,11 @@ C3D_RenderTarget* C3D_RenderTargetCreate(int width, int height, GPU_COLORBUF col
 C3D_RenderTarget* C3D_RenderTargetCreateFromTex(C3D_Tex* tex, GPU_TEXFACE face, int level, C3D_DEPTHTYPE depthFmt);
 void C3D_RenderTargetDelete(C3D_RenderTarget* target);
 void C3D_RenderTargetSetOutput(C3D_RenderTarget* target, gfxScreen_t screen, gfx3dSide_t side, u32 transferFlags);
+
+static inline void C3D_RenderTargetDetachOutput(C3D_RenderTarget* target)
+{
+	C3D_RenderTargetSetOutput(NULL, target->screen, target->side, 0);
+}
 
 static inline void C3D_RenderTargetClear(C3D_RenderTarget* target, C3D_ClearBits clearBits, u32 clearColor, u32 clearDepth)
 {
