@@ -45,7 +45,7 @@ soundfont.
 ## Raptor3DS Thanks
 Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
 
-## Custom Lib Source
-SDL 1.2 for Ctru 1.9.0 and Custom Citro3D 1.6.2
+## Lib Source
+Custom SDL 1.2 for Custom Ctru 2.1.1 and Citro3D 1.7.0
+https://github.com/RetroGamer02/libctru
 https://github.com/RetroGamer02/SDL-3DS
-https://github.com/RetroGamer02/citro3d
