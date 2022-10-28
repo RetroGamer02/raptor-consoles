@@ -968,7 +968,7 @@ void SHOTS_Think(void)
         }
         
         //Fixes crash on real 3DS hardware
-        if ((v20->y + 16 < 1) || (v20->x < 1) || (v20->x > 319) || (v20->y > 199))
+        if ((v20->y + 16 < 1) || (v20->x < 2) || (v20->x > 318) || (v20->y > 199))
         {
             if (v1c->f_5c)
             {

@@ -125,10 +125,6 @@ extern DECLSPEC void SDLCALL SDL_SetModState(SDLMod modstate);
  */
 extern DECLSPEC char * SDLCALL SDL_GetKeyName(SDLKey key);
 
-#ifdef _3DS
-void SDL_N3DSKeyBind(unsigned int hidkey, SDLKey key);
-#endif
-
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

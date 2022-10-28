@@ -457,6 +457,9 @@ void I_InitGraphics(uint8_t *pal)
         } else if (screen_mode == 2)
         {
             screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
+        } else if (screen_mode == 3)
+        {
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_4BY3);
         } else {
             screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
         }
