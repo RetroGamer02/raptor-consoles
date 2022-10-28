@@ -147,7 +147,8 @@ typedef struct SDL_Surface {
 #define SDL_TOPSCR		0x00100000	/**< N3DS Top Screen mode */
 #define SDL_BOTTOMSCR	0x00200000	/**< N3DS Bottom Screen mode */
 #define SDL_DUALSCR		0x00300000	/**< N3DS Top+Bottom Screen mode */
-#define SDL_FITWIDTH	0x00400000	/**> Render a resized surface to fit systen screen width */
+#define SDL_4BY3		0x00400000	/**> Render a resized surface to fit systen screen height */
+#define SDL_FITWIDTH	0x00600000	/**> Render a resized surface to fit systen screen width */
 #define SDL_FITHEIGHT	0x00800000	/**> Render a resized surface to fit systen screen height */
 #define SDL_CONSOLETOP	0x00040000	/**> Enale console output on Top screen */
 #define SDL_CONSOLEBOTTOM	0x00080000	/**> Enale console output on Bottom screen */
