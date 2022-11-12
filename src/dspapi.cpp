@@ -3,6 +3,8 @@
 #include "dspapi.h"
 #include "fx.h"
 
+#include "rap.h"
+
 int dsp_init;
 int dsp_freq;
 int dsp_channelnum;
@@ -243,7 +245,7 @@ DSP_PatchIsPlaying(
     handle &= FXHAND_MASK;
     stat = 0;
     
-    //SND_Lock();
+    SND_Lock();
     
     for (i = 0; i < dsp_channelnum; i++)
     {
@@ -254,7 +256,7 @@ DSP_PatchIsPlaying(
         }
     }
     
-    //SND_Unlock();
+    SND_Unlock();
     
     return stat;
 }
@@ -274,7 +276,7 @@ DSP_VolTable(
     int accm;
     int i;
 
-    val = - (vol / 2);
+    val = - fastDiv32(vol, 2);
     step = vol >> 8;
     sub_step = vol & 255;
     accm = sub_step >> 1;
@@ -312,7 +314,7 @@ DSP_StartPatch(
     if (dsp->format != 3 || dsp->length <= 32)
         return -1;
 
-    //SND_Lock();
+    SND_Lock();
     
     for (i = 0; i < dsp_channelnum; i++)
     {
@@ -346,7 +348,7 @@ DSP_StartPatch(
         
         if (lowpriority < priority || lowpriority == 0)
         {
-            //SND_Unlock();
+            SND_Unlock();
             return -1;
         }
 
@@ -366,10 +368,10 @@ DSP_StartPatch(
     }
 
     samples = dsp->length - 32;
-    step = (pitchtable[pitch] * dsp->freq + dsp_freq / 2) / dsp_freq; // .8
+    step = fastDiv32(pitchtable[pitch] * dsp->freq + fastDiv32(dsp_freq, 2), dsp_freq); // .8
 
-    lvol = (pantable[255 - sep] * volume) / 127;
-    rvol = (pantable[sep] * volume) / 127;
+    lvol = fastDiv32((pantable[255 - sep] * volume), 127);
+    rvol = fastDiv32((pantable[sep] * volume), 127);
 
     DSP_VolTable(chan->voltable1, lvol);
     DSP_VolTable(chan->voltable2, rvol);
@@ -381,9 +383,9 @@ DSP_StartPatch(
     chan->phase_inc = step >> 8;
     chan->priority = priority;
     chan->handle = handle;
-    chan->samples = (samples << 8) / step;
+    chan->samples = fastDiv32((samples << 8), step);
 
-    //SND_Unlock();
+    SND_Unlock();
     
     return handle | FXHAND_DSP;
 }
@@ -399,7 +401,7 @@ DSP_StopPatch(
     int i;
     handle &= FXHAND_MASK;
     
-    //SND_Lock();
+    SND_Lock();
     
     for (i = 0; i < dsp_channelnum; i++)
     {
@@ -410,5 +412,5 @@ DSP_StopPatch(
         }
     }
     
-    //SND_Unlock();
+    SND_Unlock();
 }

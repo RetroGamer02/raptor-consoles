@@ -1,6 +1,6 @@
 #pragma once
 
-struct texture_t {
+struct __attribute__((packed)) texture_t {
 
     int f_0; // x
     int f_4; // y
@@ -10,7 +10,7 @@ struct texture_t {
     char f_14[1];
 };
 
-struct font_t {
+struct __attribute__((packed)) font_t {
 
     int f_0; // height
     short f_4[256]; // offset
@@ -27,7 +27,7 @@ extern char *gfx_inmem;
 extern int gfx_xp, gfx_yp;
 extern int gfx_lx, gfx_ly;
 extern int gfx_imga;
-extern int framecount;
+extern unsigned long long framecount;
 extern int tablelen;
 extern int stable[324];
 extern char *ltable, *dtable, *gtable;

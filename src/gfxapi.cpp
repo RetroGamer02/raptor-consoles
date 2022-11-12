@@ -8,7 +8,7 @@
 char *displaybuffer;
 char *displayscreen;
 
-int framecount;
+unsigned long long framecount;
 
 int ylookup[200];
 
@@ -1105,4 +1105,3 @@ void GFX_3D_PutImage(texture_t *a1, int a2, int a3, int a4, int a5)
     GFX_MarkUpdate(v10, v14, vd, vb);
     GFX_ScalePic(a1, v10, v14, vd, vb, a5);
 }
-

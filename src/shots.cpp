@@ -9,7 +9,6 @@
 #include "tile.h"
 #include "eshot.h"
 #include "fileids.h"
-#include "stdio.h"
 
 shot_t shots[70];
 
@@ -405,7 +404,7 @@ void SHOTS_Init(void)
     v1c = &shot_lib[11];
     v1c->f_0 = FILE1cb_MEGABM_BLK;
     v1c->f_2c = 1;
-    v1c->removeType = 11;//0xb
+    v1c->removeType = 0xb;
     v1c->damageAmount = 0x32;
     v1c->startSpeed = 2;
     v1c->maxSpeedY = 2;
@@ -527,7 +526,7 @@ int SHOTS_PlayerShoot(int a1)
 
     v20 = &shot_lib[a1];
     if (a1 == -1)
-        printf("SHOTS_PlayerShoot() type = EMPTY  ");
+        EXIT_Error("SHOTS_PlayerShoot() type = EMPTY  ");
     if (v20->y)
         return 0;
     v20->y = v20->offsetY;
@@ -537,7 +536,7 @@ int SHOTS_PlayerShoot(int a1)
     switch (a1)
     {
     default:
-        printf("SHOTS_PlayerShoot() - Invalid Shot type");
+        EXIT_Error("SHOTS_PlayerShoot() - Invalid Shot type");
         break;
     case 0:
         if (!fx_gus)
@@ -570,7 +569,7 @@ int SHOTS_PlayerShoot(int a1)
         v1c->y = player_cy;
 
         v1c->mobj.x = v1c->x;
-        v1c->mobj.y = v1c->y; //Gun 1 Fire start pos y
+        v1c->mobj.y = v1c->y;
         v1c->mobj.x2 = v1c->x;
         v1c->mobj.y2 = 0;
         v1c->f_50 = player_cx;
@@ -901,7 +900,7 @@ void SHOTS_Think(void)
     enemy_t *v24;
     int i;
 
-    v1c = shot_lib; 
+    v1c = shot_lib;
     for (i = 0; i <= 14; i++, v1c++)
     {
         if (v1c->y > 0)
@@ -914,7 +913,7 @@ void SHOTS_Think(void)
         switch (v1c->shotType)
         {
         default:
-            printf("SHOTS_Think()");
+            EXIT_Error("SHOTS_Think()");
             break;
         case 0:
             v20->TexturePtr = v1c->f_4[v20->currentFrame];
@@ -952,23 +951,8 @@ void SHOTS_Think(void)
             v20->x += player_cx - v20->f_50;
         if (v1c->offsetPlayerY)
             v20->y += player_cy - v20->f_54;
-        
-        //Fixes crash on real 3DS hardware
-        if (v20->f_4c == 0)
-        {
-            if ((v20->y < 2))
-            {
-                //v20->speedY = 1;
-                v20->mobj.done = 1;
-            } else {
-                if (v20->speedY < v1c->maxSpeedY)
-                        v20->speedY++;
-                    v20->currentFrame++;
-            }
-        }
-        
-        //Fixes crash on real 3DS hardware
-        if ((v20->y + 16 < 1) || (v20->x < 2) || (v20->x > 318) || (v20->y > 199))
+        //if (v20->f_10 + 16 < 0 || v20->f_c < 0 && v20->f_c > 320 && v20->f_10 > 200)
+        if ((v20->y + 16 < 0) || (v20->x < 0) || (v20->x > 320) || (v20->y > 200))
         {
             if (v1c->f_5c)
             {
@@ -976,11 +960,12 @@ void SHOTS_Think(void)
                 goto LAB_00015d11;
             }
         }
-
+        
         if (v20->f_4c == 0)
         {
-            //Code moved up
-            
+            if (v20->speedY < v1c->maxSpeedY)
+                v20->speedY++;
+            v20->currentFrame++;
             if (v20->currentFrame >= v1c->numberOfFrames)
             {
                 if (v1c->f_5c)
@@ -1002,113 +987,74 @@ void SHOTS_Think(void)
         switch (v1c->damageType)
         {
         default:
-            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+            v24 = ENEMY_DamageEnergy(v20->x, v20->y, v1c->damageAmount);
+            if (v24)
             {
-                v24 = ENEMY_DamageEnergy(v20->x, v20->y, v1c->damageAmount);
-                if (v24)
-                {
-                    v20->f_48 = 1;
-                        ANIMS_StartAnim(14, v20->x, v20->y);
-                        ANIMS_StartEAnim(v24, 19, v24->hlx, v24->hly);
-                }
-            } else {
-                printf("Error Enemy out of range.\n");
+                v20->f_48 = 1;
+                ANIMS_StartAnim(14, v20->x, v20->y);
+                ANIMS_StartEAnim(v24, 19, v24->hlx, v24->hly);
             }
             break;
         case 3:
-            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+            if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
             {
-                if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
-                {
-                    v20->f_48 = 1;
-                        if ((wrand() % 2) != 0)
-                            ANIMS_StartAnim(14, v20->x, v20->y);
-                        else
-                            ANIMS_StartAnim(15, v20->x, v20->y);
-                }
-            } else {
-                printf("Error Enemy out of range.\n");
+                v20->f_48 = 1;
+                if ((wrand() % 2) != 0)
+                    ANIMS_StartAnim(14, v20->x, v20->y);
+                else
+                    ANIMS_StartAnim(15, v20->x, v20->y);
             }
             break;
         case 0:
-            //Fixes crash on real 3DS hardware.
-            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+            if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
             {
-                if (ENEMY_DamageAll(v20->x, v20->y, v1c->damageAmount))
-                {
-                    v20->f_48 = 1;
-                    //printf("Hit Test ");
-                        if ((wrand() % 2) != 0)
-                            ANIMS_StartAnim(14, v20->x, v20->y);
-                        else
-                            ANIMS_StartAnim(15, v20->x, v20->y);                    
-                } else {
-                    if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
-                    {
-                        //printf("Tile Hit Test ");
-                        v20->mobj.done = 1;
-                    }
-                }
-            } else {
-                printf("Error Enemy out of range.\n");
+                v20->f_48 = 1;
+                if ((wrand() % 2) != 0)
+                    ANIMS_StartAnim(14, v20->x, v20->y);
+                else
+                    ANIMS_StartAnim(15, v20->x, v20->y);
             }
-            
-            break;
-        case 1:
-            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
-            {  
-                if (ENEMY_DamageAir(v20->x, v20->y, v1c->damageAmount))
-                {
-                    v20->f_48 = 1;
-                    //if (v20->y > 80 && v20->y < 280)
-                    //{
-                        //Fixme?
-                        if ((wrand() % 2) != 0)
-                        {
-                            ANIMS_StartAnim(14, v20->x, v20->y);
-                        } else {
-                            
-                            ANIMS_StartAnim(15, v20->x, v20->y);                    
-                        }
-                }
-            } else {
-                printf("Error Enemy out of range.\n");
-            }
-            break;
-        case 2:
-            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
+            else
             {
-                if (ENEMY_DamageGround(v20->x, v20->y, v1c->damageAmount))
-                {
-                    v20->f_48 = 1;
-                        ANIMS_StartAnim(15, v20->x, v20->y);
-                } else {
-                    if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
-                    {
-                        if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
-                        {
-                            v20->mobj.done = 1;
-                        }
-                    }
-                }
-            } else {
-                printf("Error Enemy out of range.\n");
-            }
-            break;
-        case 4:
-            if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
-            {
-                if (TILE_Bomb(v1c->damageAmount, v20->x, v20->y))
+                if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
                 {
                     v20->mobj.done = 1;
                 }
-                if (ENEMY_DamageGround(v20->x, v20->y, 5))
+            }
+            break;
+        case 1:
+            if (ENEMY_DamageAir(v20->x, v20->y, v1c->damageAmount))
+            {
+                v20->f_48 = 1;
+                if ((wrand() % 2) != 0)
+                    ANIMS_StartAnim(14, v20->x, v20->y);
+                else
+                    ANIMS_StartAnim(15, v20->x, v20->y);
+            }
+            break;
+        case 2:
+            if (ENEMY_DamageGround(v20->x, v20->y, v1c->damageAmount))
+            {
+                v20->f_48 = 1;
+                ANIMS_StartAnim(15, v20->x, v20->y);
+            }
+            else
+            {
+                if (TILE_IsHit(v1c->damageAmount, v20->x, v20->y))
                 {
-                    v20->f_48 = 1;
-                    //Fixes a crash on real 3DS hardware.
-                    //Try enabling later.
-                    //ANIMS_StartAnim(1, v20->x, v20->y);
+                    v20->mobj.done = 1;
                 }
+            }
+            break;
+        case 4:
+            if (TILE_Bomb(v1c->damageAmount, v20->x, v20->y))
+            {
+                v20->mobj.done = 1;
+            }
+            if (ENEMY_DamageGround(v20->x, v20->y, 5))
+            {
+                v20->f_48 = 1;
+                ANIMS_StartAnim(1, v20->x, v20->y);
             }
             break;
         }
@@ -1117,14 +1063,11 @@ void SHOTS_Think(void)
         {
             if (v20->f_4c)
             {
-                if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
-                {
-                    v20->f_4c = 0;
-                    v20->mobj.x2 = v20->mobj.x + ((wrand() % 32) - 16);
-                    v20->mobj.y2 = 0;
-                    ANIMS_StartAnim(11, v20->mobj.x, v20->mobj.y);
-                    InitMobj(&v20->mobj);
-                }
+                v20->f_4c = 0;
+                v20->mobj.x2 = v20->mobj.x + ((wrand() % 32) - 16);
+                v20->mobj.y2 = 0;
+                ANIMS_StartAnim(11, v20->mobj.x, v20->mobj.y);
+                InitMobj(&v20->mobj);
             }
             else
             {
@@ -1138,11 +1081,7 @@ void SHOTS_Think(void)
                         v24->hits -= v1c->damageAmount;
                     }
                     startfadeflag = 1;
-                    /*if ((v20->y > 10) || (v20->x > 10) || (v20->x < 310) || (v20->y < 190))
-                    {
-                        //Crashes real 3DS hardware.
-                        //ANIMS_StartAnim(20, 0, 0);
-                    }*/
+                    ANIMS_StartAnim(20, 0, 0);
                     v20 = SHOTS_Remove(v20);
                     continue;
                 case 5:
@@ -1162,8 +1101,7 @@ void SHOTS_Think(void)
             else
             {
                 v20->mobj.y -= v20->speedY;
-                //Might fix a crash on real 3DS hardware.
-                if (v20->mobj.y < 1)
+                if (v20->mobj.y < 0)
                 {
                     v20->mobj.done = 1;
                     v20->f_48 = 1;
@@ -1183,7 +1121,7 @@ void SHOTS_Display(void)
         switch (v1c->shotLib->shotType)
         {
         default:
-            printf("SHOTS_Display()");
+            EXIT_Error("SHOTS_Display()");
             break;
         case 0:
             GFX_PutSprite(v1c->TexturePtr, v1c->x, v1c->y);

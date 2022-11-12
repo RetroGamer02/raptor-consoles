@@ -8,7 +8,6 @@
 #include "fx.h"
 #include "anims.h"
 #include "fileids.h"
-#include "stdio.h"
 
 int obj_cnt;
 object_t first_objs, last_objs, objs[20];
@@ -895,8 +894,7 @@ int OBJS_SubEnergy(int a1)
         a1 >>= 1;
     if (v1c)
     {
-        //Crashes real 3DS hardware. //Super Shield Anim
-        //ANIMS_StartAnim(20, 0, 0);
+        ANIMS_StartAnim(20, 0, 0);
         SND_Patch(32, 127);
         v1c->f_8 -= a1;
         if (v1c->f_8 < 0)

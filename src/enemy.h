@@ -28,7 +28,7 @@ enum MULTI
     MULTI_END
 };
 
-struct slib_t {
+struct __attribute__((packed)) slib_t {
     char iname[16];                         // ITEM NAME
     int item;                               // * GLB ITEM #
     int bonus;                              // BONUS # ( -1 == NONE )

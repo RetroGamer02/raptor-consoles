@@ -2,7 +2,7 @@
 
 #include "gfxapi.h"
 
-struct swd_t
+struct __attribute__((packed)) swd_t
 {
     int f_0;     //not used
     int f_4;     //not used
@@ -34,7 +34,7 @@ struct swd_t
     int f_74;
 };
 
-struct swdfield_t {
+struct __attribute__((packed)) swdfield_t {
     int f_0;
     int f_4;
     int f_8;
@@ -69,7 +69,7 @@ struct swdfield_t {
     texture_t *f_90;
 }; // size: 0x94
 
-struct swdfield_32_t {
+struct __attribute__((packed)) swdfield_32_t {
     int f_0;
     int f_4;
     int f_8;

@@ -3,7 +3,7 @@
 #include "common.h"
 #include "vmemapi.h"
 
-struct poolitem_t
+struct __attribute__((packed)) poolitem_t
 {
     uint32_t size : 24;
     uint32_t chain : 7;

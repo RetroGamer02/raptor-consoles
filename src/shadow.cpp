@@ -112,12 +112,8 @@ void SHADOW_GAdd(int a1, int a2, int a3)
     {
         v14->f_0 = a1;
         v14->f_4 = a2 - 3;
-        //Fixes crash on real 3DS hardware but needs improvment.
-        if (a3 +6 > 1)
-        {
-            v14->f_8 = a3 + 4;
-            num_gshadows++;
-        }
+        v14->f_8 = a3 + 4;
+        num_gshadows++;
     }
 }
 

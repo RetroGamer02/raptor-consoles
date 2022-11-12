@@ -345,29 +345,7 @@ void IPT_MovePlayer(void)
             playerx = 314 - 32;
             g_addx = 0;
         }
-    } else {
-        //Fixes a crash on real 3DS hardware.
-        if (playery < -64)
-        {
-            playery = -64;
-            g_addy = -64;
-        }
-        else if (playery > 160)
-        {
-            playery = 160;
-            g_addy = 0;
-        }
-        if (playerx < 5)
-        {
-            playerx = 5;
-            g_addx = 0;
-        }
-        else if (playerx + 32 > 314)
-        {
-            playerx = 314 - 32;
-            g_addx = 0;
-        }
-    }
+    } 
     v1c = abs(playerx - oldx);
     v1c >>= 2;
     if (v1c > 3)

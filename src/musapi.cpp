@@ -194,7 +194,9 @@ void MUS_Service(void)
     if (music_active)
     {
         if (music_delay)
+        {
             music_delay--;
+        }
         while (!music_delay)
         {
             uint8_t cmd = music_ptr[music_cmdptr + music_startoffset];
@@ -411,7 +413,7 @@ void MUS_PlaySong(void *ptr, int loop, int fadein)
     if (!ptr)
         return;
 
-    //SND_Lock();
+    SND_Lock();
     if (music_active)
         MUS_StopSong(0);
     music_ptr = (char*)ptr;
@@ -427,17 +429,17 @@ void MUS_PlaySong(void *ptr, int loop, int fadein)
     MUS_Reset();
     if (fadein)
         MUS_SetupFader(1);
-    //SND_Unlock();
+    SND_Unlock();
 }
 
 void MUS_StopSong(int fadeout)
 {
     if (!music_init)
         return;
-    //SND_Lock();
+    SND_Lock();
     if (fadeout && MUS_SetupFader(0))
     {
-        //SND_Unlock();
+        SND_Unlock();
         return;
     }
     music_active = 0;
@@ -452,7 +454,7 @@ void MUS_StopSong(int fadeout)
             music_device->AllNotesOffEvent(i,0);
     }
     music_ptr = NULL;
-    //SND_Unlock();
+    SND_Unlock();
 }
 
 int MUS_SongPlaying(void)
@@ -468,6 +470,10 @@ void MUS_Mix(int16_t *stream, int len)
     int i;
     if (!music_init || !music_device || !music_device->Mix)
         return;
+
+    //LightEvent_Init(&privateMUSThreadEvent, RESET_ONESHOT);
+    //privateMUSThreadHandle = threadCreate(musThread, 0x0, 8 * 1024, 0x1A, 0, true);
+
     for (i = 0; i < len; i++)
     {
         music_device->Mix(stream, 1);

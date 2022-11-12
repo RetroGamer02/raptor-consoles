@@ -17,7 +17,6 @@
 #include "joyapi.h"
 #include "input.h"
 #include "fileids.h"
-#include "stdio.h"
 
 #define NORM_SHOOT  -1
 #define START_SHOOT   0
@@ -245,7 +244,7 @@ void ENEMY_LoadLib(
     }
     
     if (g_numslibs > 1 && !gameflag[2] && !gameflag[3])
-        printf("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
+        EXIT_Error("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
     
     for (loop = 0; loop < 4; loop++)
     {
@@ -254,7 +253,7 @@ void ENEMY_LoadLib(
             slib[loop] = (slib_t*)GLB_LockItem(spriteitm[loop]);
             
             if (!slib[loop])
-                printf("ENEMY_LoadSprites() - memory");
+                EXIT_Error("ENEMY_LoadSprites() - memory");
             
             numslibs[loop] = GLB_GetItemSize(spriteitm[loop]);
             numslibs[loop] /= sizeof(slib_t);
@@ -312,7 +311,7 @@ enemy_t
     enemy_t *sh;
     
     if (!free_enemy)
-        printf("ENEMY_Get() - Max Sprites");
+        EXIT_Error("ENEMY_Get() - Max Sprites");
     
     numships++;
     
@@ -420,7 +419,7 @@ ENEMY_Add(
     switch (curlib->animtype)
     {
     default:
-        printf("ENEMY_Add() - Invalid ANIMTYPE");
+        EXIT_Error("ENEMY_Add() - Invalid ANIMTYPE");
         break;
     case GANIM_NORM:
         newe->anim_on = 1;
@@ -451,7 +450,7 @@ ENEMY_Add(
         InitMobj(&newe->mobj);
         MoveMobj(&newe->mobj);
         break;
-
+    
     case F_GROUND:                                          
         newe->groundflag = 1;
         newe->mobj.x2 = newe->x;
@@ -708,7 +707,7 @@ void ENEMY_Think(
     }
     
     cur_visable = 0;
-
+    
     for (sprite = first_enemy.next; &last_enemy != sprite; sprite = sprite->next)
     {
         curlib = sprite->lib;
@@ -730,7 +729,7 @@ void ENEMY_Think(
                         switch (curlib->animtype)
                         {
                         default:
-                            printf("ENEMY_Think() - Invalid ANIMTYPE1");
+                            EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE1");
                         case GANIM_NORM:
                             break;
                         
@@ -764,7 +763,7 @@ void ENEMY_Think(
                 switch (curlib->animtype)
                 {
                 default:
-                    printf("ENEMY_Think() - Invalid ANIMTYPE2");
+                    EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE2");
                 case GANIM_NORM:
                     sprite->shoot_on = 1;
                     break;
@@ -906,20 +905,7 @@ void ENEMY_Think(
             {
                 sprite->mobj.x = sprite->mobj.x2;
                 sprite->mobj.y = sprite->mobj.y2;
-
-                //printf("Flight X: %d Y: %d\n", sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos],sprite->mobj.y2 = sprite->sy + curlib->flighty[sprite->movepos]);
-                //printf("Sprite Movepos: %d\n", sprite->movepos);
-                //Fixes 3DS real hardware crash.
-                int fixedX = sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos];
-                if (sprite->movepos == 1)
-                {
-                    if (sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos] > 320)
-                    {
-                        fixedX = 319;
-                    }
-                }
-                
-                sprite->mobj.x2 = fixedX;
+                sprite->mobj.x2 = sprite->sx + curlib->flightx[sprite->movepos];
                 sprite->mobj.y2 = sprite->sy + curlib->flighty[sprite->movepos];
                 
                 InitMobj(&sprite->mobj);
@@ -1020,9 +1006,7 @@ void ENEMY_Think(
         {
             if (sprite->groundflag)
             {
-                //No longer crashes but maybe disable to prevent poping shadows.
-                //Disabled untill Tank Shadow fix is done.
-                //SHADOW_GAdd(sprite->item, sprite->x, sprite->y);
+                SHADOW_GAdd(sprite->item, sprite->x, sprite->y);
             }
             else
             {
@@ -1041,34 +1025,29 @@ void ENEMY_Think(
             }
         }
         
-        
         if (!sprite->groundflag)
         {
-            //Might fix a crash on real 3DS hardware.
-            //if ((sprite->y > 1) || (sprite->x > 10) || (sprite->y < 199) || (sprite->x < 310))
-            //{
-                if (player_cx > sprite->x && player_cx < sprite->x2)
+            if (player_cx > sprite->x && player_cx < sprite->x2)
+            {
+                if (player_cy > sprite->y && player_cy < sprite->y2)
                 {
-                    if (player_cy > sprite->y && player_cy < sprite->y2)
+                    if ((haptic) && (control == 2))
                     {
-                        if ((haptic) && (control == 2))
-                        {
-                            IPT_CalJoyRumbleMedium();                                                            //Rumble when enemy hit
-                        }
-                        sprite->hits -= (PLAYERWIDTH / 2);
-                        if (sprite->width > sprite->height)
-                            suben = sprite->width;
-                        else
-                            suben = sprite->height;
-                        
-                        OBJS_SubEnergy(suben >> 2);
-                        x = player_cx + (wrand() % 8) - 4;
-                        y = player_cy + (wrand() % 8) - 4;
-                        ANIMS_StartAnim(A_SMALL_AIR_EXPLO, x, y);
-                        SND_Patch(FX_CRASH, 127);
+                        IPT_CalJoyRumbleMedium();                                                            //Rumble when enemy hit
                     }
+                    sprite->hits -= (PLAYERWIDTH / 2);
+                    if (sprite->width > sprite->height)
+                        suben = sprite->width;
+                    else
+                        suben = sprite->height;
+                    
+                    OBJS_SubEnergy(suben >> 2);
+                    x = player_cx + (wrand() % 8) - 4;
+                    y = player_cy + (wrand() % 8) - 4;
+                    ANIMS_StartAnim(A_SMALL_AIR_EXPLO, x, y);
+                    SND_Patch(FX_CRASH, 127);
                 }
-            //}
+            }
         }
         
         if (sprite->hits <= 0)
@@ -1172,15 +1151,14 @@ void ENEMY_Think(
             
             continue;
         }
-
+        
         y = sprite->y + sprite->height;
         
-        //Fixes crash on real 3DS hardware.
-        if (y > 1 && sprite->y < 199)
+        if (y > 0 && sprite->y < 200)
         {
             x = sprite->x + sprite->width;
             
-            if (x > 1 && sprite->x < 319)
+            if (x > 0 && sprite->x < 320)
             {
                 onscreen[cur_visable] = sprite;
                 cur_visable++;

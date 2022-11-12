@@ -315,7 +315,7 @@ char *GLB_FetchItem(int a1, int a2)
         }
     }
     
-    if (!fi->mem.ptr)//Crashes on read of mem ptr because its NULL?
+    if (!fi->mem.ptr)
     {
         fi->lock = 0;
         if (fi->length)

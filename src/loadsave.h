@@ -2,7 +2,7 @@
 
 #include "rap.h"
 
-struct csprite_t {
+struct __attribute__((packed)) csprite_t {
     int link;
     int slib;
     int x;
@@ -16,7 +16,7 @@ struct maptile_t {
     short f_2;
 };
 
-typedef struct _map_t {
+typedef struct __attribute__((packed)) _map_t {
     int f_0;
     int f_4;
     int numsprites;

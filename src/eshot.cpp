@@ -12,7 +12,6 @@
 #include "joyapi.h"
 #include "input.h"
 #include "fileids.h"
-#include "stdio.h"
 
 #define MAX_ESHOT 80
 
@@ -252,7 +251,7 @@ ESHOT_Shoot(
     x = enemy->x + enemy->lib->shootx[gun_num];
     y = enemy->y + enemy->lib->shooty[gun_num];
     
-    if (((x >= 10) && (x < 310)) && ((y >= 1) && (y < 199)))
+    if (((x >= 0) && (x < 320)) && ((y >= 0) && (y < 200)))
     {
         cur = ESHOT_Get();
         
@@ -268,7 +267,7 @@ ESHOT_Shoot(
         switch (g_shoot_type)
         {
         default:
-            printf("ESHOT_Shoot() - Invalid EShot type");
+            EXIT_Error("ESHOT_Shoot() - Invalid EShot type");
             break;
         
         case ES_ATPLAYER:                                              
@@ -288,8 +287,7 @@ ESHOT_Shoot(
             cur->move.x -= cur->lib->xoff;
             cur->move.y -= cur->lib->yoff;
             cur->move.x2 = cur->move.x;
-            //Fixes crash on real 3DS hardware.
-            cur->move.y2 = 199;
+            cur->move.y2 = 200;
             cur->speed = cur->lib->speed >> 1;
             cur->type = ES_ATDOWN;
             break;
@@ -318,12 +316,10 @@ ESHOT_Shoot(
         
         case ES_MISSLE:                                              
             SND_3DPatch(FX_ENEMYMISSLE, x, y);
-            //cur->lib = &plib[LIB_NORMAL]; //Fixes real 3DS hardware Crash
             cur->lib = &plib[LIB_MISSLE];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
-            //Fixes crash on real 3DS hardware.
-            cur->move.y2 = 199;
+            cur->move.y2 = 200;
             cur->speed = enemy->speed + 1;
             cur->type = ES_MISSLE;
             break;
@@ -333,8 +329,7 @@ ESHOT_Shoot(
             cur->lib = &plib[LIB_LASER];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
-            //Fixes crash on real 3DS hardware.
-            cur->move.y2 = 199;
+            cur->move.y2 = 200;
             cur->speed = enemy->speed;
             cur->type = ES_LASER;
             break;
@@ -344,9 +339,8 @@ ESHOT_Shoot(
             cur->lib = &plib[LIB_MINES];
             cur->x = cur->move.x;
             cur->y = cur->move.y;
-            //Fixes crash on real 3DS hardware.
-            cur->move.x2 = 319;
-            cur->move.y2 = 199;
+            cur->move.x2 = 320;
+            cur->move.y2 = 200;
             cur->speed = 150;
             cur->pos = wrand() % 16;
             cur->type = ES_MINES;
@@ -357,8 +351,7 @@ ESHOT_Shoot(
             cur->lib = &plib[LIB_PLASMA];
             cur->move.x -= cur->lib->xoff;
             cur->move.x2 = cur->move.x;
-            //Fixes crash on real 3DS hardware.
-            cur->move.y2 = 199;
+            cur->move.y2 = 200;
             cur->speed = 8;
             cur->type = ES_PLASMA;
             break;
@@ -374,58 +367,14 @@ ESHOT_Shoot(
             cur->type = ES_COCONUTS;
             break;
         }
-
+        
         InitMobj(&cur->move);
         MoveSobj(&cur->move, 1);
-
-        /*enemy_t *curenemy = enemy;
-        while (curenemy->prev != NULL)
-        {
-            //&& (cur->move.x >= curenemy->x && cur->move.x <= curenemy->width)
-            curenemy = curenemy->prev;
-            if ((cur->move.y >= curenemy->y && cur->move.y <= curenemy->height) && cur->lib == &plib[LIB_MISSLE])
-            {
-                printf("Missle test\n");
-                cur->move.done = 1;
-            }
-        }*/
-
-        /*if (cur->lib == &plib[LIB_MISSLE])
-        {
-            printf("Enemy speed: %d\n", cur->en->speed);
-            printf("Enemy height: %d\n", cur->en->height);
-            printf("Enemy width: %d\n", cur->en->width);
-        }*/
         
-        /*For some reason the 3DS has a huge problem with lib missle 
-        so its replaced with normal shots for the following cases.
-        This needs a better fix but will be used untill one is found.*/
-        if (cur->en->speed == 6 && cur->en->height == 32 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
-        {
-            //In this case it works on rookie but not higher. Reason unknown.
-            cur->lib = &plib[LIB_NORMAL];
-        } else if (cur->en->speed == 3 && cur->en->height == 32 && cur->en->width == 40 && cur->lib == &plib[LIB_MISSLE])
-        {
-            cur->lib = &plib[LIB_NORMAL];
-        } else if (cur->en->speed == 4 && cur->en->height == 32 && cur->en->width == 40 && cur->lib == &plib[LIB_MISSLE])
-        {
-            cur->lib = &plib[LIB_NORMAL];
-        } else if (cur->gun_num == 2 && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
-        {                
-            cur->lib = &plib[LIB_NORMAL];
-        } else if ((cur->gun_num == 0 || cur->gun_num == 1) && cur->en->speed == 4 && cur->en->height == 24 && cur->en->width == 32 && cur->lib == &plib[LIB_MISSLE])
-        {                
-            cur->lib = &plib[LIB_NORMAL];
-        } else if ((cur->gun_num == 2 || cur->gun_num == 3) && cur->en->speed == 5 && cur->lib == &plib[LIB_MISSLE])
-        {                
-            cur->lib = &plib[LIB_NORMAL];
-        }
-
-        //Fixes crash on real 3DS hardware.
-        if (cur->move.x < 1 || cur->move.x >= 319)
+        if (cur->move.x < 0 || cur->move.x >= 320)
             cur->move.done = 1;
         
-        if (cur->move.y < 1 || cur->move.y >= 199)
+        if (cur->move.y < 0 || cur->move.y >= 200)
             cur->move.done = 1;
         
         if (cur->move.done)
@@ -460,8 +409,7 @@ ESHOT_Think(
             {
                 shot->x = shot->en->x + shot->en->lib->shootx[shot->gun_num] - 4;
                 shot->y = shot->en->y + shot->en->lib->shooty[shot->gun_num];
-                //Fixes crash on real 3DS hardware.
-                shot->move.y2 = 199;  
+                shot->move.y2 = 200;  
                 
                 dx = abs(shot->x - player_cx);
                 
@@ -517,17 +465,11 @@ ESHOT_Think(
                 }
             }
             
-            //Fixes crash on real 3DS hardware.
-            if (shot->y >= 192 || shot->y <= 8)
-            {
-                //shot->speed = 1;
+            if (shot->y >= 200 || shot->y < 0)
                 shot->doneflag = 1;
-            }
-                
-            if (shot->x >= 310 || shot->x < 10)
-            {
+            
+            if (shot->x >= 320 || shot->x < 0)
                 shot->doneflag = 1;
-            }
             
             dx = abs(shot->x - player_cx);
             dy = abs(shot->y - player_cy);
@@ -584,8 +526,8 @@ ESHOT_Display(
             h = lashit[shot->curframe - 1];
             
             y = shot->move.y2 - 8;
-            //Fixes crash on real 3DS hardware.
-            if (y > 1 && y < 199)
+            
+            if (y > 0 && y < 200)
             {
                 GFX_PutSprite(h, shot->x - (h->width >> 2), y);
             }

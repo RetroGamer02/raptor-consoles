@@ -1,6 +1,6 @@
 #pragma once
 
-struct movanim_t {
+struct __attribute__((packed)) movanim_t {
     unsigned short f_0;
     unsigned short f_2;
     unsigned short f_4;

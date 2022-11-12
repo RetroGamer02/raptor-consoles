@@ -1,5 +1,7 @@
 #pragma once
 
+#include "libdivide.h"
+
 #define MAX_SHIELD 100
 #define MAX_SUPER  100
 
@@ -137,7 +139,7 @@ enum EXP_TYPE
     EXP_AIRSMALL2  // 10  
 };
 
-struct flat_t {
+struct __attribute__((packed)) flat_t {
     int f_0; // eitems
     short f_4; // hits
     short f_6; // money
@@ -157,3 +159,5 @@ int Do_Game(void);
 int RAP_LoadWin(void);
 void ShutDown(int a1);
 bool checkfile(const char* path);
+int fastDiv32(int dividend, int divisor);
+unsigned int fastDivU32(unsigned int dividend, unsigned int divisor);

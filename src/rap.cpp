@@ -181,7 +181,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V0.7.3\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V1.0RC1\n");
 }
 
 void ShutDown(int a1)
@@ -199,7 +199,9 @@ void ShutDown(int a1)
 
     if (reg_flag)
         LASTSCR = GLB_GetItem(FILE002_LASTSCR2_TXT); //Get ANSI Screen Fullversion from GLB to char*
-    
+    gspLcdInit();
+    GSPLCD_PowerOnBacklight(GSPLCD_SCREEN_BOTTOM);
+    gspLcdExit();
     closewindow();                                   //Close Main Window
     //I_LASTSCR();                                     //Call to display ANSI Screen 
     //gfxExit();
@@ -659,6 +661,9 @@ int Do_Game(void)
     draw_player = 1;
 
     consoleClear();
+    gspLcdInit();
+    GSPLCD_PowerOffBacklight(GSPLCD_SCREEN_BOTTOM);
+    gspLcdExit();
 
     wsrand(game_wave[cur_game] << 10);
     fadeflag = 0;
@@ -1087,6 +1092,18 @@ bool checkfile(const char* path)
     }
 }
 
+int fastDiv32(int dividend, int divisor)
+{
+    struct libdivide::libdivide_s32_t fast_d = libdivide::libdivide_s32_gen(divisor);
+    return libdivide::libdivide_s32_do(dividend, &fast_d);
+}
+
+unsigned int fastDivU32(unsigned int dividend, unsigned int divisor)
+{
+    struct libdivide::libdivide_u32_t fast_d = libdivide::libdivide_u32_gen(divisor);
+    return libdivide::libdivide_u32_do(dividend, &fast_d);
+}
+
 int main()
 {
     char *shost, *reg_text, *pal;
@@ -1097,7 +1114,7 @@ int main()
     //_Bool isN3DS;
 
     //APT_CheckNew3DS(&isN3DS);
-    APT_SetAppCpuTimeLimit(70);
+    //APT_SetAppCpuTimeLimit(70);
 
     gfxInitDefault();
     
