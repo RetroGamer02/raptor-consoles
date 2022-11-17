@@ -61,6 +61,37 @@ C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/prefapi.obj: \
   C:/Users/Devin/Documents/nxdk/lib/winapi/sysinfoapi.h \
   C:/Users/Devin/Documents/nxdk/lib/winapi/winerror.h \
   C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/rap.h \
+  C:/Users/Devin/Documents/nxdk/lib/hal/debug.h \
+  C:/Users/Devin/Documents/nxdk/lib/hal/xbox.h \
+  C:/Users/Devin/Documents/nxdk/lib/hal/video.h \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/vector \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/iosfwd \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__bit_reference \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/bit \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__debug \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstdlib \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstdio \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/algorithm \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/initializer_list \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstring \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/utility \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__tuple \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstdint \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/memory \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/typeinfo \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/exception \
+  C:/Users/Devin/Documents/nxdk/lib/xboxrt/vcruntime/vcruntime_exception.h \
+  C:/Users/Devin/Documents/nxdk/lib/xboxrt/vcruntime/vcruntime_typeinfo.h \
+  C:/Users/Devin/Documents/nxdk/lib/pdclib/platform/xbox/include/assert.h \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/new \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/iterator \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__functional_base \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/tuple \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/stdexcept \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/atomic \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/functional \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/climits \
+  C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__split_buffer \
   C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/tonccpy.h
 
 C:/Users/Devin/Documents/nxdk/lib/libcxx/include/limits.h:
@@ -184,5 +215,67 @@ C:/Users/Devin/Documents/nxdk/lib/winapi/sysinfoapi.h:
 C:/Users/Devin/Documents/nxdk/lib/winapi/winerror.h:
 
 C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/rap.h:
+
+C:/Users/Devin/Documents/nxdk/lib/hal/debug.h:
+
+C:/Users/Devin/Documents/nxdk/lib/hal/xbox.h:
+
+C:/Users/Devin/Documents/nxdk/lib/hal/video.h:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/vector:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/iosfwd:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__bit_reference:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/bit:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__debug:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstdlib:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstdio:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/algorithm:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/initializer_list:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstring:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/utility:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__tuple:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/cstdint:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/memory:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/typeinfo:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/exception:
+
+C:/Users/Devin/Documents/nxdk/lib/xboxrt/vcruntime/vcruntime_exception.h:
+
+C:/Users/Devin/Documents/nxdk/lib/xboxrt/vcruntime/vcruntime_typeinfo.h:
+
+C:/Users/Devin/Documents/nxdk/lib/pdclib/platform/xbox/include/assert.h:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/new:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/iterator:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__functional_base:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/tuple:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/stdexcept:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/atomic:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/functional:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/climits:
+
+C:/Users/Devin/Documents/nxdk/lib/libcxx/include/__split_buffer:
 
 C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/tonccpy.h:

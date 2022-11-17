@@ -134,7 +134,7 @@ static int actualheight;
 
 // Force integer scales for resolution-independent rendering
 
-int integer_scaling = true;
+int integer_scaling = false;
 
 // VGA Porch palette change emulation
 
@@ -570,6 +570,9 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
                 SDL_GetError());
     }*/
 
+    rinfo.max_texture_width = 640;
+    rinfo.max_texture_height = 480;
+
     while (*w_upscale * SCREENWIDTH > rinfo.max_texture_width)
     {
         --*w_upscale;
@@ -599,7 +602,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
                 "to create a texture buffer: %d < %d",
                 max_scaling_buffer_pixels, SCREENWIDTH * SCREENHEIGHT);
     }
-
+    
     while (*w_upscale * *h_upscale * SCREENWIDTH * SCREENHEIGHT
            > max_scaling_buffer_pixels)
     {
@@ -620,6 +623,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
                *w_upscale * SCREENWIDTH, *h_upscale * SCREENHEIGHT,
                max_scaling_buffer_pixels,
                rinfo.max_texture_width, rinfo.max_texture_height);
+               //Sleep(4000);
     }
 }
 

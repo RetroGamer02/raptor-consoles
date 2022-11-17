@@ -33,6 +33,7 @@
 #include "i_lastscr.h"
 #include "fileids.h"
 
+#include <nxdk/mount.h>
 #include <hal/debug.h>
 #include <hal/xbox.h>
 #include <hal/video.h>
@@ -181,7 +182,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    debugPrint(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
+    debugPrint(" RAPTOR: Call Of The Shadows V1.2 (c)1994 Cygnus Studios\n");
 }
 
 void ShutDown(int a1)
@@ -1023,10 +1024,17 @@ int main(int argc, char *argv[])
     char *shost, *reg_text, *pal;
     int i, eps, v28, v20;
 
-    XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
-    debugPrint("Init Xbox!\n");
-    
     shost = getenv("S_HOST");
+
+    XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    
+    // Mount C:
+    BOOL ret = nxMountDrive('C', "\\Device\\Harddisk0\\Partition2\\");
+    if (!ret) {
+        debugPrint("Failed to mount C: drive!\n");
+        //Sleep(5000);
+        return 1;
+    }
 
     InitScreen();
 

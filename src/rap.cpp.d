@@ -117,6 +117,7 @@ C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/rap.obj: \
   C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/joyapi.h \
   C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/i_lastscr.h \
   C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/fileids.h \
+  C:/Users/Devin/Documents/nxdk/lib/nxdk/mount.h \
   C:/Users/Devin/Documents/nxdk/lib/hal/debug.h \
   C:/Users/Devin/Documents/nxdk/lib/hal/xbox.h \
   C:/Users/Devin/Documents/nxdk/lib/hal/video.h \
@@ -388,6 +389,8 @@ C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/joyapi.h:
 C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/i_lastscr.h:
 
 C:/Users/Devin/Documents/nxdk/samples/Raptor-xbox/src/fileids.h:
+
+C:/Users/Devin/Documents/nxdk/lib/nxdk/mount.h:
 
 C:/Users/Devin/Documents/nxdk/lib/hal/debug.h:
 

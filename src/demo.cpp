@@ -151,7 +151,7 @@ DEMO_SetFileName(
 )
 {
     //strcpy(demo_name, in_name);
-    tonccpy(demo_name, in_name, sizeof(in_name));
+    tonccpy(demo_name, in_name, sizeof(char) * sizeof(in_name)); //Fixme
 }
 
 /***************************************************************************

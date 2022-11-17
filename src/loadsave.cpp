@@ -665,7 +665,7 @@ RAP_InitLoadSave(
     cdflag = 0;
     
     //strcpy(g_setup_ini, "D:\\SETUP.INI");
-    tonccpy(g_setup_ini, "D:\\SETUP.INI", sizeof("D:\\SETUP.INI"));
+    tonccpy(g_setup_ini, "D:\\SETUP.INI", sizeof(char) * 13);
     
     return cdpath;
 }

@@ -132,7 +132,7 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
     FILE *h;
     char buffer[PATH_MAX] = "D:\\";
     sprintf(buffer, "%s%s%04u.GLB", buffer, prefix, a2);
-    debugPrint("Buffer: %s\n",buffer);
+    //debugPrint("Buffer: %s\n",buffer);
     h = fopen(buffer, mode);
     if (h == NULL)
     {
@@ -147,7 +147,7 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
         }
     }
     //strcpy(filedesc[a2].path, buffer);
-    tonccpy(filedesc[a2].path, buffer, sizeof(buffer));
+    tonccpy(filedesc[a2].path, buffer, sizeof(char) * 13);//Fixme
     filedesc[a2].mode = mode;
     filedesc[a2].handle = h;
     return h;
@@ -240,7 +240,7 @@ int GLB_InitSystem(const char *a1, int a2, const char *a3)
     char *t;
     memset(exePath, 0, sizeof(exePath));
     //strcpy(exePath, a1);
-    tonccpy(exePath, a1, sizeof(exePath));
+    tonccpy(exePath, a1, sizeof(char) * 3);//Fixme
     t = strrchr(exePath, '\\');
     if (t)
         t[1] = '\0';
@@ -249,7 +249,7 @@ int GLB_InitSystem(const char *a1, int a2, const char *a3)
     if (a3)
     {
         //strcpy(prefix, a3);
-        tonccpy(prefix, a3, sizeof(a3));
+        tonccpy(prefix, a3, sizeof(char) * 4);//Fixme
         strupr(prefix);
     }
     memset(filedesc, 0, sizeof(filedesc));
@@ -509,7 +509,7 @@ int GLB_ReadFile(const char *a1, char *a2)
     if (!checkfile(a1) == -1)
     {
         //strcpy(f_a0, exePath);
-        tonccpy(f_a0, exePath, sizeof(exePath));
+        tonccpy(f_a0, exePath, sizeof(char) * 3);//Fixme
         strcat(f_a0, a1);
         a1 = f_a0;
     }

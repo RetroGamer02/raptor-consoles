@@ -89,7 +89,7 @@ int SND_InitSound(void)
         return 0;
 
     spec.freq = fx_freq;
-    spec.format = AUDIO_S16SYS;
+    spec.format = AUDIO_S16LSB;
     spec.channels = 2;
     spec.samples = 512;
     spec.callback = FX_Fill;

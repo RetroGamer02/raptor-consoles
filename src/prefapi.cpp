@@ -28,6 +28,11 @@ char* ltoa(long i, char* s, int dummy_radix) {
 
 #include "rap.h"
 
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
 #include "tonccpy.h"
 
 static int INI_OpenFile(const char *section, const char *key, const char *defaultValue, char *value, int length, const char *filename)
@@ -277,8 +282,9 @@ static char preference[PATH_MAX];
 int INI_InitPreference(const char *section)
 {
     if (section)
-        tonccpy(preference, section, sizeof(section));
+        tonccpy(preference, section, sizeof(char) * 13);
         //strcpy(preference, section);
+        //debugPrint("%s\n", preference);
     return checkfile(preference);
 }
 
