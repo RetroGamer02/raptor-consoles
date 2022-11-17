@@ -53,8 +53,8 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
-static const char *fmt = "CHAR%04u.FIL";
-static const char* cdfmt = "%s\\CHAR%04u.FIL";
+static const char *fmt = "C:\\CHAR%04u.FIL";
+static const char* cdfmt = "C:\\%s\\CHAR%04u.FIL";
 
 map_t *mapmem;
 csprite_t *csprite;
