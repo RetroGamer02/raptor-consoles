@@ -2,7 +2,40 @@
 
 #include "gfxapi.h"
 
-struct __attribute__((packed)) swd_t
+enum CMD
+{
+    C_IDLE,
+    F_DOWN,
+    F_UP,
+    F_NEXT,
+    F_PREV,
+    F_RIGHT,
+    F_LEFT,
+    F_TOP,
+    F_BOTTOM,
+    F_FIRST,
+    F_SELECT,
+    F_OBJ_AREA,
+    F_VIEW_AREA,
+    W_NEW,
+    W_NEXT,
+    W_MOVE,
+    W_CLOSE,
+    W_CLOSE_ALL
+};
+
+enum ACT
+{
+    S_IDLE,
+    S_FLD_COMMAND,
+    S_WIN_COMMAND,
+    S_FIRSTCALL,
+    S_REDRAW,
+    S_UPDATE,
+    S_END
+};
+
+struct swd_t
 {
     int f_0;     //not used
     int f_4;     //not used
@@ -34,7 +67,7 @@ struct __attribute__((packed)) swd_t
     int f_74;
 };
 
-struct __attribute__((packed)) swdfield_t {
+struct swdfield_t {
     int f_0;
     int f_4;
     int f_8;
@@ -69,7 +102,7 @@ struct __attribute__((packed)) swdfield_t {
     texture_t *f_90;
 }; // size: 0x94
 
-struct __attribute__((packed)) swdfield_32_t {
+struct swdfield_32_t {
     int f_0;
     int f_4;
     int f_8;
@@ -106,10 +139,10 @@ struct __attribute__((packed)) swdfield_32_t {
 
 struct wdlg_t {
     int f_0;
-    int f_4;
-    int f_8;
-    int f_c;
-    int f_10;
+    int field;
+    int cur_act;
+    int cur_cmd;
+    int keypress;
     int f_14;
     int f_18;
     int f_1c;

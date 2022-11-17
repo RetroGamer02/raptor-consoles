@@ -5,12 +5,14 @@
 #include "gfxapi.h"
 #include "i_video.h"
 
+#include "tonccpy.h"
+
 void TILE_Draw(void)
 {
     int i;
     for (i = 0; i < 32; i++)
     {
-        memcpy(&tilestart[i * 320], &tilepic[i * 32], 32);
+        tonccpy(&tilestart[i * 320], &tilepic[i * 32], 32);
     }
 }
 
@@ -19,7 +21,7 @@ void TILE_ClipDraw(void)
     int i;
     for (i = 0; i < tileloopy; i++)
     {
-        memcpy(&tilestart[i * 320], &tilepic[i * 32], 32);
+        tonccpy(&tilestart[i * 320], &tilepic[i * 32], 32);
     }
 }
 
@@ -30,7 +32,7 @@ void TILE_ShakeScreen(void)
     char *dst = displayscreen + g_mapleft - 4;
     for (i = 0; i < 200; i++)
     {
-        memcpy(dst, src, 296);
+        tonccpy(dst, src, 296);
         dst += 320;
         src += 320;
     }
@@ -44,7 +46,7 @@ void TILE_DisplayScreen(void)
     char *dst = displayscreen + 16;
     for (i = 0; i < 200; i++)
     {
-        memcpy(dst, src, 288);
+        tonccpy(dst, src, 288);
         dst += 320;
         src += 320;
     }

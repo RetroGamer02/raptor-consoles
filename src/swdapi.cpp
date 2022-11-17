@@ -12,6 +12,15 @@
 #include "joyapi.h"
 #include "input.h"
 
+#include <stdio.h>
+
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
+#include "tonccpy.h"
+
 int g_joy_ascii;
 unsigned int fi_joy_count;
 bool fi_sec_field;
@@ -98,7 +107,7 @@ int SWD_GetLine(const char *a1)
         text = a1;
     textcmd_flag = 0;
     p = 0;
-    memcpy(buf, text, 81);
+    tonccpy(buf, text, 81);
     tok = strtok(buf, sep);
     for (i = 0; i < 5; i++)
     {
@@ -174,7 +183,7 @@ int SWD_GetLine(const char *a1)
     }
     while (text[p] > 31)
         p++;
-    memcpy(textfill, text, p);
+    tonccpy(textfill, text, p);
     textfill[p] = 0;
     while (text[p] <= 31)
         p++;
@@ -206,7 +215,7 @@ void SWD_FillText(font_t *a1, int a2, int a3, int a4, int a5, int a6, int a7)
         if (!textcmd_flag)
         {
             GFX_Print(textdraw_x, textdraw_y, textfill, a1, textcolor);
-            textdraw_y += a1->f_0 + 3;
+            textdraw_y += a1->height + 3;
         }
         if (vsi < vbp)
             vsi += SWD_GetLine(NULL);
@@ -234,7 +243,7 @@ void SWD_PutField(swd_t *a1, swdfield_t *a2)
     
     v50 = (font_t*)GLB_GetItem(a2->f_54);
     v24 = (char*)a2 + a2->f_8c;
-    v4c = v50->f_0;
+    v4c = v50->height;
     v34 = 0;
     vbp = a2->f_7c + a1->f_64;
     v38 = 0;
@@ -242,7 +251,7 @@ void SWD_PutField(swd_t *a1, swdfield_t *a2)
     vc1 = strlen(v24);
     vd = GFX_StrPixelLen(v50, v24, vc1);
     v20 = vbp + ((a2->f_84 - vd) >> 1);
-    v28 = v1c + ((a2->f_88 - v50->f_0) >> 1);
+    v28 = v1c + ((a2->f_88 - v50->height) >> 1);
     if (a2->f_1c == 2 && a2->f_0 != 6)
     {
         if (v20 > 0)
@@ -423,14 +432,14 @@ void SWD_PutField(swd_t *a1, swdfield_t *a2)
             tex = NULL;
         if (a2->f_1c == 2)
         {
-            if (tex && tex->f_0 == 0)
+            if (tex && tex->x == 0)
                 GFX_ShadeShape(0, tex, vbp, v1c);
             else
                 GFX_ShadeArea(0, vbp, v1c, a2->f_84, a2->f_88);
         }
         else if (a2->f_1c == 1)
         {
-            if (tex && tex->f_0 == 0)
+            if (tex && tex->x == 0)
                 GFX_ShadeShape(1, tex, vbp, v1c);
             else
                 GFX_ShadeArea(1, vbp, v1c, a2->f_84, a2->f_88);
@@ -1130,7 +1139,7 @@ int SWD_ShowAllFields(swd_t *a1)
             {
                 vs[i].f_90->width = (short)vs[i].f_84;
                 vs[i].f_90->height = (short)vs[i].f_88;
-                GFX_GetScreen(vs[i].f_90->f_14, vbp, v20, vs[i].f_84, vs[i].f_88);
+                GFX_GetScreen(vs[i].f_90->charofs, vbp, v20, vs[i].f_84, vs[i].f_88);
             }
             if (vs[i].f_74)
             {
@@ -1226,7 +1235,7 @@ void SWD_PutWin(int a1)
             wdlg.f_14 = vs->f_18;
             wdlg.f_18 = vs->f_1c;
             wdlg.f_0 = active_window;
-            wdlg.f_4 = active_field;
+            wdlg.field = active_field;
             winfuncs[a1](&wdlg);
         }
     }
@@ -1248,7 +1257,7 @@ void SWD_Install(int a1)
     {
         movebuffer = (char*)malloc(4000 * 16);
         if (!movebuffer)
-            printf("SWD_Init() - DosMemAlloc");
+            debugPrint("SWD_Init() - DosMemAlloc");
     }
     else
         movebuffer = NULL;
@@ -1298,8 +1307,8 @@ swd_t* SWD_ReformatFieldData(swd_t* v1c, int a1)
 
     swd_t* swdNewData = (swd_t*)calloc(1, len + eof);
 
-    memcpy(swdNewData, v1c, sizeof(swd_t));
-    memcpy((char*)swdNewData + len, (char*)v1c + oldLen, eof);
+    tonccpy(swdNewData, v1c, sizeof(swd_t));
+    tonccpy((char*)swdNewData + len, (char*)v1c + oldLen, eof);
 
     swdfield_32_t* swdfield32 = (swdfield_32_t*)((char*)v1c + v1c->f_4c);
     swdfield_t* swdfield = (swdfield_t*)((char*)swdNewData + swdNewData->f_4c);
@@ -1432,10 +1441,10 @@ int SWD_InitWindow(int a1)
                     {
                         vb = vd[j].f_84 * vd[j].f_88 + 20;
                         if (vb < 0 || vb > 64000)
-                            printf("SWD Error: pic save to big...");
+                            debugPrint("SWD Error: pic save to big...");
                         vd[j].f_90 = (texture_t*)malloc(vb);
                         if (!vd[j].f_90)
-                            printf("SWD Error: out of memory");
+                            debugPrint("SWD Error: out of memory");
                     }
                 }
             }
@@ -1484,7 +1493,7 @@ int SWD_ShowAllWindows(void)
             SWD_PutWin(i);
     }
     if (movebuffer)
-        memcpy(movebuffer, displaybuffer, 64000);
+        tonccpy(movebuffer, displaybuffer, 64000);
     if (active_window != -1 && active_window != master_window && g_wins[active_window].f_4)
         SWD_PutWin(active_window);
     return 1;
@@ -1537,7 +1546,7 @@ void SWD_SetFieldPtr(int a1, int a2)
 void FUN_0002d7c8(int a1)
 {
     if (!g_wins[a1].f_4)
-        printf("SWD: SetActiveWindow #%u", a1);
+        debugPrint("SWD: SetActiveWindow #%u", a1);
     active_window = a1;
 }
 
@@ -1564,7 +1573,7 @@ void SWD_DestroyWindow(int a1)
     va = g_wins[a1].f_c;
     PTR_ResetJoyStick();
     if (!g_wins[a1].f_4)
-        printf("SWD: DestroyWindow %d", a1);
+        debugPrint("SWD: DestroyWindow %d", a1);
     fl = (swdfield_t*)((char*)va + va->f_4c);
     for (i = 0; i < va->f_60; i++)
     {
@@ -1901,12 +1910,12 @@ void SWD_Dialog(wdlg_t *a1)
     }
     old_field = active_field;
     a1->f_0 = active_window;
-    a1->f_4 = active_field;
+    a1->field = active_field;
     a1->f_14 = vc->f_18;
     a1->f_18 = vc->f_1c;
-    a1->f_8 = cur_act;
-    a1->f_c = cur_cmd;
-    a1->f_10 = g_key;
+    a1->cur_act = cur_act;
+    a1->cur_cmd = cur_cmd;
+    a1->keypress = g_key;
     switch (cur_act)
     {
     case 1:
@@ -2006,7 +2015,7 @@ void SWD_Dialog(wdlg_t *a1)
                     vc->f_64 = cur_mx - v24;
                     vc->f_68 = cur_my - v20;
                     GFX_MarkUpdate(0, 0, 320, 200);
-                    memcpy(displaybuffer, movebuffer, 64000);
+                    tonccpy(displaybuffer, movebuffer, 64000);
                     SWD_PutWin(active_window);
                     GFX_DisplayUpdate();
                 }
@@ -2080,7 +2089,7 @@ int SWD_GetFieldText(int a1, int a2, char *a3)
     va = g_wins[a1].f_c;
     fld = (swdfield_t*)((char*)va + va->f_4c) + a2;
     t = (char*)fld + fld->f_8c;
-    memcpy(a3, t, fld->f_5c);
+    tonccpy(a3, t, fld->f_5c);
     return fld->f_5c;
 }
 
@@ -2095,7 +2104,7 @@ int SWD_SetFieldText(int a1, int a2, const char *a3)
     if (a3)
     {
         t[fld->f_5c - 1] = 0;
-        memcpy(t, a3, fld->f_5c - 1);             
+        tonccpy(t, a3, fld->f_5c - 1);             
     }
     else
         *t = 0;
@@ -2211,7 +2220,7 @@ void SWD_SetFieldName(int a1, int a2, const char *a3)
     {
         if (fld->f_40 != -1)
             GLB_FreeItem(fld->f_40);
-        memcpy(fld->f_30, a3, 16);
+        tonccpy(fld->f_30, a3, 16);
         fld->f_40 = it;
         GLB_LockItem(it);
     }
@@ -2225,7 +2234,7 @@ int SWD_GetFieldItemName(int a1, int a2, char *a3)
     va = g_wins[a1].f_c;
     fld = (swdfield_t*)((char*)va + va->f_4c) + a2;
     vc = 10;
-    memcpy(a3, fld->f_30, vc);
+    tonccpy(a3, fld->f_30, vc);
     return vc;
 }
 

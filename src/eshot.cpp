@@ -13,6 +13,11 @@
 #include "input.h"
 #include "fileids.h"
 
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
 #define MAX_ESHOT 80
 
 enum LIB_PIC
@@ -267,7 +272,7 @@ ESHOT_Shoot(
         switch (g_shoot_type)
         {
         default:
-            EXIT_Error("ESHOT_Shoot() - Invalid EShot type");
+            debugPrint("ESHOT_Shoot() - Invalid EShot type");
             break;
         
         case ES_ATPLAYER:                                              

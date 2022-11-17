@@ -28,6 +28,8 @@
 #include "musapi.h"
 #include "fx.h"
 
+#include "tonccpy.h"
+
 // #define OPL_MIDI_DEBUG
 
 #define OPL_NUM_OPERATORS 21
@@ -347,8 +349,8 @@ static bool opl_stereo_correct = false;
 
 void LoadInstrumentTable(char *genmidi)
 {
-    memcpy(main_instrs, genmidi + strlen(GENMIDI_HEADER), sizeof(main_instrs));
-    memcpy(percussion_instrs, genmidi + strlen(GENMIDI_HEADER) + GENMIDI_NUM_INSTRS * sizeof(genmidi_instr_t), sizeof(percussion_instrs));
+    tonccpy(main_instrs, genmidi + strlen(GENMIDI_HEADER), sizeof(main_instrs));
+    tonccpy(percussion_instrs, genmidi + strlen(GENMIDI_HEADER) + GENMIDI_NUM_INSTRS * sizeof(genmidi_instr_t), sizeof(percussion_instrs));
 }
 
 // Get the next available voice from the freelist.
@@ -618,7 +620,7 @@ static void KeyOffEvent(unsigned int chan, unsigned int key)
     int i;
 
 /*
-    printf("note off: channel %i, %i, %i\n",
+    debugPrint("note off: channel %i, %i, %i\n",
            event->data.channel.channel,
            event->data.channel.param1,
            event->data.channel.param2);
@@ -888,7 +890,7 @@ static void KeyOnEvent(int chan, unsigned int key, unsigned int volume)
     bool double_voice;
 
 /*
-    printf("note on: channel %i, %i, %i\n",
+    debugPrint("note on: channel %i, %i, %i\n",
            event->data.channel.channel,
            event->data.channel.param1,
            event->data.channel.param2);
@@ -1079,7 +1081,7 @@ static void ControllerEvent(unsigned int chan, unsigned int controller, unsigned
     opl_channel_data_t *channel;
 
 /*
-    printf("change controller: channel %i, %i, %i\n",
+    debugPrint("change controller: channel %i, %i, %i\n",
            event->data.channel.channel,
            event->data.channel.param1,
            event->data.channel.param2);
@@ -1300,8 +1302,8 @@ int I_OPL_InitMusic(int dummy)
     {
         dmxoption = snd_dmxoption != NULL ? snd_dmxoption : "";
     }*/
-    opl_opl3mode = 0;
-    num_opl_voices = OPL_NUM_VOICES; // * 2
+    opl_opl3mode = 1;
+    num_opl_voices = OPL_NUM_VOICES * 2;
     /*   if (strstr(dmxoption, "-opl3") != NULL)
     {
         opl_opl3mode = 1;

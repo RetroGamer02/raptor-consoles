@@ -1,7 +1,5 @@
 #pragma once
 
-#include "libdivide.h"
-
 #define MAX_SHIELD 100
 #define MAX_SUPER  100
 
@@ -74,6 +72,10 @@ struct player_t {
 #define  DIFF_2   2  // NORMAL MODE
 #define  DIFF_3   3  // HARD MODE
 
+#define GAME1 ( gameflag[0] )
+#define GAME2 ( gameflag[1] )
+#define GAME3 ( gameflag[2] + gameflag[3] )
+
 #define PLAYERWIDTH  32
 #define PLAYERHEIGHT 32
 #define PLAYERMINX   5
@@ -139,7 +141,15 @@ enum EXP_TYPE
     EXP_AIRSMALL2  // 10  
 };
 
-struct __attribute__((packed)) flat_t {
+enum KEYOPTS
+{
+    K_OK,
+    K_NEXTFRAME,
+    K_SKIPALL,
+    K_EXITDOS
+};
+
+struct flat_t {
     int f_0; // eitems
     short f_4; // hits
     short f_6; // money
@@ -159,5 +169,3 @@ int Do_Game(void);
 int RAP_LoadWin(void);
 void ShutDown(int a1);
 bool checkfile(const char* path);
-int fastDiv32(int dividend, int divisor);
-unsigned int fastDivU32(unsigned int dividend, unsigned int divisor);

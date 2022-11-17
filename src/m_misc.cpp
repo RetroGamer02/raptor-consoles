@@ -22,6 +22,10 @@
 #include <stdarg.h>
 #include "common.h"
 
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
 
 // Safe string copy function that works like OpenBSD's strlcpy().
 // Returns true if the string was not truncated.
@@ -89,7 +93,7 @@ char *M_StringJoin(const char *s, ...)
 
     if (result == NULL)
     {
-        printf("M_StringJoin: Failed to allocate new string.");
+        debugPrint("M_StringJoin: Failed to allocate new string.");
         return NULL;
     }
 

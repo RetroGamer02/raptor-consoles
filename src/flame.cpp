@@ -5,6 +5,13 @@
 #include "gfxapi.h"
 #include "windows.h"
 
+#include <stdio.h>
+
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
 #define MAX_SHADES 8
 
 char stmem[MAX_SHADES * 512];
@@ -89,10 +96,10 @@ FLAME_Up(
         num = curs >> 16;
         
         if (num >= 8)
-            EXIT_Error("flame > 8 %u", curs >> 16);
+            debugPrint("flame > 8 %u", curs >> 16);
 
         if (num < 0)
-            EXIT_Error("flame < 0");
+            debugPrint("flame < 0");
 
         GFX_Shade(outbuf, width, _stable[num]);
         

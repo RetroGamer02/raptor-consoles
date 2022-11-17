@@ -18,6 +18,11 @@
 #include "input.h"
 #include "fileids.h"
 
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
 #define NORM_SHOOT  -1
 #define START_SHOOT   0
 
@@ -244,7 +249,7 @@ void ENEMY_LoadLib(
     }
     
     if (g_numslibs > 1 && !gameflag[2] && !gameflag[3])
-        EXIT_Error("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
+        debugPrint("ENEMY_LoadSprites() - F:%d  G1:%d G2:%d G3:%d G4:%d", g_numslibs, spriteflag[0], spriteflag[1], spriteflag[2], spriteflag[3]);
     
     for (loop = 0; loop < 4; loop++)
     {
@@ -253,7 +258,7 @@ void ENEMY_LoadLib(
             slib[loop] = (slib_t*)GLB_LockItem(spriteitm[loop]);
             
             if (!slib[loop])
-                EXIT_Error("ENEMY_LoadSprites() - memory");
+                debugPrint("ENEMY_LoadSprites() - memory");
             
             numslibs[loop] = GLB_GetItemSize(spriteitm[loop]);
             numslibs[loop] /= sizeof(slib_t);
@@ -311,7 +316,7 @@ enemy_t
     enemy_t *sh;
     
     if (!free_enemy)
-        EXIT_Error("ENEMY_Get() - Max Sprites");
+        debugPrint("ENEMY_Get() - Max Sprites");
     
     numships++;
     
@@ -419,7 +424,7 @@ ENEMY_Add(
     switch (curlib->animtype)
     {
     default:
-        EXIT_Error("ENEMY_Add() - Invalid ANIMTYPE");
+        debugPrint("ENEMY_Add() - Invalid ANIMTYPE");
         break;
     case GANIM_NORM:
         newe->anim_on = 1;
@@ -729,7 +734,7 @@ void ENEMY_Think(
                         switch (curlib->animtype)
                         {
                         default:
-                            EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE1");
+                            debugPrint("ENEMY_Think() - Invalid ANIMTYPE1");
                         case GANIM_NORM:
                             break;
                         
@@ -763,7 +768,7 @@ void ENEMY_Think(
                 switch (curlib->animtype)
                 {
                 default:
-                    EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE2");
+                    debugPrint("ENEMY_Think() - Invalid ANIMTYPE2");
                 case GANIM_NORM:
                     sprite->shoot_on = 1;
                     break;

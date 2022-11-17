@@ -3,8 +3,6 @@
 #include "dspapi.h"
 #include "fx.h"
 
-#include "rap.h"
-
 int dsp_init;
 int dsp_freq;
 int dsp_channelnum;
@@ -276,7 +274,7 @@ DSP_VolTable(
     int accm;
     int i;
 
-    val = - fastDiv32(vol, 2);
+    val = - (vol / 2);
     step = vol >> 8;
     sub_step = vol & 255;
     accm = sub_step >> 1;
@@ -368,10 +366,10 @@ DSP_StartPatch(
     }
 
     samples = dsp->length - 32;
-    step = fastDiv32(pitchtable[pitch] * dsp->freq + fastDiv32(dsp_freq, 2), dsp_freq); // .8
+    step = (pitchtable[pitch] * dsp->freq + dsp_freq / 2) / dsp_freq; // .8
 
-    lvol = fastDiv32((pantable[255 - sep] * volume), 127);
-    rvol = fastDiv32((pantable[sep] * volume), 127);
+    lvol = (pantable[255 - sep] * volume) / 127;
+    rvol = (pantable[sep] * volume) / 127;
 
     DSP_VolTable(chan->voltable1, lvol);
     DSP_VolTable(chan->voltable2, rvol);
@@ -383,7 +381,7 @@ DSP_StartPatch(
     chan->phase_inc = step >> 8;
     chan->priority = priority;
     chan->handle = handle;
-    chan->samples = fastDiv32((samples << 8), step);
+    chan->samples = (samples << 8) / step;
 
     SND_Unlock();
     

@@ -1,4 +1,4 @@
-#include <SDL/SDL.h>
+#include "SDL.h"
 #include <stdint.h>
 #include "common.h"
 #include "musapi.h"
@@ -194,9 +194,7 @@ void MUS_Service(void)
     if (music_active)
     {
         if (music_delay)
-        {
             music_delay--;
-        }
         while (!music_delay)
         {
             uint8_t cmd = music_ptr[music_cmdptr + music_startoffset];
@@ -207,7 +205,7 @@ void MUS_Service(void)
                 case 0:
                 {
                     uint8_t key = music_ptr[music_cmdptr + music_startoffset] & 127;
-                    //printf("KeyOff: cmd:0x%02x, key:0x%02x\n", cmd, key);
+                    //debugPrint("KeyOff: cmd:0x%02x, key:0x%02x\n", cmd, key);
                     music_cmdptr++;
                     if (music_device && music_device->KeyOffEvent)
                         music_device->KeyOffEvent(chan, key);
@@ -221,12 +219,12 @@ void MUS_Service(void)
                     if (key & 128)
                     {
                         vol = music_ptr[music_cmdptr + music_startoffset];
-                        //printf("KeyOn: cmd:0x%02x, key:0x%02x, vol:0x%02x\n", cmd, key, vol);
+                        //debugPrint("KeyOn: cmd:0x%02x, key:0x%02x, vol:0x%02x\n", cmd, key, vol);
                         music_cmdptr++;
                         music_chanvel[chan] = vol;
                         key &= ~128;
                     }else{
-                        //printf("KeyOn: cmd:0x%02x, key:0x%02x\n", cmd, key);
+                        //debugPrint("KeyOn: cmd:0x%02x, key:0x%02x\n", cmd, key);
                     }
                     if (music_device && music_device->KeyOnEvent)
                         music_device->KeyOnEvent(chan, key, vol);
@@ -235,7 +233,7 @@ void MUS_Service(void)
                 case 2:
                 {
                     uint8_t bend = music_ptr[music_cmdptr + music_startoffset];
-                    //printf("Bend: cmd:0x%03u, bend:0x%03u\n", cmd, bend);
+                    //debugPrint("Bend: cmd:0x%03u, bend:0x%03u\n", cmd, bend);
                     music_cmdptr++;
                     if (music_device && music_device->PitchBendEvent)
                         music_device->PitchBendEvent(chan, bend);
@@ -356,9 +354,9 @@ int MUS_Init(int card, int option)
     default:
         if (sys_midi)
         {
-            #ifdef _WIN32
+            /*#ifdef _WIN32
             music_device = &mus_device_mpu;
-            #endif // _WIN32
+            #endif // _WIN32*/
             
             #ifdef __linux__
             music_device = &mus_device_alsa;
@@ -470,10 +468,6 @@ void MUS_Mix(int16_t *stream, int len)
     int i;
     if (!music_init || !music_device || !music_device->Mix)
         return;
-
-    //LightEvent_Init(&privateMUSThreadEvent, RESET_ONESHOT);
-    //privateMUSThreadHandle = threadCreate(musThread, 0x0, 8 * 1024, 0x1A, 0, true);
-
     for (i = 0; i < len; i++)
     {
         music_device->Mix(stream, 1);

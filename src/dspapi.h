@@ -1,6 +1,6 @@
 #pragma once
 
-struct __attribute__((packed)) dsp_t {
+struct dsp_t {
     int16_t format;
     int16_t freq;
     int32_t length;

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <SDL/SDL.h>
+#include "SDL.h"
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -32,21 +32,23 @@
 #include "joyapi.h"
 #include "i_lastscr.h"
 #include "fileids.h"
-#include <3ds.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
 
-#ifdef _WIN32
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
+/*#ifdef _WIN32
 #include <io.h>
-#endif // _WIN32
+#endif // _WIN32*/
 #ifdef __linux__
 #include <sys/io.h>
 #endif // __linux__
 #ifdef __GNUC__
 #include <unistd.h>
 #endif
+
+#include "tonccpy.h"
 
 struct bday_t {
     int f_0;
@@ -154,8 +156,6 @@ char flatnames[4][14] = {
     "FLATSG4_ITM"
 };
 
-const char *newRegAttention[] = {"****************************************              ATTENTION! \n       This version of RAPTOR is \n         a COMMERCIAL VERSION. \n       DO NOT upload this to any \n  bulletin boards or distribute it in \n             any fashion. \n     Please report software piracy \n    to the S.P.A hotline by calling\n            1-800-388-PIR8.\n****************************************"};
-
 flat_t *flatlib[4];
 
 void RAP_Bday(void)
@@ -181,14 +181,14 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V1.0RC1\n");
+    debugPrint(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
 }
 
 void ShutDown(int a1)
 {
-    //if (!a1 && !godmode)
-        //WIN_Order();
-    
+    if (!a1 && !godmode)
+        WIN_Order();
+
     //IPT_DeInit();
     //DMX_DeInit();
     //GFX_EndSystem();
@@ -199,18 +199,14 @@ void ShutDown(int a1)
 
     if (reg_flag)
         LASTSCR = GLB_GetItem(FILE002_LASTSCR2_TXT); //Get ANSI Screen Fullversion from GLB to char*
-    gspLcdInit();
-    GSPLCD_PowerOnBacklight(GSPLCD_SCREEN_BOTTOM);
-    gspLcdExit();
+    
     closewindow();                                   //Close Main Window
-    //I_LASTSCR();                                     //Call to display ANSI Screen 
-    //gfxExit();
+    I_LASTSCR();                                     //Call to display ANSI Screen 
     GLB_FreeAll();
-    IPT_CloJoy(); 
-    //sdmcExit();
-    exit(0);                                   //Close Joystick
-    //SWD_End();
-    //free(g_highmem);
+    IPT_CloJoy();                                    //Close Joystick
+    SWD_End();
+    SDL_Quit();
+    free(g_highmem);
 }
 
 void RAP_ClearSides(void)
@@ -248,8 +244,8 @@ void RAP_GetShipPic(void)
     }
 }
 
-#define wmemcpy(a1,a2,a3) memmove(a1,a2,a3)
-/*void wmemcpy(char *a1, char *a2, int a3)
+//#define wmemcpy(a1,a2,a3) memmove(a1,a2,a3)
+void wmemcpy(char *a1, char *a2, int a3)
 {
     while (a3 >= 4)
     {
@@ -265,7 +261,7 @@ void RAP_GetShipPic(void)
         a1++;
         a2++;
     }
-}*/
+}
 
 void Rot_Color(char *a1, int a2, int a3)
 {
@@ -604,7 +600,7 @@ void RAP_PaletteStuff(void)
             v28 = &palette[v1c];
             if (blink & 1)
             {
-                memcpy(v24, v28, 3);
+                tonccpy(v24, v28, 3);
                 v24 += 3;
                 v28 += 3;
                 memset(v24, 0, 3);
@@ -614,7 +610,7 @@ void RAP_PaletteStuff(void)
                 memset(v24, 0, 3);
                 v24 += 3;
                 v28 += 3;
-                memcpy(v24, v28, 3);
+                tonccpy(v24, v28, 3);
             }
             blink++;
         }
@@ -623,7 +619,7 @@ void RAP_PaletteStuff(void)
         {
             v24 = &gpal[v1c];
             v28 = &palette[v1c];
-            memcpy(v24, v28, 3);
+            tonccpy(v24, v28, 3);
         }
         else
         {
@@ -635,7 +631,7 @@ void RAP_PaletteStuff(void)
         {
             v24 = &gpal[v1c];
             v28 = &palette[v1c];
-            memcpy(v24, v28, 3);
+            tonccpy(v24, v28, 3);
         }
         else
         {
@@ -660,11 +656,6 @@ int Do_Game(void)
     v30 = 0;
     draw_player = 1;
 
-    consoleClear();
-    gspLcdInit();
-    GSPLCD_PowerOffBacklight(GSPLCD_SCREEN_BOTTOM);
-    gspLcdExit();
-
     wsrand(game_wave[cur_game] << 10);
     fadeflag = 0;
     end_fadeflag = 0;
@@ -685,7 +676,7 @@ int Do_Game(void)
     ANIMS_Clear();
     SHOTS_Clear();
     ESHOT_Clear();
-    memcpy(gpal, palette, 768);
+    tonccpy(gpal, palette, 768);
     GFX_FadeOut(0, 0, 0, 2);
     memset(displaybuffer, 0, 0xfa00);
     memset(displayscreen, 0, 0xfa00);
@@ -922,15 +913,9 @@ int Do_Game(void)
             fadecnt = 0;
             retraceflag = 0;
         }
-        if (reg_flag && (keyboard[14]  || (Start && YButton)))
+        if (reg_flag && keyboard[14])
         {
             OBJS_Add(14);
-            OBJS_Add(16);
-            OBJS_Add(16);
-            OBJS_Add(16);
-            player.score = 0;
-        } else if ((keyboard[14]  || (Start && YButton))) {
-            OBJS_Add(12);
             OBJS_Add(16);
             OBJS_Add(16);
             OBJS_Add(16);
@@ -1015,69 +1000,10 @@ int Do_Game(void)
 
 void RAP_InitMem(void)
 {
-    unsigned int heapsize = 0x495FF0;//0x495FF0   0x7A1200                 
+    unsigned int heapsize = 0x495FF0;                       
     g_highmem = (char*)calloc(heapsize, 1);
     VM_InitMemory(g_highmem, heapsize);
     GLB_UseVM();
-}
-
-int cp(const char *to, const char *from)
-{
-    int fd_to, fd_from;
-    char buf[4096];
-    ssize_t nread;
-    int saved_errno;
-
-    fd_from = open(from, O_RDONLY);
-    if (fd_from < 0)
-        return -1;
-
-    fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0666);
-    if (fd_to < 0)
-        goto out_error;
-
-    while (nread = read(fd_from, buf, sizeof buf), nread > 0)
-    {
-        char *out_ptr = buf;
-        ssize_t nwritten;
-
-        do {
-            nwritten = write(fd_to, out_ptr, nread);
-
-            if (nwritten >= 0)
-            {
-                nread -= nwritten;
-                out_ptr += nwritten;
-            }
-            else if (errno != EINTR)
-            {
-                goto out_error;
-            }
-        } while (nread > 0);
-    }
-
-    if (nread == 0)
-    {
-        if (close(fd_to) < 0)
-        {
-            fd_to = -1;
-            goto out_error;
-        }
-        close(fd_from);
-
-        /* Success! */
-        return 0;
-    }
-
-  out_error:
-    saved_errno = errno;
-
-    close(fd_from);
-    if (fd_to >= 0)
-        close(fd_to);
-
-    errno = saved_errno;
-    return -1;
 }
 
 bool checkfile(const char* path)
@@ -1092,88 +1018,41 @@ bool checkfile(const char* path)
     }
 }
 
-int fastDiv32(int dividend, int divisor)
-{
-    struct libdivide::libdivide_s32_t fast_d = libdivide::libdivide_s32_gen(divisor);
-    return libdivide::libdivide_s32_do(dividend, &fast_d);
-}
-
-unsigned int fastDivU32(unsigned int dividend, unsigned int divisor)
-{
-    struct libdivide::libdivide_u32_t fast_d = libdivide::libdivide_u32_gen(divisor);
-    return libdivide::libdivide_u32_do(dividend, &fast_d);
-}
-
-int main()
+int main(int argc, char *argv[])
 {
     char *shost, *reg_text, *pal;
     int i, eps, v28, v20;
 
-    shost = getenv("S_HOST");
-
-    //_Bool isN3DS;
-
-    //APT_CheckNew3DS(&isN3DS);
-    //APT_SetAppCpuTimeLimit(70);
-
-    gfxInitDefault();
+    XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    debugPrint("Init Xbox!\n");
     
-	consoleInit(GFX_BOTTOM, NULL);
-
-    gfxSetDoubleBuffering(GFX_TOP, false);
-    gfxSetDoubleBuffering(GFX_BOTTOM, false);
-
-    //if(isN3DS)
-    //{
-        osSetSpeedupEnable(1);
-    //}
-
-    Result rc = romfsInit();
-	if (rc)
-		printf("romfsInit: %08lX\n", rc);
-	/*else
-	{
-		printf("romfs Init Successful!\n");
-	}*/
-
-    /*Result rc = sdmcInit();
-	if (rc)
-		printf("sdmcfs Init: %08lX\n", rc);
-	else*/
-	/*{
-		printf("sdmcfs Init Successful!\n");
-	}*/
-
-    DIR* dir = opendir("3ds/Raptor");
-    if (dir) {
-        closedir(dir);
-    } else if (ENOENT == errno) {
-        //printf("Raptor directory error: %d\n" ,errno);
-        mkdir("3ds/Raptor", 0700);
-    } else {
-        printf("Raptor directory unknown error.\n");
-    }
+    shost = getenv("S_HOST");
 
     InitScreen();
 
-    RAP_DataPath();
-
-    if (!checkfile(RAP_GetSetupPath()))
+    RAP_InitLoadSave();
+    if (!checkfile(RAP_SetupFilename()))
     {
-        //printf("\n\n** You must copy SETUP first! **\n");
-        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            //"Raptor", "** You must run SETUP first! **", NULL);
-
-        cp("3ds/Raptor/SETUP.INI","romfs:/SETUP.INI");
+        debugPrint("\n\n** You must run SETUP first! **\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            "Raptor", "** You must run SETUP first! **", NULL);
+        //exit(0);
     }
 
-    /*if (argv[1])
+    godmode = 0;
+
+    if (shost != NULL && !strcmp(shost, gdmodestr))
+        godmode = 1;
+    else
+        godmode = 0;
+
+    if (argv[1])
     {
         if (!strcmp(argv[1], "REC"))
         {
             DEMO_SetFileName(argv[2]);
             demo_flag = 1;
-            printf("DEMO RECORD enabled\n");
+            debugPrint("DEMO RECORD enabled\n");
         }
         else if (!strcmp(argv[1], "PLAY"))
         {
@@ -1181,20 +1060,20 @@ int main()
             {
                 DEMO_SetFileName(argv[2]);
                 demo_flag = 2;
-                printf("DEMO PLAYBACK enabled\n");
+                debugPrint("DEMO PLAYBACK enabled\n");
             }
         }
-    }*/
+    }
 
     if (godmode)
-        printf("GOD mode enabled\n");
+        debugPrint("GOD mode enabled\n");
     cur_diff = 0;
 
-    if (checkfile("romfs:/FILE0001.GLB"))
+    if (checkfile("D:\\FILE0001.GLB"))
         gameflag[0] = 1;
-    if (checkfile("sdmc:/3ds/Raptor/FILE0002.GLB"))
+    if (checkfile("D:\\FILE0002.GLB"))
         gameflag[1] = 1;
-    if (checkfile("sdmc:/3ds/Raptor/FILE0003.GLB") && checkfile("sdmc:/3ds/Raptor/FILE0004.GLB"))
+    if (checkfile("D:\\FILE0003.GLB") && checkfile("D:\\FILE0004.GLB"))
     {
         gameflag[2] = 1;
         gameflag[3] = 1;
@@ -1208,23 +1087,15 @@ int main()
         if (gameflag[i])
             eps++;
 
-    if (!checkfile("romfs:/FILE0000.GLB") || !eps)
+    if (!checkfile("D:\\FILE0000.GLB") || !eps)
     {
-        printf("All game data files \nNOT FOUND cannot proceed !!\n");
-        //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            //"Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
+        debugPrint("All game data files NOT FOUND cannot proceed !!\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
         //exit(0);
     }
-    //printf("Init -\n");
+    debugPrint("Init -\n");
     EXIT_Install(ShutDown);
-
-    godmode = 0;
-
-    if (shost != NULL && !strcmp(shost, gdmodestr))
-        godmode = 1;
-    else
-        godmode = 0;
-    
     memset(bday, 0, sizeof(bday));
     bday[0].f_0 = 5;
     bday[0].f_4 = 16;
@@ -1255,19 +1126,20 @@ int main()
     bday[5].f_4 = 24;
     bday[5].f_8 = 1996;
     bday[5].f_c = "Paul R.";
-
-    RAP_Bday();
+    
+    //RAP_Bday();
 
     if (bday_num != -1)
-        printf("Birthday() = %s\n", bday[bday_num].f_c);
+        debugPrint("Birthday() = %s\n", bday[bday_num].f_c);
 
-    if (!checkfile(RAP_GetSetupPath()))
-        printf("You Must Copy SETUP First !!\n");
+    if (!checkfile(RAP_SetupFilename()))
+        debugPrint("You Must run SETUP.EXE First !!");
 
-    if (!INI_InitPreference(RAP_GetSetupPath()))
-        printf("SETUP Error\n");
+    if (!INI_InitPreference(RAP_SetupFilename()))
+        debugPrint("SETUP Error");
 
     fflush(stdout);
+
     KBD_Install();
     GFX_InitSystem();
     SWD_Install(0);
@@ -1276,19 +1148,19 @@ int main()
     switch (control)
     {
     default:
-        printf("PTR_Init()-Auto\n");
+        debugPrint("PTR_Init()-Auto\n");
         fflush(stdout);
         v28 = PTR_Init(1);
         usekb_flag = 1;
         break;
     case 2:
-        //printf("PTR_Init()-Joystick\n");
+        debugPrint("PTR_Init()-Joystick\n");
         fflush(stdout);
         v28 = PTR_Init(2);
         usekb_flag = 0;
         break;
     case 1:
-        printf("PTR_Init()-Mouse\n");
+        debugPrint("PTR_Init()-Mouse\n");
         fflush(stdout);
         v28 = PTR_Init(1);
         usekb_flag = 0;
@@ -1297,39 +1169,28 @@ int main()
     
     if (reg_flag)
     {
-        printf("Registered EXE!\n");
+        debugPrint("Registered EXE!\n");
         fflush(stdout);
     }
-
-   //GLB_InitSystem(argv[0], 5, 0);
-   GLB_InitSystem("", 5, 0);
-   if (reg_flag)
+    
+    GLB_InitSystem(argv[0], 5, 0);
+    if (reg_flag)
     {
-        //reg_text = GLB_GetItem(FILE000_ATENTION_TXT);
-        //printf("%s\n", reg_text);
-        printf("%s", newRegAttention[0]);
+        reg_text = GLB_GetItem(FILE000_ATENTION_TXT);
+        debugPrint("%s\n", reg_text);
         GLB_FreeItem(0);
     }
-
-    if (checkfile("sdmc:/3ds/dspfirm.cdc"))
-    {
-       SND_InitSound(); 
-    } else {
-        printf("DSP Firmware is missing!\n");
-    }
-
+    SND_InitSound();
     IPT_Init();
     GLB_FreeAll();
     RAP_InitMem();
-    //printf("Loading Graphics\n");
-    
+    debugPrint("Loading Graphics\n");
     pal = GLB_LockItem(FILE100_PALETTE_DAT);
     memset(pal, 0, 3);
     palette = pal;
     SHADOW_Init();
     FLAME_Init();
     fflush(stdout);
-    
     if (v28)
     {
         ptrtex = (texture_t*)GLB_LockItem(FILE112_CURSOR_PIC);
@@ -1356,7 +1217,6 @@ int main()
         else
             flatlib[i] = NULL;
     }
-    
     for (i = 0; i < 11; i++)
     {
         v20 = FILE105_N0_PIC + i;
@@ -1372,12 +1232,10 @@ int main()
     BONUS_Init();
     ANIMS_Init();
     SND_Setup();
-    
     GFX_SetPalRange(0, 239);
     GFX_InitVideo(palette);
     SHADOW_MakeShades();
     RAP_ClearPlayer();
-
     if (!godmode)
         INTRO_Credits();
     if (demo_flag != 2)
@@ -1397,7 +1255,6 @@ int main()
     game_wave[1] = 0;
     game_wave[2] = 0;
     game_wave[3] = 0;
-    
     do
     {
        WIN_MainMenu();

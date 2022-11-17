@@ -8,15 +8,15 @@
 #include "common.h"
 #include "glbapi.h"
 #include "vmemapi.h"
-#include "rap.h"
-#ifdef _WIN32
+/*#ifdef _WIN32
 #include <io.h>
-#endif // _WIN32
+#endif // _WIN32*/
 #ifdef __linux__
 #include <sys/io.h>
 #endif // __linux__
 #ifdef __GNUC__
 #include <unistd.h>
+
 char* strupr(char* s)
 {
     char* tmp = s;
@@ -28,14 +28,34 @@ char* strupr(char* s)
     return s;
 }
 #endif
+
 #ifdef _MSC_VER
 #include <windows.h>
 #define PATH_MAX MAX_PATH
 #endif
 
+char* strupr(char* s)
+{
+    char* tmp = s;
+
+    for (; *tmp; ++tmp) {
+        *tmp = toupper((unsigned char)*tmp);
+    }
+
+    return s;
+}
+
+#include "rap.h"
+
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
+#include "tonccpy.h"
+
 char prefix[] = "FILE";
-char exePathRom[PATH_MAX] = "romfs:/";
-char exePathSD[PATH_MAX] = "sdmc:/3ds/Raptor/";
+char exePath[PATH_MAX] = "D:\\";
 const char *serial = "32768GLB";
 
 struct fitem_t {
@@ -110,37 +130,24 @@ void GLB_DeCrypt(const char *key, void *buf, int size)
 FILE *GLB_FindFile(int a1, int a2, const char *mode)
 {
     FILE *h;
-    char bufferRom[PATH_MAX] = "romfs:/";
-    char bufferSD[PATH_MAX] = "sdmc:/3ds/Raptor/";
-    char buffer[PATH_MAX];
-    for (int i=0; i < PATH_MAX; i++)
-    {
-        buffer[i] = bufferRom[i];
-    }
-    sprintf(buffer, "%s%s%04u.GLB", bufferRom, prefix, a2);
+    char buffer[PATH_MAX] = "D:\\";
+    sprintf(buffer, "%s%s%04u.GLB", buffer, prefix, a2);
+    debugPrint("Buffer: %s\n",buffer);
     h = fopen(buffer, mode);
     if (h == NULL)
     {
-        for (int i=0; i < 8; i++)
-        {
-            buffer[i] = bufferSD[i];
-        }
+        sprintf(buffer, "%s%s%04u.GLB", exePath, prefix, a2);
         h = fopen(buffer, mode);
         if (h == NULL)
         {
-            sprintf(buffer, "%s%s%04u.GLB", exePathSD, prefix, a2);
-            h = fopen(buffer, mode);
-            if (h == NULL)
-            {
-                if (a1)
-                    return NULL;
-                sprintf(buffer, "%s%04u.GLB", prefix, a2);
-                printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
-            }
+            if (a1)
+                return NULL;
+            sprintf(buffer, "%s%04u.GLB", prefix, a2);
+            debugPrint("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
         }
-        
     }
-    strcpy(filedesc[a2].path, buffer);
+    //strcpy(filedesc[a2].path, buffer);
+    tonccpy(filedesc[a2].path, buffer, sizeof(buffer));
     filedesc[a2].mode = mode;
     filedesc[a2].handle = h;
     return h;
@@ -159,7 +166,7 @@ FILE *GLB_OpenFile(int a1, int a2, const char *mode)
         {
             if (a1)
                 return NULL;
-            printf("GLB_OpenFile: %s, Error #%d,%s", fd->path, errno, strerror(errno));
+            debugPrint("GLB_OpenFile: %s, Error #%d,%s", fd->path, errno, strerror(errno));
         }
     }
     else
@@ -189,7 +196,7 @@ int GLB_NumItems(int a1)
         return 0;
     fseek(handle, 0, SEEK_SET);
     if (!fread(&head, sizeof(head), 1, handle))
-        printf("GLB_NumItems: Read failed!");
+        debugPrint("GLB_NumItems: Read failed!");
     GLB_DeCrypt(serial, &head, sizeof(head));
     return head.offset;
 }
@@ -215,7 +222,7 @@ void GLB_LoadIDT(filedesc_t *a1)
                 ve->flags |= 0x40000000;
             ve->length = buf[k].length;
             ve->offset = buf[k].offset;
-            memcpy(ve->name, buf[k].name, 16);
+            tonccpy(ve->name, buf[k].name, 16);
             ve++;
         }
     }
@@ -223,7 +230,7 @@ void GLB_LoadIDT(filedesc_t *a1)
 
 void GLB_UseVM(void)
 {
-    fVmem = 0;
+    fVmem = 1;
 }
 
 int GLB_InitSystem(const char *a1, int a2, const char *a3)
@@ -231,16 +238,18 @@ int GLB_InitSystem(const char *a1, int a2, const char *a3)
     int i, j, k;
     filedesc_t *fd;
     char *t;
-    memset(exePathRom, 0, sizeof(exePathRom));
-    strcpy(exePathRom, a1);
-    t = strrchr(exePathRom, '\\');
+    memset(exePath, 0, sizeof(exePath));
+    //strcpy(exePath, a1);
+    tonccpy(exePath, a1, sizeof(exePath));
+    t = strrchr(exePath, '\\');
     if (t)
         t[1] = '\0';
     num_glbs = a2;
-
+    
     if (a3)
     {
-        strcpy(prefix, a3);
+        //strcpy(prefix, a3);
+        tonccpy(prefix, a3, sizeof(a3));
         strupr(prefix);
     }
     memset(filedesc, 0, sizeof(filedesc));
@@ -254,7 +263,7 @@ int GLB_InitSystem(const char *a1, int a2, const char *a3)
             fd->itemcount = j;
             fd->items = (fitem_t*)calloc(j, sizeof(fitem_t));
             if (!fd->items)
-                printf("GLB_NumItems: memory ( init )");
+                debugPrint("GLB_NumItems: memory ( init )");
             GLB_LoadIDT(fd);
             k++;
         }
@@ -275,7 +284,7 @@ int FUN_000279ec(char *a1, int a2, int a3)
     {
         if (fi->mem.ptr && a1 != fi->mem.ptr)
         {
-            memcpy(a1, fi->mem.ptr, fi->length);
+            tonccpy(a1, fi->mem.ptr, fi->length);
         }
         else
         {
@@ -296,25 +305,14 @@ char *GLB_FetchItem(int a1, int a2)
     fitem_t *fi;
     if (a1 == -1)
     {
-        printf("GLB_FetchItem: empty handle.");
+        debugPrint("GLB_FetchItem: empty handle.");
         return NULL;
     }
-    
     uint16_t f = (a1 >> 16) & 0xffff;
     uint16_t n = (a1 >> 0) & 0xffff;
     fi = &filedesc[f].items[n];
-
     if (a2 == 2)
-    {
-        //Prevents crash here on real 3ds hardware.
-        if (fi->flags == NULL)
-        {
-            fi->flags = 0x80000000;
-        } else {
-            fi->flags |= 0x80000000;
-        }
-    }
-    
+        fi->flags |= 0x80000000;
     if (!fi->mem.ptr)
     {
         fi->lock = 0;
@@ -348,16 +346,13 @@ char *GLB_FetchItem(int a1, int a2)
             VM_Lock(fi->mem.ptr);
         }
     }
-    
     if (!fi->mem.ptr && a2 != 0)
-        printf("GLB_FetchItem: failed on %d bytes, mode=%d.", fi->length, a2);
-    
+        debugPrint("GLB_FetchItem: failed on %d bytes, mode=%d.", fi->length, a2);
     if (a2 == 1)
     {
         if (fVmem)
             VM_Touch(&fi->mem);
     }
-    
     return fi->mem.ptr;
 }
 
@@ -449,7 +444,7 @@ void GLB_FreeItem(int a1)
     fd = &filedesc[f];
     if (n >= (unsigned short)fd->itemcount)
     {
-        printf("GLB_FreeItem - item out of range: %d > %d file %d.\n", n, fd->itemcount, f);
+        debugPrint("GLB_FreeItem - item out of range: %d > %d file %d.\n", n, fd->itemcount, f);
     }
     fi = &fd->items[n];
     if (fi->mem.ptr)
@@ -513,13 +508,14 @@ int GLB_ReadFile(const char *a1, char *a2)
     char f_a0[PATH_MAX];
     if (!checkfile(a1) == -1)
     {
-        strcpy(f_a0, exePathRom);
+        //strcpy(f_a0, exePath);
+        tonccpy(f_a0, exePath, sizeof(exePath));
         strcat(f_a0, a1);
         a1 = f_a0;
     }
     handle = fopen(a1, "rb");
     if (handle == NULL)
-        printf("LoadFile: Open failed!");
+        debugPrint("LoadFile: Open failed!");
     fseek(handle, 0, SEEK_END);
     l = ftell(handle);
     rewind(handle);
@@ -528,7 +524,7 @@ int GLB_ReadFile(const char *a1, char *a2)
         if (!fread(a2, l, 1, handle))
         {
             fclose(handle);
-            printf("GLB_LoadFile: Load failed!");
+            debugPrint("GLB_LoadFile: Load failed!");
         }
     }
     fclose(handle);
@@ -541,13 +537,13 @@ void GLB_SaveFile(char *a1, char *a2, int a3)
 
     handle = fopen(a1, "wb");
     if (handle == NULL)
-        printf("SaveFile: Open failed!");
+        debugPrint("SaveFile: Open failed!");
     if (a3)
     {
         if (!fwrite(a2, a3, 1, handle))
         {
             fclose(handle);
-            printf("GLB_SaveFile: Write failed!");
+            debugPrint("GLB_SaveFile: Write failed!");
         }
     }
     fclose(handle);

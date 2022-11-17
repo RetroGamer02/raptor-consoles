@@ -3,12 +3,17 @@
 #include <string.h>
 #include <math.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
 
 #include "musapi.h"
 #include "prefapi.h"
+
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
 
 static tsf* g_TinySoundFont;
 
@@ -40,7 +45,7 @@ int TSF_Init (int option)
         sprintf(errmsg,"Could not load %s\n", "TimGM6mb.sf2");
         //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //"Raptor", errmsg, NULL);
-        printf("Could not load SoundFont.");
+        debugPrint("Could not load SoundFont.");
         return 0;
     }
     
@@ -52,7 +57,7 @@ int TSF_Init (int option)
     if (SDL_OpenAudio(&OutputAudioSpec, NULL) < 0)
     {
         fprintf(stderr, "Could not open the audio hardware or the desired audio output format\n");
-        printf("Could not open the audio hardware or the desired audio output format.");
+        debugPrint("Could not open the audio hardware or the desired audio output format.");
         return 0;
     }
     return 1;

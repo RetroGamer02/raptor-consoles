@@ -3,10 +3,9 @@
 #include <string.h>
 #include "common.h"
 #include "prefapi.h"
-#include "rap.h"
-#ifdef _WIN32
+/*#ifdef _WIN32
 #include <io.h>
-#endif // _WIN32
+#endif // _WIN32*/
 #ifdef __linux__
 #include <sys/io.h>
 #endif // __linux__
@@ -22,6 +21,15 @@ char* ltoa(long i, char* s, int dummy_radix) {
 #define PATH_MAX MAX_PATH
 #endif
 
+char* ltoa(long i, char* s, int dummy_radix) {
+    sprintf(s, "%ld", i);
+    return s;
+}
+
+#include "rap.h"
+
+#include "tonccpy.h"
+
 static int INI_OpenFile(const char *section, const char *key, const char *defaultValue, char *value, int length, const char *filename)
 {
     char *va;
@@ -33,7 +41,7 @@ static int INI_OpenFile(const char *section, const char *key, const char *defaul
     vs = fopen(filename, "r");
     if (vs)
     {
-        //Fixme reads ini file out of bounds
+
         while (!v10 && fgets(v9c, 128, vs) != 0)
         {
             if (v9c[0] == '[')
@@ -220,9 +228,9 @@ static int INI_SaveFile(const char *section, const char *key, const char *value,
             fwrite(va8, 1, vdi, vs);
         }
         fseek(vs, v1c, SEEK_END);
-        #ifdef _MSC_VER
+        /*#ifdef _MSC_VER
         _chsize(fileno(vs), ftell(vs));
-        #endif
+        #endif*/
         #ifdef __GNUC__
         ftruncate(fileno(vs), ftell(vs));
         #endif
@@ -269,7 +277,8 @@ static char preference[PATH_MAX];
 int INI_InitPreference(const char *section)
 {
     if (section)
-        strcpy(preference, section);
+        tonccpy(preference, section, sizeof(section));
+        //strcpy(preference, section);
     return checkfile(preference);
 }
 
@@ -362,5 +371,5 @@ int INI_DeletePreference(const char *section, const char *key)
 {
     if (!section)
         return 0;
-    return INI_SaveFile(section, key, "", preference);
+    return INI_SaveFile(section, key, NULL, preference);
 }

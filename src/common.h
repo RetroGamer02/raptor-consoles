@@ -1,7 +1,7 @@
 #pragma once
 #include <stdlib.h>
 
-static inline void EXIT_Error(const char *a1, ...)
+static inline void EXIT_ERROR(const char *a1, ...)
 {
      exit(0);
 }

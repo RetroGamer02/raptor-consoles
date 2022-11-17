@@ -19,8 +19,7 @@
 #define PATH_MAX MAX_PATH
 #endif
 
-
-
+#include "tonccpy.h"
 
 char demo_name[PATH_MAX];
 int cur_play;
@@ -151,7 +150,8 @@ DEMO_SetFileName(
     const char *in_name
 )
 {
-    strcpy(demo_name, in_name);
+    //strcpy(demo_name, in_name);
+    tonccpy(demo_name, in_name, sizeof(in_name));
 }
 
 /***************************************************************************
@@ -168,7 +168,7 @@ DEMO_GLBFile(
     if (!mem)
         return;
     
-    memcpy(playback, mem, size);
+    tonccpy(playback, mem, size);
         
     cur_play = 1;
     

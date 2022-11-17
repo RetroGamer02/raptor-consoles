@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <SDL/SDL.h>
+#include "SDL.h"
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -13,14 +13,18 @@
 #include "rap.h"
 #include "gssapi.h"
 #include "fileids.h"
-#include <3ds.h>
+
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
 
 int music_volume;
 int dig_flag;
 int fx_device;
 int fx_volume;
 static int fx_init = 0;
-int fx_freq = 11025;//11025 12250
+int fx_freq = 44100;
 int music_song = -1;
 int fx_gus;
 int fx_channels;
@@ -48,7 +52,7 @@ struct fxitem_t {
 fxitem_t fx_items[36];
 int fx_loaded;
 
-//SDL_AudioDeviceID fx_dev;
+SDL_AudioDeviceID fx_dev;
 
 char cards[10][23] = {
     "None",
@@ -77,48 +81,42 @@ int SND_InitSound(void)
 {
     int music_card, fx_card, fx_chans;
     char *genmidi = NULL;
-    SDL_AudioSpec spec = {};
+    SDL_AudioSpec spec = {}, actual = {};
+    if (fx_init)
+        return 0;
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-        printf("\nFailed to init audio %s", SDL_GetError());
+        return 0;
 
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
     spec.channels = 2;
     spec.samples = 512;
-    spec.callback = FX_Fill; //Crashes new citra builds
+    spec.callback = FX_Fill;
     spec.userdata = NULL;
 
-    SDL_OpenAudio(&spec, NULL); //Fixme? Causes Kernel errors in citra
-    /*{
+    if ((fx_dev = SDL_OpenAudioDevice(NULL, 0, &spec, &actual, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) == 0)
+    {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
-    }*/
+    }
 
-    //fx_freq = actual.freq;
-    /*if (actual.format != AUDIO_S16SYS || actual.channels != 2)
+    fx_freq = actual.freq;
+    if (actual.format != AUDIO_S16SYS || actual.channels != 2)
     {
         SDL_CloseAudio();
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
-    }*/
+    }
 
     dig_flag = 0;
     fx_device = FXDEV_NONE;
 
-    _Bool isN3DS;
-    APT_CheckNew3DS(&isN3DS);
-
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    if(isN3DS)
-    {
-        music_card = CARD_BLASTER;
-    } else {
-        music_card = CARD_NONE;
-    }
-    sys_midi = 0;
-    alsaclient = 128;
-    alsaport = 0;
+    music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
+    sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
+    alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
+    alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
 
     switch (music_card)
     {
@@ -134,7 +132,7 @@ int SND_InitSound(void)
         break;
     }
 
-    printf("Music Enabled (%s)\n", cards[music_card]);
+    debugPrint("Music Enabled (%s)\n", cards[music_card]);
     if (music_card != CARD_NONE)                               
     {
         MUS_Init(music_card, 0);
@@ -142,8 +140,8 @@ int SND_InitSound(void)
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    fx_card = 5;
-    fx_chans = 2;
+    fx_card = INI_GetPreferenceLong("SoundFX", "CardType", 5);
+    fx_chans = INI_GetPreferenceLong("SoundFX", "Channels", 2);
     switch (fx_card)
     {
     default:
@@ -178,7 +176,7 @@ int SND_InitSound(void)
         break;
     }
 
-    printf("SoundFx Enabled (%s)\n", cards[fx_card]);
+    debugPrint("SoundFx Enabled (%s)\n", cards[fx_card]);
 
     if (fx_chans < 1 || fx_chans > 8)
         fx_chans = 2;
@@ -196,7 +194,7 @@ int SND_InitSound(void)
     if (fx_card == CARD_ADLIB || fx_card == CARD_MPU1 || fx_card == CARD_MPU2 || fx_card == CARD_MPU3)
         GSS_Init(fx_card, 0);
 
-    SDL_PauseAudio(0);
+    SDL_PauseAudioDevice(fx_dev, 0);
 
     fx_init = 1;
     return 1;
@@ -884,7 +882,7 @@ static int lockcount;
 void SND_Lock(void)
 {
     if (!lockcount)
-        SDL_LockAudio();
+        SDL_LockAudioDevice(fx_dev);
     lockcount++;
 }
 
@@ -892,5 +890,5 @@ void SND_Unlock(void)
 {
     lockcount--;
     if (!lockcount)
-        SDL_UnlockAudio();
+        SDL_UnlockAudioDevice(fx_dev);
 }

@@ -8,6 +8,11 @@
 #include "tile.h"
 #include "fileids.h"
 
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
 #define MAX_ANIMLIB 25
 #define MAX_ANIMS   100
 
@@ -115,7 +120,7 @@ ANIMS_Register(
     handle = curlib;
     
     if (curlib >= MAX_ANIMLIB)
-        EXIT_Error("ANIMS_Register() - Max LIBs");
+        debugPrint("ANIMS_Register() - Max LIBs");
     
     cur = &animlib[curlib];
     curlib++;

@@ -1,10 +1,17 @@
-#include <SDL/SDL.h>
+#include "SDL.h"
 #include "common.h"
 #include "i_video.h"
 #include "ptrapi.h"
 #include "gfxapi.h"
 #include "joyapi.h"
 #include "input.h"
+
+#include <stdio.h>
+
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
 
 int g_drawcursor;
 static int mousepresent;
@@ -311,12 +318,12 @@ void PTR_SetPic(texture_t *a1)
     {
         for (i = 0; i < 256; i++)
         {
-            cursorpic[i] = a1->f_14[i];
-            if ((uint8_t)a1->f_14[i] == 255)
+            cursorpic[i] = a1->charofs[i];
+            if ((uint8_t)a1->charofs[i] == 255)
             {
                 cursoroffsetx = i % 16;
                 cursoroffsety = i / 16;
-                cursorpic[i] = a1->f_14[i + 1];
+                cursorpic[i] = a1->charofs[i + 1];
             }
         }
         if (cursoroffsetx > 16)
@@ -346,8 +353,8 @@ void PTR_SetUpdateFlag(void)
 
 void PTR_SetPos(int x, int y)
 {
-    if (mousepresent)
-        I_SetMousePos(x, y);
+    //if (mousepresent)
+        //I_SetMousePos(x, y);
     cur_mx = x;
     cur_my = y;
     old_joy_x = x;
@@ -380,11 +387,12 @@ int PTR_Init(int control)
 {
     g_drawcursor = 0;
     cursorsave = (char*)malloc(256);
+    
     if (!cursorsave)
-        printf("PTR_Init() - malloc");
+        debugPrint("PTR_Init() - malloc");
     cursorpic = (char*)malloc(256);
     if (!cursorpic)
-        printf("PTR_Init() - malloc");
+        debugPrint("PTR_Init() - malloc");
     joyactive = 0;
     mousepresent = 0;
     joypresent = 0;

@@ -22,6 +22,8 @@
 #include "joyapi.h"
 #include "fileids.h"
 
+#include "tonccpy.h"
+
 int d_count;
 int hangto;
 int opt_detail;
@@ -57,7 +59,7 @@ void WIN_WinGame(int a1)
     SWD_ShowAllWindows();
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 16);
-    IMS_WaitTimedSwd(30);
+    IMS_WaitTimed(30);
     SWD_DestroyWindow(v1c);
     GFX_DisplayUpdate();
 }
@@ -71,7 +73,7 @@ void WIN_Msg(const char *a1)
     SWD_ShowAllWindows();
     GFX_DisplayUpdate();
     SND_Patch(20, 127);
-    IMS_WaitTimedSwd(10);
+    IMS_WaitTimed(10);
     SWD_DestroyWindow(v1c);
     GFX_DisplayUpdate();
     KBD_Clear();
@@ -130,65 +132,65 @@ void WIN_Opts(void)
             if (StickY > 0)                                                   //Controller Input WIN_Opts
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 80;
+                    vb0.keypress = 80;
             }
             if (StickY < 0)
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 72;
+                    vb0.keypress = 72;
             }
             if (StickX > 0)
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 77;
+                    vb0.keypress = 77;
             }
             if (StickX < 0)
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 75;
+                    vb0.keypress = 75;
             }
             if (Down)
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 80;
+                    vb0.keypress = 80;
             }
             if (Up)
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 72;
+                    vb0.keypress = 72;
             }
             if (Left)
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 75;
+                    vb0.keypress = 75;
             }
             if (Right)
             {
                 if (JOY_IsScroll(0) == 1)
-                    vb0.f_10 = 77;
+                    vb0.keypress = 77;
             }
             if (Back)
             {
-                vb0.f_10 = 1;
+                vb0.keypress = 1;
                 JOY_IsKey(Back);
             }
             if (BButton)
             {
-                vb0.f_10 = 1;
+                vb0.keypress = 1;
                 JOY_IsKey(BButton);
             }
             if (AButton)
             {
-                vb0.f_10 = 28;
+                vb0.keypress = 28;
                 JOY_IsKey(AButton);
             }
         }
-        switch (vb0.f_10)
+        switch (vb0.keypress)
         {
         case 1:
-            vb0.f_8 = 1;
-            vb0.f_c = 10;
-            vb0.f_4 = 7;
+            vb0.cur_act = 1;
+            vb0.cur_cmd = 10;
+            vb0.field = 7;
             break;
         case 0x4b:
             if (v2c)
@@ -241,9 +243,9 @@ void WIN_Opts(void)
         case 0x1c:
             if (!v2c)
             {
-                vb0.f_8 = 1;
-                vb0.f_c = 10;
-                vb0.f_4 = 6;
+                vb0.cur_act = 1;
+                vb0.cur_cmd = 10;
+                vb0.field = 6;
             }
             break;
         }
@@ -295,9 +297,9 @@ void WIN_Opts(void)
             music_volume = DAT_00061a78[0];
             MUS_SetVolume(music_volume);
         }
-        if (vb0.f_8 == 1 && vb0.f_c == 10)
+        if (vb0.cur_act == 1 && vb0.cur_cmd == 10)
         {
-            switch (vb0.f_4)
+            switch (vb0.field)
             {
             case 7:
                 if (DAT_00061a78[0] >= 0 && DAT_00061a78[0] < 128)
@@ -344,10 +346,6 @@ void WIN_Pause(void)
     SND_Patch(20, 127);
     while (!IMS_CheckAck())                                      //Pause Screen
     {
-        if (Start)
-        {
-            break;
-        }
     }
     SWD_DestroyWindow(v1c);
     GFX_DisplayUpdate();
@@ -370,7 +368,7 @@ void WIN_Order(void)
         SWD_ShowAllWindows();
         GFX_DisplayUpdate();
         GFX_FadeIn(palette, 16);
-        IMS_WaitTimedSwd(15);
+        IMS_WaitTimed(15);
         GFX_FadeOut(0, 0, 0, 16);
         SWD_DestroyWindow(v1c);
         memset(displaybuffer, 0, 64000);
@@ -398,7 +396,7 @@ int WIN_Credits(void)
     SWD_ShowAllWindows();
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 16);
-    v1c = IMS_WaitTimedSwd(25);
+    v1c = IMS_WaitTimed(25);
     GFX_FadeOut(0, 0, 0, 16);
     SWD_DestroyWindow(v20);
     memset(displaybuffer, 0, 64000);
@@ -425,24 +423,23 @@ int WIN_AskBool(const char *a1)
     SWD_ShowAllWindows();
     GFX_DisplayUpdate();
     SND_Patch(20, 127);
-    PTR_DrawCursor(0);
+    PTR_DrawCursor(1);
     SWD_GetFieldXYL(v24, 6, &v30, &v34, &v20, &v3c);
     PTR_SetPos(v30 + (v20 >> 1), v34 + (v3c >> 1));
     SWD_SetActiveField(v24, 6);
-    GFX_DisplayUpdate();//Added
 
     while (1)
     {
         SWD_Dialog(&v8c);
         if (KBD_IsKey(1) || JOY_IsKeyInGameBack(Back))                                                   //Fixed Line Gamepad Abort Mission Screen
         {
-            v8c.f_8 = 1;
-            v8c.f_c = 10;
-            v8c.f_4 = 7;
+            v8c.cur_act = 1;
+            v8c.cur_cmd = 10;
+            v8c.field = 7;
         }
-        if (v8c.f_8 == 1 && v8c.f_c == 10)
+        if (v8c.cur_act == 1 && v8c.cur_cmd == 10)
         {
-            switch (v8c.f_4)
+            switch (v8c.field)
             {
             case 6:
                 v1c = 1;
@@ -528,7 +525,6 @@ int WIN_AskDiff(void)
     GFX_DisplayUpdate();
     SWD_GetFieldXYL(v24, 8, &v28, &v2c, &v20, &v30);
     PTR_SetPos(v28 + (v20 >> 1), v2c + (v30 >> 1));
-    GFX_DisplayUpdate();//Added
     while (1)
     {
         SWD_Dialog(&v7c);
@@ -537,9 +533,9 @@ int WIN_AskDiff(void)
             v1c = -1;
             goto LAB_00024094;
         }
-        if (v7c.f_8 == 1 && v7c.f_c == 10)
+        if (v7c.cur_act == 1 && v7c.cur_cmd == 10)
         {
-            switch (v7c.f_4)
+            switch (v7c.field)
             {
             case 6:
                 v1c = 0;
@@ -602,8 +598,7 @@ int WIN_Register(void)
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 16);
     SWD_SetFieldPtr(v24, 5);
-    PTR_DrawCursor(0);
-    GFX_DisplayUpdate();//Added
+    PTR_DrawCursor(1);
     while (1)
     {
         SWD_Dialog(&v80);
@@ -613,12 +608,12 @@ int WIN_Register(void)
             if (LeftShoulder)                                           
             {
                 JOY_IsKey(LeftShoulder);
-                v80.f_10 = 29;
+                v80.keypress = 29;
             }
             if (RightShoulder)
             {
                 JOY_IsKey(RightShoulder);
-                v80.f_10 = 59;
+                v80.keypress = 59;
             }
         }
         if (keyboard[1] || Back || BButton)
@@ -632,7 +627,7 @@ int WIN_Register(void)
             WIN_AskExit();
 
 
-        switch (v80.f_10)
+        switch (v80.keypress)
         {
         case 0x3b:
             HELP_Win("NEWPLAY1_TXT");
@@ -714,13 +709,13 @@ int WIN_Register(void)
                 v1c = v2c;
             }
         }
-        if (v80.f_8 == 1 && v80.f_c == 10)
+        if (v80.cur_act == 1 && v80.cur_cmd == 10)
         {
-            switch (v80.f_4)
+            switch (v80.field)
             {
             case 1:
                 SWD_GetFieldText(v24, 1, vd8.name);
-                if (strlen(vd8.name) != 0 && v80.f_10 == 0x1c)
+                if (strlen(vd8.name) != 0 && v80.keypress == 0x1c)
                 {
                     fi_sec_field = true;
                     SWD_SetActiveField(v24, 2);
@@ -744,7 +739,7 @@ int WIN_Register(void)
                     SWD_ShowAllWindows();
                     GFX_DisplayUpdate();
                 }
-                else if (v80.f_10 == 0x1c || keyboard[28])
+                else if (v80.keypress == 0x1c || keyboard[28])
                 {
                     if (RAP_IsSaveFile(&vd8))
                         WIN_Msg("Pilot NAME and CALLSIGN Used !");
@@ -807,7 +802,7 @@ LAB_000244ea:
             vd8.trainflag = 0;
             vd8.fintrain = 1;
         }
-        memcpy(&player, &vd8, sizeof(player_t));
+        tonccpy(&player, &vd8, sizeof(player_t));
         RAP_SetPlayerDiff();
         OBJS_Add(0);
         OBJS_Add(16);
@@ -887,7 +882,7 @@ int WIN_Hangar(void)
         }
         hangto = 1;
         SWD_SetWindowPtr(v28);
-        PTR_DrawCursor(0);
+        PTR_DrawCursor(1);
         while (1)
         {
             v40++;
@@ -915,52 +910,52 @@ int WIN_Hangar(void)
                 if (StickY > 0)                                                   //Controller Input WIN_Hangar
                 {
                     JOY_IsKey(StickY);
-                    vd0.f_10 = 80;
+                    vd0.keypress = 80;
                 }
                 if (StickY < 0)
                 {
                     JOY_IsKey(StickY);
-                    vd0.f_10 = 72;
+                    vd0.keypress = 72;
                 }
                 if (StickX > 0)
                 {
                     JOY_IsKey(StickX);
-                    vd0.f_10 = 77;
+                    vd0.keypress = 77;
                 }
                 if (StickX < 0)
                 {
                     JOY_IsKey(StickX);
-                    vd0.f_10 = 75;
+                    vd0.keypress = 75;
                 }
                 if (Down)
                 {
                     JOY_IsKey(Down);
-                    vd0.f_10 = 80;
+                    vd0.keypress = 80;
                 }
                 if (Up)
                 {
                     JOY_IsKey(Up);
-                    vd0.f_10 = 72;
+                    vd0.keypress = 72;
                 }
                 if (Left)
                 {
                     JOY_IsKey(Left);
-                    vd0.f_10 = 75;
+                    vd0.keypress = 75;
                 }
                 if (Right)
                 {
                     JOY_IsKey(Right);
-                    vd0.f_10 = 77;
+                    vd0.keypress = 77;
                 }
                 if (AButton)
                 {
                     JOY_IsKey(AButton);
-                    vd0.f_10 = 28;
+                    vd0.keypress = 28;
                 }
                 if (RightShoulder)
                 {
                     JOY_IsKey(RightShoulder);
-                    vd0.f_10 = 59;
+                    vd0.keypress = 59;
                 }
             }
             if (keyboard[1] || Back || BButton)
@@ -970,7 +965,7 @@ int WIN_Hangar(void)
             }
             if (keyboard[45] && keyboard[56])
                 WIN_AskExit();
-            switch (vd0.f_10)
+            switch (vd0.keypress)
             {
             case 0x3b:
                 HELP_Win("HANGHLP1_TXT");
@@ -1041,7 +1036,7 @@ LAB_00024b33:
                 case 2:
                     v34 = 0;
                     v2c = vd0.f_34;
-                    if ((mouseb1) || (vd0.f_10 == 0x1c) || (AButton && !joy_ipt_MenuNew))                //Fixed ptr input
+                    if ((mouseb1) || (vd0.keypress == 0x1c) || (AButton && !joy_ipt_MenuNew))                //Fixed ptr input
                     {
                         SND_Patch(12, 60);
                         while (IMS_IsAck())
@@ -1060,7 +1055,7 @@ LAB_00024b33:
                 case 3:
                     v34 = 1;
                     v2c = vd0.f_34;
-                    if ((mouseb1) || (vd0.f_10 == 0x1c) || (AButton && !joy_ipt_MenuNew))               //Fixed ptr input
+                    if ((mouseb1) || (vd0.keypress == 0x1c) || (AButton && !joy_ipt_MenuNew))               //Fixed ptr input
                     {
                         SND_Patch(12, 127);
                         while (IMS_IsAck())
@@ -1079,7 +1074,7 @@ LAB_00024b33:
                 case 4:
                     v34 = 2;
                     v2c = vd0.f_34;
-                    if ((mouseb1) || (vd0.f_10 == 0x1c) || (AButton && !joy_ipt_MenuNew))             //Fixed ptr input
+                    if ((mouseb1) || (vd0.keypress == 0x1c) || (AButton && !joy_ipt_MenuNew))             //Fixed ptr input
                     {
                         v2c = -99;
                         SND_Patch(12, 200);
@@ -1099,7 +1094,7 @@ LAB_00024b33:
                 case 5:
                     v34 = 3;
                     v2c = vd0.f_34;
-                    if ((mouseb1) || (vd0.f_10 == 0x1c) || (AButton && !joy_ipt_MenuNew))            //Fixed ptr input
+                    if ((mouseb1) || (vd0.keypress == 0x1c) || (AButton && !joy_ipt_MenuNew))            //Fixed ptr input
                     {
                         while (IMS_IsAck())
                         {
@@ -1227,8 +1222,7 @@ int WIN_ShipComp(void)
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 16);
     SWD_SetWindowPtr(v3c);
-    PTR_DrawCursor(0);
-    GFX_DisplayUpdate();//Added
+    PTR_DrawCursor(1);
     while (1)
     {
         SWD_Dialog(&v94);
@@ -1238,22 +1232,22 @@ int WIN_ShipComp(void)
             if (Back)                                                         //Input Controller WIN_ShipComp
             {
                 JOY_IsKey(Back);
-                v94.f_10 = 1;
+                v94.keypress = 1;
             }
             if (BButton)
             {
                 JOY_IsKey(BButton);
-                v94.f_10 = 1;
+                v94.keypress = 1;
             }
             if (RightShoulder)
             {
                 JOY_IsKey(RightShoulder);
-                v94.f_10 = 59;
+                v94.keypress = 59;
             }
         }
         if (keyboard[45] && keyboard[56])
             WIN_AskExit();
-        switch (v94.f_10)
+        switch (v94.keypress)
         {
         case 1:
             v24 = 0;
@@ -1310,9 +1304,9 @@ int WIN_ShipComp(void)
                 game_wave[cur_game] = 8;
             goto LAB_00025553;
         }
-        if (v94.f_8 == 1 && v94.f_c == 10)
+        if (v94.cur_act == 1 && v94.cur_cmd == 10)
         {
-            switch (v94.f_4)
+            switch (v94.field)
             {
             case 6:
                 v34 = 1;
@@ -1455,7 +1449,6 @@ void WIN_MainLoop(void)
     v20 = 0;
     ingameflag = 1;
     SND_PlaySong(88, 1, 1);
-    
     while (1)
     {
         if (demo_flag != 1)
@@ -1691,13 +1684,12 @@ void WIN_MainMenu(void)
     GFX_FadeIn(palette, 10);
     SND_CacheIFX();
     SWD_SetWindowPtr(v20);
-    PTR_DrawCursor(0);
-    GFX_DisplayUpdate();//Added
+    PTR_DrawCursor(1);
     ltable[0] = 0;
     do
     {
         SWD_Dialog(&v6c);
-        if (v6c.f_10 == 0x20 || YButton)                                    //Get Button to start Demo Mode
+        if (v6c.keypress == 0x20 || YButton)                                    //Get Button to start Demo Mode
         {
             v24 = 2;
             d_count = 4002;
@@ -1724,21 +1716,20 @@ void WIN_MainMenu(void)
             FUN_00025c70(1);
             GLB_FreeAll();
             SND_CacheIFX();
-            PTR_DrawCursor(0);
-            GFX_DisplayUpdate();//Added
+            PTR_DrawCursor(1);
         }
         if (keyboard[45] && keyboard[56])
             WIN_AskExit();
         if ((keyboard[1] && ingameflag) || (Back && ingameflag) || (BButton && ingameflag))                                   //Go back to Hangar when mission before started
             goto LAB_000260df;
-        if ((v6c.f_10 == 0x3b) || (JOY_IsKeyMenu(RightShoulder)))                                                             //Input Help Screen
+        if ((v6c.keypress == 0x3b) || (JOY_IsKeyMenu(RightShoulder)))                                                         //Input Help Screen
             HELP_Win("HELP1_TXT");
-        if (mouseb1 || mouseb2 || v6c.f_10 || (AButton && !joy_ipt_MenuNew))                                                  //Fixed ptr input
+        if (mouseb1 || mouseb2 || v6c.keypress || (AButton && !joy_ipt_MenuNew))                                              //Fixed ptr input
             FUN_00025c70(1);
-        if (v6c.f_8 == 1 && v6c.f_c == 10)
+        if (v6c.cur_act == 1 && v6c.cur_cmd == 10)
         {
             FUN_00025c70(1);
-            switch (v6c.f_4)
+            switch (v6c.field)
             {
             case 1:
                 if (WIN_Register())
@@ -1746,7 +1737,7 @@ void WIN_MainMenu(void)
                 SWD_ShowAllWindows();
                 GFX_DisplayUpdate();
                 GFX_FadeIn(palette, 16);
-                PTR_DrawCursor(0);
+                PTR_DrawCursor(1);
                 break;
             case 2:
                 switch (RAP_LoadWin())
@@ -1776,7 +1767,7 @@ void WIN_MainMenu(void)
                 SWD_ShowAllWindows();
                 GFX_DisplayUpdate();
                 SND_PlaySong(87, 1, 1);
-                PTR_DrawCursor(0);
+                PTR_DrawCursor(1);
                 break;
             case 7:
                 if (ingameflag)

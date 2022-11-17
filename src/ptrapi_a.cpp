@@ -2,6 +2,8 @@
 #include "common.h"
 #include "ptrapi.h"
 
+#include "tonccpy.h"
+
 extern char *cursorsave;
 extern char *displaypic;
 extern char *cursorstart;
@@ -12,7 +14,7 @@ void PTR_Save(void)
     int i;
     for (i = 0; i < 16; i++)
     {
-        memcpy(&cursorsave[i * 16], &cursorstart[i * 320], 16);
+        tonccpy(&cursorsave[i * 16], &cursorstart[i * 320], 16);
     }
 }
 
@@ -21,7 +23,7 @@ void PTR_ClipSave(void)
     int i;
     for (i = 0; i < cursorloopy; i++)
     {
-        memcpy(&cursorsave[i * 16], &cursorstart[i * 320], 16);
+        tonccpy(&cursorsave[i * 16], &cursorstart[i * 320], 16);
     }
 }
 
@@ -30,7 +32,7 @@ void PTR_Erase(void)
     int i;
     for (i = 0; i < 16; i++)
     {
-        memcpy(&cursorstart[i * 320], &cursorsave[i * 16], 16);
+        tonccpy(&cursorstart[i * 320], &cursorsave[i * 16], 16);
     }
 }
 
@@ -39,7 +41,7 @@ void PTR_ClipErase(void)
     int i;
     for (i = 0; i < cursorloopy; i++)
     {
-        memcpy(&cursorstart[i * 320], &cursorsave[i * 16], cursorloopx);
+        tonccpy(&cursorstart[i * 320], &cursorsave[i * 16], cursorloopx);
     }
 }
 

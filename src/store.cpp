@@ -17,6 +17,13 @@
 #include "input.h"
 #include "fileids.h"
 
+#include <stdio.h>
+
+#include <hal/debug.h>
+#include <hal/xbox.h>
+#include <hal/video.h>
+#include <vector>
+
 static int window;
 int buy_count, s_count;
 int buy_items[24], sell_items[24];
@@ -155,15 +162,14 @@ void Harrold(int a1)
     SWD_SetFieldItem(window, 7, a1);
     SWD_ShowAllWindows();
     GFX_DisplayUpdate();
-    //IMS_WaitTimedSwd(10);
-    IMS_WaitTimedSwd(8);//10
+    IMS_WaitTimed(10);
+    IMS_WaitTimed(10);
     SWD_SetFieldItem(window, 7, -1);
     SWD_SetFieldItem(window, 2, v1c);
     SWD_SetFieldItem(window, 3, v20);
     SWD_SetFieldItem(window, 4, v24);
     SWD_SetFieldItem(window, 5, v28);
     SWD_SetFieldItem(window, 6, v2c);
-    GFX_DisplayUpdate();//Added
 }
 
 void STORE_Enter(void)
@@ -192,10 +198,9 @@ void STORE_Enter(void)
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 0x10);
     SWD_SetFieldPtr(window, 0x14);
-    PTR_DrawCursor(0);
+    PTR_DrawCursor(1);
     OBJS_GetNum();
     Harrold(0x4c);
-    GFX_DisplayUpdate();//Added
     cur_item = 0;
     mode = 0;
     if (mode == 0)
@@ -223,14 +228,14 @@ void STORE_Enter(void)
         {
             v24 = 1;
             if (mode == 0)
-                printf("STORE Error ( BUY_MODE )");
+                debugPrint("STORE Error ( BUY_MODE )");
             else
             {
                 Harrold(80);
                 mode = 0;
                 v30 = MakeBuyItems();
                 if (v30 < 1)
-                    printf("STORE THING 2");
+                    debugPrint("STORE THING 2");
             }
         }
         if (v24)
@@ -378,70 +383,70 @@ void STORE_Enter(void)
             if (StickY > 0)                                                   //Controller Input Store
             {
                 JOY_IsKey(StickY);
-                vec.f_10 = 80;
+                vec.keypress = 80;
             }
             if (StickY < 0)
             {
                 JOY_IsKey(StickY);
-                vec.f_10 = 72;
+                vec.keypress = 72;
             }
             if (StickX > 0)
             {
                 JOY_IsKey(StickX);
-                vec.f_10 = 77;
+                vec.keypress = 77;
             }
             if (StickX < 0)
             {
                 JOY_IsKey(StickX);
-                vec.f_10 = 75;
+                vec.keypress = 75;
             }
             if (Down)
             {
                 JOY_IsKey(Down);
-                vec.f_10 = 80;
+                vec.keypress = 80;
             }
             if (Up)
             {
                 JOY_IsKey(Up);
-                vec.f_10 = 72;
+                vec.keypress = 72;
             }
             if (Left)
             {
                 JOY_IsKey(Left);
-                vec.f_10 = 75;
+                vec.keypress = 75;
             }
             if (Right)
             {
                 JOY_IsKey(Right);
-                vec.f_10 = 77;
+                vec.keypress = 77;
             }
             if (AButton)
             {
                 JOY_IsKey(AButton);
-                vec.f_10 = 28;
+                vec.keypress = 28;
             }
             if (Back)
             {
                 JOY_IsKey(Back);
-                vec.f_10 = 1;
+                vec.keypress = 1;
             }
             if (BButton)
             {
                 JOY_IsKey(BButton);
-                vec.f_10 = 1;
+                vec.keypress = 1;
             }
             if (LeftShoulder)
             {
                 JOY_IsKey(LeftShoulder);
-                vec.f_10 = 57;
+                vec.keypress = 57;
             }
             if (RightShoulder)
             {
                 JOY_IsKey(RightShoulder);
-                vec.f_10 = 59;
+                vec.keypress = 59;
             }
         }
-        switch (vec.f_10)
+        switch (vec.keypress)
         {
         case 1:
             goto LAB_000209e5;
@@ -449,48 +454,48 @@ void STORE_Enter(void)
             HELP_Win("STORHLP1_TXT");
             break;
         case 0x39:
-            KBD_Wait(vec.f_10);
+            KBD_Wait(vec.keypress);
             mode ^= 1;
             if (mode == 0)
             {
-                vec.f_8 = 1;
-                vec.f_c = 10;
-                vec.f_4 = 4;
+                vec.cur_act = 1;
+                vec.cur_cmd = 10;
+                vec.field = 4;
             }
             else
             {
-                vec.f_8 = 1;
-                vec.f_c = 10;
-                vec.f_4 = 6;
+                vec.cur_act = 1;
+                vec.cur_cmd = 10;
+                vec.field = 6;
             }
             break;
         case 0x1c:
-            KBD_Wait(vec.f_10);
-            vec.f_8 = 1;
-            vec.f_c = 10;
-            vec.f_4 = 5;
+            KBD_Wait(vec.keypress);
+            vec.cur_act = 1;
+            vec.cur_cmd = 10;
+            vec.field = 5;
             break;
         case 0x48:
         case 0x49:
         case 0x4d:
-            KBD_Wait(vec.f_10);
-            vec.f_8 = 1;
-            vec.f_c = 10;
-            vec.f_4 = 3;
+            KBD_Wait(vec.keypress);
+            vec.cur_act = 1;
+            vec.cur_cmd = 10;
+            vec.field = 3;
             break;
         case 0x4b:
         case 0x50:
         case 0x51:
-            KBD_Wait(vec.f_10);
-            vec.f_8 = 1;
-            vec.f_c = 10;
-            vec.f_4 = 2;
+            KBD_Wait(vec.keypress);
+            vec.cur_act = 1;
+            vec.cur_cmd = 10;
+            vec.field = 2;
             break;
         }
-        if (vec.f_8 == 1 && vec.f_c == 10)
+        if (vec.cur_act == 1 && vec.cur_cmd == 10)
         {
             v24 = 1;
-            switch (vec.f_4)
+            switch (vec.field)
             {
             case 3:
                 SND_Patch(20, 127);
