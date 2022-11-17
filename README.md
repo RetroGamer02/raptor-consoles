@@ -1,3 +1,5 @@
+# Raptor-Xbox is a Work in Progress and is not usable at this point.
+
 # Raptor
 Based on the reverse-engineered codebase from Raptor Call Of The Shadows by nukeykt
 
