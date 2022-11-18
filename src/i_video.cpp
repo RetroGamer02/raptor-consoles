@@ -204,7 +204,7 @@ unsigned int joywait = 0;
 void VIDEO_LoadPrefs(void)
 {
     fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
-    aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
+    aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 0);
     txt_fullscreen = INI_GetPreferenceLong("Video", "txt_fullscreen", 0);
 }
 
@@ -570,8 +570,8 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
                 SDL_GetError());
     }*/
 
-    rinfo.max_texture_width = 640;
-    rinfo.max_texture_height = 480;
+    rinfo.max_texture_width = 1280;
+    rinfo.max_texture_height = 960;
 
     while (*w_upscale * SCREENWIDTH > rinfo.max_texture_width)
     {

@@ -33,6 +33,7 @@
 #include "i_lastscr.h"
 #include "fileids.h"
 
+#include <windows.h>
 #include <nxdk/mount.h>
 #include <hal/debug.h>
 #include <hal/xbox.h>
@@ -201,6 +202,7 @@ void ShutDown(int a1)
     if (reg_flag)
         LASTSCR = GLB_GetItem(FILE002_LASTSCR2_TXT); //Get ANSI Screen Fullversion from GLB to char*
     
+    nxUnmountDrive('C');
     closewindow();                                   //Close Main Window
     I_LASTSCR();                                     //Call to display ANSI Screen 
     GLB_FreeAll();
@@ -1026,7 +1028,7 @@ int main(int argc, char *argv[])
 
     shost = getenv("S_HOST");
 
-    XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+    XVideoSetMode(640, 480, 32, REFRESH_DEFAULT / 2);
     
     // Mount C:
     BOOL ret = nxMountDrive('C', "\\Device\\Harddisk0\\Partition2\\");
@@ -1034,6 +1036,8 @@ int main(int argc, char *argv[])
         debugPrint("Failed to mount C: drive!\n");
         //Sleep(5000);
         return 1;
+    } else {
+        CreateDirectoryA("C:\\Raptor", NULL);
     }
 
     InitScreen();
@@ -1041,10 +1045,11 @@ int main(int argc, char *argv[])
     RAP_InitLoadSave();
     if (!checkfile(RAP_SetupFilename()))
     {
-        debugPrint("\n\n** You must run SETUP first! **\n");
+        /*debugPrint("\n\n** You must run SETUP first! **\n");
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** You must run SETUP first! **", NULL);
+            "Raptor", "** You must run SETUP first! **", NULL);*/
         //exit(0);
+        CopyFileA("D:\\SETUP.INI", "C:\\Raptor\\SETUP.INI", NULL);
     }
 
     godmode = 0;

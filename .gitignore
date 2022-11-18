@@ -6,3 +6,5 @@ Makefile
 bin
 build
 .vscode
+*.d
+*.obj

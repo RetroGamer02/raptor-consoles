@@ -282,7 +282,7 @@ static char preference[PATH_MAX];
 int INI_InitPreference(const char *section)
 {
     if (section)
-        tonccpy(preference, section, sizeof(char) * 13);
+        tonccpy(preference, section, sizeof(char) * 20); //Fixme
         //strcpy(preference, section);
         //debugPrint("%s\n", preference);
     return checkfile(preference);

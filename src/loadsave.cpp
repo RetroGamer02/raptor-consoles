@@ -53,8 +53,8 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
-static const char *fmt = "C:\\CHAR%04u.FIL";
-static const char* cdfmt = "C:\\%s\\CHAR%04u.FIL";
+static const char *fmt = "C:\\Raptor\\CHAR%04u.FIL";
+static const char* cdfmt = "C:\\Raptor\\%s\\CHAR%04u.FIL";
 
 map_t *mapmem;
 csprite_t *csprite;
@@ -665,7 +665,7 @@ RAP_InitLoadSave(
     cdflag = 0;
     
     //strcpy(g_setup_ini, "D:\\SETUP.INI");
-    tonccpy(g_setup_ini, "D:\\SETUP.INI", sizeof(char) * 13);
+    tonccpy(g_setup_ini, "C:\\Raptor\\SETUP.INI", sizeof(char) * 20); //Fixme
     
     return cdpath;
 }

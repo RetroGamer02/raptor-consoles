@@ -1307,7 +1307,7 @@ TSFDEF tsf* tsf_load(struct tsf_stream* stream)
 		if (!tsf_load_presets(res, &hydra, fontSampleCount)) goto out_of_memory;
 		res->fontSamples = fontSamples;
 		fontSamples = TSF_NULL; //don't free below
-		res->outSampleRate = 44100.0f;
+		res->outSampleRate = 48000.0f;//44100.0f;
 	}
 	if (0)
 	{
@@ -1396,7 +1396,7 @@ TSFDEF const char* tsf_bank_get_presetname(const tsf* f, int bank, int preset_nu
 TSFDEF void tsf_set_output(tsf* f, enum TSFOutputMode outputmode, int samplerate, float global_gain_db)
 {
 	f->outputmode = outputmode;
-	f->outSampleRate = (float)(samplerate >= 1 ? samplerate : 44100.0f);
+	f->outSampleRate = (float)(samplerate >= 1 ? samplerate : 48000.0f);//44100.0f
 	f->globalGainDB = global_gain_db;
 }
 
