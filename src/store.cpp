@@ -198,7 +198,7 @@ void STORE_Enter(void)
     GFX_DisplayUpdate();
     GFX_FadeIn(palette, 0x10);
     SWD_SetFieldPtr(window, 0x14);
-    PTR_DrawCursor(1);
+    //PTR_DrawCursor(1);
     OBJS_GetNum();
     Harrold(0x4c);
     cur_item = 0;
