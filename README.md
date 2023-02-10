@@ -33,7 +33,6 @@ Having trouble in your game? Try pressing Start and Y at the same time while in 
 ## Build
 The project supports devkitpro 3ds dev environment.
 When you have installed git on your system you can clone the repository by type in `git clone https://github.com/RetroGamer02/raptor3ds.git`.
-You will probably need the DevkitARM Patch but please make a backup of your DevkitARM folder first!
 Run msys2 and type make.
 
 ## Thanks
@@ -46,6 +45,6 @@ soundfont.
 Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
 
 ## Lib Source
-Custom SDL 1.2 for Custom Ctru 2.1.1 and Citro3D 1.7.0
+Custom SDL 1.2 for Custom Ctru 2.1.2 and Citro3D 1.7.0
 https://github.com/RetroGamer02/libctru
 https://github.com/RetroGamer02/SDL-3DS
