@@ -419,8 +419,9 @@ ENEMY_Add(
     switch (curlib->animtype)
     {
     default:
-        EXIT_Error("ENEMY_Add() - Invalid ANIMTYPE");
-        break;
+        __builtin_unreachable();
+        //EXIT_Error("ENEMY_Add() - Invalid ANIMTYPE");
+        //break;
     case GANIM_NORM:
         newe->anim_on = 1;
         newe->num_frames = curlib->num_frames;
@@ -729,7 +730,8 @@ void ENEMY_Think(
                         switch (curlib->animtype)
                         {
                         default:
-                            EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE1");
+                            __builtin_unreachable();
+                            //EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE1");
                         case GANIM_NORM:
                             break;
                         
@@ -763,7 +765,8 @@ void ENEMY_Think(
                 switch (curlib->animtype)
                 {
                 default:
-                    EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE2");
+                    __builtin_unreachable();
+                    //EXIT_Error("ENEMY_Think() - Invalid ANIMTYPE2");
                 case GANIM_NORM:
                     sprite->shoot_on = 1;
                     break;

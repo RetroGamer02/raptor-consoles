@@ -536,8 +536,9 @@ int SHOTS_PlayerShoot(int a1)
     switch (a1)
     {
     default:
-        EXIT_Error("SHOTS_PlayerShoot() - Invalid Shot type");
-        break;
+        __builtin_unreachable();
+        //EXIT_Error("SHOTS_PlayerShoot() - Invalid Shot type");
+        //break;
     case 0:
         if (!fx_gus)
             SND_Patch(16, 127);
@@ -913,8 +914,9 @@ void SHOTS_Think(void)
         switch (v1c->shotType)
         {
         default:
-            EXIT_Error("SHOTS_Think()");
-            break;
+            __builtin_unreachable();
+            //EXIT_Error("SHOTS_Think()");
+            //break;
         case 0:
             v20->TexturePtr = v1c->f_4[v20->currentFrame];
             v20->x = v20->mobj.x - v1c->texWidthX2;
@@ -1121,8 +1123,9 @@ void SHOTS_Display(void)
         switch (v1c->shotLib->shotType)
         {
         default:
-            EXIT_Error("SHOTS_Display()");
-            break;
+            //EXIT_Error("SHOTS_Display()");
+            __builtin_unreachable();
+            //break;
         case 0:
             GFX_PutSprite(v1c->TexturePtr, v1c->x, v1c->y);
             break;

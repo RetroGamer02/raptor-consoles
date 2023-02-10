@@ -1113,7 +1113,8 @@ static void ControllerEvent(unsigned int chan, unsigned int controller, unsigned
             break;
 
         default:
-            break;
+            __builtin_unreachable();
+            //break;
     }
 }
 

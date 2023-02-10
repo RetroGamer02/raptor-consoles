@@ -432,7 +432,8 @@ static void OPL3_EnvelopeCalc(opl3_slot *slot)
                     shift = rate_lo & 0x01;
                     break;
                 default:
-                    break;
+                    __builtin_unreachable();
+                    //break;
                 }
             }
         }
@@ -606,7 +607,8 @@ static void OPL3_PhaseGenerate(opl3_slot *slot)
             slot->pg_phase_out = (rm_xor << 9) | 0x80;
             break;
         default:
-            break;
+            __builtin_unreachable();
+            //break;
         }
     }
     n_bit = ((noise >> 14) ^ noise) & 0x01;

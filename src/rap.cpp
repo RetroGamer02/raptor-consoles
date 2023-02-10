@@ -1313,7 +1313,7 @@ int main()
 
     if (checkfile("sdmc:/3ds/dspfirm.cdc"))
     {
-       SND_InitSound(); 
+       SND_InitSound();
     } else {
         printf("DSP Firmware is missing!\n");
     }
