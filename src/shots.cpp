@@ -925,7 +925,7 @@ void SHOTS_Think(void)
             else
                 v20->y = v20->mobj.y;
             if (v1c->hasAnimation)
-                ANIMS_StartAnim(11, v20->x + v1c->texWidthX2, v20->y + v1c->texHeightX2 << 1);
+                ANIMS_StartAnim(11, v20->x + v1c->texWidthX2, v20->y + v1c->texHeightX2 * 2);
             break;
         case 1:
             v20->x = v20->mobj.x;
