@@ -1038,7 +1038,7 @@ void ENEMY_Think(
                     {
                         IPT_CalJoyRumbleMedium();                                                            //Rumble when enemy hit
                     }
-                    sprite->hits -= (PLAYERWIDTH / 2);
+                    sprite->hits -= (PLAYERWIDTH >> 1);
                     if (sprite->width > sprite->height)
                         suben = sprite->width;
                     else

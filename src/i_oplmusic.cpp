@@ -318,9 +318,9 @@ static genmidi_instr_t percussion_instrs[GENMIDI_NUM_PERCUSSION];
 
 // Voices:
 
-static opl_voice_t voices[OPL_NUM_VOICES * 2];
-static opl_voice_t *voice_free_list[OPL_NUM_VOICES * 2];
-static opl_voice_t *voice_alloced_list[OPL_NUM_VOICES * 2];
+static opl_voice_t voices[OPL_NUM_VOICES << 1];
+static opl_voice_t *voice_free_list[OPL_NUM_VOICES << 1];
+static opl_voice_t *voice_alloced_list[OPL_NUM_VOICES << 1];
 static int voice_free_num;
 static int voice_alloced_num;
 static int opl_opl3mode;
@@ -762,7 +762,7 @@ static unsigned int FrequencyForVoice(opl_voice_t *voice)
 
     if (voice->current_instr_voice != 0)
     {
-        freq_index += (voice->current_instr->fine_tuning / 2) - 64;
+        freq_index += (voice->current_instr->fine_tuning >> 1) - 64;
     }
 
     if (freq_index < 0)
@@ -1124,9 +1124,9 @@ static void PitchBendEvent(unsigned int chan, int bend)
 {
     opl_channel_data_t *channel;
     int i;
-    opl_voice_t *voice_updated_list[OPL_NUM_VOICES * 2];
+    opl_voice_t *voice_updated_list[OPL_NUM_VOICES << 1];
     int voice_updated_num = 0;
-    opl_voice_t *voice_not_updated_list[OPL_NUM_VOICES * 2];
+    opl_voice_t *voice_not_updated_list[OPL_NUM_VOICES << 1];
     int voice_not_updated_num = 0;
 
     // Update the channel bend value.  Only the MSB of the pitch bend

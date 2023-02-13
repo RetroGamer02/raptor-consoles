@@ -413,7 +413,7 @@ void RAP_DisplayShieldLevel(int a1, int a2)
         else
             memset(v1c, 0, 4);
         v24 += v20;
-        v1c -= 320 * 2;
+        v1c -= 320 << 1;
     }
 }
 
@@ -456,8 +456,8 @@ void RAP_DisplayStats(void)
             ANIMS_StartAnim(4, player_cx, player_cy);
             for (i = 0; i < 512; i++)
             {
-                v1c = playerx - 16 + (wrand() % 32) * 2;
-                v30 = playery - 16 + (wrand() % 32) * 2;
+                v1c = playerx - 16 + (wrand() % 32) << 1;
+                v30 = playery - 16 + (wrand() % 32) << 1;
                 if (i&1)
                     ANIMS_StartAnim(4, v1c, v30);
                 else
