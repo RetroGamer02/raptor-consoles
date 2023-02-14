@@ -181,7 +181,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V1.0\n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS: V1.0.1 Test\n");
 }
 
 void ShutDown(int a1)
@@ -456,8 +456,8 @@ void RAP_DisplayStats(void)
             ANIMS_StartAnim(4, player_cx, player_cy);
             for (i = 0; i < 512; i++)
             {
-                v1c = playerx - 16 + (wrand() % 32) << 1;
-                v30 = playery - 16 + (wrand() % 32) << 1;
+                v1c = playerx - 16 + ((wrand() % 32) << 1);
+                v30 = playery - 16 + ((wrand() % 32) << 1);
                 if (i&1)
                     ANIMS_StartAnim(4, v1c, v30);
                 else

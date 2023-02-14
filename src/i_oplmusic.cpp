@@ -778,8 +778,8 @@ static unsigned int FrequencyForVoice(opl_voice_t *voice)
         return frequency_curve[freq_index];
     }
 
-    sub_index = (freq_index - 284) % (12 * 32);
-    octave = (freq_index - 284) / (12 * 32);
+    sub_index = (freq_index - 284) % (12 << 5);
+    octave = (freq_index - 284) / (12 << 5);
 
     // Once the seventh octave is reached, things break down.
     // We can only go up to octave 7 as a maximum anyway (the OPL

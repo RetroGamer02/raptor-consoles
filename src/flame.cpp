@@ -7,7 +7,7 @@
 
 #define MAX_SHADES 8
 
-char stmem[MAX_SHADES * 512];
+char stmem[MAX_SHADES << 9];
 
 static char *_stable[MAX_SHADES];
 
@@ -23,7 +23,7 @@ FLAME_Init(
     
     for (loop = 0; loop < MAX_SHADES; loop++)
     {
-        _stable[loop] = &stmem[loop * 512];
+        _stable[loop] = &stmem[loop << 9];
         
         _stable[loop] = (char*)(((intptr_t)_stable[loop] + 255) & ~255);
         

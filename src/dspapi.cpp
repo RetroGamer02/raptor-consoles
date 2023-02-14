@@ -210,8 +210,8 @@ DSP_Mix(
             else if (r > 127)
                 r = 127;
             
-            dsp_samp[0] = l * 128;
-            dsp_samp[1] = r * 128;
+            dsp_samp[0] = l << 7;
+            dsp_samp[1] = r << 7;
         }
         l = buffer[0] + dsp_samp[0];
         r = buffer[1] + dsp_samp[1];

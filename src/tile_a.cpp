@@ -10,7 +10,7 @@ void TILE_Draw(void)
     int i;
     for (i = 0; i < 32; i++)
     {
-        memcpy(&tilestart[i * 320], &tilepic[i * 32], 32);
+        memcpy(&tilestart[i * 320], &tilepic[i << 5], 32);
     }
 }
 
@@ -19,7 +19,7 @@ void TILE_ClipDraw(void)
     int i;
     for (i = 0; i < tileloopy; i++)
     {
-        memcpy(&tilestart[i * 320], &tilepic[i * 32], 32);
+        memcpy(&tilestart[i * 320], &tilepic[i << 5], 32);
     }
 }
 
