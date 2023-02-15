@@ -26,6 +26,8 @@ int fx_gus;
 int fx_channels;
 int sys_midi, alsaclient, alsaport;
 
+//_Bool isN3DS;
+
 enum {
     FXDEV_NONE = 0,
     FXDEV_PCS,
@@ -65,11 +67,10 @@ char cards[10][23] = {
 
 static void FX_Fill(void *userdata, Uint8 *stream, int len)
 {
-    memset(stream, 0, len);
-    int16_t *stream16 = (int16_t*)stream;
-    len /= 4;
+    int16_t* stream16 = (int16_t*)stream;
+    len = len >> 2;
+
     MUS_Mix(stream16, len);
-    GSS_Mix(stream16, len);
     DSP_Mix(stream16, len);
 }
 
@@ -79,6 +80,8 @@ int SND_InitSound(void)
     char *genmidi = NULL;
     SDL_AudioSpec spec = {};
 
+    //APT_CheckNew3DS(&isN3DS);
+
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         printf("\nFailed to init audio %s", SDL_GetError());
 
@@ -86,10 +89,10 @@ int SND_InitSound(void)
     spec.format = AUDIO_S16SYS;
     spec.channels = 2;
     spec.samples = 512;
-    spec.callback = FX_Fill; //Crashes new citra builds
+    spec.callback = FX_Fill;
     spec.userdata = NULL;
 
-    SDL_OpenAudio(&spec, NULL); //Fixme? Causes Kernel errors in citra
+    SDL_OpenAudio(&spec, NULL);
     /*{
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
@@ -106,16 +109,9 @@ int SND_InitSound(void)
     dig_flag = 0;
     fx_device = FXDEV_NONE;
 
-    _Bool isN3DS;
-    APT_CheckNew3DS(&isN3DS);
-
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    if(isN3DS)
-    {
-        music_card = CARD_BLASTER;
-    } else {
-        music_card = CARD_NONE;
-    }
+    music_card = CARD_BLASTER;
+
     sys_midi = 0;
     alsaclient = 128;
     alsaport = 0;

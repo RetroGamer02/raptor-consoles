@@ -467,14 +467,12 @@ int MUS_SongPlaying(void)
 
 void MUS_Mix(int16_t *stream, int len)
 {
-    int i;
+    //int i;
     if (!music_init || !music_device || !music_device->Mix)
         return;
 
-    //LightEvent_Init(&privateMUSThreadEvent, RESET_ONESHOT);
-    //privateMUSThreadHandle = threadCreate(musThread, 0x0, 8 * 1024, 0x1A, 0, true);
-
-    for (i = 0; i < len; i++)
+    //for (i = 0; i < len; i++)
+    for (int i = len; i--;)
     {
         music_device->Mix(stream, 1);
         music_cnt += musrate;
@@ -510,7 +508,7 @@ void MUS_SetVolume(int volume)
     music_currentvol = volume;
 }
 
-void MUS_Poll(void)
+/*void MUS_Poll(void)
 {
     GSS_Poll();
     if (!music_init || !music_device || music_device->Mix != NULL)
@@ -533,4 +531,4 @@ void MUS_Poll(void)
         }
         music_timer++;
     }
-}
+}*/

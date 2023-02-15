@@ -11,3 +11,4 @@ build
 *.bak
 .bash_history
 .bash_history
+*.smdh
