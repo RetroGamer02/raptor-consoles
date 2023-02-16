@@ -56,8 +56,6 @@
 #define GENMIDI_FLAG_FIXED      0x0001         /* fixed pitch */
 #define GENMIDI_FLAG_2VOICE     0x0004         /* double voice (OPL3) */
 
-#define OUTPUT_QUALITY 1  // 11 kHz
-
 using byte = uint8_t;
 
 //opl3_chip opl;
@@ -1321,8 +1319,7 @@ int I_OPL_InitMusic(int dummy)
     opl_stereo_correct = strstr(dmxoption, "-reverse") != NULL;*/
 
     //OPL3_Reset(&opl, fx_freq);
-    //adlib_init(fx_freq);
-    opl_init();
+    adlib_init(fx_freq);
 
     // Initialize all registers.
 

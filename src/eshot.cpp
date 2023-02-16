@@ -414,7 +414,7 @@ ESHOT_Think(
                 
                 dx = abs(shot->x - player_cx);
                 
-                if (dx < (PLAYERWIDTH >> 1) && shot->y < player_cy)
+                if (dx < (PLAYERWIDTH / 2) && shot->y < player_cy)
                 {
                     shot->move.y2 = player_cy + (wrand() % 4) - 2;
                     OBJS_SubEnergy(lib->hits);
@@ -475,7 +475,7 @@ ESHOT_Think(
             dx = abs(shot->x - player_cx);
             dy = abs(shot->y - player_cy);
             
-            if (dx < (PLAYERWIDTH >> 1) && dy < (PLAYERWIDTH >> 1))
+            if (dx < (PLAYERWIDTH / 2) && dy < (PLAYERWIDTH / 2))
             {
                 ANIMS_StartAnim(A_SMALL_AIR_EXPLO, shot->x, shot->y);
                 shot->doneflag = 1;
