@@ -58,8 +58,6 @@
 
 using byte = uint8_t;
 
-//opl3_chip opl;
-
 #pragma pack(push, 1)
 struct genmidi_op_t
 {
@@ -318,9 +316,9 @@ static genmidi_instr_t percussion_instrs[GENMIDI_NUM_PERCUSSION];
 
 // Voices:
 
-static opl_voice_t voices[OPL_NUM_VOICES << 1];
-static opl_voice_t *voice_free_list[OPL_NUM_VOICES << 1];
-static opl_voice_t *voice_alloced_list[OPL_NUM_VOICES << 1];
+static opl_voice_t voices[OPL_NUM_VOICES * 2];
+static opl_voice_t *voice_free_list[OPL_NUM_VOICES * 2];
+static opl_voice_t *voice_alloced_list[OPL_NUM_VOICES * 2];
 static int voice_free_num;
 static int voice_alloced_num;
 static int opl_opl3mode;
@@ -762,7 +760,7 @@ static unsigned int FrequencyForVoice(opl_voice_t *voice)
 
     if (voice->current_instr_voice != 0)
     {
-        freq_index += (voice->current_instr->fine_tuning >> 1) - 64;
+        freq_index += (voice->current_instr->fine_tuning / 2) - 64;
     }
 
     if (freq_index < 0)
@@ -778,8 +776,8 @@ static unsigned int FrequencyForVoice(opl_voice_t *voice)
         return frequency_curve[freq_index];
     }
 
-    sub_index = (freq_index - 284) % (12 << 5);
-    octave = (freq_index - 284) / (12 << 5);
+    sub_index = (freq_index - 284) % (12 * 32);
+    octave = (freq_index - 284) / (12 * 32);
 
     // Once the seventh octave is reached, things break down.
     // We can only go up to octave 7 as a maximum anyway (the OPL
@@ -1113,8 +1111,7 @@ static void ControllerEvent(unsigned int chan, unsigned int controller, unsigned
             break;
 
         default:
-            __builtin_unreachable();
-            //break;
+            break;
     }
 }
 
@@ -1124,9 +1121,9 @@ static void PitchBendEvent(unsigned int chan, int bend)
 {
     opl_channel_data_t *channel;
     int i;
-    opl_voice_t *voice_updated_list[OPL_NUM_VOICES << 1];
+    opl_voice_t *voice_updated_list[OPL_NUM_VOICES * 2];
     int voice_updated_num = 0;
-    opl_voice_t *voice_not_updated_list[OPL_NUM_VOICES << 1];
+    opl_voice_t *voice_not_updated_list[OPL_NUM_VOICES * 2];
     int voice_not_updated_num = 0;
 
     // Update the channel bend value.  Only the MSB of the pitch bend
@@ -1302,7 +1299,7 @@ int I_OPL_InitMusic(int dummy)
         dmxoption = snd_dmxoption != NULL ? snd_dmxoption : "";
     }*/
     opl_opl3mode = 0;
-    num_opl_voices = OPL_NUM_VOICES; // * 2
+    num_opl_voices = OPL_NUM_VOICES;
     /*   if (strstr(dmxoption, "-opl3") != NULL)
     {
         opl_opl3mode = 1;
@@ -1318,7 +1315,6 @@ int I_OPL_InitMusic(int dummy)
     // into their correct orientation.
     opl_stereo_correct = strstr(dmxoption, "-reverse") != NULL;*/
 
-    //OPL3_Reset(&opl, fx_freq);
     adlib_init(fx_freq);
 
     // Initialize all registers.

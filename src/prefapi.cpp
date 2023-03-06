@@ -3,7 +3,6 @@
 #include <string.h>
 #include "common.h"
 #include "prefapi.h"
-#include "rap.h"
 #ifdef _WIN32
 #include <io.h>
 #endif // _WIN32
@@ -22,6 +21,8 @@ char* ltoa(long i, char* s, int dummy_radix) {
 #define PATH_MAX MAX_PATH
 #endif
 
+#include "rap.h"
+
 static int INI_OpenFile(const char *section, const char *key, const char *defaultValue, char *value, int length, const char *filename)
 {
     char *va;
@@ -33,7 +34,7 @@ static int INI_OpenFile(const char *section, const char *key, const char *defaul
     vs = fopen(filename, "r");
     if (vs)
     {
-        //Fixme reads ini file out of bounds
+
         while (!v10 && fgets(v9c, 128, vs) != 0)
         {
             if (v9c[0] == '[')
@@ -270,7 +271,7 @@ int INI_InitPreference(const char *section)
 {
     if (section)
         strcpy(preference, section);
-    return checkfile(preference);
+    return !checkFile(preference, 4);
 }
 
 int INI_GetPreferenceLong(const char *section, const char *key, int defValue)

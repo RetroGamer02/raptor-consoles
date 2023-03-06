@@ -25,5 +25,5 @@ void MUS_PlaySong(void *ptr, int loop, int fadein);
 void MUS_StopSong(int fadeout);
 int MUS_SongPlaying(void);
 void MUS_Mix(int16_t *stream, int len);
-//void MUS_Poll(void);
+void MUS_Poll(void);
 void MUS_SetVolume(int volume);

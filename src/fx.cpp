@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <SDL/SDL.h>
+#include "SDL/SDL.h"
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -13,6 +13,7 @@
 #include "rap.h"
 #include "gssapi.h"
 #include "fileids.h"
+
 #include <3ds.h>
 
 int music_volume;
@@ -25,8 +26,6 @@ int music_song = -1;
 int fx_gus;
 int fx_channels;
 int sys_midi, alsaclient, alsaport;
-
-//_Bool isN3DS;
 
 enum {
     FXDEV_NONE = 0,
@@ -50,8 +49,6 @@ struct fxitem_t {
 fxitem_t fx_items[36];
 int fx_loaded;
 
-//SDL_AudioDeviceID fx_dev;
-
 char cards[10][23] = {
     "None",
     "PC Speaker",
@@ -67,8 +64,9 @@ char cards[10][23] = {
 
 static void FX_Fill(void *userdata, Uint8 *stream, int len)
 {
+    memset(stream, 0, len); //Actually makes it faster?
     int16_t* stream16 = (int16_t*)stream;
-    len = len >> 2;
+    len>>=2;
 
     MUS_Mix(stream16, len);
     DSP_Mix(stream16, len);
@@ -78,12 +76,12 @@ int SND_InitSound(void)
 {
     int music_card, fx_card, fx_chans;
     char *genmidi = NULL;
-    SDL_AudioSpec spec = {};
-
-    //APT_CheckNew3DS(&isN3DS);
+    SDL_AudioSpec spec = {}, actual = {};
+    if (fx_init)
+        return 0;
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-        printf("\nFailed to init audio %s", SDL_GetError());
+        return 0;
 
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
@@ -93,18 +91,8 @@ int SND_InitSound(void)
     spec.userdata = NULL;
 
     SDL_OpenAudio(&spec, NULL);
-    /*{
-        SDL_QuitSubSystem(SDL_INIT_AUDIO);
-        return 0;
-    }*/
 
     //fx_freq = actual.freq;
-    /*if (actual.format != AUDIO_S16SYS || actual.channels != 2)
-    {
-        SDL_CloseAudio();
-        SDL_QuitSubSystem(SDL_INIT_AUDIO);
-        return 0;
-    }*/
 
     dig_flag = 0;
     fx_device = FXDEV_NONE;
@@ -140,6 +128,7 @@ int SND_InitSound(void)
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
     fx_card = 5;
     fx_chans = 2;
+
     switch (fx_card)
     {
     default:
@@ -763,7 +752,7 @@ void SND_3DPatch(int a1, int a2, int a3)
             v4c = v30;
         else
             v4c = v34;
-        v38 = v30 + v34 - (v4c >> 1);
+        v38 = v30 + v34 - (v4c / 2);
         if (v38 < 40)
             v2c = 127;
         else if (v38 > 500)

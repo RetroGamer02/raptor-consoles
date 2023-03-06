@@ -38,8 +38,8 @@ SOURCES		:=	src
 INCLUDES	:=	./src ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_VER						:= 0101
-APP_TITLE					:= Raptor 3DS V1.0.1
+APP_VER						:= 0102
+APP_TITLE					:= Raptor 3DS V1.0.2
 APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
 APP_AUTHOR					:= RetroGamer02/Ryan
 PRODUCT_CODE				:= CTR-RAP
@@ -60,7 +60,7 @@ CFLAGS	:= -Wall -Wcast-align -g -O3 -mword-relocations \
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__3DS__ -DSDL_BUILDING_3DS
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS	:= $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)

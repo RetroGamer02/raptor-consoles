@@ -1,4 +1,4 @@
-#include <SDL/SDL.h>
+#include "SDL/SDL.h"
 #include "i_video.h"
 #include "joyapi.h"
 
@@ -17,7 +17,13 @@ int JoystickIndex;
 int AButtonconvert, BButtonconvert, XButtonconvert, YButtonconvert;
 static unsigned int lastTime = 0;
 
-void IPT_CalJoy(void)
+/***************************************************************************
+IPT_CalJoy() - Open Gamecontroller
+ ***************************************************************************/
+void 
+IPT_CalJoy(
+	void
+)
 {
 	AButtonconvert = 0;
 	BButtonconvert = 1;
@@ -27,24 +33,36 @@ void IPT_CalJoy(void)
 	//GetJoyButtonMapping();
 }
 
-void  IPT_CloJoy(void)
-{
-
-}
-
-void I_HandleJoystickEvent(SDL_Event *sdlevent)
+/***************************************************************************
+IPT_CloJoy() - Close Gamecontroller
+ ***************************************************************************/
+void  
+IPT_CloJoy(
+	void
+)
 {
 	
 }
 
-/**
- *  Get the type of a game controller.
- *  This can be called before any controllers are opened.
- */
-//extern DECLSPEC SDL_GameControllerType SDLCALL SDL_GameControllerTypeForIndex(int joystick_index);
+/***************************************************************************
+I_HandleJoystickEvent() - Get current button or axis status
+ ***************************************************************************/
+void 
+I_HandleJoystickEvent(
+	SDL_Event *sdlevent
+)
+{
+	
+}
 
-void GetJoyButtonMapping(void)
-{		
+/***************************************************************************
+GetJoyButtonMapping() - Detect connected Gamecontroller and map buttons for it
+ ***************************************************************************/
+void 
+GetJoyButtonMapping(
+	void
+)
+{
 	if ((AButtonconvert == 0) && (BButtonconvert == 0) && (XButtonconvert == 0) && (YButtonconvert == 0))
 	{
 		AButtonconvert = 0;
@@ -54,22 +72,46 @@ void GetJoyButtonMapping(void)
 	}
 }
 
-void IPT_CalJoyRumbleLow(void)
+/***************************************************************************
+IPT_CalJoyRumbleLow() - Gamecontroller rumbles low
+ ***************************************************************************/
+void 
+IPT_CalJoyRumbleLow(
+	void
+)
 {
-
+	
 }
 
-void IPT_CalJoyRumbleMedium(void)
+/***************************************************************************
+IPT_CalJoyRumbleMedium() - Gamecontroller rumbles medium
+ ***************************************************************************/
+void 
+IPT_CalJoyRumbleMedium(
+	void
+)
 {
-
+	
 }
 
-void IPT_CalJoyRumbleHigh(void)
+/***************************************************************************
+IPT_CalJoyRumbleHigh() - Gamecontroller rumbles high
+ ***************************************************************************/
+void 
+IPT_CalJoyRumbleHigh(
+	void
+)
 {
-
+	
 }
 
-void JOY_Wait(int a1)
+/***************************************************************************
+JOY_Wait() - Waits for button to be released
+ ***************************************************************************/
+void 
+JOY_Wait(
+	int button
+)
 {
 	while (StickX || StickY || Up || Down || Left || Right || Start || Back || LeftShoulder || RightShoulder || AButton || BButton || XButton || YButton)
 	{
@@ -77,48 +119,86 @@ void JOY_Wait(int a1)
 	}
 }
 
-int JOY_IsKey(int a1)
+/***************************************************************************
+JOY_IsKey() - Tests to see if button is down if so waits for release
+ ***************************************************************************/
+int 
+JOY_IsKey(
+	int button
+)
 {
 	if (StickX || StickY || Up || Down || Left || Right || Start || Back || LeftShoulder || RightShoulder || AButton || BButton || XButton || YButton)
 	{
-		JOY_Wait(a1);
+		JOY_Wait(button);
+		
 		return 1;
 	}
-    return 0;
-}
-
-int JOY_IsKeyInGameStart(int a1)
-{
-	if (Start)
-	{
-		JOY_Wait(a1);
-		return 1;
-	}
+    
 	return 0;
 }
 
-int JOY_IsKeyInGameBack(int a1)
+/***************************************************************************
+JOY_IsKeyInGameStart() - Tests to see if button is down if so waits for release
+ ***************************************************************************/
+int 
+JOY_IsKeyInGameStart(
+	int button
+)
+{
+	if (Start)
+	{
+		JOY_Wait(button);
+		
+		return 1;
+	}
+	
+	return 0;
+}
+
+/***************************************************************************
+JOY_IsKeyInGameBack() - Tests to see if button is down if so waits for release
+ ***************************************************************************/
+int 
+JOY_IsKeyInGameBack(
+	int button
+)
 {
 
 	if (Back)
 	{
-		JOY_Wait(a1);
+		JOY_Wait(button);
+		
 		return 1;
 	}
+	
 	return 0;
 }
 
-int JOY_IsKeyMenu(int a1)
+/***************************************************************************
+JOY_IsKeyMenu() - Tests to see if button is down if so waits for release
+ ***************************************************************************/
+int 
+JOY_IsKeyMenu(
+	int button
+)
 {
 	if (RightShoulder || Back || BButton)
 	{
-		JOY_Wait(a1);
+		JOY_Wait(button);
+		
 		return 1;
 	}
+	
 	return 0;
 }
 
-int JOY_IsScroll(int a1)
+/***************************************************************************
+JOY_IsScroll() - Scroll cursor in menu
+ ***************************************************************************/
+int 
+JOY_IsScroll(
+	int scrollflag
+)
 {
 	unsigned int currentTime;
 	currentTime = SDL_GetTicks();
@@ -126,7 +206,9 @@ int JOY_IsScroll(int a1)
 	if (currentTime > lastTime + 200)
 	{
 		lastTime = currentTime;
+		
 		return 1;
 	}
+	
 	return 0;
 }

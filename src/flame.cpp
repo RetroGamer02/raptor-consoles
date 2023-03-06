@@ -5,9 +5,11 @@
 #include "gfxapi.h"
 #include "windows.h"
 
+#include <cstdio>
+
 #define MAX_SHADES 8
 
-char stmem[MAX_SHADES << 9];
+char stmem[MAX_SHADES * 512];
 
 static char *_stable[MAX_SHADES];
 
@@ -23,11 +25,11 @@ FLAME_Init(
     
     for (loop = 0; loop < MAX_SHADES; loop++)
     {
-        _stable[loop] = &stmem[loop << 9];
+        _stable[loop] = &stmem[loop * 512];
         
         _stable[loop] = (char*)(((intptr_t)_stable[loop] + 255) & ~255);
         
-        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) << 1);
+        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) * 2);
     }
 }
 
@@ -43,7 +45,7 @@ FLAME_InitShades(
     
     for (loop = 0; loop < MAX_SHADES; loop++)
     {
-        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) << 1);
+        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) * 2);
     }
 }
 
@@ -89,10 +91,10 @@ FLAME_Up(
         num = curs >> 16;
         
         if (num >= 8)
-            EXIT_Error("flame > 8 %u", curs >> 16);
+            printf("flame > 8 %u", curs >> 16);
 
         if (num < 0)
-            EXIT_Error("flame < 0");
+            printf("flame < 0");
 
         GFX_Shade(outbuf, width, _stable[num]);
         

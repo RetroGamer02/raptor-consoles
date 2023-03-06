@@ -71,7 +71,7 @@ dnl
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SDL.h"
+#include "SDL/SDL.h"
 
 char*
 my_strdup (char *str)
@@ -150,7 +150,7 @@ int main (int argc, char *argv[])
           LIBS="$LIBS $SDL_LIBS"
           AC_TRY_LINK([
 #include <stdio.h>
-#include "SDL.h"
+#include "SDL/SDL.h"
 
 int main(int argc, char *argv[])
 { return 0; }

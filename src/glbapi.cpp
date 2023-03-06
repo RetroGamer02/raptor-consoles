@@ -8,7 +8,6 @@
 #include "common.h"
 #include "glbapi.h"
 #include "vmemapi.h"
-#include "rap.h"
 #ifdef _WIN32
 #include <io.h>
 #endif // _WIN32
@@ -32,6 +31,8 @@ char* strupr(char* s)
 #include <windows.h>
 #define PATH_MAX MAX_PATH
 #endif
+
+#include "rap.h"
 
 char prefix[] = "FILE";
 char exePathRom[PATH_MAX] = "romfs:/";
@@ -145,6 +146,30 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
     filedesc[a2].handle = h;
     return h;
 }
+
+/*FILE *GLB_FindFile(int a1, int a2, const char *mode)
+{
+    FILE *h;
+    char buffer[PATH_MAX];
+    sprintf(buffer, "%s%s%04u.GLB", exePathRom, prefix, a2);
+    h = fopen(buffer, mode);
+    if (h == NULL)
+    {
+        sprintf(buffer, "%s%s%04u.GLB", exePathSD, prefix, a2);
+        h = fopen(buffer, mode);
+        if (h == NULL)
+        {
+            if (a1)
+                return NULL;
+            sprintf(buffer, "%s%04u.GLB", prefix, a2);
+            printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
+        }
+    }
+    strcpy(filedesc[a2].path, buffer);
+    filedesc[a2].mode = mode;
+    filedesc[a2].handle = h;
+    return h;
+}*/
 
 FILE *GLB_OpenFile(int a1, int a2, const char *mode)
 {
@@ -299,11 +324,9 @@ char *GLB_FetchItem(int a1, int a2)
         printf("GLB_FetchItem: empty handle.");
         return NULL;
     }
-    
     uint16_t f = (a1 >> 16) & 0xffff;
     uint16_t n = (a1 >> 0) & 0xffff;
     fi = &filedesc[f].items[n];
-
     if (a2 == 2)
     {
         //Prevents crash here on real 3ds hardware.
@@ -314,7 +337,6 @@ char *GLB_FetchItem(int a1, int a2)
             fi->flags |= 0x80000000;
         }
     }
-    
     if (!fi->mem.ptr)
     {
         fi->lock = 0;
@@ -348,16 +370,13 @@ char *GLB_FetchItem(int a1, int a2)
             VM_Lock(fi->mem.ptr);
         }
     }
-    
     if (!fi->mem.ptr && a2 != 0)
         printf("GLB_FetchItem: failed on %d bytes, mode=%d.", fi->length, a2);
-    
     if (a2 == 1)
     {
         if (fVmem)
             VM_Touch(&fi->mem);
     }
-    
     return fi->mem.ptr;
 }
 
@@ -511,7 +530,7 @@ int GLB_ReadFile(const char *a1, char *a2)
     FILE *handle;
     int l;
     char f_a0[PATH_MAX];
-    if (!checkfile(a1) == -1)
+    if (checkFile(a1, 0) == -1)
     {
         strcpy(f_a0, exePathRom);
         strcat(f_a0, a1);

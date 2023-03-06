@@ -210,7 +210,7 @@
 		<Unit filename="../include/txt_sdl.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../include/SDL2\SDL.h" />
+		<Unit filename="../include/txt_sdl.h" />
 		<Unit filename="../include/txt_separator.c">
 			<Option compilerVar="CC" />
 		</Unit>

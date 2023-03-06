@@ -267,9 +267,8 @@ ESHOT_Shoot(
         switch (g_shoot_type)
         {
         default:
-            __builtin_unreachable();
-            //EXIT_Error("ESHOT_Shoot() - Invalid EShot type");
-            //break;
+            printf("ESHOT_Shoot() - Invalid EShot type");
+            break;
         
         case ES_ATPLAYER:                                              
             SND_3DPatch(FX_ENEMYSHOT, x, y);

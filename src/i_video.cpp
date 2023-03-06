@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#include <SDL/SDL.h>
+#include "SDL/SDL.h"
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -37,14 +37,14 @@
 #include "musapi.h"
 #include "prefapi.h"
 #include "joyapi.h"
-#include <3ds.h>
 
-// These are (1) the window (or the full screen) that our game is rendered to
-// and (2) the renderer that scales the texture (see below) into this window.
+#include <3ds.h>
 
 static SDL_Surface *screen;
 
 // Window title
+
+static const char *window_title = "";
 
 static SDL_Rect blit_rect = {
     0,
@@ -52,6 +52,8 @@ static SDL_Rect blit_rect = {
     SCREENWIDTH,
     SCREENHEIGHT
 };
+
+static uint32_t pixel_format;
 
 // palette
 
@@ -66,6 +68,14 @@ static bool initialized = false;
 
 static bool nomouse = false;
 int usemouse = 1;
+
+// Save screenshots in PNG format.
+
+// int png_screenshots = 0;
+
+// SDL video driver name
+
+const char *video_driver = "";
 
 // Window position:
 
@@ -83,6 +93,40 @@ int window_height = 200;
 int screen_mode; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 int render_to_screen;
 
+// Maximum number of pixels to use for intermediate scale buffer.
+
+static int max_scaling_buffer_pixels = 16000000;
+
+// Run in full screen mode?  (int type for config code)
+
+// int fullscreen = true;
+int fullscreen; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+
+int txt_fullscreen;
+
+// Aspect ratio correction mode
+
+int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
+static int actualheight;
+
+// Force integer scales for resolution-independent rendering
+
+int integer_scaling = false;
+
+// VGA Porch palette change emulation
+
+int vga_porch_flash = false;
+
+// Force software rendering, for systems which lack effective hardware
+// acceleration
+
+int force_software_renderer = false;
+
+// Time to wait for the screen to settle on startup before starting the
+// game (ms)
+
+static int startup_delay = 1000;
+
 // Grab the mouse? (int type for config code). nograbmouse_override allows
 // this to be temporarily disabled via the command line.
 
@@ -93,15 +137,39 @@ static bool nograbmouse_override = false;
 
 pixel_t *I_VideoBuffer = NULL;
 
+// If true, game is running as a screensaver
+
+bool screensaver_mode = false;
+
 // Flag indicating whether the screen is currently visible:
 // when the screen isnt visible, don't render the screen
 
 bool screenvisible = true;
 
+// If true, we display dots at the bottom of the screen to
+// indicate FPS.
+
+// static bool display_fps_dots;
+
+// If this is true, the screen is rendered but not blitted to the
+// video buffer.
+
+// static boolean noblit;
+
 // Callback function to invoke to determine whether to grab the
 // mouse pointer.
 
 static grabmouse_callback_t grabmouse_callback = NULL;
+
+// Does the window currently have focus?
+
+static bool window_focused = true;
+
+// Window resize state.
+
+static bool need_resize = false;
+static unsigned int last_resize_time;
+#define RESIZE_DELAY 500
 
 // Gamma correction level to use
 
@@ -127,18 +195,37 @@ static bool MouseShouldBeGrabbed()
 
 void I_SetGrabMouseCallback(grabmouse_callback_t func)
 {
-    
+    grabmouse_callback = func;
 }
+
+// Set the variable controlling FPS dots.
+
+// void I_DisplayFPSDots(bool dots_on)
+// {
+//     display_fps_dots = dots_on;
+// }
 
 static void SetShowCursor(bool show)
 {
-    
+    /*if (!screensaver_mode)
+    {
+#if 1
+        // When the cursor is hidden, grab the input.
+        // Relative mode implicitly hides the cursor.
+        SDL_SetRelativeMouseMode((SDL_bool)!show);
+        SDL_GetRelativeMouseState(NULL, NULL);
+#else
+        SDL_ShowCursor(show);
+#endif
+    }*/
 }
 
 void I_ShutdownGraphics(void)
 {
     if (initialized)
     {
+        //SetShowCursor(true);
+
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
         initialized = false;
@@ -167,7 +254,7 @@ void I_GetEvent(void)
 		//hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
 		u32 kDown = hidKeysDown();
 		//hidKeysHeld returns information about which buttons have are held down in this frame
-		u32 kHeld = hidKeysHeld();
+		//u32 kHeld = hidKeysHeld();
 		//hidKeysUp returns information about which buttons have been just released
 		u32 kUp = hidKeysUp();
 
@@ -290,8 +377,71 @@ void I_GetEvent(void)
 
 		//Set keys old values for the next frame
 		kDownOld = kDown;
-		kHeldOld = kHeld;
+		//kHeldOld = kHeld;
 		kUpOld = kUp;
+}
+
+//
+// I_StartTic
+//
+// void I_StartTic (void)
+// {
+//     if (!initialized)
+//     {
+//         return;
+//     }
+//
+//     I_GetEvent();
+//
+//     if (usemouse && !nomouse && window_focused)
+//     {
+//         I_ReadMouse();
+//     }
+//
+//     if (joywait < I_GetTime())
+//     {
+//         I_UpdateJoystick();
+//     }
+// }
+
+
+static void UpdateGrab(void)
+{
+    /*static bool currently_grabbed = false;
+    bool grab;
+
+    grab = MouseShouldBeGrabbed();
+
+    if (screensaver_mode)
+    {
+        // Hide the cursor in screensaver mode
+
+        SetShowCursor(false);
+    }
+    else if (grab && !currently_grabbed)
+    {
+        SetShowCursor(false);
+    }
+    else if (!grab && currently_grabbed)
+    {
+        SetShowCursor(true);
+
+#if 0
+        // When releasing the mouse from grab, warp the mouse cursor to
+        // the bottom-right of the screen. This is a minimally distracting
+        // place for it to appear - we may only have released the grab
+        // because we're at an end of level intermission screen, for
+        // example.
+
+        SDL_GetWindowSize(screen, &screen_w, &screen_h);
+        SDL_WarpMouseInWindow(screen, screen_w - 16, screen_h - 16);
+        SDL_GetRelativeMouseState(NULL, NULL);
+#endif
+    }
+
+    currently_grabbed = grab;*/
+
+    SetShowCursor(false);
 }
 
 //
@@ -299,6 +449,7 @@ void I_GetEvent(void)
 //
 void I_FinishUpdate (void)
 {
+
     if (!initialized)
         return;
 
@@ -313,16 +464,6 @@ void I_FinishUpdate (void)
     //SDL_Flip(screen); //If Double Buffering
     SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
-
-
-//
-// I_ReadScreen
-//
-void I_ReadScreen (pixel_t* scr)
-{
-    //memcpy(scr, I_VideoBuffer, SCREENWIDTH*SCREENHEIGHT*sizeof(*scr));
-}
-
 
 //
 // I_SetPalette
@@ -387,64 +528,39 @@ int I_GetPaletteIndex(int r, int g, int b)
 }
 
 //
-// Set the window title
-//
-
-void I_SetWindowTitle(const char *title)
-{
-    
-}
-
-//
 // Call the SDL function to set the window title, based on
 // the title set with I_SetWindowTitle.
 //
 
 void I_InitWindowTitle(void)
 {
-    
+
 }
 
 // Set the application icon
 
 void I_InitWindowIcon(void)
 {
-    
+
 }
 
-void I_GraphicsCheckCommandLine(void)
+static void SetSDLVideoDriver(void)
 {
-    
-}
+    // Allow a default value for the SDL video driver to be specified
+    // in the configuration file.
 
-// Check if we have been invoked as a screensaver by xscreensaver.
+    if (strcmp(video_driver, "") != 0)
+    {
+        char *env_string;
 
-void I_CheckIsScreensaver(void)
-{
-    
-}
-
-void I_GetWindowPosition(int *x, int *y, int w, int h)
-{
-  
-}
-
-void I_InitGraphics(uint8_t *pal)
-{
-    //SDL_Event dummy;
-
-    /* Initialize the SDL library */
-    if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-        fprintf(stderr,
-                "Couldn't initialize SDL: %s\n", SDL_GetError());
-        exit(1);
+        env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
+        putenv(env_string);
+        free(env_string);
     }
+}
 
-    /* Clean up on exit */
-    atexit(SDL_Quit);
-
-    SDL_ShowCursor(SDL_DISABLE);
-
+static void SetVideoMode(void)
+{
     /*
      * Initialize the display in a 320x200 8-bit palettized mode,
      * requesting a hardware surface
@@ -470,8 +586,24 @@ void I_InitGraphics(uint8_t *pal)
     if ( screen == NULL ) {
         fprintf(stderr, "Couldn't set 320x200x8 video mode: %s\n",
                         SDL_GetError());
-        //exit(1);
     }
+}
+
+void I_InitGraphics(uint8_t *pal)
+{
+    /* Initialize the SDL library */
+    if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+        fprintf(stderr,
+                "Couldn't initialize SDL: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    /* Clean up on exit */
+    atexit(SDL_Quit);
+
+    SDL_ShowCursor(SDL_DISABLE);
+
+    SetVideoMode();
 
     SDL_FillRect(screen, NULL, 0);
     I_SetPalette(pal);
@@ -494,7 +626,7 @@ void I_InitGraphics(uint8_t *pal)
 #if 0
 void I_BindVideoVariables(void)
 {
-    /*M_BindIntVariable("use_mouse",                 &usemouse);
+    M_BindIntVariable("use_mouse",                 &usemouse);
     M_BindIntVariable("fullscreen",                &fullscreen);
     M_BindIntVariable("video_display",             &video_display);
     M_BindIntVariable("aspect_ratio_correct",      &aspect_ratio_correct);
@@ -511,21 +643,33 @@ void I_BindVideoVariables(void)
     M_BindStringVariable("video_driver",           &video_driver);
     M_BindStringVariable("window_position",        &window_position);
     M_BindIntVariable("usegamma",                  &usegamma);
-    M_BindIntVariable("png_screenshots",           &png_screenshots);*/
+    M_BindIntVariable("png_screenshots",           &png_screenshots);
 }
 #endif
 
 void I_GetMousePos(int *x, int *y)
 {
-    
+    /*SDL_Rect viewport;
+    float sx, sy;
+    SDL_GetMouseState(x, y);
+    SDL_RenderGetViewport(renderer, &viewport);
+    SDL_RenderGetScale(renderer, &sx, &sy);
+    *x = (int)(*x / sx) - viewport.x;
+    *y = (int)(((*y / sy - viewport.y) * (float)SCREENHEIGHT) / actualheight);*/
 }
 
 void I_SetMousePos(int x, int y)
 {
-    
+    /*SDL_Rect viewport;
+    float sx, sy;
+    SDL_RenderGetViewport(renderer, &viewport);
+    SDL_RenderGetScale(renderer, &sx, &sy);
+    x = (int)((x + viewport.x) * sx);
+    y = (int)(((y * actualheight) / (float)SCREENHEIGHT + viewport.y) * sy);
+    SDL_WarpMouseInWindow(screen, x, y);*/
 }
 
 void closewindow(void)
 {
-    
+    SDL_FreeSurface(screen);
 }

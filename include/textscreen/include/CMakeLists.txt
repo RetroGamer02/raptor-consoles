@@ -15,7 +15,7 @@ add_library(textscreen STATIC
             txt_scrollpane.c    txt_scrollpane.h
             txt_separator.c     txt_separator.h
             txt_spinctrl.c      txt_spinctrl.h
-            txt_sdl.c           SDL2\SDL.h
+            txt_sdl.c           txt_sdl.h
             txt_strut.c         txt_strut.h
             txt_table.c         txt_table.h
             txt_utf8.c          txt_utf8.h

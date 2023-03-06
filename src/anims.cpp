@@ -8,6 +8,8 @@
 #include "tile.h"
 #include "fileids.h"
 
+#include <cstdio>
+
 #define MAX_ANIMLIB 25
 #define MAX_ANIMS   100
 
@@ -115,7 +117,7 @@ ANIMS_Register(
     handle = curlib;
     
     if (curlib >= MAX_ANIMLIB)
-        EXIT_Error("ANIMS_Register() - Max LIBs");
+        printf("ANIMS_Register() - Max LIBs");
     
     cur = &animlib[curlib];
     curlib++;
@@ -361,8 +363,8 @@ ANIMS_Think(
             
             if (!cur->edone)
             {
-                cur->dx = cur->en->mobj.x + cur->x;
-                cur->dy = cur->en->mobj.y + cur->y;
+                cur->dx = cur->en->move.x + cur->x;
+                cur->dy = cur->en->move.y + cur->y;
             }
         }
         else
