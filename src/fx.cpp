@@ -76,7 +76,7 @@ int SND_InitSound(void)
 {
     int music_card, fx_card, fx_chans;
     char *genmidi = NULL;
-    SDL_AudioSpec spec = {}, actual = {};
+    SDL_AudioSpec spec = {};
     if (fx_init)
         return 0;
 
@@ -91,8 +91,6 @@ int SND_InitSound(void)
     spec.userdata = NULL;
 
     SDL_OpenAudio(&spec, NULL);
-
-    //fx_freq = actual.freq;
 
     dig_flag = 0;
     fx_device = FXDEV_NONE;

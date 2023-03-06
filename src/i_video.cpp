@@ -42,18 +42,12 @@
 
 static SDL_Surface *screen;
 
-// Window title
-
-static const char *window_title = "";
-
 static SDL_Rect blit_rect = {
     0,
     0,
     SCREENWIDTH,
     SCREENHEIGHT
 };
-
-static uint32_t pixel_format;
 
 // palette
 
@@ -93,10 +87,6 @@ int window_height = 200;
 int screen_mode; //Defined in VIDEO_LoadPrefs to read config from setup.ini
 int render_to_screen;
 
-// Maximum number of pixels to use for intermediate scale buffer.
-
-static int max_scaling_buffer_pixels = 16000000;
-
 // Run in full screen mode?  (int type for config code)
 
 // int fullscreen = true;
@@ -107,7 +97,7 @@ int txt_fullscreen;
 // Aspect ratio correction mode
 
 int aspect_ratio_correct; //Defined in VIDEO_LoadPrefs to read config from setup.ini
-static int actualheight;
+
 
 // Force integer scales for resolution-independent rendering
 
@@ -121,11 +111,6 @@ int vga_porch_flash = false;
 // acceleration
 
 int force_software_renderer = false;
-
-// Time to wait for the screen to settle on startup before starting the
-// game (ms)
-
-static int startup_delay = 1000;
 
 // Grab the mouse? (int type for config code). nograbmouse_override allows
 // this to be temporarily disabled via the command line.
@@ -160,16 +145,6 @@ bool screenvisible = true;
 // mouse pointer.
 
 static grabmouse_callback_t grabmouse_callback = NULL;
-
-// Does the window currently have focus?
-
-static bool window_focused = true;
-
-// Window resize state.
-
-static bool need_resize = false;
-static unsigned int last_resize_time;
-#define RESIZE_DELAY 500
 
 // Gamma correction level to use
 
@@ -542,21 +517,6 @@ void I_InitWindowTitle(void)
 void I_InitWindowIcon(void)
 {
 
-}
-
-static void SetSDLVideoDriver(void)
-{
-    // Allow a default value for the SDL video driver to be specified
-    // in the configuration file.
-
-    if (strcmp(video_driver, "") != 0)
-    {
-        char *env_string;
-
-        env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
-        putenv(env_string);
-        free(env_string);
-    }
 }
 
 static void SetVideoMode(void)
