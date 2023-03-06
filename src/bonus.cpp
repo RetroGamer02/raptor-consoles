@@ -184,8 +184,8 @@ BONUS_Think(
     {
         cur->item = cur->lib->item + cur->curframe;
         
-        cur->bx = cur->x - (BONUS_WIDTH / 2) + xpos[cur->pos];
-        cur->by = cur->y - (BONUS_HEIGHT / 2) + ypos[cur->pos];
+        cur->bx = cur->x - (BONUS_WIDTH >> 1) + xpos[cur->pos];
+        cur->by = cur->y - (BONUS_HEIGHT >> 1) + ypos[cur->pos];
         
         cur->gx = cur->x - (glow_lx>>1) + xpos[cur->pos];
         cur->gy = cur->y - (glow_ly>>1) + ypos[cur->pos];
@@ -217,7 +217,7 @@ BONUS_Think(
                 SND_Patch(FX_BONUS, 127);
                 
                 if (cur->type == S_ENERGY)
-                    OBJS_AddEnergy(MAX_SHIELD / 4);
+                    OBJS_AddEnergy(MAX_SHIELD >> 2);
                 else
                     OBJS_Add(cur->type);
                 

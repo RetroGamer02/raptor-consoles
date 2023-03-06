@@ -81,7 +81,7 @@ int SND_InitSound(void)
         return 0;
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-        return 0;
+    	printf("\nFailed to init audio %s", SDL_GetError());
 
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
@@ -750,7 +750,7 @@ void SND_3DPatch(int a1, int a2, int a3)
             v4c = v30;
         else
             v4c = v34;
-        v38 = v30 + v34 - (v4c / 2);
+        v38 = v30 + v34 - (v4c >> 1);
         if (v38 < 40)
             v2c = 127;
         else if (v38 > 500)

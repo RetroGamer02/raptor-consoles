@@ -330,8 +330,7 @@ char *GLB_FetchItem(int a1, int a2)
     if (a2 == 2)
     {
         //Prevents crash here on real 3ds hardware.
-        //Todo: Try changing NULL to 0x0
-        if (fi->flags == NULL)
+        if (fi->flags == 0x0)
         {
             fi->flags = 0x80000000;
         } else {

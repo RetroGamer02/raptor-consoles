@@ -208,8 +208,8 @@ DSP_Mix(
             else if (r > 127)
                 r = 127;
             
-            dsp_samp[0] = l * 128;
-            dsp_samp[1] = r * 128;
+            dsp_samp[0] = l << 7;
+            dsp_samp[1] = r << 7;
         }
         l = buffer[0] + dsp_samp[0];
         r = buffer[1] + dsp_samp[1];
@@ -274,7 +274,7 @@ DSP_VolTable(
     int accm;
     int i;
 
-    val = - (vol / 2);
+    val = - (vol >> 1);
     step = vol >> 8;
     sub_step = vol & 255;
     accm = sub_step >> 1;
@@ -366,6 +366,7 @@ DSP_StartPatch(
     }
 
     samples = dsp->length - 32;
+    //Todo but be careful bitshifting this.
     step = (pitchtable[pitch] * dsp->freq + dsp_freq / 2) / dsp_freq; // .8
 
     lvol = (pantable[255 - sep] * volume) / 127;

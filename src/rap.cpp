@@ -412,7 +412,7 @@ void RAP_DisplayShieldLevel(int a1, int a2)
         else
             memset(v1c, 0, 4);
         v24 += v20;
-        v1c -= 320 * 2;
+        v1c -= 320 << 1;
     }
 }
 
@@ -455,8 +455,8 @@ void RAP_DisplayStats(void)
             ANIMS_StartAnim(4, player_cx, player_cy);
             for (i = 0; i < 512; i++)
             {
-                v1c = playerx - 16 + (wrand() % 32) * 2;
-                v30 = playery - 16 + (wrand() % 32) * 2;
+                v1c = playerx - 16 + ((wrand() % 32) << 1);
+                v30 = playery - 16 + ((wrand() % 32) << 1);
                 if (i&1)
                     ANIMS_StartAnim(4, v1c, v30);
                 else
@@ -1089,18 +1089,6 @@ bool checkFile(const char* path, int mode)
     }
 }
 
-/*int fastDiv32(int dividend, int divisor)
-{
-    struct libdivide::libdivide_s32_t fast_d = libdivide::libdivide_s32_gen(divisor);
-    return libdivide::libdivide_s32_do(dividend, &fast_d);
-}
-
-unsigned int fastDivU32(unsigned int dividend, unsigned int divisor)
-{
-    struct libdivide::libdivide_u32_t fast_d = libdivide::libdivide_u32_gen(divisor);
-    return libdivide::libdivide_u32_do(dividend, &fast_d);
-}*/
-
 int main()
 {
     char *shost, *reg_text, *pal;
@@ -1192,7 +1180,7 @@ int main()
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
     }
-    printf("Init -\n");
+    //printf("Init -\n");
     EXIT_Install(ShutDown);
     memset(bday, 0, sizeof(bday));
     bday[0].f_0 = 5;
