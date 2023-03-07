@@ -61,7 +61,7 @@ extern char *gfx_inmem;
 extern int gfx_xp, gfx_yp;
 extern int gfx_lx, gfx_ly;
 extern int gfx_imga;
-extern int framecount;
+extern unsigned long long framecount;
 extern int tablelen;
 extern int stable[324];
 extern char *ltable, *dtable, *gtable;

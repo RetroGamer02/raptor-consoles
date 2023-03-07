@@ -8,7 +8,7 @@
 char *displaybuffer;
 char *displayscreen;
 
-int framecount;
+unsigned long long framecount;
 
 int ylookup[200];
 
