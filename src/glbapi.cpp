@@ -111,10 +111,8 @@ void GLB_DeCrypt(const char *key, void *buf, int size)
 FILE *GLB_FindFile(int a1, int a2, const char *mode)
 {
     FILE *h;
-    char bufferRom[PATH_MAX] = "romfs:/";
     char buffer[PATH_MAX];
-    //Figure out why using exePathRom instead of bufferRom fails.
-    sprintf(buffer, "%s%s%04u.GLB", bufferRom, prefix, a2);
+    sprintf(buffer, "%s%s%04u.GLB", exePathRom, prefix, a2);
     h = fopen(buffer, mode);
     if (h == NULL)
     {
@@ -215,16 +213,10 @@ void GLB_UseVM(void)
     fVmem = 0;
 }
 
-int GLB_InitSystem(const char *a1, int a2, const char *a3)
+int GLB_InitSystem(int a2, const char *a3)
 {
     int i, j, k;
     filedesc_t *fd;
-    char *t;
-    memset(exePathRom, 0, sizeof(exePathRom));
-    strcpy(exePathRom, a1);
-    t = strrchr(exePathRom, '\\');
-    if (t)
-        t[1] = '\0';
     num_glbs = a2;
 
     if (a3)

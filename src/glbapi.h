@@ -1,7 +1,7 @@
 #pragma once
 
 void GLB_UseVM(void);
-int GLB_InitSystem(const char *a1, int a2, const char *a3);
+int GLB_InitSystem(int a2, const char *a3);
 char *GLB_LockItem(int a1);
 void GLB_UnlockItem(int a1);
 char *GLB_GetItem(int a1);

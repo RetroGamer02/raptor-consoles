@@ -1257,7 +1257,7 @@ int main()
         printf("Registered EXE!\n");
         fflush(stdout);
     }
-    GLB_InitSystem("", 5, 0);
+    GLB_InitSystem(5, 0);
     if (reg_flag)
     {
         //reg_text = GLB_GetItem(FILE000_ATENTION_TXT);
