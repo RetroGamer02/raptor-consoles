@@ -205,11 +205,10 @@ void ShutDown(int a1)
     //I_LASTSCR();                                     //Call to display ANSI Screen 
     GLB_FreeAll();
     IPT_CloJoy();                                    //Close Joystick
+    SWD_End();
+    SDL_Quit();
+    free(g_highmem);
     exit(0);
-    SWD_End(); //Disable me?
-    //SDL_Quit();
-    //free(g_highmem);
-    
 }
 
 void RAP_ClearSides(void)
@@ -1240,7 +1239,7 @@ int main()
         usekb_flag = 1;
         break;
     case 2:
-        printf("PTR_Init()-Joystick\n");
+        //printf("PTR_Init()-Joystick\n");
         fflush(stdout);
         v28 = PTR_Init(2);
         usekb_flag = 0;

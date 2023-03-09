@@ -46,6 +46,10 @@ IMS_CheckAck(
     
     if (joy_ack)
         rval = 1;
+
+    //Added 3DS Buttons
+    if (Start || AButton)
+        rval = 1;
     
     return rval;
 }
