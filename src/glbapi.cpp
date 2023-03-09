@@ -112,46 +112,9 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
 {
     FILE *h;
     char bufferRom[PATH_MAX] = "romfs:/";
-    char bufferSD[PATH_MAX] = "sdmc:/3ds/Raptor/";
     char buffer[PATH_MAX];
-    for (int i=0; i < PATH_MAX; i++)
-    {
-        buffer[i] = bufferRom[i];
-    }
+    //Figure out why using exePathRom instead of bufferRom fails.
     sprintf(buffer, "%s%s%04u.GLB", bufferRom, prefix, a2);
-    h = fopen(buffer, mode);
-    if (h == NULL)
-    {
-        for (int i=0; i < 8; i++)
-        {
-            buffer[i] = bufferSD[i];
-        }
-        h = fopen(buffer, mode);
-        if (h == NULL)
-        {
-            sprintf(buffer, "%s%s%04u.GLB", exePathSD, prefix, a2);
-            h = fopen(buffer, mode);
-            if (h == NULL)
-            {
-                if (a1)
-                    return NULL;
-                sprintf(buffer, "%s%04u.GLB", prefix, a2);
-                printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
-            }
-        }
-        
-    }
-    strcpy(filedesc[a2].path, buffer);
-    filedesc[a2].mode = mode;
-    filedesc[a2].handle = h;
-    return h;
-}
-
-/*FILE *GLB_FindFile(int a1, int a2, const char *mode)
-{
-    FILE *h;
-    char buffer[PATH_MAX];
-    sprintf(buffer, "%s%s%04u.GLB", exePathRom, prefix, a2);
     h = fopen(buffer, mode);
     if (h == NULL)
     {
@@ -164,12 +127,13 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
             sprintf(buffer, "%s%04u.GLB", prefix, a2);
             printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
         }
+        
     }
     strcpy(filedesc[a2].path, buffer);
     filedesc[a2].mode = mode;
     filedesc[a2].handle = h;
     return h;
-}*/
+}
 
 FILE *GLB_OpenFile(int a1, int a2, const char *mode)
 {
