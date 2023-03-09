@@ -354,6 +354,11 @@ void I_GetEvent(void)
 		kDownOld = kDown;
 		//kHeldOld = kHeld;
 		kUpOld = kUp;
+
+        /*if(aptCheckHomePressRejected())
+        {
+            printf("HomePressRejected\n");
+        }*/
 }
 
 //

@@ -1118,6 +1118,9 @@ int main()
         printf("Raptor directory unknown error.\n");
     }
 
+    //aptSetHomeAllowed(true); //Seems ignored.
+    //aptSetSleepAllowed(true); //Works but cant wake up after.
+
     InitScreen();
 
     RAP_InitLoadSave();
