@@ -89,6 +89,12 @@ Result gspInit(void);
 /// Exits GSPGPU.
 void gspExit(void);
 
+/**
+ * @brief Gets a pointer to the current gsp::Gpu session handle.
+ * @return A pointer to the current gsp::Gpu session handle.
+ */
+Handle *gspGetSessionHandle(void);
+
 /// Returns true if the application currently has GPU rights.
 bool gspHasGpuRight(void);
 
@@ -103,7 +109,7 @@ bool gspHasGpuRight(void);
  * @return true if a buffer had already been presented to the screen but not processed yet by GSP, false otherwise.
  * @note The most recently presented buffer is processed and configured during the specified screen's next VBlank event.
  */
-void gspPresentBuffer(unsigned screen, unsigned swap, const void* fb_a, const void* fb_b, u32 stride, u32 mode);
+bool gspPresentBuffer(unsigned screen, unsigned swap, const void* fb_a, const void* fb_b, u32 stride, u32 mode);
 
 /**
  * @brief Returns true if a prior \ref gspPresentBuffer command is still pending to be processed by GSP.
