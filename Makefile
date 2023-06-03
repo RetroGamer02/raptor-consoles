@@ -38,8 +38,8 @@ SOURCES		:=	src
 INCLUDES	:=	./src ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_VER						:= 0104
-APP_TITLE					:= Raptor 3DS V1.0.4
+APP_VER						:= 0105
+APP_TITLE					:= Raptor 3DS V1.0.5
 APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
 APP_AUTHOR					:= RetroGamer02/Ryan
 PRODUCT_CODE				:= CTR-RAP
