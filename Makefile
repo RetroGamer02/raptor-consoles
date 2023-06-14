@@ -31,15 +31,14 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-CTRULIB		:=	$(CURDIR)/libctru22
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	src
 INCLUDES	:=	./src ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_VER						:= 0105
-APP_TITLE					:= Raptor 3DS V1.0.5
+APP_VER						:= 0106
+APP_TITLE					:= Raptor 3DS V1.0.6
 APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
 APP_AUTHOR					:= RetroGamer02/Ryan
 PRODUCT_CODE				:= CTR-RAP
@@ -57,7 +56,6 @@ ARCH	:= -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 CFLAGS	:= -Wall -Wcast-align -g -O3 -mword-relocations \
 		 -ffunction-sections  \
 		$(ARCH)
-#-ffast-math -fassociative-math
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__3DS__ -DSDL_BUILDING_3DS
 
@@ -72,7 +70,7 @@ LIBS	:= -lsdl -lcitro3d -lctru -lm
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CTRULIB) $(CURDIR)/sdl12n3ds
+LIBDIRS	:= $(CURDIR)/libctru22 $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional

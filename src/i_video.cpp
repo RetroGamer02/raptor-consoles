@@ -441,8 +441,8 @@ void I_FinishUpdate (void)
         palette_to_set = false;
     }
 
-    //SDL_Flip(screen); //If Double Buffering
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+    SDL_Flip(screen); //If Double Buffering
+    //SDL_UpdateRect(screen, 0, 0, 0, 0);
 }
 
 //
@@ -534,18 +534,15 @@ static void SetVideoMode(void)
     {
         if (screen_mode == 1)
         {
-            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_DOUBLEBUF);
         } else if (screen_mode == 2)
         {
-            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN);
-        } else if (screen_mode == 3)
-        {
-            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_4BY3);
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
         } else {
-            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT);
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_FITHEIGHT | SDL_DOUBLEBUF);
         }
     } else {
-            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_CONSOLETOP | SDL_BOTTOMSCR);
+            screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE | SDL_CONSOLETOP | SDL_BOTTOMSCR | SDL_DOUBLEBUF);
     }
     
     if ( screen == NULL ) {

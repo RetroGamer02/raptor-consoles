@@ -22,7 +22,7 @@ Copy the following files to the 3ds/Raptor directory:
    FILE0004.GLB  
    ```
 
-## Config
+### Configuration
 For most options 0 is off and 1 is on.
 In the setup.ini aspect1to1 has changed to screen_mode. The setup will default it to fit to height.
 Screen mode 0 is fit to height, 1 is 1to1 aspect ratio, and 2 is fullscreen.
@@ -37,6 +37,7 @@ Run msys2 and type make.
 
 ## Thanks
 Special thanks to [nukeykt](https://github.com/nukeykt) and [wel97459](https://github.com/wel97459) for their great work on the reconstructed source code.
+Big thanks to [Scott Host](https://www.mking.com) for his great support.
 Also many thanks to [schellingb](https://github.com/schellingb) for the great TinySoundFont library and to all contributors from the
 [chocolate-doom project](https://github.com/chocolate-doom) for the awesome libtextscreen. Furthermore, many thanks to Tim Brechbill for the TimGM6mb
 soundfont.
@@ -45,6 +46,5 @@ soundfont.
 Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
 
 ## Lib Source
-Custom SDL 1.2 for Custom Ctru 2.2.0 and Citro3D 1.7.0
+Custom Ctru 2.2.1 and Citro3D 1.7.0
 https://github.com/RetroGamer02/libctru
-https://github.com/RetroGamer02/SDL-3DS

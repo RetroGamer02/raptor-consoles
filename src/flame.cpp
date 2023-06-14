@@ -25,11 +25,11 @@ FLAME_Init(
     
     for (loop = 0; loop < MAX_SHADES; loop++)
     {
-        _stable[loop] = &stmem[loop << 9];
+        _stable[loop] = &stmem[loop * 512];
         
         _stable[loop] = (char*)(((intptr_t)_stable[loop] + 255) & ~255);
         
-        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) << 1);
+        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) * 2);
     }
 }
 
@@ -45,7 +45,7 @@ FLAME_InitShades(
     
     for (loop = 0; loop < MAX_SHADES; loop++)
     {
-        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) << 1);
+        GFX_MakeLightTable(palette, _stable[loop], (MAX_SHADES - loop) * 2);
     }
 }
 

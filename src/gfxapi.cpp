@@ -1439,12 +1439,9 @@ GFX_PutSprite(
             ly = 1;
             
             outline = get_inmem;
-            //Fixes 3DS real hardware crash.
-            if (oy)
-            {
-                if (GFX_ClipLines(&outline, &ox, &oy, &lx, &ly))
-                    memcpy(&displaybuffer[ox + ylookup[oy]], outline, lx);
-            }
+            
+            if (GFX_ClipLines(&outline, &ox, &oy, &lx, &ly))
+                memcpy(&displaybuffer[ox + ylookup[oy]], outline, lx);
             
             ah = (texture_t*)(get_inmem + ah->width);
         }

@@ -14,8 +14,6 @@
 #include "gssapi.h"
 #include "fileids.h"
 
-#include <3ds.h>
-
 int music_volume;
 int dig_flag;
 int fx_device;
@@ -64,10 +62,9 @@ char cards[10][23] = {
 
 static void FX_Fill(void *userdata, Uint8 *stream, int len)
 {
-    memset(stream, 0, len); //Actually makes it faster?
-    int16_t* stream16 = (int16_t*)stream;
+    memset(stream, 0, len);
+    int16_t *stream16 = (int16_t*)stream;
     len>>=2;
-
     MUS_Mix(stream16, len);
     DSP_Mix(stream16, len);
 }
@@ -97,7 +94,6 @@ int SND_InitSound(void)
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
     music_card = CARD_BLASTER;
-
     sys_midi = 0;
     alsaclient = 128;
     alsaport = 0;
@@ -126,7 +122,6 @@ int SND_InitSound(void)
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
     fx_card = 5;
     fx_chans = 2;
-
     switch (fx_card)
     {
     default:
@@ -750,7 +745,7 @@ void SND_3DPatch(int a1, int a2, int a3)
             v4c = v30;
         else
             v4c = v34;
-        v38 = v30 + v34 - (v4c >> 1);
+        v38 = v30 + v34 - (v4c / 2);
         if (v38 < 40)
             v2c = 127;
         else if (v38 > 500)

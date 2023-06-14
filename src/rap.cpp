@@ -42,12 +42,9 @@
 #ifdef _WIN32
 #include <io.h>
 #endif // _WIN32
-#ifdef __linux__
-#include <sys/io.h>
-#endif // __linux__
 #ifdef __GNUC__
 #include <unistd.h>
-#endif
+#endif // __GNUC__
 
 struct bday_t {
     int f_0;
@@ -182,7 +179,7 @@ void RAP_Bday(void)
 
 void InitScreen(void)
 {
-    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS v1.0.5: \n");
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS v1.0.6: \n");
 }
 
 void ShutDown(int a1)
@@ -208,7 +205,6 @@ void ShutDown(int a1)
     SWD_End();
     SDL_Quit();
     free(g_highmem);
-    exit(0);
 }
 
 void RAP_ClearSides(void)
@@ -411,7 +407,7 @@ void RAP_DisplayShieldLevel(int a1, int a2)
         else
             memset(v1c, 0, 4);
         v24 += v20;
-        v1c -= 320 << 1;
+        v1c -= 320 * 2;
     }
 }
 
@@ -454,8 +450,8 @@ void RAP_DisplayStats(void)
             ANIMS_StartAnim(4, player_cx, player_cy);
             for (i = 0; i < 512; i++)
             {
-                v1c = playerx - 16 + ((wrand() % 32) << 1);
-                v30 = playery - 16 + ((wrand() % 32) << 1);
+                v1c = playerx - 16 + (wrand() % 32) * 2;
+                v30 = playery - 16 + (wrand() % 32) * 2;
                 if (i&1)
                     ANIMS_StartAnim(4, v1c, v30);
                 else
@@ -1016,6 +1012,7 @@ void RAP_InitMem(void)
     GLB_UseVM();
 }
 
+//Generic file copy function.
 int cp(const char *to, const char *from)
 {
     int fd_to, fd_from;
@@ -1075,12 +1072,20 @@ int cp(const char *to, const char *from)
     return -1;
 }
 
+//Replaces access() function for 3ds.
 bool checkFile(const char* path, int mode)
 {
-    //Todo add mode check!
-	FILE* f = fopen(path, "r");
-	if (f)
-	{
+    //Todo add better mode check.
+    FILE* f;
+    //Mode 1 being write is a guess as no 
+    //docs or source was found on how access works.
+    if (mode == 1) {
+        f = fopen(path, "w");
+    } else {
+        f = fopen(path, "r");
+    }
+	
+	if (f) {
         fclose(f);
 		return false;
 	} else {
@@ -1099,8 +1104,8 @@ int main()
     
 	consoleInit(GFX_BOTTOM, NULL);
 
-    gfxSetDoubleBuffering(GFX_TOP, false);
-    gfxSetDoubleBuffering(GFX_BOTTOM, false);
+    gfxSetDoubleBuffering(GFX_TOP, true);
+    gfxSetDoubleBuffering(GFX_BOTTOM, true);
 
     osSetSpeedupEnable(true);
 
@@ -1108,12 +1113,12 @@ int main()
 	if (rc)
 		printf("romfsInit: %08lX\n", rc);
 
-    DIR* dir = opendir("3ds/Raptor");
+    DIR* dir = opendir("sdmc:/3ds/Raptor");
     if (dir) {
         closedir(dir);
     } else if (ENOENT == errno) {
         //printf("Raptor directory error: %d\n" ,errno);
-        mkdir("3ds/Raptor", 0700);
+        mkdir("sdmc:/3ds/Raptor", 0700);
     } else {
         printf("Raptor directory unknown error.\n");
     }
@@ -1127,7 +1132,7 @@ int main()
     if (checkFile(RAP_SetupFilename(), 0))
     {
         //printf("\n\n** You must run SETUP first! **\n");
-        cp("3ds/Raptor/SETUP.INI","romfs:/SETUP.INI");
+        cp("sdmc:/3ds/Raptor/SETUP.INI","romfs:/SETUP.INI");
     }
 
     godmode = 0;

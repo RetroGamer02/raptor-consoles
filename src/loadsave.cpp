@@ -24,16 +24,13 @@
 #ifdef _WIN32
 #include <io.h>
 #endif // _WIN32
-#ifdef __linux__
-#include <sys/io.h>
-#endif // __linux__
 #ifdef __GNUC__
 #include <unistd.h>
-#endif
+#endif // __GNUC__
 #ifdef _MSC_VER
 #include <windows.h>
 #define PATH_MAX MAX_PATH
-#endif
+#endif // _MSC_VER
 
 #define MAX_SAVE  10
 
@@ -46,8 +43,8 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
-static const char *fmt = "sdmc:/3ds/raptor/CHAR%04u.FIL";
-static const char* cdfmt = "sdmc:/3ds/raptor/CHAR%04u.FIL";
+static const char *fmt = "sdmc:/3ds/Raptor/CHAR%04u.FIL";
+static const char* cdfmt = "sdmc:/3ds/Raptor/CHAR%04u.FIL";
 
 map_t *mapmem;
 csprite_t *csprite;
@@ -657,7 +654,7 @@ RAP_InitLoadSave(
     
     cdflag = 0;
     
-    strcpy(g_setup_ini, "sdmc:/3ds/raptor/SETUP.INI");
+    strcpy(g_setup_ini, "sdmc:/3ds/Raptor/SETUP.INI");
     
     return cdpath;
 }

@@ -26,11 +26,11 @@ char* strupr(char* s)
 
     return s;
 }
-#endif
+#endif // __GNUC__
 #ifdef _MSC_VER
 #include <windows.h>
 #define PATH_MAX MAX_PATH
-#endif
+#endif // _MSC_VER
 
 #include "rap.h"
 
@@ -125,7 +125,6 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
             sprintf(buffer, "%s%04u.GLB", prefix, a2);
             printf("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
         }
-        
     }
     strcpy(filedesc[a2].path, buffer);
     filedesc[a2].mode = mode;
