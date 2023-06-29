@@ -152,7 +152,7 @@ char flatnames[4][14] = {
     "FLATSG4_ITM"
 };
 
-const char *newRegAttention[] = {"****************************************              ATTENTION! \n       This version of RAPTOR is \n         a COMMERCIAL VERSION. \n       DO NOT upload this to any \n  bulletin boards or distribute it in \n             any fashion. \n     Please report software piracy \n    to the S.P.A hotline by calling\n            1-800-388-PIR8.\n****************************************"};
+const char *newRegAttention[] = {"**************************************************\n                   ATTENTION! \n This version of RAPTOR is a COMMERCIAL VERSION. \n         DO NOT upload this to any bulletin \n       boards or distribute it in any fashion. \n     Please report software piracy to the S.P.A \n         hotline by calling 1-800-388-PIR8.\n\n**************************************************"};
 
 flat_t *flatlib[4];
 
@@ -1102,7 +1102,7 @@ int main()
 
     gfxInitDefault();
     
-	consoleInit(GFX_BOTTOM, NULL);
+	consoleInit(GFX_TOP, NULL);
 
     gfxSetDoubleBuffering(GFX_TOP, true);
     gfxSetDoubleBuffering(GFX_BOTTOM, true);
@@ -1283,6 +1283,9 @@ int main()
     GLB_FreeAll();
     RAP_InitMem();
     printf("Loading Graphics\n");
+
+    sleep(5);
+
     pal = GLB_LockItem(FILE100_PALETTE_DAT);
     memset(pal, 0, 3);
     palette = pal;

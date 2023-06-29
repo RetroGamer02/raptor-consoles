@@ -37,10 +37,10 @@ SOURCES		:=	src
 INCLUDES	:=	./src ./include/textscreen/include ./include/TimGM6mb ./include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_VER						:= 0106
-APP_TITLE					:= Raptor 3DS V1.0.6
+APP_VER					:= 0106
+APP_TITLE				:= Raptor 3DS V1.0.6
 APP_DESCRIPTION				:= Raptor Call of the Shadows for Nintendo 3DS
-APP_AUTHOR					:= RetroGamer02/Ryan
+APP_AUTHOR				:= RetroGamer02/Ryan
 PRODUCT_CODE				:= CTR-RAP
 
 BANNER_AUDIO				:= RapIntro.wav
@@ -64,13 +64,13 @@ CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 ASFLAGS	:= $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lsdl -lcitro3d -lctru -lm
+LIBS	:= -lSDL -lcitro3d -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(CURDIR)/libctru22 $(PORTLIBS)
+LIBDIRS	:= $(CTRULIB) $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
