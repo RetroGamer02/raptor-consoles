@@ -44,7 +44,3 @@ soundfont.
 
 ## Raptor3DS Thanks
 Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
-
-## Lib Source
-Custom Ctru 2.2.1 and Citro3D 1.7.0
-https://github.com/RetroGamer02/libctru
