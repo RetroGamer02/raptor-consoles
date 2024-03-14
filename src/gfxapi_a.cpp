@@ -114,10 +114,7 @@ GFX_DrawSprite(
     
     while ((int16_t)ah->offset != -1)
     {
-<<<<<<< Updated upstream
-=======
         //Fixme for NDS
->>>>>>> Stashed changes
         memcpy(dest + (uint16_t)ah->offset, (char*)&h->height, (uint16_t)h->width);
 
         h = (GFX_PIC*)((char*)&h->height + (uint16_t)h->width);

@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-#ifdef _WIN32
-=======
 #if defined (_WIN32) && !defined (__XBOX__)
->>>>>>> Stashed changes
 #include "SDL.h"
 #include "common.h"
 #include "musapi.h"

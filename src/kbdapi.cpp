@@ -1,14 +1,10 @@
 #include <string.h>
 #include <ctype.h>
-<<<<<<< Updated upstream
-#include "SDL.h"
-=======
 #if defined (__3DS__) || defined (__SWITCH__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
 #endif
->>>>>>> Stashed changes
 #include "common.h"
 #include "kbdapi.h"
 #include "i_video.h"
@@ -163,10 +159,7 @@ I_HandleKeyboardEvent(
     if (sdlevent->type != SDL_KEYDOWN && sdlevent->type != SDL_KEYUP)
         return;
     
-<<<<<<< Updated upstream
-=======
     #ifndef SDL12
->>>>>>> Stashed changes
     switch (sdlevent->key.keysym.scancode)
     {
     case SDL_SCANCODE_LCTRL:
@@ -192,10 +185,7 @@ I_HandleKeyboardEvent(
             key = ScanCodeMap[sdlevent->key.keysym.scancode];
         break;
     }
-<<<<<<< Updated upstream
-=======
     #endif
->>>>>>> Stashed changes
     
     if (!key)
         return;

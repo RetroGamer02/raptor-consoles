@@ -1,15 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-<<<<<<< Updated upstream
-#include "SDL.h"
-=======
 #if defined (__3DS__) || defined (__SWITCH__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
 #endif
->>>>>>> Stashed changes
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -43,11 +39,7 @@
 #endif
 #include "fileids.h"
 
-<<<<<<< Updated upstream
-#ifdef _WIN32
-=======
 #if defined (_WIN32) && !defined (__XBOX__)
->>>>>>> Stashed changes
 #include <io.h>
 #endif // _WIN32
 #ifdef __GNUC__
@@ -173,13 +165,10 @@ char flatnames[4][14] = {
 
 FLATS *flatlib[4];
 
-<<<<<<< Updated upstream
-=======
 #ifdef __3DS__
 const char *ctrRegAttention[] = {"**************************************************\n                   ATTENTION! \n This version of RAPTOR is a COMMERCIAL VERSION. \n         DO NOT upload this to any bulletin \n       boards or distribute it in any fashion. \n     Please report software piracy to the S.P.A \n         hotline by calling 1-800-388-PIR8.\n\n**************************************************"};
 #endif
 
->>>>>>> Stashed changes
 /***************************************************************************
 RAP_Bday() - Get system date
  ***************************************************************************/
@@ -218,9 +207,6 @@ InitScreen(
     void
 )
 {
-<<<<<<< Updated upstream
-    printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
-=======
     #ifdef __3DS__
     printf(" RAPTOR: Call Of The Shadows V1.2\n (c)1994 Cygnus Studios\n");
     #elif __XBOX__
@@ -228,7 +214,6 @@ InitScreen(
     #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     #endif
->>>>>>> Stashed changes
 }
 
 /*==========================================================================
@@ -256,13 +241,9 @@ ShutDown(
         mem = GLB_GetItem(FILE001_LASTSCR1_TXT);     //Get ANSI Screen Shareware from GLB to char*
 
     closewindow();                                   //Close Main Window
-<<<<<<< Updated upstream
-    I_LASTSCR(mem);                                  //Call to display ANSI Screen 
-=======
     #if !defined (__XBOX__) && !defined (__NDS__)
     I_LASTSCR(mem);                                  //Call to display ANSI Screen 
     #endif
->>>>>>> Stashed changes
     GLB_FreeAll();
     IPT_CloJoy();                                    //Close Joystick
     #ifdef __XBOX__
@@ -1292,27 +1273,15 @@ main(
     int loop, numfiles, ptrflag, item;
 
     var1 = getenv("S_HOST");
-<<<<<<< Updated upstream
-=======
 
     #if defined (__ARM__) || defined (__XBOX__)
     sys_init();
     #endif
->>>>>>> Stashed changes
 
     InitScreen();
 
     RAP_InitLoadSave();
     
-<<<<<<< Updated upstream
-    if (access(RAP_SetupFilename(), 0))
-    {
-        printf("\n\n** You must run SETUP first! **\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "** You must run SETUP first! **", NULL);
-        exit(0);
-    }
-=======
     #if defined (__3DS__) || defined (__SWITCH__)
         if (access(RAP_SetupFilename(), 0))
         {
@@ -1340,7 +1309,6 @@ main(
             exit(0);
         }
     #endif
->>>>>>> Stashed changes
 
     godmode = 0;
 
@@ -1373,19 +1341,6 @@ main(
     
     cur_diff = 0;
 
-<<<<<<< Updated upstream
-    if (!access("FILE0001.GLB", 0))
-        gameflag[0] = 1;
-    
-    if (!access("FILE0002.GLB", 0))
-        gameflag[1] = 1;
-    
-    if (!access("FILE0003.GLB", 0) && !access("FILE0004.GLB", 0))
-    {
-        gameflag[2] = 1;
-        gameflag[3] = 1;
-    }
-=======
     #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
         if (!access(ROMFS "FILE0001.GLB", 0))
             gameflag[0] = 1;
@@ -1423,7 +1378,6 @@ main(
             gameflag[3] = 1;
         }
     #endif
->>>>>>> Stashed changes
 
     if (gameflag[1] + gameflag[2])
         reg_flag = 1;
@@ -1431,20 +1385,6 @@ main(
     numfiles = 0;
     
     for (loop = 0; loop < 4; loop++)
-<<<<<<< Updated upstream
-    {
-        if (gameflag[loop])
-            numfiles++;
-    }
-
-    if (access("FILE0000.GLB", 0) || !numfiles)
-    {
-        printf("All game data files NOT FOUND cannot proceed !!\n");
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
-        exit(0);
-    }
-=======
     {
         if (gameflag[loop])
             numfiles++;
@@ -1481,7 +1421,6 @@ main(
             exit(0);
         }
     #endif
->>>>>>> Stashed changes
     
     printf("Init -\n");
     EXIT_Install(ShutDown);
@@ -1582,11 +1521,6 @@ main(
     
     if (reg_flag)
     {
-<<<<<<< Updated upstream
-        tptr = GLB_GetItem(FILE000_ATENTION_TXT);
-        printf("%s\n", tptr);
-        GLB_FreeItem(FILE000_ATENTION_TXT);
-=======
         #ifdef __3DS__
             printf("%s", ctrRegAttention[0]);
         #else
@@ -1594,7 +1528,6 @@ main(
             printf("%s\n", tptr);
             GLB_FreeItem(FILE000_ATENTION_TXT);
         #endif
->>>>>>> Stashed changes
     }
     
     SND_InitSound();
@@ -1602,10 +1535,6 @@ main(
     GLB_FreeAll();
     #ifndef __NDS__
     RAP_InitMem();
-<<<<<<< Updated upstream
-    
-    printf("Loading Graphics\n");
-=======
     #endif
     
     printf("Loading Graphics\n");
@@ -1614,7 +1543,6 @@ main(
         sleep(5);
         consoleClear();
     #endif
->>>>>>> Stashed changes
     
     pal = GLB_LockItem(FILE100_PALETTE_DAT);
     memset(pal, 0, 3);

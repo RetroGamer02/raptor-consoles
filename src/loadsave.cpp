@@ -43,10 +43,6 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
-<<<<<<< Updated upstream
-static const char *fmt = "CHAR%04u.FIL";
-static const char* cdfmt = "%s\\CHAR%04u.FIL";
-=======
 #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
     static const char *fmt = RAP_SD_DIR "CHAR%04u.FIL";
     static const char* cdfmt = RAP_SD_DIR "%s\\CHAR%04u.FIL";
@@ -57,7 +53,6 @@ static const char* cdfmt = "%s\\CHAR%04u.FIL";
     static const char *fmt = "CHAR%04u.FIL";
     static const char* cdfmt = "%s\\CHAR%04u.FIL";
 #endif
->>>>>>> Stashed changes
 
 MAZELEVEL *mapmem;
 CSPRITE *csprite;
@@ -667,9 +662,6 @@ RAP_InitLoadSave(
     
     cdflag = 0;
     
-<<<<<<< Updated upstream
-    strcpy(g_setup_ini, "SETUP.INI");
-=======
     #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
         strcpy(g_setup_ini, RAP_SD_DIR "SETUP.INI");
     #elif __XBOX__
@@ -677,7 +669,6 @@ RAP_InitLoadSave(
     #else
         strcpy(g_setup_ini, "SETUP.INI");
     #endif
->>>>>>> Stashed changes
     
     return cdpath;
 }

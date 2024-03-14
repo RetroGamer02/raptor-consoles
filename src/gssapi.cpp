@@ -1,12 +1,8 @@
-<<<<<<< Updated upstream
-#include "SDL.h"
-=======
 #if defined (__3DS__) || defined (__SWITCH__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
 #endif
->>>>>>> Stashed changes
 #include "common.h"
 #include "gssapi.h"
 #include "musapi.h"

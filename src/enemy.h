@@ -28,12 +28,8 @@ typedef enum
     MULTI_END
 }MULTI;
 
-<<<<<<< Updated upstream
-typedef struct 
-=======
 #ifdef __NDS__
 typedef struct __attribute__((packed))
->>>>>>> Stashed changes
 {
     char iname[16];                         // ITEM NAME
     int item;                               // * GLB ITEM #
@@ -71,8 +67,6 @@ typedef struct __attribute__((packed))
     short flightx[MAX_FLIGHT];              // FLIGHT X POS
     short flighty[MAX_FLIGHT];              // FLIGHT Y POS
 }SPRITE;
-<<<<<<< Updated upstream
-=======
 #else
 typedef struct 
 {
@@ -113,7 +107,6 @@ typedef struct
     short flighty[MAX_FLIGHT];              // FLIGHT Y POS
 }SPRITE;
 #endif
->>>>>>> Stashed changes
 
 typedef struct SPRITE_SHIP_S 
 {

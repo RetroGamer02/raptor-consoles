@@ -24,8 +24,6 @@ typedef enum
     S_STOP
 }SONGOPTS;
 
-<<<<<<< Updated upstream
-=======
 #ifdef __NDS__
 typedef struct __attribute__((packed))
 {
@@ -35,7 +33,6 @@ typedef struct __attribute__((packed))
     unsigned short length;
 }ANIMLINE;
 #else
->>>>>>> Stashed changes
 typedef struct 
 {
     unsigned short opt;
@@ -43,10 +40,7 @@ typedef struct
     unsigned short offset;
     unsigned short length;
 }ANIMLINE;
-<<<<<<< Updated upstream
-=======
 #endif
->>>>>>> Stashed changes
 
 typedef struct
 {

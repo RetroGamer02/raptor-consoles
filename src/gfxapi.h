@@ -43,8 +43,6 @@ typedef struct
     int height;             // heigth of pic
 }GFX_PIC;
 
-<<<<<<< Updated upstream
-=======
 #if defined (__ARM__)
 typedef struct __attribute__((packed))
 {
@@ -54,7 +52,6 @@ typedef struct __attribute__((packed))
     int length;             // LENGTH OF LINE
 }GFX_SPRITE;
 #else
->>>>>>> Stashed changes
 typedef struct
 {
     int x;                  // X POS OF SEG
@@ -62,14 +59,9 @@ typedef struct
     int offset;             // OFFSET FROM X, Y
     int length;             // LENGTH OF LINE
 }GFX_SPRITE;
-<<<<<<< Updated upstream
-
-typedef struct
-=======
 #endif
 
 typedef struct 
->>>>>>> Stashed changes
 {
     int height;
     short charofs[256];

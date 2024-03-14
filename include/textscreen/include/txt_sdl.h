@@ -21,15 +21,11 @@
 // The textscreen API itself doesn't need SDL; however, SDL needs its
 // headers included where main() is defined.
 
-<<<<<<< Updated upstream
-#include "SDL.h"
-=======
 #if defined (__3DS__) || defined (__SWITCH__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
 #endif
->>>>>>> Stashed changes
 
 // Event callback function type: a function of this type can be used
 // to intercept events in the textscreen event processing loop.  

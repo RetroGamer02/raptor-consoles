@@ -1,12 +1,8 @@
-<<<<<<< Updated upstream
-#include "SDL.h"
-=======
 #if defined (__3DS__) || defined (__SWITCH__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
 #endif
->>>>>>> Stashed changes
 #include "i_video.h"
 #include "joyapi.h"
 
@@ -18,15 +14,10 @@ bool AButton, BButton, XButton, YButton;
 
 int16_t StickX, StickY, TriggerLeft, TriggerRight;
 
-<<<<<<< Updated upstream
-SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
-SDL_Haptic* RumbleHandles[MAX_CONTROLLERS] ;
-=======
 #ifndef SDL12
 SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
 SDL_Haptic* RumbleHandles[MAX_CONTROLLERS] ;
 #endif
->>>>>>> Stashed changes
 
 int MaxJoysticks;
 int ControllerIndex;
@@ -43,15 +34,12 @@ IPT_CalJoy(
 	void
 )
 {
-<<<<<<< Updated upstream
-=======
 	#ifdef SDL12
 		AButtonconvert = 0;
 		BButtonconvert = 1;
 		XButtonconvert = 2;
 		YButtonconvert = 3;
 	#else
->>>>>>> Stashed changes
 	SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
 
 	MaxJoysticks = SDL_NumJoysticks();
@@ -84,10 +72,7 @@ IPT_CalJoy(
 		ControllerIndex++;
 		GetJoyButtonMapping();
 	}
-<<<<<<< Updated upstream
-=======
 	#endif
->>>>>>> Stashed changes
 }
 
 /***************************************************************************
@@ -98,10 +83,7 @@ IPT_CloJoy(
 	void
 )
 {
-<<<<<<< Updated upstream
-=======
 	#ifndef SDL12
->>>>>>> Stashed changes
 	for (ControllerIndex = 0; ControllerIndex < MAX_CONTROLLERS; ++ControllerIndex)
 	{
 		if (ControllerHandles[ControllerIndex])
@@ -112,10 +94,7 @@ IPT_CloJoy(
 			SDL_GameControllerClose(ControllerHandles[ControllerIndex]);
 		}
 	}
-<<<<<<< Updated upstream
-=======
 	#endif
->>>>>>> Stashed changes
 }
 
 /***************************************************************************
@@ -126,10 +105,7 @@ I_HandleJoystickEvent(
 	SDL_Event *sdlevent
 )
 {
-<<<<<<< Updated upstream
-=======
 	#ifndef SDL12
->>>>>>> Stashed changes
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -161,10 +137,7 @@ I_HandleJoystickEvent(
 		if (sdlevent->type == SDL_CONTROLLERBUTTONDOWN) 
 			joy_ack = 1;
 	}
-<<<<<<< Updated upstream
-=======
 	#endif
->>>>>>> Stashed changes
 }
 
 /***************************************************************************
@@ -175,8 +148,6 @@ GetJoyButtonMapping(
 	void
 )
 {
-<<<<<<< Updated upstream
-=======
 	#ifdef SDL12
 		if ((AButtonconvert == 0) && (BButtonconvert == 0) && (XButtonconvert == 0) && (YButtonconvert == 0))
 		{
@@ -186,40 +157,15 @@ GetJoyButtonMapping(
 			YButtonconvert = 3;
 		}
 	#else
->>>>>>> Stashed changes
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-<<<<<<< Updated upstream
-		switch (SDL_GameControllerTypeForIndex(ControllerIndex))
-		{
-		case SDL_CONTROLLER_TYPE_PS3:
-		case SDL_CONTROLLER_TYPE_PS4:
-		case SDL_CONTROLLER_TYPE_PS5:
-			AButtonconvert = 0;
-			BButtonconvert = 1;
-			XButtonconvert = 3;
-			YButtonconvert = 2;
-			break;
-		
-		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
-		case SDL_CONTROLLER_TYPE_XBOX360:
-		case SDL_CONTROLLER_TYPE_XBOXONE:
-=======
 		#ifdef __XBOX__
->>>>>>> Stashed changes
 			AButtonconvert = 0;
 			BButtonconvert = 1;
 			XButtonconvert = 2;
 			YButtonconvert = 3;
-<<<<<<< Updated upstream
-			break;
-		
-		default:
-			if ((AButtonconvert == 0) && (BButtonconvert == 0) && (XButtonconvert == 0) && (YButtonconvert == 0))
-			{
-=======
 		#else
 			switch (SDL_GameControllerTypeForIndex(ControllerIndex))
 			{
@@ -235,16 +181,10 @@ GetJoyButtonMapping(
 			case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
 			case SDL_CONTROLLER_TYPE_XBOX360:
 			case SDL_CONTROLLER_TYPE_XBOXONE:
->>>>>>> Stashed changes
 				AButtonconvert = 0;
 				BButtonconvert = 1;
 				XButtonconvert = 2;
 				YButtonconvert = 3;
-<<<<<<< Updated upstream
-			}
-			break;
-		}
-=======
 				break;
 			
 			default:
@@ -258,7 +198,6 @@ GetJoyButtonMapping(
 				break;
 			}
 		#endif
->>>>>>> Stashed changes
 	}
 	#endif
 }
@@ -271,10 +210,7 @@ IPT_CalJoyRumbleLow(
 	void
 )
 {
-<<<<<<< Updated upstream
-=======
 	#ifndef SDL12
->>>>>>> Stashed changes
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -282,10 +218,7 @@ IPT_CalJoyRumbleLow(
 		if (ControllerHandles[ControllerIndex])
 			SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x3fff, 0x3fff, 1000);
 	}
-<<<<<<< Updated upstream
-=======
 	#endif
->>>>>>> Stashed changes
 }
 
 /***************************************************************************
@@ -296,10 +229,7 @@ IPT_CalJoyRumbleMedium(
 	void
 )
 {
-<<<<<<< Updated upstream
-=======
 	#ifndef SDL12
->>>>>>> Stashed changes
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -307,10 +237,7 @@ IPT_CalJoyRumbleMedium(
 		if (ControllerHandles[ControllerIndex])
 		    SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x7ffe, 0x7ffe, 1000);
 	}
-<<<<<<< Updated upstream
-=======
 	#endif
->>>>>>> Stashed changes
 }
 
 /***************************************************************************
@@ -321,10 +248,7 @@ IPT_CalJoyRumbleHigh(
 	void
 )
 {
-<<<<<<< Updated upstream
-=======
 	#ifndef SDL12
->>>>>>> Stashed changes
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -332,10 +256,7 @@ IPT_CalJoyRumbleHigh(
 		if (ControllerHandles[ControllerIndex])
 			SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0xbffd, 0xbffd, 1000);
 	}
-<<<<<<< Updated upstream
-=======
 	#endif
->>>>>>> Stashed changes
 }
 
 /***************************************************************************

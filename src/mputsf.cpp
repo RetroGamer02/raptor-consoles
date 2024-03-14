@@ -3,15 +3,11 @@
 #include <string.h>
 #include <math.h>
 
-<<<<<<< Updated upstream
-#include "SDL.h"
-=======
 #if defined (__3DS__) || defined (__SWITCH__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
 #endif
->>>>>>> Stashed changes
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
 
@@ -61,15 +57,10 @@ TSF_Init(
         char errmsg[255];
         fprintf(stderr, "Could not load %s\n", fn);
         sprintf(errmsg,"Could not load %s\n", fn);
-<<<<<<< Updated upstream
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-            "Raptor", errmsg, NULL);
-=======
         #ifndef SDL12
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", errmsg, NULL);
         #endif
->>>>>>> Stashed changes
         EXIT_Error("Could not load SoundFont.");
         return 0;
     }

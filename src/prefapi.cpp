@@ -256,11 +256,7 @@ WritePrivateProfileString(
         fseek(fptr, delta, SEEK_END);
         pos1 = ftell(fptr);
         
-<<<<<<< Updated upstream
-        #ifdef _MSC_VER
-=======
         #if defined (_MSC_VER) && !defined (__XBOX__)
->>>>>>> Stashed changes
         chsize(fileno(fptr), pos1);
         #endif
         #ifdef __GNUC__
