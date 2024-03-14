@@ -33,6 +33,19 @@
 extern txt_widget_class_t txt_inputbox_class;
 extern txt_widget_class_t txt_int_inputbox_class;
 
+#ifdef __XBOX__
+int strnlen(const char *str, int maxlen)
+{
+	int len;
+
+	for (len = 0; len < maxlen; len++, str++) {
+		if (!*str)
+			break;
+	}
+	return (len);
+}
+#endif
+
 static void SetBufferFromValue(txt_inputbox_t *inputbox)
 {
     if (inputbox->widget.widget_class == &txt_inputbox_class)

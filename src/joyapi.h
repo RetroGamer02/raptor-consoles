@@ -1,8 +1,24 @@
+<<<<<<< Updated upstream
 #include "SDL.h"
 #define MAX_CONTROLLERS 4
 
 extern SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
 extern SDL_Haptic* RumbleHandles[MAX_CONTROLLERS];
+=======
+#if defined (__3DS__) || defined (__SWITCH__)
+#include "SDL2/SDL.h"
+#else
+#include "SDL.h"
+#endif
+#define MAX_CONTROLLERS 4
+
+#ifdef SDL12
+extern SDL_Joystick* ControllerHandles[MAX_CONTROLLERS];
+#else
+extern SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
+extern SDL_Haptic* RumbleHandles[MAX_CONTROLLERS];
+#endif
+>>>>>>> Stashed changes
 
 extern int joy_ack;
 

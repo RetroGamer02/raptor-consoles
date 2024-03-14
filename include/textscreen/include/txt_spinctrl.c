@@ -251,7 +251,9 @@ static void FinishEditing(txt_spincontrol_t *spincontrol)
             break;
 
         case TXT_SPINCONTROL_FLOAT:
+            #ifndef __XBOX__
             spincontrol->value->f = (float) atof(spincontrol->buffer);
+            #endif
             break;
     }
 

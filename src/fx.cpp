@@ -1,6 +1,14 @@
 #include <stdio.h>
 #include <string.h>
+<<<<<<< Updated upstream
 #include "SDL.h"
+=======
+#if defined (__3DS__) || defined (__SWITCH__)
+#include "SDL2/SDL.h"
+#else
+#include "SDL.h"
+#endif
+>>>>>>> Stashed changes
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -20,7 +28,17 @@ int fx_device;
 int fx_volume;
 static int fx_init = 0;
 static int lockcount;
+<<<<<<< Updated upstream
 int fx_freq = 44100;
+=======
+#ifdef __NDS__
+int fx_freq = 11025;
+#elif __3DS__
+int fx_freq = 22050;
+#else
+int fx_freq = 44100;
+#endif
+>>>>>>> Stashed changes
 int music_song = -1;
 int fx_gus;
 int fx_channels;
@@ -41,7 +59,13 @@ typedef struct
 DFX fx_items[FX_LAST_SND];
 int fx_loaded;
 
+<<<<<<< Updated upstream
 SDL_AudioDeviceID fx_dev;
+=======
+#ifndef SDL12
+SDL_AudioDeviceID fx_dev;
+#endif
+>>>>>>> Stashed changes
 
 char cards[M_LAST][23] = {
     "None",
@@ -99,12 +123,24 @@ SND_InitSound(
     spec.callback = FX_Fill;
     spec.userdata = NULL;
 
+<<<<<<< Updated upstream
+=======
+    #ifdef SDL12
+        SDL_OpenAudio(&spec, NULL);
+    #else
+>>>>>>> Stashed changes
     if ((fx_dev = SDL_OpenAudioDevice(NULL, 0, &spec, &actual, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) == 0)
     {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
     }
+<<<<<<< Updated upstream
 
+=======
+    #endif
+
+    #ifndef SDL12
+>>>>>>> Stashed changes
     fx_freq = actual.freq;
     
     if (actual.format != AUDIO_S16SYS || actual.channels != 2)
@@ -113,12 +149,24 @@ SND_InitSound(
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
     }
+<<<<<<< Updated upstream
+=======
+    #endif
+>>>>>>> Stashed changes
 
     dig_flag = 0;
     fx_device = SND_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
+<<<<<<< Updated upstream
     music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
+=======
+    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__)
+    music_card = M_SB;
+    #else
+    music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
+    #endif
+>>>>>>> Stashed changes
     sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
@@ -146,7 +194,15 @@ SND_InitSound(
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
+<<<<<<< Updated upstream
     fx_card = INI_GetPreferenceLong("SoundFX", "CardType", 0);
+=======
+    #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__)
+        fx_card = 5;
+    #else
+        fx_card = INI_GetPreferenceLong("SoundFX", "CardType", 0);
+    #endif
+>>>>>>> Stashed changes
     fx_chans = INI_GetPreferenceLong("SoundFX", "Channels", 2);
     
     switch (fx_card)
@@ -205,7 +261,15 @@ SND_InitSound(
     if (fx_card == M_ADLIB || fx_card == M_WAVE || fx_card == M_CANVAS || fx_card == M_GMIDI)
         GSS_Init(fx_card, 0);
 
+<<<<<<< Updated upstream
     SDL_PauseAudioDevice(fx_dev, 0);
+=======
+    #ifdef SDL12
+    SDL_PauseAudio(0);
+    #else
+    SDL_PauseAudioDevice(fx_dev, 0);
+    #endif
+>>>>>>> Stashed changes
 
     fx_init = 1;
     
@@ -1103,7 +1167,15 @@ SND_Lock(
 )
 {
     if (!lockcount)
+<<<<<<< Updated upstream
         SDL_LockAudioDevice(fx_dev);
+=======
+    #ifdef SDL12
+        SDL_LockAudio();
+    #else
+        SDL_LockAudioDevice(fx_dev);
+    #endif
+>>>>>>> Stashed changes
     
     lockcount++;
 }
@@ -1119,5 +1191,13 @@ SND_Unlock(
     lockcount--;
     
     if (!lockcount)
+<<<<<<< Updated upstream
         SDL_UnlockAudioDevice(fx_dev);
+=======
+    #ifdef SDL12
+        SDL_UnlockAudio();
+    #else
+        SDL_UnlockAudioDevice(fx_dev);
+    #endif
+>>>>>>> Stashed changes
 }

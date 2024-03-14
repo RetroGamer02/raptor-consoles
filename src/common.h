@@ -1,6 +1,12 @@
 #pragma once
 #include <stdlib.h>
 
+#ifdef __ARM__
+#include "arm.h"
+#elif __XBOX__
+#include "xbox.h"
+#endif
+
 static inline void EXIT_Error(const char *a1, ...)
 {
      exit(0);

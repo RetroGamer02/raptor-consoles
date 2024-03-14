@@ -1,3 +1,4 @@
+#if !defined (__XBOX__)
 //
 // Copyright(C) 2005-2014 Simon Howard
 //
@@ -83,3 +84,4 @@ void I_LASTSCR(char* mem)
 
     TXT_Shutdown();
 }
+#endif

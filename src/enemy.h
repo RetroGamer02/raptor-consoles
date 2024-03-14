@@ -28,6 +28,52 @@ typedef enum
     MULTI_END
 }MULTI;
 
+<<<<<<< Updated upstream
+typedef struct 
+=======
+#ifdef __NDS__
+typedef struct __attribute__((packed))
+>>>>>>> Stashed changes
+{
+    char iname[16];                         // ITEM NAME
+    int item;                               // * GLB ITEM #
+    int bonus;                              // BONUS # ( -1 == NONE )
+    int exptype;                            // EXPLOSION TYPE 
+    int shootspace;                         // SLOWDOWN SPEED
+    int ground;                     //NOT USED IS ON GROUND
+    int suck;                               // CAN SUCK WEAPON AFFECT
+    int frame_rate;                         // FRAME RATE
+    int num_frames;                         // NUM FRAMES
+    int countdown;                          // COUNT DOWN TO START ANIM
+    int rewind;                             // FRAMES TO REWIND
+    int animtype;                           // FREE SPACE FOR LATER USE
+    int shadow;                             // USE SHADOW ( TRUE/FALSE )
+    int bossflag;                           // SHOULD THIS BE CONSIDERED A BOSS
+    int hits;                               // HIT POINTS
+    int money;                              // $$ AMOUNT WHEN KILLED
+    int shootstart;                         // SHOOT START OFFSET
+    int shootcnt;                           // HOW MANY TO SHOOT
+    int shootframe;                         // FRAME RATE TO SHOOT
+    int movespeed;                          // MOVEMENT SPEED
+    int numflight;                          // NUMBER OF FLIGHT POSITIONS
+    int repos;                              // REPEAT TO POSITION
+    int flighttype;                         // FLIGHT TYPE
+    int numguns;                            // NUMBER OF GUNS
+    int numengs;                            // NUMBER OF ENGINES
+    int sfx;                        //NOT USED SFX # TO PLAY
+    int song;                               // SONG # TO PLAY
+    short shoot_type[MAX_GUNS];             // ENEMY SHOOT TYPE
+    short engx[MAX_GUNS];                   // X POS ENGINE FLAME
+    short engy[MAX_GUNS];                   // Y POS ENGINE FLAME
+    short englx[MAX_GUNS];                  // WIDTH OF ENGINE FLAME
+    short shootx[MAX_GUNS];                 // X POS SHOOT FROM
+    short shooty[MAX_GUNS];                 // Y POS SHOOT FROM
+    short flightx[MAX_FLIGHT];              // FLIGHT X POS
+    short flighty[MAX_FLIGHT];              // FLIGHT Y POS
+}SPRITE;
+<<<<<<< Updated upstream
+=======
+#else
 typedef struct 
 {
     char iname[16];                         // ITEM NAME
@@ -66,6 +112,8 @@ typedef struct
     short flightx[MAX_FLIGHT];              // FLIGHT X POS
     short flighty[MAX_FLIGHT];              // FLIGHT Y POS
 }SPRITE;
+#endif
+>>>>>>> Stashed changes
 
 typedef struct SPRITE_SHIP_S 
 {

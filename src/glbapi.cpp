@@ -9,10 +9,17 @@
 #include "glbapi.h"
 #include "vmemapi.h"
 
+<<<<<<< Updated upstream
 #ifdef _WIN32
 #include <io.h>
 #endif // _WIN32
 #ifdef __GNUC__
+=======
+#if defined (_WIN32) && !defined (__XBOX__)
+#include <io.h>
+#endif // _WIN32
+#if defined (__GNUC__) || defined (__XBOX__)
+>>>>>>> Stashed changes
 #include <unistd.h>
 char* strupr(char* s)
 {
@@ -177,6 +184,7 @@ GLB_FindFile(
 	if ((handle = fopen(filename, permissions)) == NULL)
 	{
 		sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
+<<<<<<< Updated upstream
 		
 		if ((handle = fopen(filename, permissions)) == NULL)
 		{
@@ -186,6 +194,51 @@ GLB_FindFile(
 			sprintf(filename, "%s%04u.GLB", prefix, filenum);
 			EXIT_Error("GLB_FindFile: %s, Error #%d,%s",
 				filename, errno, strerror(errno));
+=======
+		if (handle == NULL)
+        {
+            #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
+				sprintf(filename, "%s%s%04u.GLB", ROMFS, prefix, filenum);
+				handle = fopen(filename, permissions);
+				if (handle == NULL)
+				{
+					sprintf(filename, "%s%s%04u.GLB", RAP_SD_DIR, prefix, filenum);
+					handle = fopen(filename, permissions);
+					if (handle == NULL)
+					{
+						if (return_on_failure)
+							return NULL;
+						sprintf(filename, "%s%04u.GLB", prefix, filenum);
+						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
+					}
+				}
+			#elif __XBOX__
+				sprintf(filename, "%s%s%04u.GLB", XBOX_DVD_DIR, prefix, filenum);
+				handle = fopen(filename, permissions);
+				if (handle == NULL)
+				{
+					sprintf(filename, "%s%s%04u.GLB", XBOX_HDD_DIR, prefix, filenum);
+					handle = fopen(filename, permissions);
+					if (handle == NULL)
+					{
+						if (return_on_failure)
+							return NULL;
+						sprintf(filename, "%s%04u.GLB", prefix, filenum);
+						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
+					}
+				}
+            #else
+				if ((handle = fopen(filename, permissions)) == NULL)
+				{
+					if (return_on_failure)
+						return NULL;
+
+					sprintf(filename, "%s%04u.GLB", prefix, filenum);
+					EXIT_Error("GLB_FindFile: %s, Error #%d,%s",
+						filename, errno, strerror(errno));
+				}
+			#endif
+>>>>>>> Stashed changes
 		}
 	}
 	
@@ -346,7 +399,15 @@ GLB_UseVM(
 	void
 )
 {
+<<<<<<< Updated upstream
 	fVmem = 1;
+=======
+	#ifdef __ARM__
+	fVmem = 0;
+	#else
+	fVmem = 1;
+	#endif
+>>>>>>> Stashed changes
 }
 
 /*************************************************************************
@@ -368,11 +429,19 @@ GLB_InitSystem(
 	/*
 	* Extract path from program source of execution.
 	*/
+<<<<<<< Updated upstream
+=======
+	#ifndef __XBOX__
+>>>>>>> Stashed changes
 	memset(exePath, 0, sizeof(exePath));
 	strcpy(exePath, exepath);
 	
 	if ((p = strrchr(exePath, '\\')) != NULL)
 		*(p + 1) = '\0';
+<<<<<<< Updated upstream
+=======
+	#endif
+>>>>>>> Stashed changes
 
 	num_glbs = innum;
 	ASSERT(num_glbs >= 1 && num_glbs <= MAX_GLB_FILES);
@@ -719,6 +788,7 @@ GLB_GetPtr(
 {
 	ITEM_H itm;
 	ITEMINFO* ii;
+<<<<<<< Updated upstream
 
 	if (handle == ~0)
 		return NULL;
@@ -777,6 +847,172 @@ GLB_FreeItem(
 }
 
 /***************************************************************************
+ GLB_FreeAll() - Frees All memory used by GLB items
+ ***************************************************************************/
+void
+GLB_FreeAll(
+	void
+)
+{
+	int		filenum;
+	int		itemnum;
+	ITEMINFO* ii;
+
+	for (filenum = 0; filenum < num_glbs; filenum++)
+	{
+		ii = filedesc[filenum].item;
+		
+		for (itemnum = 0; itemnum < filedesc[filenum].items; itemnum++)
+		{
+			if (ii->vm_mem.obj && (ii->flags & ITF_LOCKED) == 0)
+			{
+				if (fVmem)
+					VM_Free(ii->vm_mem.obj);
+				else
+					free(ii->vm_mem.obj);
+				
+				ii->vm_mem.obj = NULL;
+			}
+			ii++;
+		}
+=======
+
+	if (handle == ~0)
+		return NULL;
+
+	itm.handle = handle;
+
+	ASSERT(itm.id.filenum < (uint16_t)num_glbs);
+	ASSERT(itm.id.itemnum < (uint16_t)filedesc[itm.id.filenum].items);
+
+	ii = filedesc[itm.id.filenum].item;
+	ii += itm.id.itemnum;
+	
+	return ii->memory;
+}
+#endif 
+
+/***************************************************************************
+ GLB_FreeItem() - Frees memory for items and places items < MAX SIZE
+ ***************************************************************************/
+void
+GLB_FreeItem(
+	int handle               // INPUT : handle of item
+)
+{
+	ITEM_H itm;
+	ITEMINFO* ii;
+
+	if (handle == ~0)
+		return;
+
+	itm.handle = handle;
+
+	ASSERT(itm.id.filenum < (uint16_t)num_glbs);
+	
+	if (itm.id.itemnum >= (uint16_t)filedesc[itm.id.filenum].items)
+	{
+		EXIT_Error("GLB_FreeItem - item out of range: %d > %d file %d.\n",
+			itm.id.itemnum, filedesc[itm.id.filenum].items, itm.id.filenum);
+	}
+	//   ASSERT( itm.id.itemnum < ( WORD ) filedesc[ itm.id.filenum ].items );
+
+	ii = filedesc[itm.id.filenum].item;
+	ii += itm.id.itemnum;
+	
+	if (ii->vm_mem.obj != NULL)
+	{
+		ii->flags &= ~ITF_LOCKED;
+		
+		if (fVmem)
+			VM_Free(ii->vm_mem.obj);
+		else
+			free(ii->vm_mem.obj);
+		
+		ii->vm_mem.obj = NULL;
+>>>>>>> Stashed changes
+	}
+}
+
+/***************************************************************************
+<<<<<<< Updated upstream
+ GLB_ItemSize() - Returns Size of Item
+ ***************************************************************************/
+int                               // RETURN: sizeof ITEM
+GLB_ItemSize(
+	int handle                    // INPUT : handle of item
+)
+{
+	ITEM_H itm;
+	ITEMINFO* ii;
+
+	if (handle == ~0)
+		return 0;
+
+	itm.handle = handle;
+
+	ASSERT(itm.id.filenum < (WORD)num_glbs);
+	ASSERT(itm.id.itemnum < (WORD)filedesc[itm.id.filenum].items);
+
+	ii = filedesc[itm.id.filenum].item;
+	ii += itm.id.itemnum;
+	
+	return ii->size;
+}
+
+/***************************************************************************
+   GLB_ReadFile () reads in a normal file
+ ***************************************************************************/
+int                             // RETURN: size of record
+GLB_ReadFile(
+	const char* name,           // INPUT : filename
+	char* buffer                // OUTPUT: pointer to buffer or NULL
+)
+{
+	char fqp[PATH_MAX];
+	FILE *handle;
+	uint32_t sizerec;
+
+	if (access(name, 0) == -1)
+	{
+		strcpy(fqp, exePath);
+		strcat(fqp, name);
+		name = fqp;
+	}
+	
+	if ((handle = fopen(name, "rb")) == NULL)
+		EXIT_Error("LoadFile: Open failed!");
+
+	fseek(handle, 0, SEEK_END);
+	sizerec = ftell(handle);
+
+	if (buffer && sizerec)
+	{
+		if (!fread(buffer, sizerec, 1, handle))
+		{
+			fclose(handle);
+			EXIT_Error("GLB_LoadFile: Load failed!");
+		}
+	}
+
+	fclose(handle);
+
+	return (sizerec);
+}
+
+/***************************************************************************
+   GLB_SaveFile () saves buffer to a normal file ( filename )
+ ***************************************************************************/
+void
+GLB_SaveFile(
+	char* name,                // INPUT : filename
+	char* buffer,              // INPUT : pointer to buffer
+	int length                 // INPUT : length of buffer
+)
+{
+	FILE *handle;
+
+=======
  GLB_FreeAll() - Frees All memory used by GLB items
  ***************************************************************************/
 void
@@ -885,6 +1121,7 @@ GLB_SaveFile(
 {
 	FILE *handle;
 
+>>>>>>> Stashed changes
 	if ((handle = fopen(name, "wb")) == NULL)
 		EXIT_Error("SaveFile: Open failed!");
 
