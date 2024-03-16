@@ -44,7 +44,7 @@ DATA		:=	data
 INCLUDES	:=	src include/textscreen/include include/TinySoundFont
 ROMFS		:=	romfs
 #---------------------------------------------------------------------------------
-APP_TITLE   := Raptor NX V0.4.0
+APP_TITLE   := Raptor NX V0.5.0
 APP_AUTHOR  := RetroGamer02
 #APP_VERSION := 040
 #APP_TITLEID := 

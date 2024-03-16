@@ -167,6 +167,8 @@ FLATS *flatlib[4];
 
 #ifdef __3DS__
 const char *ctrRegAttention[] = {"**************************************************\n                   ATTENTION! \n This version of RAPTOR is a COMMERCIAL VERSION. \n         DO NOT upload this to any bulletin \n       boards or distribute it in any fashion. \n     Please report software piracy to the S.P.A \n         hotline by calling 1-800-388-PIR8.\n\n**************************************************"};
+#elif __XBOX__
+const char *xboxRegAttention[] = {"***************************************************************                         ATTENTION!\n       This version of RAPTOR is a COMMERCIAL VERSION.\n DO NOT upload this to any bulletin boards or distribute it in\nany fashion. Please report software piracy to the S.P.A hotline                  by calling 1-800-388-PIR8.\n***************************************************************"};
 #endif
 
 /***************************************************************************
@@ -209,8 +211,13 @@ InitScreen(
 {
     #ifdef __3DS__
     printf(" RAPTOR: Call Of The Shadows V1.2\n (c)1994 Cygnus Studios\n");
+    printf(" RAPTOR-3DS-SDL2: V0.9.0 by RetroGamer02\n");
+    #elif __SWITCH__
+    printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
+    printf(" RAPTOR-Switch: V0.5.0 by RetroGamer02\n");
     #elif __XBOX__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
+    printf(" RAPTOR-Xbox: V0.5.0 by RetroGamer02\n");
     #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     #endif
@@ -1523,6 +1530,8 @@ main(
     {
         #ifdef __3DS__
             printf("%s", ctrRegAttention[0]);
+        #elif __XBOX__
+            printf("%s", xboxRegAttention[0]);
         #else
             tptr = GLB_GetItem(FILE000_ATENTION_TXT);
             printf("%s\n", tptr);

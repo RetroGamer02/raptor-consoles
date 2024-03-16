@@ -39,8 +39,8 @@ ROMFS		:=	romfs
 GRAPHICS	:=	gfx
 GFXBUILD	:=	$(ROMFS)/gfx
 #---------------------------------------------------------------------------------
-APP_VER				:= 0001
-APP_TITLE			:= Raptor 3DS Redone V0.0.1
+APP_VER				:= 0090
+APP_TITLE			:= Raptor 3DS-SDL2 V0.9.0
 APP_DESCRIPTION			:= Raptor Call of the Shadows for Nintendo 3DS
 APP_AUTHOR			:= RetroGamer02
 PRODUCT_CODE			:= CTR-RAP
@@ -55,7 +55,7 @@ ICON        			:= rsrc/raptor3ds.png
 #---------------------------------------------------------------------------------
 ARCH	:= -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:= -Wall -Wcast-align -O3 \
+CFLAGS	:= -Wall -Wcast-align -O3 -ffast-math \
 		$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -D__ARM__ -D__3DS__ -DSDL_BUILDING_3DS -DNOCURSOR -DSBAUDIORATE
