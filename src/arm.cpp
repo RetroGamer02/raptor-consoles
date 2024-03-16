@@ -133,7 +133,7 @@ void sys_init()
 
 #elif __SWITCH__
 
-    SDL_Init(SDL_INIT_EVERYTHING);
+    //consoleInit(NULL); //Broken?
 
     romfsInit();
 
@@ -145,8 +145,6 @@ void sys_init()
     } else {
         printf("Raptor directory unknown error.\n");
     }
-
-    consoleUpdate(NULL);
 
 #endif
 }

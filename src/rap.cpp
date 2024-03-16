@@ -1526,7 +1526,11 @@ main(
         fflush(stdout);
     }
     
+    #ifdef __ARM__
     GLB_InitSystem("", 6, 0);
+    #else
+    GLB_InitSystem(argv[0], 6, 0);
+    #endif
     
     if (reg_flag)
     {
