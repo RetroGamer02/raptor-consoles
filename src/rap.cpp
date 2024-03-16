@@ -1324,6 +1324,7 @@ main(
     else
         godmode = 0;
 
+    #ifndef __ARM__
     if (argv[1])
     {
         if (!strcmp(argv[1], "REC"))
@@ -1342,6 +1343,7 @@ main(
             }
         }
     }
+    #endif
 
     if (godmode)
         printf("GOD mode enabled\n");
@@ -1524,7 +1526,7 @@ main(
         fflush(stdout);
     }
     
-    GLB_InitSystem(argv[0], 6, 0);
+    GLB_InitSystem("", 6, 0);
     
     if (reg_flag)
     {
