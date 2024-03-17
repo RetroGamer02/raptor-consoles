@@ -214,10 +214,10 @@ InitScreen(
     printf(" RAPTOR-3DS-SDL2: V0.9.1 by RetroGamer02\n");
     #elif __SWITCH__
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
-    printf(" RAPTOR-Switch: V0.5.0 by RetroGamer02\n");
+    printf(" RAPTOR-Switch: V0.5.1 by RetroGamer02\n");
     #elif __XBOX__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
-    printf(" RAPTOR-Xbox: V0.5.0 by RetroGamer02\n");
+    printf(" RAPTOR-Xbox: V0.5.1 by RetroGamer02\n");
     #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     #endif
@@ -258,7 +258,7 @@ ShutDown(
     nxUnmountDrive('Z');
     HalReturnToFirmware(HalRebootRoutine);
     #else
-    SWD_End();
+    SWD_End(); //Broken on real Xbox hardware
     #endif
     SDL_Quit();
     

@@ -161,6 +161,7 @@ GetJoyButtonMapping(
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
+		//NXDK Has SDL 2.0.9 but SDL_GameControllerTypeForIndex requires 2.0.12
 		#ifdef __XBOX__
 			AButtonconvert = 0;
 			BButtonconvert = 1;

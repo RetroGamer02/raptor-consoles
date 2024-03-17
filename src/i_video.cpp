@@ -727,6 +727,9 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
     #if defined (__3DS__)
         rinfo.max_texture_width = 400;
         rinfo.max_texture_height = 240;
+    #elif defined (__XBOX__)
+        rinfo.max_texture_width = 1920;
+        rinfo.max_texture_height = 1080;
     #else
         if (SDL_GetRendererInfo(renderer, &rinfo) != 0)
         {
@@ -984,20 +987,13 @@ void I_FinishUpdate (void)
     // Render this intermediate texture into the upscaled texture
     // using "nearest" integer scaling.
 
-    #ifndef __XBOX__
     SDL_SetRenderTarget(renderer, texture_upscaled);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
-    #endif
 
     // Finally, render this upscaled texture to screen using linear scaling.
 
-    #ifdef __XBOX__
-    SDL_SetRenderTarget(renderer, NULL);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    #else
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
-    #endif
 
     // Draw!
 
@@ -1599,9 +1595,7 @@ static void SetVideoMode(void)
 
     // Initially create the upscaled texture for rendering to screen
 
-    #ifndef __XBOX__
     CreateUpscaledTexture(true);
-    #endif
     #endif
 }
 
