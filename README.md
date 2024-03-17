@@ -8,7 +8,7 @@ NDS-SDL1 Altered source: https://github.com/RetroGamer02/NDS-Custom-SDL
 ## Media
 Click on the thumbnail to watch some videos showing the project in action  
 
-[![IMAGE ALT TEXT HERE](https://i.ytimg.com/an_webp/CS-gATuFA5s/mqdefault_6s.webp?du=3000&sqp=CMfZ2K8G&rs=AOn4CLBtE9s6QivB5B0xLZonVJ4IqZB10Q)](https://www.youtube.com/channel/UCYgpHKf7CRhP-SAtQnWR0OQ)
+[![IMAGE ALT TEXT HERE](https://i.ytimg.com/vi/CS-gATuFA5s/maxresdefault.jpg)](https://www.youtube.com/channel/UCYgpHKf7CRhP-SAtQnWR0OQ)
 ## Information
 Original Raptor Call Of The Shadows author Scott Host is working on a new modernized version of the classic called Raptor Remixed. If you are a Raptor fan it would be cool if you would support the project on Kickstarter. For more information visit [www.mking.com](https://www.mking.com)
 
@@ -26,6 +26,8 @@ You need the original assets (GLB files) from Raptor Call Of The Shadows v1.2 sh
 Important only the DOS version v1.2 is compatible!
 You have to take care of these files yourself.
 
+3DS Builds also require a [DSP Dump](https://www.gamebrew.org/wiki/DSP_Firmware_Dumper_3DS) in order to get audio.
+
 ### Full version
 Copy the following files to Raptor directory:  
    ``` 
@@ -33,6 +35,7 @@ Copy the following files to Raptor directory:
    FILE0003.GLB  
    FILE0004.GLB  
    ```
+The Raptor directory is inside either the nds, 3ds, switch folder on the SD Card or on xbox on drive E.
 
 ### Configuration
 Edit it manually as follows.
@@ -54,7 +57,7 @@ make -f Makefile.xbox
 
 ## Thanks
 Huge thanks to Skynettx whos code is what all my Raptor ports are based on.
-Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models
+Special thanks to GBATemp's MrGone and CrashMidnick for Testing on New 3DS Models.
 Special thanks to [nukeykt](https://github.com/nukeykt) and [wel97459](https://github.com/wel97459) for their great work on the reconstructed source code.
 Big thanks to [Scott Host](https://www.mking.com) for his great support.
 Also many thanks to [schellingb](https://github.com/schellingb) for the great TinySoundFont library and to all contributors from the
