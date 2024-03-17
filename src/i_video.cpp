@@ -881,7 +881,7 @@ static void CreateUpscaledTexture(bool force)
 //
 void I_FinishUpdate (void)
 {
-    
+
     if (!initialized)
         return;
 

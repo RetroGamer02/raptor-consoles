@@ -61,7 +61,7 @@ typedef struct
 }GFX_SPRITE;
 #endif
 
-typedef struct 
+typedef struct
 {
     int height;
     short charofs[256];

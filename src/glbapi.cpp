@@ -406,13 +406,11 @@ GLB_InitSystem(
 	/*
 	* Extract path from program source of execution.
 	*/
-	#ifndef __XBOX__
 	memset(exePath, 0, sizeof(exePath));
 	strcpy(exePath, exepath);
 	
 	if ((p = strrchr(exePath, '\\')) != NULL)
 		*(p + 1) = '\0';
-	#endif
 
 	num_glbs = innum;
 	ASSERT(num_glbs >= 1 && num_glbs <= MAX_GLB_FILES);

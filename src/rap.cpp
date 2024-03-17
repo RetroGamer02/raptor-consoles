@@ -34,9 +34,7 @@
 #include "flame.h"
 #include "input.h"
 #include "joyapi.h"
-#if !defined (__XBOX__)
 #include "i_lastscr.h"
-#endif
 #include "fileids.h"
 
 #if defined (_WIN32) && !defined (__XBOX__)
@@ -1526,7 +1524,7 @@ main(
         fflush(stdout);
     }
     
-    #ifdef __ARM__
+    #if defined (__ARM__) || defined (__XBOX__)
     GLB_InitSystem("", 6, 0);
     #else
     GLB_InitSystem(argv[0], 6, 0);
