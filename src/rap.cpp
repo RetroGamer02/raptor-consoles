@@ -211,7 +211,7 @@ InitScreen(
 {
     #ifdef __3DS__
     printf(" RAPTOR: Call Of The Shadows V1.2\n (c)1994 Cygnus Studios\n");
-    printf(" RAPTOR-3DS-SDL2: V0.9.0 by RetroGamer02\n");
+    printf(" RAPTOR-3DS-SDL2: V0.9.1 by RetroGamer02\n");
     #elif __SWITCH__
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     printf(" RAPTOR-Switch: V0.5.0 by RetroGamer02\n");
