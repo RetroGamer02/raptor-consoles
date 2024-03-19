@@ -1,4 +1,8 @@
+#ifdef __3DS__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 #ifdef __NDS__
 #include "ds.h"
 #endif

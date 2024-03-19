@@ -1,13 +1,10 @@
-#ifdef __NDS__
-#include <nds.h>
+#ifdef __3DS__
+#include <3ds.h>
 
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-
-#include <fat.h>
-#include <filesystem.h>
 
 #include <cstdio>
 
@@ -15,10 +12,10 @@ int cp(const char *to, const char *from);
 
 bool checkFile(const char* path, int mode);
 
-void init_nds();
+void init_ctr();
 
 #define access checkFile
 
-#define ROMFS "nitro:/"
-#define SDMC "/nds/Raptor/"
+#define ROMFS "romfs:/"
+#define SDMC "sdmc:/3ds/Raptor/"
 #endif

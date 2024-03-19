@@ -3,7 +3,11 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef __3DS__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
 

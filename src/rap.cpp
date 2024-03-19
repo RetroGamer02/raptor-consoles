@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#ifdef __3DS__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -159,6 +163,8 @@ char flatnames[4][14] = {
 
 #ifdef __NDS__
 const char *ndsRegAttention[] = {"********************************           ATTENTION! \n   This version of RAPTOR is \n      a COMMERCIAL VERSION. \n   DO NOT upload this to any \n  bulletin boards or distribute\n        it in any fashion. \n Please report software piracy \n to the S.P.A hotline by calling         1-800-388-PIR8.\n********************************"};
+#elif __3DS__
+const char *ctrRegAttention[] = {"**************************************************\n                   ATTENTION! \n This version of RAPTOR is a COMMERCIAL VERSION. \n         DO NOT upload this to any bulletin \n       boards or distribute it in any fashion. \n     Please report software piracy to the S.P.A \n         hotline by calling 1-800-388-PIR8.\n\n**************************************************"};
 #endif
 
 flat_t *flatlib[4];
@@ -203,6 +209,8 @@ InitScreen(
 {
     #ifdef __NDS__
     printf("RAPTOR: Call Of The Shadows V1.2(c)1994 Cygnus Studios\nRaptorDS v1.0.7: \n");
+    #elif __3DS__
+    printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS v1.0.6: \n");
     #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     #endif
@@ -1267,6 +1275,8 @@ main(
 
     #ifdef __NDS__
     init_nds();
+    #elif __3DS__
+    init_ctr();
     #endif
 
     InitScreen();
@@ -1275,8 +1285,8 @@ main(
     
     if (access(RAP_SetupFilename(), 0))
     {
-        #ifdef __NDS__
-        cp("/nds/Raptor/SETUP.INI","nitro:/SETUP.INI");
+        #if defined (__NDS__) || defined (__3DS__)
+        cp("/nds/Raptor/SETUP.INI", ROMFS "SETUP.INI");
         #else
         printf("\n\n** You must run SETUP first! **\n");
         #ifndef SDL12
@@ -1476,6 +1486,8 @@ main(
     {
         #ifdef __NDS__
         printf("%s", ndsRegAttention[0]);
+        #elif __3DS__
+        printf("%s", ctrRegAttention[0]);
         #else
         tptr = GLB_GetItem(FILE000_ATENTION_TXT);
         printf("%s\n", tptr);

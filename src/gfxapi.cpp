@@ -1,6 +1,10 @@
 #include <string.h>
 #include <stdint.h>
+#ifdef __3DS__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 #include "common.h"
 #include "gfxapi.h"
 #include "i_video.h"

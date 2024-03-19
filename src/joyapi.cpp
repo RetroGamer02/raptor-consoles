@@ -1,4 +1,8 @@
+#ifdef __3DS__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 #include "i_video.h"
 #include "joyapi.h"
 
@@ -156,10 +160,12 @@ I_HandleJoystickEvent(
 			XButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 3); //Correct 3
 			YButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 4); //Correct 4
 
-			//StickX = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_LEFTX) / 8000;
-			//StickY = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_LEFTY) / 8000;
-			//TriggerLeft = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 8000;
-			//TriggerRight = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / 8000;
+			#ifdef __3DS__
+			StickX = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 0) / 8000;
+			StickY = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 1) / 8000;
+			TriggerLeft = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 2) / 8000;
+			TriggerRight = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], 3) / 8000;
+			#endif
 		}
 		
 		if (sdlevent->type == SDL_JOYBUTTONUP) 

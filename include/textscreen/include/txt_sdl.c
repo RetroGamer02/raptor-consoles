@@ -15,7 +15,11 @@
 // Text mode emulation in SDL
 //
 
+#ifdef __3DS__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 
 #include <ctype.h>
 #include <stdio.h>

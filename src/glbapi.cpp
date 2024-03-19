@@ -115,7 +115,7 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
         h = fopen(buffer, mode);
         if (h == NULL)
         {
-            #ifdef __NDS__
+            #if defined (__NDS__) || defined (__3DS__)
             sprintf(buffer, "%s%s%04u.GLB", ROMFS, prefix, a2);
             h = fopen(buffer, mode);
             if (h == NULL)
@@ -305,7 +305,7 @@ char *GLB_FetchItem(int a1, int a2)
     uint16_t n = (a1 >> 0) & 0xffff;
     fi = &filedesc[f].items[n];
     if (a2 == 2)
-    #ifdef __NDS__
+    #if defined (__NDS__) || defined (__3DS__)
     	//Prevents crash here on real ds hardware.
         if (fi->flags == 0x0)
         {

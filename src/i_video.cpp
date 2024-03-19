@@ -20,9 +20,15 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
+#ifdef __3DS__
+#include "SDL/SDL.h"
+#else
 #include "SDL.h"
+#endif
 #ifdef __NDS__
 #include <nds.h>
+#elif __3DS__
+#include <3ds.h>
 #else
 #include "SDL_opengl.h"
 #endif
@@ -112,7 +118,7 @@ int video_display = 0;
 
 // Screen width and height, from configuration file.
 
-#ifdef __NDS__
+#if defined (__NDS__) || defined (__3DS__)
 int window_width = 320;
 int window_height = 200;
 #else
@@ -214,7 +220,7 @@ int screencoordpoint = 0;
 
 void VIDEO_LoadPrefs(void)
 {
-	#ifdef __NDS__
+	#if defined (__NDS__) || defined (__3DS__)
 	fullscreen = 1;
 	aspect_ratio_correct = 0;
 	txt_fullscreen = 0;
@@ -227,7 +233,7 @@ void VIDEO_LoadPrefs(void)
 
 static bool MouseShouldBeGrabbed()
 {
-	#ifdef __NDS__
+	#if defined (__NDS__) || defined (__3DS__)
 	return false;
 	#else
     // never grab the mouse when in screensaver mode
@@ -284,7 +290,7 @@ void I_SetGrabMouseCallback(grabmouse_callback_t func)
 
 static void SetShowCursor(bool show)
 {
-	#ifndef __NDS__
+	#ifndef SDL12
     if (!screensaver_mode)
     {
 #if 1
@@ -490,6 +496,99 @@ void I_GetEvent(void)
 	{
 		Down = 0;
 	}
+
+    SDL_Event sdlevent;
+
+    SDL_PumpEvents();
+    
+    while (SDL_PollEvent(&sdlevent))
+    {
+        switch (sdlevent.type)
+        {
+            case SDL_KEYDOWN:
+                // deliberate fall-though
+            case SDL_KEYUP:
+		        I_HandleKeyboardEvent(&sdlevent);
+                break;
+            /*case SDL_JOYDEVICEADDED:
+                IPT_CalJoy();
+                break;
+            case SDL_JOYDEVICEREMOVED:          
+                IPT_CloJoy();
+                break;*/
+            case SDL_JOYBUTTONUP:
+            case SDL_JOYBUTTONDOWN:
+            case SDL_JOYAXISMOTION:
+                I_HandleJoystickEvent(&sdlevent);
+                break;
+
+            case SDL_QUIT:
+                exit(0);
+                break;
+
+            /*case SDL_WINDOWEVENT:
+                if (sdlevent.window.windowID == SDL_GetWindowID(screen))
+                {
+                    HandleWindowEvent(&sdlevent.window);
+                }
+                break;*/
+
+            default:
+                break;
+        }
+    }
+
+    if ((control == 2) && (!joy_ipt_MenuNew))
+         PTR_JoyHandler();
+    if ((control != 2) || (control == 2 && joy_ipt_MenuNew))
+         PTR_MouseHandler();
+    PTR_UpdateCursor();
+    IPT_GetButtons();
+
+    MUS_Poll();
+    #elif __3DS__
+    extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
+    extern void I_HandleMouseEvent(SDL_Event *sdlevent);
+    extern void I_HandleJoystickEvent(SDL_Event *sdlevent);
+
+    /*//hidScanInput();
+
+    uint32_t kDown = hidKeysDown();
+
+	uint32_t kUp = hidKeysUp();
+
+    if (kDown & KEY_DLEFT)
+    {
+        Left = 1;
+    }
+    if (kUp & KEY_DLEFT)
+    {
+        Left = 0;
+    }
+    if (kDown & KEY_DRIGHT)
+    {
+        Right = 1;
+    }
+    if (kUp & KEY_DRIGHT)
+    {
+        Right = 0;
+    }
+    if (kDown & KEY_DUP)
+    {
+        Up = 1;
+    }
+    if (kUp & KEY_DUP)
+    {
+        Up = 0;
+    }
+    if (kDown & KEY_DDOWN)
+    {
+        Down = 1;
+    }
+    if (kUp & KEY_DDOWN)
+    {
+        Down = 0;
+    }*/
 
     SDL_Event sdlevent;
 

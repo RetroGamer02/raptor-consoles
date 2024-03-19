@@ -3,6 +3,8 @@
 
 #ifdef __NDS__
 #include "ds.h"
+#elif __3DS__
+#include "ctr.h"
 #endif
 
 static inline void EXIT_Error(const char *a1, ...)

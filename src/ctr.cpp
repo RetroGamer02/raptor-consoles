@@ -1,6 +1,6 @@
 
-#ifdef __NDS__
-#include "ds.h"
+#ifdef __3DS__
+#include "ctr.h"
 
 //Generic file copy function.
 int cp(const char *to, const char *from)
@@ -83,32 +83,32 @@ bool checkFile(const char* path, int mode)
     }
 }
 
-void init_nds()
+void init_ctr()
 {
-    consoleDemoInit();
+    gfxInitDefault();
+    
+	consoleInit(GFX_TOP, NULL);
 
-    //ram_init(DETECT_RAM);
+    //gfxSetDoubleBuffering(GFX_TOP, true);
+    //gfxSetDoubleBuffering(GFX_BOTTOM, true);
 
-    //printf("ExRam: %u\n",ram_size());
+    osSetSpeedupEnable(true);
 
-    if (isDSiMode())
-    {
-	    setCpuClock(true);
-        printf("DSi Enhanced Mode.\n");
-    }
+    Result rc = romfsInit();
+	if (rc)
+		printf("romfsInit: %08lX\n", rc);
 
-	int rc = nitroFSInit(NULL); //Calls fatInit as well
-	if (!rc)
-		printf("fsInit: %08lX\n", rc);
-
-    DIR* dir = opendir("/nds/Raptor");
+    DIR* dir = opendir("sdmc:/3ds/Raptor");
     if (dir) {
         closedir(dir);
     } else if (ENOENT == errno) {
         //printf("Raptor directory error: %d\n" ,errno);
-        mkdir("/nds/Raptor", 0700);
+        mkdir("sdmc:/3ds/Raptor", 0700);
     } else {
         printf("Raptor directory unknown error.\n");
     }
+
+    //aptSetHomeAllowed(true); //Seems ignored.
+    //aptSetSleepAllowed(true); //Works but cant wake up after.
 }
 #endif

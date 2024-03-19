@@ -43,7 +43,7 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
-#ifdef __NDS__
+#if defined (__NDS__) || defined (__3DS__)
 static const char *fmt = SDMC "CHAR%04u.FIL";
 static const char* cdfmt = SDMC "%s\\CHAR%04u.FIL";
 #else
@@ -659,7 +659,7 @@ RAP_InitLoadSave(
     
     cdflag = 0;
     
-    #ifdef __NDS__
+    #if defined (__NDS__) || defined (__3DS__)
     strcpy(g_setup_ini, SDMC "SETUP.INI");
     #else
     strcpy(g_setup_ini, "SETUP.INI");
