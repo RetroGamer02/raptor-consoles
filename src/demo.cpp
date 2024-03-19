@@ -22,7 +22,7 @@
 char demo_name[PATH_MAX];
 int cur_play;
 
-RECORD playback[MAX_DEMO + 1];
+demo_t playback[2801];
 
 int max_play;
 int demo_game;
@@ -110,7 +110,7 @@ DEMO_DisplayStats(
         return;
     
     sprintf(temp, "REC %d", MAX_DEMO - cur_play);
-    GFX_Print(MAP_LEFT + 5, 20, temp, (FONT*)GLB_GetItem(FILE104_FONT2_FNT), 84);
+    GFX_Print(MAP_LEFT + 5, 20, temp, (font_t*)GLB_GetItem(FILE104_FONT2_FNT), 84);
     
 }
 
@@ -160,7 +160,7 @@ DEMO_GLBFile(
 )
 {
     char *mem = GLB_GetItem(item);
-    int size = GLB_ItemSize(item);
+    int size = GLB_GetItemSize(item);
     
     if (!mem)
         return;
@@ -211,7 +211,7 @@ DEMO_SaveFile(
     playback[0].py = game_wave[cur_game];
     playback[0].playerpic = cur_play;
     
-    GLB_SaveFile(demo_name, (char*)playback, cur_play * sizeof(RECORD));
+    GLB_SaveFile(demo_name, (char*)playback, cur_play * sizeof(demo_t));
 }
 
 /***************************************************************************

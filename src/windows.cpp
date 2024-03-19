@@ -167,7 +167,7 @@ WIN_OptDraw() -
  ***************************************************************************/
 void 
 WIN_OptDraw(
-    SWD_DLG *dlg
+    wdlg_t *dlg
 )
 {
     int x, y, lx, ly;
@@ -176,10 +176,10 @@ WIN_OptDraw(
         return;
     
     SWD_GetFieldXYL(opt_window, OPTS_VMUSIC, &x, &y, &lx, &ly);
-    GFX_PutSprite((char*)GLB_GetItem(FILE127_SLIDE_PIC), x + opt_vol[MUSIC_VOL] - 2, y);
+    GFX_PutSprite((texture_t*)GLB_GetItem(FILE127_SLIDE_PIC), x + opt_vol[MUSIC_VOL] - 2, y);
     
     SWD_GetFieldXYL(opt_window, OPTS_VFX, &x, &y, &lx, &ly);
-    GFX_PutSprite((char*)GLB_GetItem(FILE127_SLIDE_PIC), x + opt_vol[FX_VOL] - 2, y);
+    GFX_PutSprite((texture_t*)GLB_GetItem(FILE127_SLIDE_PIC), x + opt_vol[FX_VOL] - 2, y);
 }
 
 /***************************************************************************
@@ -190,7 +190,7 @@ WIN_Opts(
     void
 )
 {
-    SWD_DLG dlg;
+    wdlg_t dlg;
     int x, y, lx, ly;
     int kbactive, patchflag, curd, cur_field;
     int new_vol;
@@ -564,7 +564,7 @@ WIN_AskBool(
     int dchold;
     int ask_window;
     int px, py, lx, ly;
-    SWD_DLG dlg;
+    wdlg_t dlg;
 
     rval = 0;
     dchold = g_drawcursor;
@@ -694,7 +694,7 @@ WIN_AskDiff(
     void
 )
 {
-    SWD_DLG dlg;
+    wdlg_t dlg;
     int rval, ask_window;
     int px, py, lx, ly;
 
@@ -763,9 +763,9 @@ WIN_Register(
     void
 )
 {
-    SWD_DLG dlg;
+    wdlg_t dlg;
     int cur_id, opt, oldopt, rval, window, diff, loop;
-    PLAYEROBJ tp;
+    player_t tp;
 
     cur_id = 0;
     opt = -1;
@@ -1021,7 +1021,7 @@ reg_exit:
             tp.fintrain = 1;
         }
         
-        memcpy(&plr, &tp, sizeof(PLAYEROBJ));
+        memcpy(&plr, &tp, sizeof(player_t));
         RAP_SetPlayerDiff();
         OBJS_Add(S_FORWARD_GUNS);
         OBJS_Add(S_ENERGY);
@@ -1070,7 +1070,7 @@ WIN_Hangar(
 )
 {
     char temp[44];
-    SWD_DLG dlg;
+    wdlg_t dlg;
     int opt, oldopt, pos, kflag, local_cnt, pic_cnt, window;
     int x, y, lx, ly;
     int poslookup[4] = {
@@ -1446,7 +1446,7 @@ WIN_ShipComp(
     void
 )
 {
-    SWD_DLG dlg;
+    wdlg_t dlg;
     int rval, secret1, secret2, secret3, secret, cz1, cz2;
     int window;
     int px, py, lx, ly;
@@ -2047,7 +2047,7 @@ WIN_MainMenu(
     int window;
     int cur_opt;
     char cz1;
-    SWD_DLG dlg;
+    wdlg_t dlg;
 
     cz1 = ltable[0];
     cur_opt = 0;

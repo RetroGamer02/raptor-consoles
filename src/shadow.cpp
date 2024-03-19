@@ -8,18 +8,17 @@
 char sdtablemem[516];
 char *sdtable;
 
-typedef struct 
-{
+struct shad_t {
     int item;
     int x;
     int y;
-}SHADOW;
+};
 
 #define MAX_SHADOWS 50
 #define MAX_GSHADOWS 25
 
-SHADOW shads[MAX_SHADOWS];
-SHADOW gshads[MAX_GSHADOWS];
+shad_t shads[MAX_SHADOWS];
+shad_t gshads[MAX_GSHADOWS];
 int num_shadows, num_gshadows;
 
 #define MAXZ  1280;
@@ -34,10 +33,11 @@ SHADOW_Draw(
     int y                  // INPUT : y position of sprite
 )
 {
-    GFX_PIC *h = (GFX_PIC*)pic;
-    GFX_SPRITE *ah;
+    texture_t *h;
+    texture_t *ah;
     int lx, ly, oldsy, sx, sy, ox, oy, x2, y2, oldy, drawflag;
 
+    h = (texture_t*)pic;
     x -= 10;
     y += 20;
     
@@ -60,18 +60,18 @@ SHADOW_Draw(
     if (!GFX_ClipLines(0, &ox, &oy, &lx, &ly))
         return;
     
-    pic += sizeof(GFX_PIC);
+    pic += 0x14;
     
-    ah = (GFX_SPRITE*)pic;
+    ah = (texture_t*)pic;
     
     while (ah->offset != -1)
     {
-        pic += sizeof(GFX_SPRITE);
+        pic += 16;
         
         ox = ah->x + x;
         oy = ah->y + y;
         
-        x2 = ox + ah->length - 1;
+        x2 = ox + ah->width - 1;
         y2 = oy + 1;
         
         G3D_x = ox;
@@ -107,9 +107,9 @@ SHADOW_Draw(
         
         oldsy = sy;
         
-        pic += ah->length;
+        pic += ah->width;
         
-        ah = (GFX_SPRITE*)pic;
+        ah = (texture_t*)pic;
     }
 }
 
@@ -148,7 +148,7 @@ SHADOW_Add(
     int y                   // INPUT : y position
 )
 {
-    SHADOW *cur;
+    shad_t *cur;
     cur = &shads[num_shadows];
     
     if (num_shadows < MAX_SHADOWS)
@@ -171,7 +171,7 @@ SHADOW_GAdd(
     int y                  // INPUT : y position
 )
 {
-    SHADOW *cur;
+    shad_t *cur;
     cur = &gshads[num_gshadows];
     
     if (num_gshadows < MAX_GSHADOWS)
@@ -193,7 +193,7 @@ SHADOW_DisplaySky(
 )
 {
     char *pic;
-    SHADOW *cur;
+    shad_t *cur;
     cur = shads;
     
     if (opt_detail < 1)
@@ -218,7 +218,7 @@ SHADOW_DisplayGround(
 )
 {
     char *pic;
-    SHADOW *cur;
+    shad_t *cur;
     cur = gshads;
     
     if (opt_detail < 1)
@@ -227,7 +227,7 @@ SHADOW_DisplayGround(
     while (--num_gshadows != -1)
     {
         pic = GLB_GetItem(cur->item);
-        GFX_ShadeShape(DARK, (char*)pic, cur->x, cur->y);
+        GFX_ShadeShape(DARK, (texture_t*)pic, cur->x, cur->y);
         cur++;
     }
     

@@ -238,7 +238,7 @@ STORE_Enter(
 )
 {
     int update, opt, oldopt, max_items, pos, cost, loop, num;
-    SWD_DLG dlg;
+    wdlg_t dlg;
     char youhave[50], coststr[50];
 
     update = 0;
@@ -379,7 +379,7 @@ STORE_Enter(
             {
             case STOR_VEXIT:
                 opt = dlg.sfield;
-                if ((mouseb1) || (AButton && !joy_ipt_MenuNew))                                  
+                if ((mouseb1) || (AButton && !joy_ipt_MenuNew))                                  //Fixed ptr input
                     goto store_exit;
                 if (opt != oldopt)
                 {
@@ -474,7 +474,7 @@ STORE_Enter(
         
         if (joy_ipt_MenuNew)
         {
-            if (StickY > 0)                                                   
+            if (StickY > 0)                                                   //Controller Input Store
             {
                 JOY_IsKey(StickY);
                 dlg.keypress = SC_DOWN;

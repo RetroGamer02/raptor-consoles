@@ -48,7 +48,7 @@ HELP_Win(
     const char *strpage        // INPUT : GLB string item
 )
 {
-    SWD_DLG dlg;
+    wdlg_t dlg;
     char temp[20];
     int update, item, window;
 

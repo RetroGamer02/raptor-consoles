@@ -14,36 +14,52 @@
 #include "gssapi.h"
 #include "fileids.h"
 
+#ifdef __NDS__
+#include <nds.h>
+#endif
+
 int music_volume;
 int dig_flag;
 int fx_device;
 int fx_volume;
 static int fx_init = 0;
-static int lockcount;
+#ifdef __NDS__
+int fx_freq = 11025;
+#else
 int fx_freq = 44100;
+#endif
 int music_song = -1;
 int fx_gus;
 int fx_channels;
 int sys_midi, alsaclient, alsaport;
 
-typedef struct
-{
-    int item;         // GLB ITEM
-    int pri;          // PRIORITY 0=LOW
-    int pitch;        // PITCH TO PLAY PATCH
-    int rpflag;       // TRUE = RANDOM PITCHES
-    int sid;          // DMX EFFECT ID
-    int vol;          // VOLUME
-    int gcache;       // CACHE FOR IN GAME USE ?
-    int odig;         // TRUE = ONLY PLAY DIGITAL
-}DFX;
+enum {
+    FXDEV_NONE = 0,
+    FXDEV_PCS,
+    FXDEV_GSS1,
+    FXDEV_GSS2,
+    FXDEV_PCM
+};
 
-DFX fx_items[FX_LAST_SND];
+struct fxitem_t {
+    int f_0;
+    int f_4;
+    int f_8;
+    int f_c;
+    int f_10;
+    int f_14;
+    int f_18;
+    int f_1c;
+};
+
+fxitem_t fx_items[36];
 int fx_loaded;
 
+#ifndef SDL12
 SDL_AudioDeviceID fx_dev;
+#endif
 
-char cards[M_LAST][23] = {
+char cards[10][23] = {
     "None",
     "PC Speaker",
     "Adlib",
@@ -56,15 +72,7 @@ char cards[M_LAST][23] = {
     "Sound Blaster AWE 32",
 };
 
-/***************************************************************************
-FX_Fill() -
- ***************************************************************************/
-static void 
-FX_Fill(
-    void *userdata, 
-    Uint8 *stream, 
-    int len
-)
+static void FX_Fill(void *userdata, Uint8 *stream, int len)
 {
     memset(stream, 0, len);
     int16_t *stream16 = (int16_t*)stream;
@@ -74,18 +82,11 @@ FX_Fill(
     DSP_Mix(stream16, len);
 }
 
-/***************************************************************************
-SND_InitSound () - Does bout all i can think of for Music/FX initing
- ***************************************************************************/
-int 
-SND_InitSound(
-    void
-)
+int SND_InitSound(void)
 {
     int music_card, fx_card, fx_chans;
     char *genmidi = NULL;
     SDL_AudioSpec spec = {}, actual = {};
-    
     if (fx_init)
         return 0;
 
@@ -99,6 +100,9 @@ SND_InitSound(
     spec.callback = FX_Fill;
     spec.userdata = NULL;
 
+	#ifdef SDL12
+	SDL_OpenAudio(&spec, NULL);
+	#else
     if ((fx_dev = SDL_OpenAudioDevice(NULL, 0, &spec, &actual, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) == 0)
     {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -106,28 +110,37 @@ SND_InitSound(
     }
 
     fx_freq = actual.freq;
-    
     if (actual.format != AUDIO_S16SYS || actual.channels != 2)
     {
         SDL_CloseAudio();
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
     }
+    #endif
 
     dig_flag = 0;
-    fx_device = SND_NONE;
+    fx_device = FXDEV_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
+    #ifdef __NDS__
+    if (isDSiMode())
+    {
+        music_card = CARD_BLASTER;
+    } else {
+        music_card = CARD_NONE;
+    }
+    #else
+    music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
+    #endif
     sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
 
     switch (music_card)
     {
-    case M_ADLIB:
-    case M_PAS:
-    case M_SB:
+    case CARD_ADLIB:
+    case CARD_MV:
+    case CARD_BLASTER:
         genmidi = GLB_GetItem(FILE00e_GENMIDI_OP2);
         if (genmidi)
         {
@@ -138,30 +151,31 @@ SND_InitSound(
     }
 
     printf("Music Enabled (%s)\n", cards[music_card]);
-    
-    if (music_card != M_NONE)                               
+    if (music_card != CARD_NONE)                               
     {
         MUS_Init(music_card, 0);
         MUS_SetVolume(music_volume);
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
+    #ifdef __NDS__
+    fx_card = 5;
+    fx_chans = 2;
+    #else
     fx_card = INI_GetPreferenceLong("SoundFX", "CardType", 0);
     fx_chans = INI_GetPreferenceLong("SoundFX", "Channels", 2);
-    
+    #endif
     switch (fx_card)
     {
     default:
-    case M_NONE:
-        fx_device = SND_NONE;
+    case CARD_NONE:
+        fx_device = FXDEV_NONE;
         break;
-    
-    case M_PC:
-        fx_device = SND_PC;
+    case CARD_PCS:
+        fx_device = FXDEV_PCS;
         break;
-    
-    case M_ADLIB:
-        fx_device = SND_MIDI;
+    case CARD_ADLIB:
+        fx_device = FXDEV_GSS1;
         if (!genmidi)
         {
             genmidi = GLB_GetItem(FILE00e_GENMIDI_OP2);
@@ -172,18 +186,16 @@ SND_InitSound(
             }
         }
         break;
-    
-    case M_GUS:
-    case M_PAS:
-    case M_SB:
-        fx_device = SND_DIGITAL;
+    case CARD_GUS:
+    case CARD_MV:
+    case CARD_BLASTER:
+        fx_device = FXDEV_PCM;
         dig_flag = 1;
         break;
-    
-    case M_WAVE:
-    case M_CANVAS:
-    case M_GMIDI:
-        fx_device = SND_MIDI;
+    case CARD_MPU1:
+    case CARD_MPU2:
+    case CARD_MPU3:
+        fx_device = FXDEV_GSS1;
         break;
     }
 
@@ -192,32 +204,31 @@ SND_InitSound(
     if (fx_chans < 1 || fx_chans > 8)
         fx_chans = 2;
 
-    if (fx_card == M_SB || fx_card == M_GUS || fx_card == M_PAS)
+    if (fx_card == CARD_BLASTER || fx_card == CARD_GUS || fx_card == CARD_MV)
     {
         fx_channels = fx_chans;
-        if (fx_card == M_GUS && fx_channels < 2)
+        if (fx_card == CARD_GUS && fx_channels < 2)
             fx_gus = 1;
         DSP_Init(fx_channels, 11025);
     }
     else
         fx_channels = 1;
 
-    if (fx_card == M_ADLIB || fx_card == M_WAVE || fx_card == M_CANVAS || fx_card == M_GMIDI)
+    if (fx_card == CARD_ADLIB || fx_card == CARD_MPU1 || fx_card == CARD_MPU2 || fx_card == CARD_MPU3)
         GSS_Init(fx_card, 0);
 
+	#ifdef SDL12
+    SDL_PauseAudio(0);
+	#else
     SDL_PauseAudioDevice(fx_dev, 0);
+    #endif
 
     fx_init = 1;
-    
     return 1;
 }
 
-/***************************************************************************
-SND_DeInit () -
- ***************************************************************************/
-void SND_DeInit(
-    void
-)
+
+void SND_DeInit(void)
 {
     if (!fx_init)
         return;
@@ -226,531 +237,444 @@ void SND_DeInit(
     fx_init = 0;
 }
 
-/***************************************************************************
-SND_Setup() - Inits SND System  called after SND_InitSound() and GLB_Init
- ***************************************************************************/
-void 
-SND_Setup(
-    void
-)
+void SND_Setup(void)
 {
-    int loop;
-    DFX *lib;
-    
+    int i;
+    fxitem_t *v1c;
     memset(fx_items, 0, sizeof(fx_items));
-    
-    if (fx_device == SND_NONE)
+    if (fx_device == 0)
     {
         fx_loaded = 0;
         return;
     }
-    
     fx_loaded = 1;
 
-    // MONKEY 1 EFFECT ======================
-    lib = &fx_items[FX_MON1];
-    lib->item = GLB_GetItemID("MON1_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[1];
+    v1c->f_0 = GLB_GetItemID("MON1_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // MONKEY 2 EFFECT ======================
-    lib = &fx_items[FX_MON2];
-    lib->item = GLB_GetItemID("MON2_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[2];
+    v1c->f_0 = GLB_GetItemID("MON2_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // MONKEY 3 EFFECT ======================
-    lib = &fx_items[FX_MON3];
-    lib->item = GLB_GetItemID("MON3_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[3];
+    v1c->f_0 = GLB_GetItemID("MON3_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // MONKEY 4 EFFECT ======================
-    lib = &fx_items[FX_MON4];
-    lib->item = GLB_GetItemID("MON4_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[4];
+    v1c->f_0 = GLB_GetItemID("MON4_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // MONKEY 5 EFFECT ======================
-    lib = &fx_items[FX_MON5];
-    lib->item = GLB_GetItemID("MON5_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[5];
+    v1c->f_0 = GLB_GetItemID("MON5_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // MONKEY 6 EFFECT ======================
-    lib = &fx_items[FX_MON6];
-    lib->item = GLB_GetItemID("MON6_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[6];
+    v1c->f_0 = GLB_GetItemID("MON6_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // DAVE =================================
-    lib = &fx_items[FX_DAVE];
-    lib->item = GLB_GetItemID("DAVE_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[7];
+    v1c->f_0 = GLB_GetItemID("DAVE_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // THEME SONG ======================
-    lib = &fx_items[FX_THEME];
-    lib->item = GLB_GetItemID("THEME_FX");
-    lib->pri = 0;
-    lib->pitch = 128;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 1;
+    v1c = &fx_items[0];
+    v1c->f_0 = GLB_GetItemID("THEME_FX");
+    v1c->f_4 = 0;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 1;
 
-    // AIR EXPLOSION ======================
-    lib = &fx_items[FX_AIREXPLO];
-    lib->item = GLB_GetItemID("EXPLO_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[8];
+    v1c->f_0 = GLB_GetItemID("EXPLO_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // AIR EXPLOSION 2 ( BOSS ) ============
-    lib = &fx_items[FX_AIREXPLO2];
-    lib->item = GLB_GetItemID("EXPLO2_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[9];
+    v1c->f_0 = GLB_GetItemID("EXPLO2_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // PICK UP BONUS ======================
-    lib = &fx_items[FX_BONUS];
-    lib->item = GLB_GetItemID("BONUS_FX");
-    lib->pri = 0;
-    lib->pitch = 128;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[10];
+    v1c->f_0 = GLB_GetItemID("BONUS_FX");
+    v1c->f_4 = 0;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // SHIP LOSES SOMTHING CRASH ==========
-    lib = &fx_items[FX_CRASH];
-    lib->item = GLB_GetItemID("CRASH_FX");
-    lib->pri = 0;
-    lib->pitch = 128;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[11];
+    v1c->f_0 = GLB_GetItemID("CRASH_FX");
+    v1c->f_4 = 0;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // DOOR OPENING =======================
-    lib = &fx_items[FX_DOOR];
-    lib->item = GLB_GetItemID("DOOR_FX");
-    lib->pri = 0;
-    lib->pitch = 120;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 0;
+    v1c = &fx_items[12];
+    v1c->f_0 = GLB_GetItemID("DOOR_FX");
+    v1c->f_4 = 0;
+    v1c->f_8 = 0x78;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 0;
 
-    // FLY BY SOUND =======================
-    lib = &fx_items[FX_FLYBY];
-    lib->item = GLB_GetItemID("FLYBY_FX");
-    lib->pri = 0;
-    lib->pitch = 120;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[13];
+    v1c->f_0 = GLB_GetItemID("FLYBY_FX");
+    v1c->f_4 = 0;
+    v1c->f_8 = 0x78;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ENERGY GRAB ========================
-    lib = &fx_items[FX_EGRAB];
-    lib->item = GLB_GetItemID("EGRAB_FX");
-    lib->pri = 2;
-    lib->pitch = 128;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 40;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[14];
+    v1c->f_0 = GLB_GetItemID("EGRAB_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x28;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // GROUND EXPLOSION ===================
-    lib = &fx_items[FX_GEXPLO];
-    lib->item = GLB_GetItemID("GEXPLO_FX");
-    lib->pri = 2;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[15];                                
+    v1c->f_0 = GLB_GetItemID("GEXPLO_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // NORM GUN ===========================
-    lib = &fx_items[FX_GUN];
-    lib->item = GLB_GetItemID("GUN_FX");
-    lib->pri = 10;
-    lib->pitch = 125;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 30;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[16];
+    v1c->f_0 = GLB_GetItemID("GUN_FX");
+    v1c->f_4 = 10;
+    v1c->f_8 = 0x7d;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x1e;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // JET SOUND ==========================
-    lib = &fx_items[FX_JETSND];
-    lib->item = GLB_GetItemID("JETSND_FX");
-    lib->pri = 4;
-    lib->pitch = 120;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 120;
-    lib->gcache = 0;
-    lib->odig = 0;
+    v1c = &fx_items[17];
+    v1c->f_0 = GLB_GetItemID("JETSND_FX");
+    v1c->f_4 = 4;
+    v1c->f_8 = 0x78;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x78;
+    v1c->f_18 = 0;
+    v1c->f_1c = 0;
 
-    // ====================================
-    lib = &fx_items[FX_LASER];
-    lib->item = GLB_GetItemID("LASER_FX");
-    lib->pri = 2;
-    lib->pitch = 120;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 50;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[18];
+    v1c->f_0 = GLB_GetItemID("LASER_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 0x78;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x32;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ====================================
-    lib = &fx_items[FX_MISSLE];
-    lib->item = GLB_GetItemID("MISSLE_FX");
-    lib->pri = 3;
-    lib->pitch = 120;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 50;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[19];
+    v1c->f_0 = GLB_GetItemID("MISSLE_FX");
+    v1c->f_4 = 3;
+    v1c->f_8 = 0x78;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x32;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ====================================
-    lib = &fx_items[FX_SWEP];
-    lib->item = GLB_GetItemID("SWEP_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[20];
+    v1c->f_0 = GLB_GetItemID("SWEP_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ====================================
-    lib = &fx_items[FX_TURRET];
-    lib->item = GLB_GetItemID("TURRET_FX");
-    lib->pri = 1;
-    lib->pitch = 128;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 60;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[21];
+    v1c->f_0 = GLB_GetItemID("TURRET_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x3c;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ====================================
-    lib = &fx_items[FX_WARNING];
-    lib->item = GLB_GetItemID("WARN_FX");
-    lib->pri = 2;
-    lib->pitch = 128;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 100;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[22];
+    v1c->f_0 = GLB_GetItemID("WARN_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 0x80;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 100;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ====================================
-    lib = &fx_items[FX_BOSS1];
-    lib->item = GLB_GetItemID("BOSS_FX");
-    lib->pri = 1;
-    lib->pitch = 127;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 1;
+    v1c = &fx_items[23];
+    v1c->f_0 = GLB_GetItemID("BOSS_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x7f;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 1;
 
-    // INSIDE JET SOUND ==========================
-    lib = &fx_items[FX_IJETSND];
-    lib->item = GLB_GetItemID("JETSND_FX");
-    lib->pri = 1;
-    lib->pitch = 235;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 45;
-    lib->gcache = 0;
-    lib->odig = 0;
+    v1c = &fx_items[24];
+    v1c->f_0 = GLB_GetItemID("JETSND_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0xeb;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x2d;
+    v1c->f_18 = 0;
+    v1c->f_1c = 0;
 
-    // ENEMY JET SOUND ==========================
-    lib = &fx_items[FX_EJETSND];
-    lib->item = GLB_GetItemID("JETSND_FX");
-    lib->pri = 1;
-    lib->pitch = 65;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 120;
-    lib->gcache = 0;
-    lib->odig = 0;
+    v1c = &fx_items[25];
+    v1c->f_0 = GLB_GetItemID("JETSND_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x41;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x78;
+    v1c->f_18 = 0;
+    v1c->f_1c = 0;
 
-    // INTRO E HIT ===========================
-    lib = &fx_items[FX_INTROHIT];
-    lib->item = GLB_GetItemID("GUN_FX");
-    lib->pri = 1;
-    lib->pitch = 215;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 0;
+    v1c = &fx_items[26];
+    v1c->f_0 = GLB_GetItemID("GUN_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0xd7;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 0;
 
-    // INTRO GUN ===========================
-    lib = &fx_items[FX_INTROGUN];
-    lib->item = GLB_GetItemID("GUN_FX");
-    lib->pri = 1;
-    lib->pitch = 110;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 0;
-    lib->odig = 0;
+    v1c = &fx_items[27];
+    v1c->f_0 = GLB_GetItemID("GUN_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x6e;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 0;
+    v1c->f_1c = 0;
 
-    // ENEMY SHOT ==========================
-    lib = &fx_items[FX_ENEMYSHOT];
-    lib->item = GLB_GetItemID("ESHOT_FX");
-    lib->pri = 1;
-    lib->pitch = 100;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 50;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[28];
+    v1c->f_0 = GLB_GetItemID("ESHOT_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 100;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x32;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ENEMY LASER ==========================
-    lib = &fx_items[FX_ENEMYLASER];
-    lib->item = GLB_GetItemID("LASER_FX");
-    lib->pri = 1;
-    lib->pitch = 70;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 120;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[29];
+    v1c->f_0 = GLB_GetItemID("LASER_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x46;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x78;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ENEMY MISSLE =========================
-    lib = &fx_items[FX_ENEMYMISSLE];
-    lib->item = GLB_GetItemID("MISSLE_FX");
-    lib->pri = 2;
-    lib->pitch = 140;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 55;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[30];
+    v1c->f_0 = GLB_GetItemID("MISSLE_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 0x8c;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x37;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // ENEMY SHOT ==========================
-    lib = &fx_items[FX_ENEMYPLASMA];
-    lib->item = GLB_GetItemID("ESHOT_FX");
-    lib->pri = 2;
-    lib->pitch = 127;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[31];
+    v1c->f_0 = GLB_GetItemID("ESHOT_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 0x7f;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // SHIELD HIT =========================
-    lib = &fx_items[FX_SHIT];
-    lib->item = GLB_GetItemID("HIT_FX");
-    lib->pri = 1;
-    lib->pitch = 132;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 127;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[32];
+    v1c->f_0 = GLB_GetItemID("HIT_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0x84;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x7f;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // SHIP HIT =========================
-    lib = &fx_items[FX_HIT];
-    lib->item = GLB_GetItemID("GUN_FX");
-    lib->pri = 1;
-    lib->pitch = 214;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 100;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[33];
+    v1c->f_0 = GLB_GetItemID("GUN_FX");
+    v1c->f_4 = 1;
+    v1c->f_8 = 0xd6;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 100;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // NO_SHOOT ==========================
-    lib = &fx_items[FX_NOSHOOT];
-    lib->item = GLB_GetItemID("ESHOT_FX");
-    lib->pri = 2;
-    lib->pitch = 254;
-    lib->rpflag = 0;
-    lib->sid = -1;
-    lib->vol = 40;
-    lib->gcache = 1;
-    lib->odig = 0;
+    v1c = &fx_items[34];
+    v1c->f_0 = GLB_GetItemID("ESHOT_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 0xfe;
+    v1c->f_c = 0;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x28;
+    v1c->f_18 = 1;
+    v1c->f_1c = 0;
 
-    // PULSE CANNON ======================
-    lib = &fx_items[FX_PULSE];
-    lib->item = GLB_GetItemID("ESHOT_FX");
-    lib->pri = 2;
-    lib->pitch = 100;
-    lib->rpflag = 1;
-    lib->sid = -1;
-    lib->vol = 50;
-    lib->gcache = 1;
-    lib->odig = 1;
+    v1c = &fx_items[35];
+    v1c->f_0 = GLB_GetItemID("ESHOT_FX");
+    v1c->f_4 = 2;
+    v1c->f_8 = 100;
+    v1c->f_c = 1;
+    v1c->f_10 = -1;
+    v1c->f_14 = 0x32;
+    v1c->f_18 = 1;
+    v1c->f_1c = 1;
 
-    for (loop = 0; loop < FX_LAST_SND; loop++)
+    for (i = 0; i < 36; i++)
     {
-        lib = &fx_items[loop];
-        lib->sid = -1;
-        
-        if ((unsigned int)lib->item > 0)
+        v1c = &fx_items[i];
+        v1c->f_10 = -1;
+        if ((unsigned int)v1c->f_0 > 0)
         {
-            lib->item += fx_device;
-            GLB_CacheItem(lib->item);
+            v1c->f_0 += fx_device;
+            GLB_CacheItem(v1c->f_0);
         }
         else
-            lib->item = -1;
+            v1c->f_0 = -1;
     }
 }
 
-/***************************************************************************
-SND_FreeFX () - Frees up Fx's
- ***************************************************************************/
-void 
-SND_FreeFX(
-    void
-)
+void SND_FreeFX(void)
 {
-    int loop;
-    DFX *lib;
-    
+    int i;
+    fxitem_t *v1c;
     SND_StopPatches();
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++)
+    for (i = 0; i < 36; i++)
     {
-        lib = &fx_items[loop];
-        
-        if ((unsigned int)lib->item > 0)
-            GLB_FreeItem(lib->item);
+        v1c = &fx_items[i];
+        if ((unsigned int)v1c->f_0 > 0)
+            GLB_FreeItem(v1c->f_0);
     }
 }
 
-/***************************************************************************
-SND_CacheFX () Caches all FX's
- ***************************************************************************/
-void 
-SND_CacheFX(
-    void
-)
+void SND_CacheFX(void)
 {
-    int loop;
-    DFX *lib;
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++)
+    int i;
+    fxitem_t *v1c;
+    for (i = 0; i < 36; i++)
     {
-        lib = &fx_items[loop];
-        
-        if (lib->item != -1)
-            GLB_CacheItem(lib->item);
+        v1c = &fx_items[i];
+        if (v1c->f_0 != -1)
+            GLB_CacheItem(v1c->f_0);
     }
 }
 
-/***************************************************************************
-SND_CacheGFX () Caches in Game FX's
- ***************************************************************************/
-void 
-SND_CacheGFX(
-    void
-)
+void SND_CacheGFX(void)
 {
-    int loop;
-    DFX *lib;
-    
+    int i;
+    fxitem_t *v1c;
     SND_StopPatches();
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++)
+    for (i = 0; i < 36; i++)
     {
-        lib = &fx_items[loop];
-        
-        if (lib->item != -1 && lib->gcache != 0)
-            GLB_CacheItem(lib->item);
+        v1c = &fx_items[i];
+        if (v1c->f_0 != -1 && v1c->f_18 != 0)
+            GLB_CacheItem(v1c->f_0);
     }
 }
 
-/***************************************************************************
-SND_CacheIFX () Caches intro and menu FX
- ***************************************************************************/
-void 
-SND_CacheIFX(
-    void
-)
+void SND_CacheIFX(void)
 {
-    int loop;
-    DFX *lib;
-    
+    int i;
+    fxitem_t *v1c;
     SND_StopPatches();
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++)
+    for (i = 0; i < 36; i++)
     {
-        lib = &fx_items[loop];
-        
-        if (lib->item != -1 && lib->gcache == 0)
-            GLB_CacheItem(lib->item);
+        v1c = &fx_items[i];
+        if (v1c->f_0 != -1 && v1c->f_18 == 0)
+            GLB_CacheItem(v1c->f_0);
     }
 }
 
-/***************************************************************************
-SFX_Playing () -
- ***************************************************************************/
-int 
-SFX_Playing(
-    int handle
-)
+int SFX_Playing(int handle)
 {
     switch (handle & FXHAND_TMASK)
     {
@@ -759,365 +683,247 @@ SFX_Playing(
     case FXHAND_DSP:
         return DSP_PatchIsPlaying(handle);
     }
-    
     return 0;
 }
 
-/***************************************************************************
-SFX_PlayPatch () -
- ***************************************************************************/
-int 
-SFX_PlayPatch(
-    char* patch, 
-    int pitch, 
-    int sep, 
-    int vol, 
-    int priority
-)
+int SFX_PlayPatch(char* patch, int pitch, int sep, int vol, int priority)
 {
     int type = *(int16_t*)patch;
-    
     switch (type)
     {
     case 0:
         break;
-    
     case 1:
     case 2:
         return GSS_PlayPatch(patch, sep, pitch, vol, priority);
     case 3:
         return DSP_StartPatch((dsp_t*)patch, sep, pitch, vol, priority);
     }
-    
     return -1;
 }
 
-/***************************************************************************
-SFX_StopPatch () -
- ***************************************************************************/
-void 
-SFX_StopPatch(
-    int handle
-)
+void SFX_StopPatch(int handle)
 {
     switch (handle & FXHAND_TMASK)
     {
     case FXHAND_GSS1:
         GSS_StopPatch(handle);
         break;
-    
     case FXHAND_DSP:
         DSP_StopPatch(handle);
         break;
     }
 }
 
-/***************************************************************************
-SND_Patch () - Test patch to see if it will be played by SND_Play
- ***************************************************************************/
-void 
-SND_Patch(
-    int type,              // INPUT : DFX type patch to play
-    int xpos               // INPUT : 127=center
-)
+void SND_Patch(int a1, int a2)
 {
-    char *patch;
-    int rnd, numsnds, volume;
-    DFX *curfld;
-    int loop;
-    
+    char *v1c;
+    int v28, v24, v2c;
+    fxitem_t *v18;
+    int i;
     if (fx_volume < 1)
         return;
-    
-    rnd = 0;
-    numsnds = 0;
-    curfld = fx_items;
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++, curfld++)
+    v28 = 0;
+    v24 = 0;
+    v18 = fx_items;
+    for (i = 0; i < 36; i++, v18++)
     {
-        if (curfld->sid != -1)
+        if (v18->f_10 != -1)
         {
-            if (!SFX_Playing(curfld->sid) && loop != type)
-                SND_StopPatch(loop);
+            if (!SFX_Playing(v18->f_10) && i != a1)
+                SND_StopPatch(i);
             else
-                numsnds++;
+                v24++;
         }
     }
-    
-    if (numsnds <= fx_channels + 2)
+    if (v24 <= fx_channels + 2)
     {
-        curfld = &fx_items[type];
-        
-        if ((!curfld->odig || dig_flag) && curfld->item != -1)
+        v18 = &fx_items[a1];
+        if ((!v18->f_1c || dig_flag) && v18->f_0 != -1)
         {
-            if (curfld->rpflag)
+            if (v18->f_c)
             {
-                rnd = wrand() % 40;
-                rnd -= 20;
+                v28 = wrand() % 40;
+                v28 -= 20;
             }
-            
-            patch = GLB_LockItem(curfld->item);
-            
-            volume = (curfld->vol * fx_volume) / 127;
-            
-            curfld->sid = SFX_PlayPatch(patch, curfld->pitch + rnd, xpos, volume, curfld->pri);
+            v1c = GLB_LockItem(v18->f_0);
+            v2c = (v18->f_14 * fx_volume) / 127;
+            v18->f_10 = SFX_PlayPatch(v1c, v18->f_8 + v28, a2, v2c, v18->f_4);
         }
     }
 }
 
-/***************************************************************************
-SND_3DPatch () - playes a patch in 3d for player during game play
- ***************************************************************************/
-void 
-SND_3DPatch(
-    int type,              // INPUT : DFX type patch to play
-    int x,                 // INPUT : x sprite center
-    int y                  // INPUT : y sprite center
-)
+void SND_3DPatch(int a1, int a2, int a3)
 {
-    int rnd;
-    int numsnds, xpos;
-    int loop;
-    int dx, dy, dist, volume, vol, getdxdy;
-    char *patch;
-    DFX *curfld;
-    
+    int v24;
+    int v20, v28;
+    int i;
+    int v30, v34, v38, v3c, v2c, v4c;
+    char *v18;
+    fxitem_t *v14;
     if (fx_volume < 1)
         return;
 
-    rnd = 0;
-    numsnds = 0;
-    curfld = fx_items;
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++, curfld++)
+    v24 = 0;
+    v20 = 0;
+    v14 = fx_items;
+    for (i = 0; i < 36; i++, v14++)
     {
-        if (curfld->sid != -1)
+        if (v14->f_10 != -1)
         {
-            if (!SFX_Playing(curfld->sid))
-                SND_StopPatch(loop);
+            if (!SFX_Playing(v14->f_10))
+                SND_StopPatch(i);
             else
-                numsnds++;
+                v20++;
         }
     }
-    
-    if (numsnds <= fx_channels + 2)
+    if (v20 <= fx_channels + 2)
     {
-        dx = x - player_cx;
-        dy = y - player_cy;
-        
-        xpos = dx + 127;
-        
-        if (xpos < 1)
-            xpos = 1;
-        else if (xpos > 255)
-            xpos = 255;
-        
-        dx = abs(dx);
-        dy = abs(dy);
-        
-        if (dx < dy)
-            getdxdy = dx;
+        v30 = a2 - player_cx;
+        v34 = a3 - player_cy;
+        v28 = v30 + 127;
+        if (v28 < 1)
+            v28 = 1;
+        else if (v28 > 255)
+            v28 = 255;
+        v30 = abs(v30);
+        v34 = abs(v34);
+        if (v30 < v34)
+            v4c = v30;
         else
-            getdxdy = dy;
-        
-        dist = dx + dy - (getdxdy / 2);
-        
-        if (dist < SND_CLOSE)
-            vol = 127;
-        else if (dist > SND_FAR)
-            vol = 1;
+            v4c = v34;
+        v38 = v30 + v34 - (v4c / 2);
+        if (v38 < 40)
+            v2c = 127;
+        else if (v38 > 500)
+            v2c = 1;
         else
-            vol = 127 - ((dist - SND_CLOSE) * 127) / (SND_FAR - SND_CLOSE);
-        
-        curfld = &fx_items[type];
-        
-        if (!curfld->odig || dig_flag)
+            v2c = 127 - ((v38 - 40) * 127) / (500 - 40);
+        v14 = &fx_items[a1];
+        if (!v14->f_1c || dig_flag)
         {
-            if (curfld->rpflag)
+            if (v14->f_c)
             {
-                rnd = wrand() % 40;
-                rnd -= 20;
+                v24 = wrand() % 40;
+                v24 -= 20;
             }
-            
-            volume = (vol * fx_volume) / 127;
-            volume = (volume * curfld->vol) / 127;
-            
-            patch = GLB_LockItem(curfld->item);
-            curfld->sid = SFX_PlayPatch(patch, curfld->pitch + rnd, xpos, volume, curfld->pri);
+            v3c = (v2c * fx_volume) / 127;
+            v3c = (v3c * v14->f_14) / 127;
+            v18 = GLB_LockItem(v14->f_0);
+            v14->f_10 = SFX_PlayPatch(v18, v14->f_8 + v24, v28, v3c, v14->f_4);
         }
     }
 }
 
-/***************************************************************************
-SND_IsPatchPlaying() - Returns TRUE if patch is playing
- ***************************************************************************/
-int 
-SND_IsPatchPlaying(
-    int type                 // INPUT : position in fxitems
-)
+int SND_IsPatchPlaying(int a1)
 {
-    DFX *curfld;
-    
-    curfld = &fx_items[type];
-    
-    if (curfld->sid != -1 && SFX_Playing(curfld->sid))
+    fxitem_t *v1c;
+    v1c = &fx_items[a1];
+    if (v1c->f_10 != -1 && SFX_Playing(v1c->f_10))
         return 1;
-    
     return 0;
 }
 
-/***************************************************************************
-SND_StopPatch () - Stops Type patch
- ***************************************************************************/
-void 
-SND_StopPatch(
-    int type               // INPUT : DFX type patch to play
-)
+void SND_StopPatch(int a1)
 {
-    DFX *curfld;
-    
-    curfld = &fx_items[type];
-    
-    if (curfld->sid != -1)
+    fxitem_t *v1c;
+    v1c = &fx_items[a1];
+    if (v1c->f_10 != -1)
     {
-        SFX_StopPatch(curfld->sid);
-        GLB_UnlockItem(curfld->item);
-        curfld->sid = -1;
+        SFX_StopPatch(v1c->f_10);
+        GLB_UnlockItem(v1c->f_0);
+        v1c->f_10 = -1;
     }
 }
 
-/***************************************************************************
-SND_StopPatches () - Stops all currently playing patches
- ***************************************************************************/
-void 
-SND_StopPatches(
-    void
-)
+void SND_StopPatches(void)
 {
-    int loop;
-    DFX *curfld;
-    
-    curfld = fx_items;
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++, curfld++)
+    int i;
+    fxitem_t *v1c;
+    v1c = fx_items;
+    for (i = 0; i < 36; i++, v1c++)
     {
-        if (curfld->sid != -1)
-            SFX_StopPatch(curfld->sid);
+        if (v1c->f_10 != -1)
+            SFX_StopPatch(v1c->f_10);
     }
-    
-    curfld = fx_items;
-    
-    for (loop = 0; loop < FX_LAST_SND; loop++, curfld++)
+    v1c = fx_items;
+    for (i = 0; i < 36; i++, v1c++)
     {
-        if (curfld->sid != -1)
+        if (v1c->f_10 != -1)
         {
-            GLB_UnlockItem(curfld->item);
-            curfld->sid = -1;
+            GLB_UnlockItem(v1c->f_0);
+            v1c->f_10 = -1;
         }
     }
 }
 
-/***************************************************************************
-SND_PlaySong() - Plays song associated with song id
- ***************************************************************************/
-void 
-SND_PlaySong(
-    int item,             // INPUT : Song GLB item
-    int chainflag,        // INPUT : Chain Song to ItSelf
-    int fadeflag          // INPUT : Fade Song Out
-)
+void SND_PlaySong(int musres, int loop, int fade)
 {
-    char *song;
-    
+    char *ptr;
     if (music_volume <= 1)
         return;
-    
-    if (music_song == item)
+    if (music_song == musres)
         return;
-    
     if (music_song != -1)
     {
-        MUS_StopSong(fadeflag);
-        
-        if (fadeflag)
+        MUS_StopSong(fade);
+        if (fade)
         {
             while (MUS_SongPlaying())
             {
                 I_GetEvent();
             }
         }
-        
         GLB_UnlockItem(music_song);
         music_song = -1;
     }
-    
-    if (item != -1)
+    if (musres != -1)
     {
-        music_song = item;
-        song = GLB_LockItem(item);
-        MUS_PlaySong(song, chainflag, fadeflag);
+        music_song = musres;
+        ptr = GLB_LockItem(musres);
+        MUS_PlaySong(ptr, loop, fade);
     }
 }
 
-/***************************************************************************
-SND_IsSongPlaying () - Is current song playing
- ***************************************************************************/
-int 
-SND_IsSongPlaying(
-    void
-) 
-{
+int SND_SongPlaying(void) {
     return MUS_SongPlaying();
 }
 
-/***************************************************************************
-SND_FadeOutSong () - Fades current song out and stops playing music
- ***************************************************************************/
-void 
-SND_FadeOutSong(
-    void
-)
+void SND_FadeOutSong(void)
 {
     if (music_song != -1)
     {
         if (MUS_SongPlaying())
             MUS_StopSong(1);
-        
         while (MUS_SongPlaying())
         {
             I_GetEvent();
         }
-        
         GLB_UnlockItem(music_song);
     }
-    
     music_song = -1;
 }
 
-/***************************************************************************
-SND_Lock () -
- ***************************************************************************/
-void 
-SND_Lock(
-    void
-)
+static int lockcount;
+
+void SND_Lock(void)
 {
     if (!lockcount)
+    #ifdef SDL12
+        SDL_LockAudio();
+    #else
         SDL_LockAudioDevice(fx_dev);
-    
+    #endif
     lockcount++;
 }
 
-/***************************************************************************
-SND_Unlock () -
- ***************************************************************************/
-void 
-SND_Unlock(
-    void
-)
+void SND_Unlock(void)
 {
     lockcount--;
-    
     if (!lockcount)
+    #ifdef SDL12
+        SDL_UnlockAudio();
+    #else
         SDL_UnlockAudioDevice(fx_dev);
+    #endif
 }

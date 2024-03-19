@@ -89,15 +89,15 @@ int curship[16];
 int lship[8];
 int dship[8];
 int fship[8];
-char *numbers[11];
+texture_t *numbers[11];
 
 char gdmodestr[] = "CASTLE";
 
-PLAYEROBJ plr;
+player_t plr;
 
 char* g_highmem;
 
-char *cursor_pic;
+texture_t *cursor_pic;
 int draw_player;
 int fadeflag;
 int end_fadeflag;
@@ -157,7 +157,11 @@ char flatnames[4][14] = {
     "FLATSG4_ITM"
 };
 
-FLATS *flatlib[4];
+#ifdef __NDS__
+const char *ndsRegAttention[] = {"********************************           ATTENTION! \n   This version of RAPTOR is \n      a COMMERCIAL VERSION. \n   DO NOT upload this to any \n  bulletin boards or distribute\n        it in any fashion. \n Please report software piracy \n to the S.P.A hotline by calling         1-800-388-PIR8.\n********************************"};
+#endif
+
+flat_t *flatlib[4];
 
 /***************************************************************************
 RAP_Bday() - Get system date
@@ -197,7 +201,11 @@ InitScreen(
     void
 )
 {
+    #ifdef __NDS__
+    printf("RAPTOR: Call Of The Shadows V1.2(c)1994 Cygnus Studios\nRaptorDS v1.0.7: \n");
+    #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
+    #endif
 }
 
 /*==========================================================================
@@ -225,7 +233,9 @@ ShutDown(
         mem = GLB_GetItem(FILE001_LASTSCR1_TXT);     //Get ANSI Screen Shareware from GLB to char*
 
     closewindow();                                   //Close Main Window
+    #ifndef SDL12
     I_LASTSCR(mem);                                  //Call to display ANSI Screen 
+    #endif
     GLB_FreeAll();
     IPT_CloJoy();                                    //Close Joystick
     SWD_End();
@@ -311,7 +321,7 @@ Rot_Color(
  ***************************************************************************/
 void 
 InitMobj(
-    MOVEOBJ *cur            // INPUT : pointer to MOVEOBJ
+    mobj_t *cur            // INPUT : pointer to MOVEOBJ
 )
 {
     cur->done = 0;
@@ -349,7 +359,7 @@ InitMobj(
  ***************************************************************************/
 void 
 MoveMobj(
-    MOVEOBJ *cur            // INPUT : pointer to MOVEOBJ
+    mobj_t *cur            // INPUT : pointer to MOVEOBJ
 )
 {
     if (cur->maxloop == 0)
@@ -389,7 +399,7 @@ MoveMobj(
  ***************************************************************************/
 int 
 MoveSobj(
-    MOVEOBJ *cur,          // INPUT : pointer to MOVEOBJ
+    mobj_t *cur,           // INPUT : pointer to MOVEOBJ
     int speed              // INPUT : speed to plot at
 )
 {
@@ -449,7 +459,11 @@ RAP_PrintNum(
 
     maxloop = strlen(str);
     
+    #ifdef __NDS__
+    GFX_PutSprite(numbers[10], x, y + 4);
+    #else
     GFX_PutSprite(numbers[10], x, y);
+    #endif
     x += 9;
     
     while (--maxloop != -1)
@@ -457,7 +471,11 @@ RAP_PrintNum(
         num = *str - '0';
         
         if (num < 11 && num >= 0)
+        	#ifdef __NDS__
+        	GFX_PutSprite(numbers[num], x, y +4);
+        	#else
             GFX_PutSprite(numbers[num], x, y);
+            #endif
         
         x += 8;
         str++;
@@ -505,8 +523,7 @@ RAP_DisplayStats(
 {
     char temp[24];
     int super, shield, loop, x, y;
-    char* pic;
-    GFX_PIC *h;
+    texture_t *pic, *h;
     static int damage = -1;
     static int blinkflag = 1;
 
@@ -620,16 +637,14 @@ RAP_DisplayStats(
         {
             if (damage)
             {
-                pic = GLB_GetItem(FILE111_WEPDEST_PIC);
-                h = (GFX_PIC*)pic;
+                h = pic = (texture_t*)GLB_GetItem(FILE111_WEPDEST_PIC);
                 GFX_PutSprite(pic, (320 - h->width) >> 1, MAP_BOTTOM - 9);
             }
             
             if (startendwave == -1)
                 SND_Patch(FX_WARNING, 127);
             
-            pic = GLB_GetItem(FILE110_SHLDLOW_PIC);
-            h = (GFX_PIC*)pic;
+            h = pic = (texture_t*)GLB_GetItem(FILE110_SHLDLOW_PIC);
             GFX_PutSprite(pic, (320 - h->width) >> 1, MAP_BOTTOM);
         }
     }
@@ -1064,7 +1079,7 @@ Do_Game(
         {
             FLAME_Down(player_cx - o_engine[playerpic] - 3, player_cy + 15, 4, gl_cnt % 2);
             FLAME_Down(player_cx + o_engine[playerpic] - 2, player_cy + 15, 4, gl_cnt % 2);
-            GFX_PutSprite((char*)GLB_GetItem(curship[playerpic + g_flash]), playerx, playery);
+            GFX_PutSprite((texture_t*)GLB_GetItem(curship[playerpic + g_flash]), playerx, playery);
             g_flash = 0;
         }
         
@@ -1250,16 +1265,26 @@ main(
 
     var1 = getenv("S_HOST");
 
+    #ifdef __NDS__
+    init_nds();
+    #endif
+
     InitScreen();
 
     RAP_InitLoadSave();
     
     if (access(RAP_SetupFilename(), 0))
     {
+        #ifdef __NDS__
+        cp("/nds/Raptor/SETUP.INI","nitro:/SETUP.INI");
+        #else
         printf("\n\n** You must run SETUP first! **\n");
+        #ifndef SDL12
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", "** You must run SETUP first! **", NULL);
+        #endif
         exit(0);
+        #endif
     }
 
     godmode = 0;
@@ -1293,6 +1318,19 @@ main(
     
     cur_diff = 0;
 
+    #ifdef __ARM__
+    if (!access(ROMFS "FILE0001.GLB", 0))
+        gameflag[0] = 1;
+    
+    if (!access(SDMC "FILE0002.GLB", 0))
+        gameflag[1] = 1;
+    
+    if (!access(SDMC "FILE0003.GLB", 0) && !access(SDMC "FILE0004.GLB", 0))
+    {
+        gameflag[2] = 1;
+        gameflag[3] = 1;
+    }
+    #else
     if (!access("FILE0001.GLB", 0))
         gameflag[0] = 1;
     
@@ -1304,6 +1342,7 @@ main(
         gameflag[2] = 1;
         gameflag[3] = 1;
     }
+    #endif
 
     if (gameflag[1] + gameflag[2])
         reg_flag = 1;
@@ -1316,13 +1355,27 @@ main(
             numfiles++;
     }
 
+    #ifdef __ARM__
+    if (access(ROMFS "FILE0000.GLB", 0) || !numfiles)
+    {
+        printf("All game data files NOT FOUND cannot proceed !!\n");
+        #ifndef SDL12
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+            "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
+        #endif
+        exit(0);
+    }
+    #else
     if (access("FILE0000.GLB", 0) || !numfiles)
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
+        #ifndef SDL12
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
+        #endif
         exit(0);
     }
+    #endif
     
     printf("Init -\n");
     EXIT_Install(ShutDown);
@@ -1421,15 +1474,21 @@ main(
     
     if (reg_flag)
     {
+        #ifdef __NDS__
+        printf("%s", ndsRegAttention[0]);
+        #else
         tptr = GLB_GetItem(FILE000_ATENTION_TXT);
         printf("%s\n", tptr);
         GLB_FreeItem(FILE000_ATENTION_TXT);
+        #endif
     }
     
     SND_InitSound();
     IPT_Init();
     GLB_FreeAll();
+    #ifndef __NDS__
     RAP_InitMem();
+    #endif
     
     printf("Loading Graphics\n");
     
@@ -1443,7 +1502,7 @@ main(
     
     if (ptrflag)
     {
-        cursor_pic = (char*)GLB_LockItem(FILE112_CURSOR_PIC);
+        cursor_pic = (texture_t*)GLB_LockItem(FILE112_CURSOR_PIC);
         PTR_SetPic(cursor_pic);
         PTR_SetPos(160, 100);
         PTR_DrawCursor(0);
@@ -1467,7 +1526,7 @@ main(
         if (gameflag[loop])
         {
             item = GLB_GetItemID(flatnames[loop]);
-            flatlib[loop] = (FLATS*)GLB_LockItem(item);
+            flatlib[loop] = (flat_t*)GLB_LockItem(item);
         }
         else
             flatlib[loop] = NULL;
@@ -1477,7 +1536,7 @@ main(
     for (loop = 0; loop < 11; loop++)
     {
         item = FILE105_N0_PIC + loop;
-        numbers[loop] = (char*)GLB_LockItem(item);
+        numbers[loop] = (texture_t*)GLB_LockItem(item);
     }
 
     FLAME_InitShades();

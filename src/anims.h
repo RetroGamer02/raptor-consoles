@@ -2,22 +2,20 @@
 
 #include "enemy.h"
 
-typedef enum
+enum ANIM_DIR
 {
     A_NORM,
     A_MOVEUP,
     A_MOVEDOWN
-}ANIM_DIR;
+};
 
-typedef enum
-{
+enum GFLAG {
     GROUND,
     MID_AIR,
     HIGH_AIR
-}GFLAG;
+};
 
-typedef struct ANIMLIB_S
-{
+struct animlib_t {
     int item;
     int numframes;
     int groundflag;
@@ -26,23 +24,22 @@ typedef struct ANIMLIB_S
     int adir;
     int xoff;
     int yoff;
-}ANIMLIB;
+};
 
-typedef struct ANIMS_S
-{
-    struct ANIMS_S *prev;
-    struct ANIMS_S *next;
+struct anim_t {
+    anim_t *prev;
+    anim_t *next;
     int item;
     int dx;
     int dy;
     int x;
     int y;
     int curframe;
-    ANIMLIB *lib;
+    animlib_t *lib;
     int groundflag;
-    SPRITE_SHIP *en;
+    enemy_t *en;
     int edone;
-}ANIMS;
+};
 
 #define A_LARGE_GROUND_EXPLO1  0
 #define A_SMALL_GROUND_EXPLO   1
@@ -69,13 +66,13 @@ typedef struct ANIMS_S
 #define A_SUPER_SHIELD         20
 
 void ANIMS_Clear(void);
-ANIMS *ANIMS_Remove(ANIMS *anim);
+anim_t *ANIMS_Remove(anim_t *anim);
 void ANIMS_Init(void);
 void ANIMS_CachePics(void);
 void ANIMS_FreePics(void);
 void ANIMS_StartAnim(int handle, int x, int y);
 void ANIMS_StartGAnim(int handle, int x, int y);
-void ANIMS_StartEAnim(SPRITE_SHIP *en, int handle, int x, int y);
+void ANIMS_StartEAnim(enemy_t* en, int handle, int x, int y);
 void ANIMS_StartAAnim(int handle, int x, int y);
 void ANIMS_Think(void);
 void ANIMS_DisplayGround(void);

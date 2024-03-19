@@ -7,7 +7,7 @@
 #define  DEMO_PLAYBACK  2
 #define  MAX_DEMO       2800
 
-typedef struct
+struct demo_t
 {
     char b1;
     char b2;
@@ -17,7 +17,7 @@ typedef struct
     short py;
     short playerpic;
     short fil;
-}RECORD;
+};
 #pragma pack(pop)
 
 

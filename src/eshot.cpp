@@ -28,13 +28,13 @@ enum LIB_PIC
 };
 
 int eshotnum, eshothigh;
-ESHOT first_eshot, last_eshot;
-ESHOT eshots[MAX_ESHOT];
-ESHOT *free_eshot;
+eshot_t first_eshot, last_eshot;
+eshot_t eshots[MAX_ESHOT];
+eshot_t *free_eshot;
 
-char *elaspow[4];
+texture_t *elaspow[4];
 
-ESHOT_LIB plib[LIB_LASTPIC];
+plib_t plib[LIB_LASTPIC];
 
 static int xpos[16] = {
     -1, 0, 1, 2, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -2
@@ -77,12 +77,12 @@ ESHOT_Clear(
 /*-------------------------------------------------------------------------*
 ESHOT_Get () - gets a Free ESHOT OBJECT from linklist
  *-------------------------------------------------------------------------*/
-ESHOT
+eshot_t 
 *ESHOT_Get(
     void
 )
 {
-    ESHOT *newes;
+    eshot_t *newes;
     
     if (!free_eshot)
         return NULL;
@@ -94,7 +94,7 @@ ESHOT
     newes = free_eshot;
     free_eshot = free_eshot->next;
     
-    memset(newes, 0, sizeof(ESHOT));
+    memset(newes, 0, sizeof(eshot_t));
     
     newes->next = &last_eshot;
     newes->prev = last_eshot.prev;
@@ -107,12 +107,12 @@ ESHOT
 /*-------------------------------------------------------------------------*
 ESHOT_Remove () - Removes SHOT OBJECT from linklist
  *-------------------------------------------------------------------------*/
-ESHOT
+eshot_t 
 *ESHOT_Remove(
-    ESHOT *sh
+    eshot_t *sh
 )
 {
-    ESHOT *next;
+    eshot_t *next;
     
     eshotnum--;
     
@@ -121,7 +121,7 @@ ESHOT
     sh->next->prev = sh->prev;
     sh->prev->next = sh->next;
     
-    memset(sh, 0, sizeof(ESHOT));
+    memset(sh, 0, sizeof(eshot_t));
     
     sh->next = free_eshot;
     
@@ -138,12 +138,12 @@ ESHOT_Init(
     void
 )
 {
-    ESHOT_LIB *cur;
-    GFX_PIC *h;
+    plib_t *cur;
+    texture_t *h;
     int loop;
     
     for (loop = 0; loop < 4; loop++)
-        elaspow[loop] = (char*)GLB_LockItem(FILE145_ELASEPOW_BLK + loop);
+        elaspow[loop] = (texture_t*)GLB_LockItem(FILE145_ELASEPOW_BLK + loop);
     
     ESHOT_Clear();
     
@@ -156,8 +156,8 @@ ESHOT_Init(
     cur->smokeflag = 0;
     cur->speed = 6;
     for (loop = 0; loop < cur->num_frames; loop++)
-        cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
-    h = (GFX_PIC*)cur->pic[0];
+        cur->pic[loop] = (texture_t*)GLB_LockItem(cur->item + loop);
+    h = cur->pic[0];
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
 
@@ -168,8 +168,8 @@ ESHOT_Init(
     cur->smokeflag = 0;
     cur->speed = 6;
     for (loop = 0; loop < cur->num_frames; loop++)
-        cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
-    h = (GFX_PIC*)cur->pic[0];
+        cur->pic[loop] = (texture_t*)GLB_LockItem(cur->item + loop);
+    h = cur->pic[0];
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
 
@@ -180,8 +180,8 @@ ESHOT_Init(
     cur->smokeflag = 1;
     cur->speed = 10;
     for (loop = 0; loop < cur->num_frames; loop++)
-        cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
-    h = (GFX_PIC*) cur->pic[0];
+        cur->pic[loop] = (texture_t*)GLB_LockItem(cur->item + loop);
+    h = cur->pic[0];
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
 
@@ -192,8 +192,8 @@ ESHOT_Init(
     cur->smokeflag = 0;
     cur->speed = 0;
     for (loop = 0; loop < cur->num_frames; loop++)
-        cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
-    h = (GFX_PIC*)cur->pic[0];
+        cur->pic[loop] = (texture_t*)GLB_LockItem(cur->item + loop);
+    h = cur->pic[0];
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
 
@@ -204,8 +204,8 @@ ESHOT_Init(
     cur->smokeflag = 0;
     cur->speed = 6;
     for (loop = 0; loop < cur->num_frames; loop++)
-        cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
-    h = (GFX_PIC*)cur->pic[0];
+        cur->pic[loop] = (texture_t*)GLB_LockItem(cur->item + loop);
+    h = cur->pic[0];
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
 
@@ -216,8 +216,8 @@ ESHOT_Init(
     cur->smokeflag = 0;
     cur->speed = 10;
     for (loop = 0; loop < cur->num_frames; loop++)
-        cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
-    h = (GFX_PIC*)cur->pic[0];
+        cur->pic[loop] = (texture_t*)GLB_LockItem(cur->item + loop);
+    h = cur->pic[0];
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
 
@@ -228,8 +228,8 @@ ESHOT_Init(
     cur->smokeflag = 0;
     cur->speed = 6;
     for (loop = 0; loop < cur->num_frames; loop++)
-        cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
-    h = (GFX_PIC*)cur->pic[0];
+        cur->pic[loop] = (texture_t*)GLB_LockItem(cur->item + loop);
+    h = cur->pic[0];
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
 }
@@ -239,14 +239,14 @@ ESHOT_Shoot() - Shoots ENEMY GUNS
  ***************************************************************************/
 void 
 ESHOT_Shoot(
-    SPRITE_SHIP *enemy,    // INPUT : pointer to Enemy stuff
+    enemy_t *enemy,        // INPUT : pointer to Enemy stuff
     int gun_num            // INPUT : gun number to shoot
 )
 {
     int x;
     int y;
     int g_shoot_type;
-    ESHOT *cur;
+    eshot_t *cur;
     
     x = enemy->x + enemy->lib->shootx[gun_num];
     y = enemy->y + enemy->lib->shooty[gun_num];
@@ -390,8 +390,8 @@ ESHOT_Think(
     void
 )
 {
-    ESHOT *shot;
-    ESHOT_LIB *lib;
+    eshot_t *shot;
+    plib_t *lib;
     int dx, dy;
 
     for (shot = first_eshot.next; shot!=&last_eshot; shot = shot->next)
@@ -510,9 +510,9 @@ ESHOT_Display(
     void
 )
 {
-    ESHOT *shot;
+    eshot_t *shot;
     int loop, y;
-    GFX_PIC *h;
+    texture_t *h;
     
     for (shot = first_eshot.next; shot !=&last_eshot; shot = shot->next)
     {
@@ -523,13 +523,13 @@ ESHOT_Display(
             
             GFX_PutSprite(elaspow[shot->curframe - 1], shot->x, shot->y);
             
-            h = (GFX_PIC*)lashit[shot->curframe - 1];
+            h = lashit[shot->curframe - 1];
             
             y = shot->move.y2 - 8;
             
             if (y > 0 && y < 200)
             {
-                GFX_PutSprite((char*)h, shot->x - (h->width >> 2), y);
+                GFX_PutSprite(h, shot->x - (h->width >> 2), y);
             }
         }
         else

@@ -1,12 +1,12 @@
 #pragma once
 
-typedef enum
+enum ITYPE
 {
 	I_KEYBOARD,
 	I_MOUSE,
 	I_JOYSTICK,
 	I_FORCE
-}ITYPE;
+};
 
 #define BUT_1 ( buttons[0] )
 #define BUT_2 ( buttons[1] )

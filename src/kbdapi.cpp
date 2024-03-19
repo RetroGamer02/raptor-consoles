@@ -151,7 +151,7 @@ I_HandleKeyboardEvent(
 )
 {
     int key = 0;
-    
+    #ifndef SDL12
     if (sdlevent->type != SDL_KEYDOWN && sdlevent->type != SDL_KEYUP)
         return;
     
@@ -203,6 +203,7 @@ I_HandleKeyboardEvent(
         if (key == SC_CAPS_LOCK)
             capslock = 1;
     }
+    #endif
 }
 
 /***************************************************************************

@@ -5,7 +5,7 @@
 
 #define MAX_SHOTS 70
 
-typedef enum
+enum HIT_TYPE
 {
     S_ALL,
     S_AIR,
@@ -13,19 +13,18 @@ typedef enum
     S_GRALL,
     S_GTILE,
     S_SUCK
-}HIT_TYPE;
+};
 
-typedef enum
+enum BEAM_TYPE
 {
     S_SHOOT,
     S_LINE,
     S_BEAM
-}BEAM_TYPE;
+};
 
-typedef struct 
-{
+struct shot_lib_t {
     int lumpnum;                            // LUMPNUM OF PIC(S)
-    char *pic[10];                          // POINTER TO PIC
+    texture_t *pic[10];                     // POINTER TO PIC
     int shadow;                             // SHADOW ON/OFF
     int type;                               // SHOT TYPE
     int hits;                               // DAMAGE SHOT WILL DO
@@ -44,30 +43,29 @@ typedef struct
     int fplry;                              // FOLLOW PLAYER Y POS
     int meffect;                            // TRACK MOVE TO FIND HIT ?
     int beam;                               // BEAM WEAPON TYPE
-    GFX_PIC *h;
+    texture_t *h;
     int hlx;
     int hly;
-}SHOT_LIB;
+};
 
-typedef struct SHOTS_S
-{
-    struct SHOTS_S *prev;                   // Link List Prev
-    struct SHOTS_S *next;                   // Link List Next
-    char *pic;                              // pointer to cur frame pic
+struct shot_t {
+    shot_t* prev;                           // Link List Prev
+    shot_t* next;                           // Link List Next
+    texture_t *pic;                         // pointer to cur frame pic
     int x;                                  // cur shot center x
     int y;                                  // cur shot center y
-    MOVEOBJ move;                           // MOVE stuff
+    mobj_t move;                            // MOVE stuff
     int speed;                              // cur speed
     int curframe;                           // current anim frame
     int doneflag;                           // shot done = TRUE
     int delayflag;                          // DEALAYED ANIM START
     int startx;                             // PLAYER X OFFSET;
     int starty;                             // PLAYER Y OFFSET;
-    SHOT_LIB *lib;
+    shot_lib_t *lib;
     int cnt;
-}SHOTS;
+};
 
-extern char *lashit[4];
+extern texture_t *lashit[4];
 
 int SHOTS_PlayerShoot(int type);
 void SHOTS_Clear(void);

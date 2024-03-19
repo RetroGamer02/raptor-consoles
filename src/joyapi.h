@@ -1,8 +1,15 @@
 #include "SDL.h"
+#ifdef __NDS__
+#include "ds.h"
+#endif
 #define MAX_CONTROLLERS 4
 
+#ifdef SDL12
+extern SDL_Joystick* ControllerHandles[MAX_CONTROLLERS];
+#else
 extern SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
 extern SDL_Haptic* RumbleHandles[MAX_CONTROLLERS];
+#endif
 
 extern int joy_ack;
 

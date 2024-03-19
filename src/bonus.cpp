@@ -8,9 +8,9 @@
 #include "fx.h"
 #include "fileids.h"
 
-BONUS bons[MAX_BONUS];
-BONUS first_bonus, last_bonus;
-BONUS *free_bonus;
+bonus_t bons[MAX_BONUS];
+bonus_t first_bonus, last_bonus;
+bonus_t *free_bonus;
 static int energy_count;
 static int glow[4];
 static int glow_lx, glow_ly;
@@ -51,12 +51,12 @@ BONUS_Clear(
 /*-------------------------------------------------------------------------*
 BONUS_Get () - Gets A Free BONUS from Link List
  *-------------------------------------------------------------------------*/
-BONUS
+bonus_t 
 *BONUS_Get(
     void
 )
 {
-    BONUS *newb;
+    bonus_t *newb;
     
     if (!free_bonus)
         return NULL;
@@ -64,7 +64,7 @@ BONUS
     newb = free_bonus;
     free_bonus = free_bonus->next;
     
-    memset(newb, 0, sizeof(BONUS));
+    memset(newb, 0, sizeof(bonus_t));
     
     newb->next = &last_bonus;
     newb->prev = last_bonus.prev;
@@ -77,12 +77,12 @@ BONUS
 /*-------------------------------------------------------------------------*
 BONUS_Remove () Removes BONUS from Link List
  *-------------------------------------------------------------------------*/
-BONUS
+bonus_t 
 *BONUS_Remove(
-    BONUS *sh
+    bonus_t *sh
 )
 {
-    BONUS *next;
+    bonus_t *next;
     
     if (sh->type == S_ITEMBUY6)
         energy_count--;
@@ -92,7 +92,7 @@ BONUS
     sh->next->prev = sh->prev;
     sh->prev->next = sh->next;
     
-    memset(sh, 0, sizeof(BONUS));
+    memset(sh, 0, sizeof(bonus_t));
     
     sh->next = free_bonus;
     
@@ -110,14 +110,14 @@ BONUS_Init(
 )
 {
     int loop;
-    GFX_PIC *h;
+    texture_t *h;
 
     for (loop = 0; loop < 4; loop++)
     {
         glow[loop] = FILE125_ICNGLW_BLK + loop;
     }
     
-    h = (GFX_PIC*)GLB_CacheItem(FILE125_ICNGLW_BLK);
+    h = (texture_t*)GLB_CacheItem(FILE125_ICNGLW_BLK);
     
     glow_lx = h->width;
     glow_ly = h->height;
@@ -139,7 +139,7 @@ BONUS_Add(
     int y                  // INPUT : Y POSITION
 )
 {
-    BONUS *cur;
+    bonus_t *cur;
     
     if (type >= S_LAST_OBJECT)
         return;
@@ -172,7 +172,7 @@ BONUS_Think(
 )
 {
     int x, y, x2, y2;
-    BONUS *cur;
+    bonus_t *cur;
     static int gcnt;
 
     x = playerx;
@@ -262,17 +262,17 @@ BONUS_Display(
     void
 )
 {
-    BONUS *cur;
+    bonus_t *cur;
     
     for (cur = first_bonus.next; &last_bonus != cur; cur = cur->next)
     {
         if (!cur->dflag)
         {
-            GFX_PutSprite((char*)GLB_GetItem(cur->item), cur->bx, cur->by);
-            GFX_ShadeShape(LIGHT, (char*)GLB_GetItem(glow[cur->curglow]), cur->gx, cur->gy);
+            GFX_PutSprite((texture_t*)GLB_GetItem(cur->item), cur->bx, cur->by);
+            GFX_ShadeShape(1, (texture_t*)GLB_GetItem(glow[cur->curglow]), cur->gx, cur->gy);
         }
         else
-            GFX_PutSprite((char*)GLB_GetItem(FILE10f_N$_PIC), cur->bx, cur->by);
+            GFX_PutSprite((texture_t*)GLB_GetItem(FILE10f_N$_PIC), cur->bx, cur->by);
     }
 }
 

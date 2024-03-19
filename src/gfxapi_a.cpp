@@ -81,22 +81,18 @@ GFX_DisplayScreen(
 void 
 GFX_ShadeSprite(
     char *dest, 
-    char *inmem, 
+    texture_t *inmem, 
     char *dtable
 )
 {
-    GFX_PIC* h = (GFX_PIC*)inmem;
-    GFX_SPRITE* ah = (GFX_SPRITE*)inmem;
-
-    while ((int16_t)ah->offset != -1)
+    while ((int16_t)inmem->offset != -1)
     {
-        char* d = dest + (uint16_t)ah->offset;
-
-        for (int loop = 0; loop < (uint16_t)h->width; loop++, d++)
+        char *d = dest + (uint16_t)inmem->offset;
+        
+        for (int loop = 0; loop < (uint16_t)inmem->width; loop++, d++)
             *d = dtable[(uint8_t)*d];
-
-        h = (GFX_PIC*)((char*)&h->height + (uint16_t)h->width);
-        ah = (GFX_SPRITE*)h;
+        
+        inmem = (texture_t*)((char*)&inmem->height + (uint16_t)inmem->width);
     }
 }
 
@@ -106,18 +102,14 @@ GFX_ShadeSprite(
 void 
 GFX_DrawSprite(
     char *dest, 
-    char *inmem
+    texture_t *inmem
 )
 {
-    GFX_PIC* h = (GFX_PIC*)inmem;
-    GFX_SPRITE* ah = (GFX_SPRITE*)inmem;
-    
-    while ((int16_t)ah->offset != -1)
+    while ((int16_t)inmem->offset != -1)
     {
-        memcpy(dest + (uint16_t)ah->offset, (char*)&h->height, (uint16_t)h->width);
-
-        h = (GFX_PIC*)((char*)&h->height + (uint16_t)h->width);
-        ah = (GFX_SPRITE*)h;
+        memcpy(dest + (uint16_t)inmem->offset, (char*)&inmem->height, (uint16_t)inmem->width);
+        
+        inmem = (texture_t*)((char*)&inmem->height + (uint16_t)inmem->width);
     }
 }
 

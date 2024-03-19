@@ -10,11 +10,11 @@
 #include "fileids.h"
 
 int obj_cnt;
-OBJ first_objs, last_objs, objs[MAX_OBJS];
-OBJ *free_objs;
-OBJ *p_objs[S_LAST_OBJECT];
+object_t first_objs, last_objs, objs[MAX_OBJS];
+object_t *free_objs;
+object_t *p_objs[S_LAST_OBJECT];
 
-OBJ_LIB obj_lib[S_LAST_OBJECT];
+objlib_t obj_lib[S_LAST_OBJECT];
 
 int objuse_flag;
 int think_cnt;
@@ -51,12 +51,12 @@ OBJS_Clear(
 /*-------------------------------------------------------------------------*
 OBJS_Get () - Gets A Free OBJ from Link List
  *-------------------------------------------------------------------------*/
-OBJ
+object_t 
 *OBJS_Get(
     void
 )
 {
-    OBJ *newo;
+    object_t *newo;
     
     if (!free_objs)
         return 0;
@@ -64,7 +64,7 @@ OBJ
     newo = free_objs;
     free_objs = free_objs->next;
     
-    memset(newo, 0, sizeof(OBJ));
+    memset(newo, 0, sizeof(object_t));
     
     newo->next = &last_objs;
     newo->prev = last_objs.prev;
@@ -79,19 +79,19 @@ OBJ
 /*-------------------------------------------------------------------------*
 OBJS_Remove () Removes OBJ from Link List
  *-------------------------------------------------------------------------*/
-OBJ
+object_t 
 *OBJS_Remove(
-    OBJ *sh
+    object_t *sh
 )
 {
-    OBJ *next;
+    object_t *next;
     
     next = sh->prev;
     
     sh->next->prev = sh->prev;
     sh->prev->next = sh->next;
     
-    memset(sh, 0, sizeof(OBJ));
+    memset(sh, 0, sizeof(object_t));
     
     sh->next = free_objs;
     
@@ -111,7 +111,7 @@ OBJS_CachePics(
 )
 {
     int loop, i;
-    OBJ_LIB *lib;
+    objlib_t *lib;
     
     for (loop = 0; loop < S_LAST_OBJECT; loop++)
     {
@@ -139,7 +139,7 @@ OBJS_FreePics(
 )
 {
     int loop, i;
-    OBJ_LIB *lib;
+    objlib_t* lib;
     
     for (loop = 0; loop < S_LAST_OBJECT; loop++)
     {
@@ -166,7 +166,7 @@ OBJS_Init(
     void
 )
 {
-    OBJ_LIB *lib;
+    objlib_t *lib;
     
     OBJS_Clear();
     
@@ -605,7 +605,11 @@ OBJS_DisplayStats(
     if (plr.sweapon != -1)
     {
         item = obj_lib[plr.sweapon].item;
-        GFX_PutSprite((char*)GLB_GetItem(item), MAP_RIGHT - 18, MAP_TOP);
+        #ifdef __NDS__
+        GFX_PutSprite((texture_t*)GLB_GetItem(item), MAP_RIGHT - 18, MAP_TOP + 3);
+        #else
+        GFX_PutSprite((texture_t*)GLB_GetItem(item), MAP_RIGHT - 18, MAP_TOP);
+        #endif
     }
     
     if (p_objs[S_SUPER_SHIELD])
@@ -614,7 +618,11 @@ OBJS_DisplayStats(
         maxloop = OBJS_GetTotal(S_SUPER_SHIELD);
         for (loop = 0; loop < maxloop; loop++)
         {
-            GFX_PutSprite((char*)GLB_GetItem(FILE1e0_SMSHIELD_PIC), x, 1);
+        	#ifdef __NDS__
+        	GFX_PutSprite((texture_t*)GLB_GetItem(FILE1e0_SMSHIELD_PIC), x, 3);
+        	#else
+            GFX_PutSprite((texture_t*)GLB_GetItem(FILE1e0_SMSHIELD_PIC), x, 1);
+            #endif
             x += 13;
         }
     }
@@ -624,7 +632,11 @@ OBJS_DisplayStats(
         x = MAP_LEFT + 2;
         for (loop = 0; loop < p_objs[S_MEGA_BOMB]->num; loop++)
         {
-            GFX_PutSprite((char*)GLB_GetItem(FILE1df_SMBOMB_PIC), x, 186);
+        	#ifdef __NDS__
+        	GFX_PutSprite((texture_t*)GLB_GetItem(FILE1df_SMBOMB_PIC), x, 180);
+        	#else
+            GFX_PutSprite((texture_t*)GLB_GetItem(FILE1df_SMBOMB_PIC), x, 186);
+            #endif
             x += 13;
         }
     }
@@ -638,7 +650,7 @@ OBJS_Equip(
     int type               // INPUT: OBJ type
 )
 {
-    OBJ *cur;
+    object_t *cur;
     
     for (cur = first_objs.next; &last_objs != cur; cur = cur->next)
     {
@@ -658,10 +670,10 @@ OBJS_Load () - Adds new OBJ from OBJ
  ***************************************************************************/
 int 
 OBJS_Load(
-    OBJ *inobj         // INPUT : pointer to OBJ     
+    object_t *inobj         // INPUT : pointer to OBJ     
 )
 {
-    OBJ *cur;
+    object_t *cur;
 
     cur = OBJS_Get();
     if (!cur)
@@ -686,8 +698,8 @@ OBJS_Add(
     int type                // INPUT : OBJ type
 )
 {
-    OBJ_LIB *lib;
-    OBJ *cur;
+    objlib_t *lib;
+    object_t *cur;
     
     if (type >= S_LAST_OBJECT)
         return OBJ_ERROR;
@@ -754,7 +766,7 @@ OBJS_Del(
     int type               //INPUT : OBJ type
 )
 {
-    OBJ *cur;
+    object_t *cur;
     cur = p_objs[type];
     
     if (cur)
@@ -777,7 +789,7 @@ OBJS_GetNext(
 )
 {
     int loop, pos, setval;
-    OBJ *cur;
+    object_t *cur;
 
     setval = -1;
     
@@ -812,8 +824,8 @@ OBJS_Use(
     int type              //INPUT : OBJ type 
 )
 {
-    OBJ *cur;
-    OBJ_LIB *lib;
+    object_t *cur;
+    objlib_t *lib;
 
     cur = p_objs[type];
     lib = &obj_lib[type];
@@ -847,8 +859,8 @@ OBJS_Sell(
     int type                // INPUT : OBJ type
 )
 {
-    OBJ *cur;
-    OBJ_LIB *lib;
+    object_t *cur;
+    objlib_t *lib;
     int rval;
     
     cur = p_objs[type];
@@ -934,7 +946,7 @@ OBJS_SubAmt(
     int amt                // INPUT : amount to subtract
 )
 {
-    OBJ *cur;
+    object_t* cur;
 
     cur = p_objs[type];
     
@@ -957,7 +969,7 @@ OBJS_GetAmt(
     int type               // INPUT : OBJ type
 )
 {
-    OBJ *cur;
+    object_t* cur;
 
     cur = p_objs[type];
     
@@ -976,7 +988,7 @@ OBJS_GetTotal(
 )
 {
     int total;
-    OBJ *cur;
+    object_t *cur;
 
     total = 0;
     
@@ -997,7 +1009,7 @@ OBJS_IsOnly(
     int type               // INPUT : OBJ type
 )
 {
-    OBJ_LIB *lib;
+    objlib_t *lib;
 
     lib = &obj_lib[type];
     
@@ -1012,7 +1024,7 @@ OBJS_GetCost(
     int type               // INPUT : OBJ type
 )
 {
-    OBJ_LIB* lib;
+    objlib_t* lib;
     int cost;
 
     lib = &obj_lib[type];
@@ -1036,8 +1048,8 @@ OBJS_GetResale(
     int type                 // INPUT : OBJ type
 )
 {
-    OBJ *cur;
-    OBJ_LIB *lib;
+    object_t *cur;
+    objlib_t* lib;
     int cost;
 
     cur = p_objs[type];
@@ -1063,7 +1075,7 @@ OBJS_CanBuy(
 )
 {
     int cost;
-    OBJ_LIB *lib;
+    objlib_t *lib;
     
     lib = &obj_lib[type];
     
@@ -1092,8 +1104,8 @@ OBJS_CanSell(
     int type               // INPUT : OBJ type
 )
 {
-    OBJ *cur;
-    OBJ_LIB *lib;
+    object_t *cur;
+    objlib_t *lib;
     
     cur = p_objs[type];
     lib = &obj_lib[type];
@@ -1127,12 +1139,12 @@ OBJS_GetNum(
 /***************************************************************************
 OBJS_GetLib () - Returns Pointer to Lib Object
  ***************************************************************************/
-OBJ_LIB
+objlib_t 
 *OBJS_GetLib(
     int type               // INPUT : OBJ type
 )
 {
-    OBJ_LIB *lib;
+    objlib_t *lib;
     
     lib = &obj_lib[type];
     
@@ -1161,7 +1173,7 @@ OBJS_SubEnergy(
     int amt                    // INPUT : amount to subtract
 )
 {
-    OBJ *cur;
+    object_t *cur;
 
     if (godmode)
         return 0;
@@ -1210,7 +1222,7 @@ OBJS_AddEnergy(
     int amt                   // INPUT : amount to add
 )
 {
-    OBJ *cur;
+    object_t *cur;
     
     cur = p_objs[S_ENERGY];
     
@@ -1257,7 +1269,7 @@ OBJS_LoseObj(
 )
 {
     int rval, type;
-    OBJ_LIB *lib;
+    objlib_t *lib;
     rval = 1;
     
     if (plr.sweapon == -1)
@@ -1316,8 +1328,8 @@ OBJS_MakeSpecial(
     int type               // INPUT : OBJ type
 )
 {
-    OBJ *cur;
-    OBJ_LIB *lib;
+    object_t *cur;
+    objlib_t *lib;
 
     cur = p_objs[type];
     lib = &obj_lib[type];

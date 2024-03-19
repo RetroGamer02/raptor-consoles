@@ -1,6 +1,10 @@
 #pragma once
 #include <stdlib.h>
 
+#ifdef __NDS__
+#include "ds.h"
+#endif
+
 static inline void EXIT_Error(const char *a1, ...)
 {
      exit(0);

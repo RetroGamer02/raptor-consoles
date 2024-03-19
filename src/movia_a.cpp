@@ -8,18 +8,18 @@ ANIM_Render () - Renders an ANIM FRAME
  *************************************************************************/
 void 
 ANIM_Render(
-	ANIMLINE *inmem
+	movanim_t *inmem
 )
 {
-	while (inmem->opt)
+	while (inmem->f_0)
 	{
-		int l = inmem->length;
-		int p = inmem->offset;
+		int l = inmem->f_6;
+		int p = inmem->f_4;
 		
 		inmem++;
 		
 		memcpy(&displaybuffer[p], inmem, l);
 		
-		inmem = (ANIMLINE*)((char*)inmem + l);
+		inmem = (movanim_t*)((char*)inmem + l);
 	}
 }

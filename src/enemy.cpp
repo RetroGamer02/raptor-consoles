@@ -26,7 +26,7 @@ int spriteitm[4] = {
      FILE1fc_SPRITE1_ITM, FILE200_SPRITE2_ITM, FILE300_SPRITE3_ITM, FILE400_SPRITE4_ITM
 };
 
-SPRITE *slib[4];
+slib_t *slib[4];
 
 int cur_visable;
 int boss_sound;
@@ -36,22 +36,22 @@ int numslibs[4];
 int numboss, numships;
 int end_waveflag;
 
-SPRITE_SHIP ships[30];
-SPRITE_SHIP last_enemy, first_enemy;
-SPRITE_SHIP *free_enemy;
+enemy_t ships[30];
+enemy_t last_enemy, first_enemy;
+enemy_t *free_enemy;
 
-CSPRITE *end_enemy, *cur_enemy;
+csprite_t *end_enemy, *cur_enemy;
 
 int tiley;
 
-SPRITE_SHIP *onscreen[MAX_ONSCREEN], *rscreen[MAX_ONSCREEN];
+enemy_t *onscreen[MAX_ONSCREEN], *rscreen[MAX_ONSCREEN];
 
 /***************************************************************************
    MoveEobj() - gets next postion for an Object at speed
  ***************************************************************************/
 int 
 MoveEobj(
-    MOVEOBJ *cur,          // INPUT : pointer to MOVEOBJ
+    mobj_t *cur,           // INPUT : pointer to MOVEOBJ
     int speed              // INPUT : speed to plot at
 )      
 {
@@ -120,8 +120,8 @@ ENEMY_FreeSprites(
 )
 {
     int loop, i;
-    CSPRITE *curfld;
-    SPRITE *curlib;
+    csprite_t *curfld;
+    slib_t *curlib;
 
     for (loop = 0; loop < 4; loop++)
     {
@@ -153,8 +153,8 @@ ENEMY_LoadSprites(
 )
 {
     int loop, i, item;
-    CSPRITE *curfld;
-    SPRITE *curlib;
+    csprite_t *curfld;
+    slib_t *curlib;
     
     ENEMY_Clear();
     cur_visable = 0;
@@ -250,13 +250,13 @@ void ENEMY_LoadLib(
     {
         if (spriteflag[loop])
         {
-            slib[loop] = (SPRITE*)GLB_LockItem(spriteitm[loop]);
+            slib[loop] = (slib_t*)GLB_LockItem(spriteitm[loop]);
             
             if (!slib[loop])
                 EXIT_Error("ENEMY_LoadSprites() - memory");
             
-            numslibs[loop] = GLB_ItemSize(spriteitm[loop]);
-            numslibs[loop] /= sizeof(SPRITE);
+            numslibs[loop] = GLB_GetItemSize(spriteitm[loop]);
+            numslibs[loop] /= sizeof(slib_t);
         }
     }
 }
@@ -303,12 +303,12 @@ void ENEMY_Clear(
 /*-------------------------------------------------------------------------*
 ENEMY_Get() - Gets An Free Enemy from link list
  *-------------------------------------------------------------------------*/
-SPRITE_SHIP
+enemy_t 
 *ENEMY_Get(
     void
 )
 {
-    SPRITE_SHIP *sh;
+    enemy_t *sh;
     
     if (!free_enemy)
         EXIT_Error("ENEMY_Get() - Max Sprites");
@@ -318,7 +318,7 @@ SPRITE_SHIP
     sh = free_enemy;
     free_enemy = free_enemy->next;
     
-    memset(sh, 0, sizeof(SPRITE_SHIP));
+    memset(sh, 0, sizeof(enemy_t));
     
     sh->next = &last_enemy;
     sh->prev = last_enemy.prev;
@@ -331,12 +331,12 @@ SPRITE_SHIP
 /*-------------------------------------------------------------------------*
 ENEMY_Remove () - Removes an Enemy OBJECT from linklist
  *-------------------------------------------------------------------------*/
-SPRITE_SHIP
+enemy_t 
 *ENEMY_Remove(
-    SPRITE_SHIP *sh
+    enemy_t *sh
 )
 {
-    SPRITE_SHIP *next;
+    enemy_t *next;
     
     if (sh->lib->bossflag)
         numboss--;
@@ -351,7 +351,7 @@ SPRITE_SHIP
     sh->next->prev = sh->prev;
     sh->prev->next = sh->next;
     
-    memset(sh, 0, sizeof(SPRITE_SHIP));
+    memset(sh, 0, sizeof(enemy_t));
     sh->item = -1;
     
     sh->next = free_enemy;
@@ -366,18 +366,18 @@ ENEMY_Add () - Adds Enemy to attack player
  *-------------------------------------------------------------------------*/
 void 
 ENEMY_Add(
-    CSPRITE *sprite
+    csprite_t *sprite
 )
 {
-    SPRITE *curlib;
-    SPRITE_SHIP *newe;
+    slib_t *curlib;
+    enemy_t *newe;
     char *pic;
-    GFX_PIC *h;
+    texture_t *h;
     curlib = &slib[sprite->game][sprite->slib];
     
     newe = ENEMY_Get();
     pic = GLB_GetItem(curlib->item);
-    h = (GFX_PIC*)pic;
+    h = (texture_t*)pic;
     
     newe->item = curlib->item;
     newe->width = h->width;
@@ -483,7 +483,7 @@ ENEMY_Add(
 /***************************************************************************
 ENEMY_GetRandom () - Returns a random ship thats visable
  ***************************************************************************/
-SPRITE_SHIP
+enemy_t 
 *ENEMY_GetRandom(
     void
 )
@@ -501,7 +501,7 @@ SPRITE_SHIP
 /***************************************************************************
 ENEMY_GetRandomAir () - Returns a random ship thats visable
  ***************************************************************************/
-SPRITE_SHIP
+enemy_t 
 *ENEMY_GetRandomAir(
     void
 )
@@ -542,7 +542,7 @@ ENEMY_DamageAll(
 )
 {
     int loop;
-    SPRITE_SHIP *cur;
+    enemy_t *cur;
     
     for (loop = 0; loop < cur_visable; loop++)
     {
@@ -569,7 +569,7 @@ ENEMY_DamageGround(
 )
 {
     int loop;
-    SPRITE_SHIP *cur;
+    enemy_t *cur;
     
     for (loop = 0; loop < cur_visable; loop++)
     {
@@ -601,7 +601,7 @@ ENEMY_DamageAir(
 )
 {
     int loop;
-    SPRITE_SHIP *cur;
+    enemy_t *cur;
     
     for (loop = 0; loop < cur_visable; loop++)
     {
@@ -625,7 +625,7 @@ ENEMY_DamageAir(
 /***************************************************************************
 ENEMY_DamageEnergy () - Tests to see if hit occured at x/y and applys damage
  ***************************************************************************/
-SPRITE_SHIP
+enemy_t 
 *ENEMY_DamageEnergy(
     int x,                 // INPUT : x position
     int y,                 // INPUT : y position
@@ -633,7 +633,7 @@ SPRITE_SHIP
 )
 {
     int loop;
-    SPRITE_SHIP *cur;
+    enemy_t *cur;
     
     for (loop = 0; loop < cur_visable; loop++)
     {
@@ -674,9 +674,9 @@ void ENEMY_Think(
     void
 )
 {
-    CSPRITE *old_enemy;
-    SPRITE_SHIP *sprite;
-    SPRITE *curlib;
+    csprite_t *old_enemy;
+    enemy_t *sprite;
+    slib_t *curlib;
     int speed, loop, x, y, suben, area;
     
     if (boss_sound)
@@ -1175,13 +1175,13 @@ ENEMY_DisplayGround(
     void
 )
 {
-    SPRITE_SHIP *spt;
+    enemy_t *spt;
     
     for (spt = first_enemy.next; &last_enemy != spt; spt = spt->next)
     {
         if (!spt->groundflag)
             continue;
-        GFX_PutSprite((char*)GLB_GetItem(spt->item), spt->x, spt->y);
+        GFX_PutSprite((texture_t*)GLB_GetItem(spt->item), spt->x, spt->y);
     }
 }
 
@@ -1194,14 +1194,14 @@ ENEMY_DisplaySky(
 )
 {
     int i;
-    SPRITE_SHIP *spt;
+    enemy_t *spt;
     
     for (spt = first_enemy.next; &last_enemy != spt; spt = spt->next)
     {
         if (spt->groundflag)
             continue;
         
-        GFX_PutSprite((char*)GLB_GetItem(spt->item), spt->x, spt->y);
+        GFX_PutSprite((texture_t*)GLB_GetItem(spt->item), spt->x, spt->y);
         
         for (i = 0; i < spt->lib->numengs; i++)
         {
@@ -1222,7 +1222,7 @@ ENEMY_GetBaseDamage(
 {
     static int nums;
     int total, damage;
-    SPRITE_SHIP *spt;
+    enemy_t *spt;
 
     total = 0;
     nums = 0;

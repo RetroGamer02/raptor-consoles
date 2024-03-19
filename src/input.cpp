@@ -536,6 +536,30 @@ IPT_LoadPrefs(
     void
 )
 {
+	#ifdef __NDS__
+	opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
+    control = 2;
+    haptic = 0;
+    joy_ipt_MenuNew = 1;
+    
+    k_Up = SC_UP;
+    k_Down = SC_DOWN;
+    k_Left = SC_LEFT;
+    k_Right = SC_RIGHT;
+    k_Fire = SC_CTRL;
+    k_FireSp = SC_ALT;
+    k_ChangeSp = SC_SPACE;
+    k_Mega = SC_RIGHT_SHIFT;
+    
+    m_lookup[0] = 0;
+    m_lookup[1] = 1;
+    m_lookup[2] = 2;
+    
+    j_lookup[0] = 0;
+    j_lookup[1] = 1;
+    j_lookup[2] = 2;
+    j_lookup[3] = 3;
+	#else
     opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
     control = INI_GetPreferenceLong("Setup", "Control", 0);
     haptic = INI_GetPreferenceLong("Setup", "Haptic", 1);
@@ -558,4 +582,5 @@ IPT_LoadPrefs(
     j_lookup[1] = INI_GetPreferenceLong("JoyStick", "FireSp", 1);
     j_lookup[2] = INI_GetPreferenceLong("JoyStick", "ChangeSp", 2);
     j_lookup[3] = INI_GetPreferenceLong("JoyStick", "MegaFire", 3);
+	#endif
 }

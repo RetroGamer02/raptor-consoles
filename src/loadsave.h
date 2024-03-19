@@ -2,40 +2,57 @@
 
 #include "rap.h"
 
-typedef struct 
-{
+#ifdef __NDS__
+struct __attribute__((packed)) csprite_t {
     int link;
     int slib;
     int x;
     int y;
     int game;
     int level;
-}CSPRITE;
+};
+#else
+struct csprite_t {
+    int link;
+    int slib;
+    int x;
+    int y;
+    int game;
+    int level;
+};
+#endif
 
-typedef struct 
-{
+struct maptile_t {
     short flats;
     short fgame;
-}MAZEDATA;
+};
 
-typedef struct 
-{
+#ifdef __NDS__
+typedef struct __attribute__((packed)) _map_t {
     int sizerec;
     int spriteoff;
     int numsprites;
-    MAZEDATA map[MAP_SIZE];
-}MAZELEVEL;
+    maptile_t map[MAP_SIZE];
+} map_t;
+#else
+typedef struct _map_t {
+    int sizerec;
+    int spriteoff;
+    int numsprites;
+    maptile_t map[MAP_SIZE];
+} map_t;
+#endif
 
 extern int curplr_diff;
 
-extern MAZELEVEL *mapmem;
-extern CSPRITE *csprite;
+extern map_t *mapmem;
+extern csprite_t *csprite;
 
 const char* RAP_InitLoadSave(void);
 const char* RAP_SetupFilename(void);
 
 void RAP_ClearPlayer(void);
-int RAP_IsSaveFile(PLAYEROBJ *in_plr);
+int RAP_IsSaveFile(player_t *in_plr);
 int RAP_FFSaveFile(void);
 void RAP_SetPlayerDiff(void);
 int RAP_SavePlayer(void);

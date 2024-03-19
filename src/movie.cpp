@@ -28,7 +28,7 @@ MOVIE_BPatch(
  *************************************************************************/
 void 
 MOVIE_ShowFrame(
-    ANIMLINE *inpic       // INPUT : pointer to animpic
+    movanim_t *inpic       // INPUT : pointer to animpic
 )
 {
     if (inpic)
@@ -43,7 +43,7 @@ MOVIE_ShowFrame(
  *************************************************************************/
 int 
 MOVIE_Play(
-    FRAME *frame,           // INPUT : pointer to array of frame defs     
+    movie_t *frame,         // INPUT : pointer to array of frame defs     
     int numplay,            // INPUT : number of times to play
     char *palette           // INPUT : pointer to palette
 )
@@ -53,7 +53,7 @@ MOVIE_Play(
     int opt = K_OK;
     char fill;
     char *pic;
-    FRAME *curfld;
+    movie_t *curfld;
     
     memset(displaybuffer, 0, 64000);
     
@@ -77,7 +77,7 @@ MOVIE_Play(
         {
         case M_NORM:
         default:
-            MOVIE_ShowFrame((ANIMLINE*)pic);
+            MOVIE_ShowFrame((movanim_t*)pic);
             GFX_WaitUpdate(curfld->framerate);
             break;
         
@@ -96,7 +96,7 @@ MOVIE_Play(
                 GFX_FadeOut(0, 0, 0, 2);
                 flag = 0;
             }
-            MOVIE_ShowFrame((ANIMLINE*)pic);
+            MOVIE_ShowFrame((movanim_t*)pic);
             GFX_WaitUpdate(curfld->framerate);
             GFX_FadeIn(palette, curfld->startsteps);
             break;

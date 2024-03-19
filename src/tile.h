@@ -7,30 +7,28 @@ extern int tileyoff;
 extern int tilepos;
 extern int scroll_flag;
 
-typedef struct 
-{
+struct tspot_t {
     int item;
     int x;
     int y;
     int mapspot;
-}TILESPOT;
+};
 
-typedef struct TDELAY_S
-{
-    struct TDELAY_S *prev;
-    struct TDELAY_S *next;
+struct tdel_t {
+    tdel_t *prev;
+    tdel_t *next;
     int frames;
     int mapspot;
     int item;
-    TILESPOT *ts;
-}TILEDELAY;
+    tspot_t *ts;
+};
 
 void TILE_Init(void);
 void TILE_Think(void);
 void TILE_Display(void);
 int TILE_IsHit(int damage, int x, int y);
 int TILE_Bomb(int damage, int x, int y);
-void TILE_Explode(TILESPOT *ts, int delay);
+void TILE_Explode(tspot_t* ts, int delay);
 void TILE_DamageAll(void);
 void TILE_CacheLevel(void);
 void TILE_FreeLevel(void);

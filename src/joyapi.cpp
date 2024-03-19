@@ -10,8 +10,12 @@ bool AButton, BButton, XButton, YButton;
 
 int16_t StickX, StickY, TriggerLeft, TriggerRight;
 
+#ifdef SDL12
+SDL_Joystick* ControllerHandles[MAX_CONTROLLERS];
+#else
 SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
 SDL_Haptic* RumbleHandles[MAX_CONTROLLERS] ;
+#endif
 
 int MaxJoysticks;
 int ControllerIndex;
@@ -28,6 +32,36 @@ IPT_CalJoy(
 	void
 )
 {
+	#ifdef SDL12
+	SDL_Init(SDL_INIT_JOYSTICK);
+	SDL_JoystickEventState(SDL_ENABLE);
+	
+	MaxJoysticks = SDL_NumJoysticks();
+	ControllerIndex = 0;
+	AButtonconvert = 0;
+	BButtonconvert = 0;
+	XButtonconvert = 0;
+	YButtonconvert = 0;
+	
+	for (JoystickIndex = 0; JoystickIndex < MaxJoysticks; ++JoystickIndex)
+	{
+		if (!SDL_JoystickOpened(JoystickIndex))
+		{
+			//continue; //Broken for some reason.
+			goto continued;
+		}
+		continued:
+		if (ControllerIndex >= MAX_CONTROLLERS)
+		{
+			break;
+		}
+		
+		ControllerHandles[ControllerIndex] = SDL_JoystickOpen(JoystickIndex);
+	    
+		ControllerIndex++;
+		GetJoyButtonMapping();
+	}
+	#else
 	SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
 
 	MaxJoysticks = SDL_NumJoysticks();
@@ -60,6 +94,7 @@ IPT_CalJoy(
 		ControllerIndex++;
 		GetJoyButtonMapping();
 	}
+	#endif
 }
 
 /***************************************************************************
@@ -70,6 +105,15 @@ IPT_CloJoy(
 	void
 )
 {
+	#ifdef SDL12
+	for (ControllerIndex = 0; ControllerIndex < MAX_CONTROLLERS; ++ControllerIndex)
+	{
+		if (ControllerHandles[ControllerIndex])
+		{			
+			SDL_JoystickClose(ControllerHandles[ControllerIndex]);
+		}
+	}
+	#else
 	for (ControllerIndex = 0; ControllerIndex < MAX_CONTROLLERS; ++ControllerIndex)
 	{
 		if (ControllerHandles[ControllerIndex])
@@ -80,6 +124,7 @@ IPT_CloJoy(
 			SDL_GameControllerClose(ControllerHandles[ControllerIndex]);
 		}
 	}
+	#endif
 }
 
 /***************************************************************************
@@ -90,6 +135,40 @@ I_HandleJoystickEvent(
 	SDL_Event *sdlevent
 )
 {
+	#ifdef SDL12
+	for (ControllerIndex = 0;
+		ControllerIndex < MAX_CONTROLLERS;
+		++ControllerIndex)
+	{
+		if (ControllerHandles[ControllerIndex] != 0 && SDL_JoystickOpened(ControllerIndex))
+		{
+			//Hat input handled by native nds input api. See i_video I_GetEvent
+			//Up = SDL_JoystickGetHat(ControllerHandles[ControllerIndex], 0); //4
+			//Down = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 0); //6
+			//Left = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 0); //6
+			//Right = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 0); //2
+			Start = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 0); //Correct 0
+			Back = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 7); //Correct 7
+			LeftShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 5); //Correct 5
+			RightShoulder = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 6); //Correct 6
+			AButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 1); //Correct 1
+			BButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 2); //Correct 2
+			XButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 3); //Correct 3
+			YButton = SDL_JoystickGetButton(ControllerHandles[ControllerIndex], 4); //Correct 4
+
+			//StickX = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_LEFTX) / 8000;
+			//StickY = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_LEFTY) / 8000;
+			//TriggerLeft = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 8000;
+			//TriggerRight = SDL_JoystickGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / 8000;
+		}
+		
+		if (sdlevent->type == SDL_JOYBUTTONUP) 
+			joy_ack = 0;
+		
+		if (sdlevent->type == SDL_JOYBUTTONDOWN) 
+			joy_ack = 1;
+	}
+	#else
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -121,6 +200,7 @@ I_HandleJoystickEvent(
 		if (sdlevent->type == SDL_CONTROLLERBUTTONDOWN) 
 			joy_ack = 1;
 	}
+	#endif
 }
 
 /***************************************************************************
@@ -131,6 +211,12 @@ GetJoyButtonMapping(
 	void
 )
 {
+	#ifdef SDL12
+		AButtonconvert = 0;
+		BButtonconvert = 1;
+		XButtonconvert = 2;
+		YButtonconvert = 3;
+	#else
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -166,6 +252,7 @@ GetJoyButtonMapping(
 			break;
 		}
 	}
+	#endif
 }
 
 /***************************************************************************
@@ -176,6 +263,7 @@ IPT_CalJoyRumbleLow(
 	void
 )
 {
+	#ifndef SDL12
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -183,6 +271,7 @@ IPT_CalJoyRumbleLow(
 		if (ControllerHandles[ControllerIndex])
 			SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x3fff, 0x3fff, 1000);
 	}
+	#endif
 }
 
 /***************************************************************************
@@ -193,6 +282,7 @@ IPT_CalJoyRumbleMedium(
 	void
 )
 {
+	#ifndef SDL12
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -200,6 +290,7 @@ IPT_CalJoyRumbleMedium(
 		if (ControllerHandles[ControllerIndex])
 		    SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x7ffe, 0x7ffe, 1000);
 	}
+	#endif
 }
 
 /***************************************************************************
@@ -210,6 +301,7 @@ IPT_CalJoyRumbleHigh(
 	void
 )
 {
+	#ifndef SDL12
 	for (ControllerIndex = 0;
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
@@ -217,6 +309,7 @@ IPT_CalJoyRumbleHigh(
 		if (ControllerHandles[ControllerIndex])
 			SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0xbffd, 0xbffd, 1000);
 	}
+	#endif
 }
 
 /***************************************************************************

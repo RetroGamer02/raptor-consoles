@@ -8,10 +8,9 @@
 
 #define MAX_MONEY ( MAX_BONUS - 3 )
 
-typedef struct BONUS_S
-{
-    struct BONUS_S *prev;             // LINK LIST PREV
-    struct BONUS_S *next;             // LINK LIST NEXT
+struct bonus_t {
+    bonus_t *prev;                    // LINK LIST PREV
+    bonus_t *next;                    // LINK LIST NEXT
     int item;                         // GLB item
     int curframe;                     // CURRENT ANIM FRAME
     int curglow;                      // CURRENT GLOW FRAME
@@ -25,8 +24,8 @@ typedef struct BONUS_S
     int dflag;                        // DONEFLAG
     int countdown;                    // COUNTDOWN TO REMOVE
     int type;                         // OBJECT TYPE 
-    OBJ_LIB *lib;                     // POINTER TO OBJECT LIBRARY
-}BONUS;
+    objlib_t *lib;                    // POINTER TO OBJECT LIBRARY
+};
 
 void BONUS_Clear(void);
 void BONUS_Think(void);

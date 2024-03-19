@@ -1,35 +1,35 @@
 #pragma once
 #include "rap.h"
 
-typedef enum
+enum EDIR
 {
     E_FORWARD,
     E_BACKWARD
-}EDIR;
+};
 
-typedef enum
+enum KAMI
 {
     KAMI_FLY,
     KAMI_CHASE,
     KAMI_END
-}KAMI;
+};
 
-typedef enum
+enum GANIM
 {
     GANIM_DONE,
     GANIM_OFF,
     GANIM_ON
-}GANIM;
+};
 
-typedef enum
+enum MULTI
 {
     MULTI_OFF,
     MULTI_START,
     MULTI_END
-}MULTI;
+};
 
-typedef struct 
-{
+#ifdef __NDS__
+struct __attribute__((packed)) slib_t {
     char iname[16];                         // ITEM NAME
     int item;                               // * GLB ITEM #
     int bonus;                              // BONUS # ( -1 == NONE )
@@ -65,14 +65,52 @@ typedef struct
     short shooty[MAX_GUNS];                 // Y POS SHOOT FROM
     short flightx[MAX_FLIGHT];              // FLIGHT X POS
     short flighty[MAX_FLIGHT];              // FLIGHT Y POS
-}SPRITE;
+}; // size 0x210
+#else
+struct slib_t {
+    char iname[16];                         // ITEM NAME
+    int item;                               // * GLB ITEM #
+    int bonus;                              // BONUS # ( -1 == NONE )
+    int exptype;                            // EXPLOSION TYPE 
+    int shootspace;                         // SLOWDOWN SPEED
+    int ground;                     //NOT USED IS ON GROUND
+    int suck;                               // CAN SUCK WEAPON AFFECT
+    int frame_rate;                         // FRAME RATE
+    int num_frames;                         // NUM FRAMES
+    int countdown;                          // COUNT DOWN TO START ANIM
+    int rewind;                             // FRAMES TO REWIND
+    int animtype;                           // FREE SPACE FOR LATER USE
+    int shadow;                             // USE SHADOW ( TRUE/FALSE )
+    int bossflag;                           // SHOULD THIS BE CONSIDERED A BOSS
+    int hits;                               // HIT POINTS
+    int money;                              // $$ AMOUNT WHEN KILLED
+    int shootstart;                         // SHOOT START OFFSET
+    int shootcnt;                           // HOW MANY TO SHOOT
+    int shootframe;                         // FRAME RATE TO SHOOT
+    int movespeed;                          // MOVEMENT SPEED
+    int numflight;                          // NUMBER OF FLIGHT POSITIONS
+    int repos;                              // REPEAT TO POSITION
+    int flighttype;                         // FLIGHT TYPE
+    int numguns;                            // NUMBER OF GUNS
+    int numengs;                            // NUMBER OF ENGINES
+    int sfx;                        //NOT USED SFX # TO PLAY
+    int song;                               // SONG # TO PLAY
+    short shoot_type[MAX_GUNS];             // ENEMY SHOOT TYPE
+    short engx[MAX_GUNS];                   // X POS ENGINE FLAME
+    short engy[MAX_GUNS];                   // Y POS ENGINE FLAME
+    short englx[MAX_GUNS];                  // WIDTH OF ENGINE FLAME
+    short shootx[MAX_GUNS];                 // X POS SHOOT FROM
+    short shooty[MAX_GUNS];                 // Y POS SHOOT FROM
+    short flightx[MAX_FLIGHT];              // FLIGHT X POS
+    short flighty[MAX_FLIGHT];              // FLIGHT Y POS
+}; // size 0x210
+#endif
 
-typedef struct SPRITE_SHIP_S 
-{
-    struct SPRITE_SHIP_S *prev;
-    struct SPRITE_SHIP_S *next;
+struct enemy_t {
+    enemy_t *prev;
+    enemy_t *next;
     int item;                         // GLB item of current frame
-    SPRITE *lib;                      // SPRITE LIB POS
+    slib_t *lib;                      // SPRITE LIB POS
     int sx;                           // START X
     int sy;                           // START Y
     int x;                            // CENTER X POS;
@@ -90,7 +128,7 @@ typedef struct SPRITE_SHIP_S
     int hits;                         // *
     int groundflag;                   // *
     int doneflag;
-    MOVEOBJ move;
+    mobj_t move;
     int countdown;
     int curframe;
     int eframe;
@@ -104,7 +142,7 @@ typedef struct SPRITE_SHIP_S
     int multi;
     int speed;
     int suckagain;
-}SPRITE_SHIP;
+};
 
 #define E_NUM_DIFF    4
 
@@ -124,14 +162,14 @@ typedef struct SPRITE_SHIP_S
 #define EB_HARD_LEVEL  32
 #define EB_NOT_USED    64
 
-extern SPRITE_SHIP first_enemy, last_enemy;
+extern enemy_t first_enemy, last_enemy;
 void ENEMY_Clear(void);
 void ENEMY_LoadLib(void);
 void ENEMY_LoadSprites(void);
 void ENEMY_FreeSprites(void);
-SPRITE_SHIP *ENEMY_GetRandom(void);
-SPRITE_SHIP *ENEMY_GetRandomAir(void);
-SPRITE_SHIP *ENEMY_DamageEnergy(int x, int y, int damage);
+enemy_t *ENEMY_GetRandom(void);
+enemy_t *ENEMY_GetRandomAir(void);
+enemy_t *ENEMY_DamageEnergy(int x, int y, int damage);
 int ENEMY_DamageAll(int x, int y, int damage);
 int ENEMY_DamageGround(int x, int y, int damage);
 int ENEMY_DamageAir(int x, int y, int damage);

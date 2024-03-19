@@ -41,21 +41,21 @@ int clearscreenflag = 1;
 
 void (*viewdraw)(void);
 
-SWD_WIN g_wins[MAX_WINDOWS];
+window_t g_wins[MAX_WINDOWS];
 
-SFIELD *lastfld;
+swdfield_t *lastfld;
 
 char *movebuffer;
 
-void (*winfuncs[MAX_WINDOWS])(SWD_DLG*);
-void (*fldfuncs[15])(SWIN*, SFIELD*);
+void (*winfuncs[MAX_WINDOWS])(wdlg_t*);
+void (*fldfuncs[15])(swd_t*, swdfield_t*);
 
 // == STUFF FOR TEXT SCRIPT ==============================
 
 #define MAX_TEXT_LEN 81
 #define MAX_ARGS     5
 
-typedef enum
+enum TEXTCMD
 {
     T_NONE,
     T_IMAGE,
@@ -64,7 +64,7 @@ typedef enum
     T_RIGHT,
     T_DOWN,
     T_LASTCMD
-}TEXTCMD;
+};
 
 char tcmds[][14] = {
     "TEXT_IMAGE",   // GLBNAME, X, Y
@@ -127,8 +127,7 @@ SWD_GetLine(
     const char *cbrks = "\n\v\r \t,;\b";
     const char *cmd;
     int curpos, loop, item, x, y, col;
-    char *pic;
-    GFX_PIC* h;
+    texture_t *pic;
     
     if (inmem)
         text = inmem;
@@ -162,11 +161,9 @@ SWD_GetLine(
                 item = GLB_GetItemID(cmd);
                 if (item == -1)
                     break;
-                pic = (char*)GLB_GetItem(item);
+                pic = (texture_t*)GLB_GetItem(item);
                 cmd = strtok(NULL, cbrks);
                 
-                h = (GFX_PIC*)pic;
-
                 if (!cmd)
                 {
                     x = textdraw_x;
@@ -185,7 +182,7 @@ SWD_GetLine(
                 if (x > textcmd_x2 || y > textcmd_y2)
                     break;
                 
-                textdraw_x += h->width + 1;
+                textdraw_x += pic->width + 1;
                 textdraw_y = y;
                 
                 GFX_PutImage(pic, x, y, 0);
@@ -250,7 +247,7 @@ SWD_FillText () - Fills Text from GLB intro an AREA
  ***************************************************************************/
 void 
 SWD_FillText(
-    FONT *font,            // INPUT : pointer to FONT
+    font_t *font,          // INPUT : pointer to FONT
     int item,              // INPUT : GLB text Item
     int color,             // INPUT : field color
     int x,                 // INPUT : x position
@@ -279,7 +276,7 @@ SWD_FillText(
     textcmd_y2 = y + ly - 1;
     textcmd_line = x;
     
-    sizerec = GLB_ItemSize(item);
+    sizerec = GLB_GetItemSize(item);
     
     len = SWD_GetLine(text);
     
@@ -305,11 +302,11 @@ SWD_FillText(
   ------------------------------------------------------------------------*/
 void 
 SWD_PutField(
-    SWIN *curwin,          // INPUT : pointer to window data
-    SFIELD *curfld         // INPUT : pointer to field data
+    swd_t *curwin,         // INPUT : pointer to window data
+    swdfield_t *curfld     // INPUT : pointer to field data
 )
 {
-    FONT *fld_font;
+    font_t *fld_font;
     char *fld_text;
     int fontheight;
     int draw_style;
@@ -321,10 +318,9 @@ SWD_PutField(
     int text_y;
     int rval;
     int loop;
-    char *pic;
-    GFX_PIC *h;
-
-    fld_font = (FONT*)GLB_GetItem(curfld->fontid);
+    texture_t *pic;
+    
+    fld_font = (font_t*)GLB_GetItem(curfld->fontid);
     fld_text = (char*)curfld + curfld->txtoff;
     fontheight = fld_font->height;
     draw_style = 0;
@@ -359,7 +355,7 @@ SWD_PutField(
         switch (curfld->opt)
         {
         case FLD_BUTTON:
-            pic = (char*)GLB_GetItem(curfld->item);
+            pic = (texture_t*)GLB_GetItem(curfld->item);
             
             if (curfld->picflag == TEXTURE)
             {
@@ -374,7 +370,7 @@ SWD_PutField(
             break;
         
         case FLD_DRAGBAR:
-            pic = (char*)GLB_GetItem(curfld->item);
+            pic = (texture_t*)GLB_GetItem(curfld->item);
             
             if (curfld->picflag == TEXTURE)
             {
@@ -392,7 +388,7 @@ SWD_PutField(
             break;
         
         case FLD_ICON:
-            pic = (char*)GLB_GetItem(curfld->item);
+            pic = (texture_t*)GLB_GetItem(curfld->item);
             
             if (!pic)
                 break;
@@ -402,10 +398,7 @@ SWD_PutField(
                 GFX_PutTexture(pic, fld_x, fld_y, curfld->lx, curfld->ly);
                 goto PutField_Exit;
             }
-            
-            h = (GFX_PIC*)pic;
-
-            if (curfld->lx < h->width || curfld->ly < h->height)
+            if (curfld->lx < pic->width || curfld->ly < pic->height)
             {
                 GFX_ScalePic(pic, fld_x, fld_y, curfld->lx, curfld->ly, 0);
             }
@@ -417,7 +410,7 @@ SWD_PutField(
         
         case FLD_MARK:
         case FLD_CLOSE:
-            pic = (char*)GLB_GetItem(curfld->item);
+            pic = (texture_t*)GLB_GetItem(curfld->item);
             GFX_PutImage(pic, fld_x, fld_y, draw_style);
             break;
         
@@ -548,21 +541,21 @@ SWD_PutField(
     if (curfld->bstatus && curfld->opt != FLD_INPUT)
     {
         if (curfld->picflag == PICTURE)
-            h = (GFX_PIC*)GLB_GetItem(curfld->item);
+            pic = (texture_t*)GLB_GetItem(curfld->item);
         else
-            h = NULL;
+            pic = NULL;
         
         if (curfld->bstatus == DOWN)
         {
-            if (h && h->type == 0)
-                GFX_ShadeShape(DARK, (char*)h, fld_x, fld_y);
+            if (pic && pic->x == 0)
+                GFX_ShadeShape(DARK, pic, fld_x, fld_y);
             else
                 GFX_ShadeArea(DARK, fld_x, fld_y, curfld->lx, curfld->ly);
         }
         else if (curfld->bstatus == UP)
         {
-            if (h && h->type == 0)
-                GFX_ShadeShape(LIGHT, (char*)h, fld_x, fld_y);
+            if (pic && pic->x == 0)
+                GFX_ShadeShape(LIGHT, pic, fld_x, fld_y);
             else
                 GFX_ShadeArea(LIGHT, fld_x, fld_y, curfld->lx, curfld->ly);
         }
@@ -579,8 +572,8 @@ PutField_Exit:
   ------------------------------------------------------------------------*/
 void 
 SWD_DoButton(
-    SWIN *curwin,          // INPUT : pointer to current window
-    SFIELD *curfld         // INPUT : pointer to current field
+    swd_t *curwin,         // INPUT : pointer to current window
+    swdfield_t *curfld     // INPUT : pointer to current field
 )
 {
     // == CONTROLLER INPUT ==============================
@@ -686,16 +679,16 @@ SWD_DoButton(
   ------------------------------------------------------------------------*/
 void 
 SWD_FieldInput(
-    SWIN *curwin,           // INPUT : pointer to current window
-    SFIELD *curfld          // INPUT : pointer to current field
+    swd_t *curwin,          // INPUT : pointer to current window
+    swdfield_t *curfld      // INPUT : pointer to current field
 )
 {
     static int curpos;
-    FONT *fld_font;
+    font_t *fld_font;
     char *wrkbuf;
     int flag;
     flag = 0;
-    fld_font = (FONT*)GLB_GetItem(curfld->fontid);
+    fld_font = (font_t*)GLB_GetItem(curfld->fontid);
     wrkbuf = (char*)curfld + curfld->txtoff;
     
     curpos = strlen(wrkbuf);
@@ -967,8 +960,8 @@ SWD_GetObjAreaInfo(
 )
 {
     int loop;
-    SWIN *cwin;
-    SFIELD *curfld;
+    swd_t* cwin;
+    swdfield_t *curfld;
     
     obj_x = 0;
     obj_y = 0;
@@ -976,7 +969,7 @@ SWD_GetObjAreaInfo(
     obj_height = 0;
     
     cwin = g_wins[handle].win;
-    curfld = (SFIELD*)((char*)cwin + cwin->fldofs);
+    curfld = (swdfield_t*)((char*)cwin + cwin->fldofs);
     
     for (loop = 0; loop < cwin->numflds; loop++)
     {
@@ -1043,7 +1036,7 @@ SWD_GetFirstField(
   ------------------------------------------------------------------------*/
 int 
 SWD_GetLastField(
-    SFIELD *firstfld,       // INPUT : pointer to first field
+    swdfield_t *firstfld,   // INPUT : pointer to first field
     int maxfields           // INPUT : number of fields
 )
 {
@@ -1081,12 +1074,12 @@ SWD_GetLastField(
   ------------------------------------------------------------------------*/
 int
 SWD_GetNextField(
-    SFIELD *firstfld,       // INPUT : pointer to first field
+    swdfield_t* firstfld,   // INPUT : pointer to first field
     int maxfields           // INPUT : number of fields
 )
 {
     int rval, loop, low, del;
-    SFIELD *activefld;
+    swdfield_t* activefld;
 
     low = 0x7fff;
     activefld = firstfld + active_field;
@@ -1117,12 +1110,12 @@ SWD_GetNextField(
   ------------------------------------------------------------------------*/
 int 
 SWD_GetPrevField(
-    SFIELD *firstfld,       // INPUT : pointer to first field
+    swdfield_t *firstfld,   // INPUT : pointer to first field
     int maxfields           // INPUT : number of fields
 )
 {
     int rval, loop, low, del;
-    SFIELD *activefld;
+    swdfield_t *activefld;
     
     low = 0x7fff;
     activefld = firstfld + active_field;
@@ -1153,12 +1146,12 @@ SWD_GetPrevField(
   ------------------------------------------------------------------------*/
 int 
 SWD_GetRightField(
-    SFIELD *firstfld,       // INPUT : pointer to first field
+    swdfield_t* firstfld,   // INPUT : pointer to first field
     int maxfields           // INPUT : number of fields
 ) 
 {
     int rval, low, loop, del;
-    SFIELD *activefld;
+    swdfield_t* activefld;
 
     rval = -1;
     low = 0x7fff;
@@ -1204,12 +1197,12 @@ SWD_GetRightField(
   ------------------------------------------------------------------------*/
 int 
 SWD_GetUpField(
-    SFIELD *firstfld,      // INPUT : pointer to first field
+    swdfield_t *firstfld,  // INPUT : pointer to first field
     int maxfields          // INPUT : number of fields
 )
 {
     int rval, low, loop, del;
-    SFIELD *activefld;
+    swdfield_t *activefld;
 
     low = 0x7fff;
     rval = SWD_GetLastField(firstfld, maxfields);
@@ -1255,12 +1248,12 @@ SWD_GetUpField(
   ------------------------------------------------------------------------*/
 int 
 SWD_GetDownField(
-    SFIELD *firstfld,      // INPUT : pointer to first field
+    swdfield_t *firstfld,  // INPUT : pointer to first field
     int maxfields          // INPUT : number of fields
 )
 {
     int rval, low, loop, del;
-    SFIELD *activefld;
+    swdfield_t *activefld;
 
     low = 0x7fff;
     rval = SWD_GetFirstField();
@@ -1306,12 +1299,12 @@ SWD_GetDownField(
   ------------------------------------------------------------------------*/
 int 
 SWD_GetLeftField(
-    SFIELD *firstfld,       // INPUT : pointer to first field
+    swdfield_t *firstfld,   // INPUT : pointer to first field
     int maxfields           // INPUT : number of fields
 )
 {
     int rval, low, loop, del;
-    SFIELD *activefld;
+    swdfield_t *activefld;
 
     rval = -1;
     low = 0x7fff;
@@ -1357,48 +1350,41 @@ SWD_GetLeftField(
   ------------------------------------------------------------------------*/
 int                        // RETURN: number of fields displayed
 SWD_ShowAllFields(
-    SWIN *inptr            // INPUT : pointer to window data
+    swd_t *inptr           // INPUT : pointer to window data
 )
 {
     int loop, fy, fx;
-    int numflds = 0;
-    char *picdata;
-    GFX_PIC* pich;
-    SWIN* header = (SWIN*)inptr;
-    SFIELD *fld = (SFIELD*)((char*)inptr + header->fldofs);
+    texture_t *picdata;
+    swdfield_t *fld = (swdfield_t*)((char*)inptr + inptr->fldofs);
     
-    for (loop = 0; loop < header->numflds; loop++, fld++, numflds++)
+    for (loop = 0; loop < inptr->numflds; loop++)
     {
-        if (fld->opt != FLD_OFF)
+        if (fld[loop].opt)
         {
-            fx = header->x + fld->x;
-            fy = header->y + fld->y;
-
-            if (fld->saveflag && fld->sptr)
+            fx = inptr->x + fld[loop].x;
+            fy = inptr->y + fld[loop].y;
+            
+            if (fld[loop].saveflag && fld[loop].sptr)
             {
-                picdata = (char*)fld->sptr;
-                pich = (GFX_PIC*)picdata;
-                picdata += sizeof(GFX_PIC);
-                pich->width = (short)fld->lx;
-                pich->height = (short)fld->ly;
-                GFX_GetScreen(picdata, fx, fy, fld->lx, fld->ly);
+                fld[loop].sptr->width = (short)fld[loop].lx;
+                fld[loop].sptr->height = (short)fld[loop].ly;
+                GFX_GetScreen(fld[loop].sptr->charofs, fx, fy, fld[loop].lx, fld[loop].ly);
             }
-
-            if (fld->shadow)
+            
+            if (fld[loop].shadow)
             {
-                if (fld->picflag != SEE_THRU)
-                    GFX_LightBox(UPPER_RIGHT, fx - 1, fy + 1, fld->lx, fld->ly);
-                else
+                if (fld[loop].picflag != SEE_THRU)
                 {
-                    if (fld->item != -1)
-                    {
-                        picdata = GLB_GetItem(fld->item);
-                        GFX_ShadeShape(DARK, picdata, fx - 1, fy + 1);
-                    }
+                    GFX_LightBox(UPPER_RIGHT, fx - 1, fy + 1, fld[loop].lx, fld[loop].ly);
+                }
+                else if (fld[loop].item != -1)
+                {
+                    picdata = (texture_t*)GLB_GetItem(fld[loop].item);
+                    GFX_ShadeShape(DARK, picdata, fx - 1, fy + 1);
                 }
             }
-
-            SWD_PutField(header, fld);
+            
+            SWD_PutField(inptr, &fld[loop]);
         }
     }
     
@@ -1413,9 +1399,9 @@ SWD_PutWin(
     int handle            // INPUT : number/handle of window
 )
 {
-    static SWD_DLG wdlg;
-    SWIN *cwin;
-    char *pic;
+    static wdlg_t wdlg;
+    swd_t *cwin;
+    texture_t *pic;
     int ly, y2, x, lx, y;
     cwin = g_wins[handle].win;
     ly = 8;
@@ -1430,7 +1416,7 @@ SWD_PutWin(
         {
             if (cwin->picflag == SEE_THRU && cwin->item != -1)
             {
-                pic = (char*)GLB_GetItem(cwin->item);
+                pic = (texture_t*)GLB_GetItem(cwin->item);
                 GFX_ShadeShape(DARK, pic, x, y);
             }
             else
@@ -1452,7 +1438,7 @@ SWD_PutWin(
         case PICTURE:
             if (cwin->item != -1)
             {
-                pic = (char*)GLB_GetItem(cwin->item);
+                pic = (texture_t*)GLB_GetItem(cwin->item);
                 GFX_PutImage(pic, cwin->x, cwin->y, 0);
             }
             break;
@@ -1460,7 +1446,7 @@ SWD_PutWin(
         case SEE_THRU:
             if (cwin->item != -1)
             {
-                pic = (char*)GLB_GetItem(cwin->item);
+                pic = (texture_t*)GLB_GetItem(cwin->item);
                 GFX_PutImage(pic, cwin->x, cwin->y, 1);
             }
             break;
@@ -1468,7 +1454,7 @@ SWD_PutWin(
         case TEXTURE:
             if (cwin->item != -1)
             {
-                pic = (char*)GLB_GetItem(cwin->item);
+                pic = (texture_t*)GLB_GetItem(cwin->item);
                 GFX_PutTexture(pic, cwin->x, cwin->y, cwin->lx, cwin->ly);
                 GFX_LightBox(UPPER_RIGHT, cwin->x, cwin->y, cwin->lx, cwin->ly);
             }
@@ -1586,24 +1572,24 @@ SWD_End(
 /***************************************************************************
    SWD_ReformatFieldData () Reformat field data for 64-bit compatibility
  ***************************************************************************/
-SWIN*
+swd_t* 
 SWD_ReformatFieldData(
-    SWIN* header,
+    swd_t* header, 
     int handle
 )
 {
-    int fileLen = GLB_ItemSize(handle);
-    int len = sizeof(SWIN) + (header->numflds * sizeof(SFIELD));
-    int oldLen = sizeof(SWIN) + (header->numflds * sizeof(SFIELD32));
+    int fileLen = GLB_GetItemSize(handle);
+    int len = sizeof(swd_t) + (header->numflds * sizeof(swdfield_t));
+    int oldLen = sizeof(swd_t) + (header->numflds * sizeof(swdfield_32_t));
     int eof = fileLen - oldLen;
 
-    SWIN *swdNewData = (SWIN*)calloc(1, len + eof);
+    swd_t* swdNewData = (swd_t*)calloc(1, len + eof);
 
-    memcpy(swdNewData, header, sizeof(SWIN));
+    memcpy(swdNewData, header, sizeof(swd_t));
     memcpy((char*)swdNewData + len, (char*)header + oldLen, eof);
 
-    SFIELD32* swdfield32 = (SFIELD32*)((char*)header + header->fldofs);
-    SFIELD* swdfield = (SFIELD*)((char*)swdNewData + swdNewData->fldofs);
+    swdfield_32_t* swdfield32 = (swdfield_32_t*)((char*)header + header->fldofs);
+    swdfield_t* swdfield = (swdfield_t*)((char*)swdNewData + swdNewData->fldofs);
 
     for (size_t loop = 0; loop < header->numflds; loop++)
     {
@@ -1660,8 +1646,8 @@ SWD_InitWindow(
     int handle                // INPUT : GLB Item Number
 )
 {
-    SWIN *header;
-    SFIELD *curfld;
+    swd_t *header;
+    swdfield_t *curfld;
     int rec_num, loop, pic_size;
     
     PTR_ResetJoyStick();
@@ -1677,7 +1663,7 @@ SWD_InitWindow(
         lastfld = NULL;
     }
     
-    header = (SWIN*)GLB_LockItem(handle);
+    header = (swd_t*)GLB_LockItem(handle);
 
 #if _MSC_VER
 #if _WIN64
@@ -1693,7 +1679,7 @@ SWD_InitWindow(
 #endif // __aarch64__
 #endif // __GNUC__
     
-    curfld = (SFIELD*)((char*)header + header->fldofs);
+    curfld = (swdfield_t*)((char*)header + header->fldofs);
     
     for (rec_num = 0; rec_num < MAX_WINDOWS; rec_num++)
     {
@@ -1767,7 +1753,7 @@ SWD_InitWindow(
                         if (pic_size < 0 || pic_size > 64000)
                             EXIT_Error("SWD Error: pic save to big...");
                         
-                        curfld[loop].sptr = (char*)malloc(pic_size);
+                        curfld[loop].sptr = (texture_t*)malloc(pic_size);
                         
                         if (!curfld[loop].sptr)
                             EXIT_Error("SWD Error: out of memory");
@@ -1811,8 +1797,8 @@ SWD_SetViewDrawHook(
  ***************************************************************************/
 void 
 SWD_SetWinDrawFunc(
-    int handle,              // INPUT :handle of window
-    void (*infunc)(SWD_DLG*) // INPUT :pointer to function
+    int handle,             // INPUT :handle of window
+    void (*infunc)(wdlg_t*) // INPUT :pointer to function
 )
 {
     if (infunc && g_wins[handle].flag)
@@ -1875,8 +1861,8 @@ SWD_SetWindowPtr(
     int handle             // INPUT : number/handle of window
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
     if (!ptractive || handle == -1)
@@ -1891,7 +1877,7 @@ SWD_SetWindowPtr(
     }
     else
     {
-        curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+        curfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
         curfld += active_field;
         
         PTR_SetPos(curfld->x + (curfld->lx>>1), curfld->y + (curfld->ly>>1));
@@ -1907,8 +1893,8 @@ SWD_SetFieldPtr(
     int field              // INPUT : field
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
     if (!ptractive || handle == -1)
@@ -1923,7 +1909,7 @@ SWD_SetFieldPtr(
     }
     else
     {
-        curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+        curfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
         curfld += field;
         
         PTR_SetPos(curfld->x + (curfld->lx>>1), curfld->y + (curfld->ly>>1));
@@ -1953,14 +1939,14 @@ SWD_SetActiveField(
     int field_id           // INPUT : number/handle of field
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
     if (active_field != -1)
-        lastfld = (SFIELD*)((char*)curwin + curwin->fldofs) + active_field;
+        lastfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + active_field;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
     curfld += field_id;
     
     if (curfld->kbflag != 0)
@@ -1978,8 +1964,8 @@ SWD_DestroyWindow(
     int handle            // INPUT : handle of window
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     int loop, hold;
     curwin = g_wins[handle].win;
     
@@ -1988,7 +1974,7 @@ SWD_DestroyWindow(
     if (!g_wins[handle].flag)
         EXIT_Error("SWD: DestroyWindow %d", handle);
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
     
     for (loop = 0; loop < curwin->numflds; loop++)
     {
@@ -2022,7 +2008,7 @@ SWD_DestroyWindow(
     if (active_field != -1)
     {
         curwin = g_wins[active_window].win;
-        curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+        curfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
         
         if (curfld[active_field].kbflag)
             kbactive = 1;
@@ -2049,7 +2035,7 @@ SWD_FindWindow(
     int y                  // INPUT : y position
 )
 {
-    SWIN *curwin;
+    swd_t *curwin;
     int rval;
     int x2, y2;
     int loop;
@@ -2089,8 +2075,8 @@ SWD_FindWindow(
 int 
 SWD_CheckMouse(
     int a1, 
-    SWIN *curwin,          // INPUT : pointer to current window
-    SFIELD *curfld         // INPUT : pointer to current field
+    swd_t *curwin,         // INPUT : pointer to current window
+    swdfield_t *curfld     // INPUT : pointer to current field
 )
 {
     int px;
@@ -2178,9 +2164,9 @@ SWD_CheckMouse(
   ------------------------------------------------------------------------*/
 int 
 SWD_CheckViewArea(
-    SWD_DLG *dlg,             // INPUT : pointer to DLG window messages 
-    SWIN *curwin,             // INPUT : pointer to current window 
-    SFIELD *curfld            // INPUT : pointer to current field
+    wdlg_t *dlg,             // INPUT : pointer to DLG window messages 
+    swd_t *curwin,           // INPUT : pointer to current window 
+    swdfield_t *curfld       // INPUT : pointer to current field
 )
 {
     int loop;
@@ -2231,15 +2217,15 @@ SWD_ClearAllButtons(
 )
 {
     int wloop, loop;
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t *curwin;
+    swdfield_t *curfld;
     
     for (wloop = 0; wloop < MAX_WINDOWS; wloop++)
     {
         if (g_wins[wloop].flag)
         {
             curwin = g_wins[wloop].win;
-            curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+            curfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
             
             for (loop = 0; loop < curwin->numflds; loop++)
             {
@@ -2254,12 +2240,12 @@ SWD_ClearAllButtons(
  ***************************************************************************/
 void 
 SWD_Dialog(
-    SWD_DLG *swd_dlg       // OUTPUT: pointer to info structure
+    wdlg_t *swd_dlg       // OUTPUT: pointer to info structure
 )
 {
     int update, loop, sy, sx;
-    SWIN *curwin;
-    SFIELD *firstfld, *curfld;
+    swd_t *curwin;
+    swdfield_t *firstfld, *curfld;
     
     //__disable();
     I_GetEvent();
@@ -2275,7 +2261,7 @@ SWD_Dialog(
         return;
 
     curwin = g_wins[active_window].win;
-    firstfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+    firstfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
     curfld = firstfld + active_field;
     
     cur_act = S_IDLE;
@@ -2336,7 +2322,7 @@ SWD_Dialog(
                 SWD_ClearAllButtons();
                 lastfld = NULL;
                 curwin = g_wins[active_window].win;
-                firstfld = (SFIELD*)((char*)curwin + curwin->fldofs);
+                firstfld = (swdfield_t*)((char*)curwin + curwin->fldofs);
                 active_field = curwin->firstfld;
                 curfld = firstfld + active_field;
                 SWD_ShowAllWindows();
@@ -2588,7 +2574,7 @@ SWD_SetWindowXY(
     int ypos               // INPUT : y position
 )
 {
-    SWIN *curwin;
+    swd_t *curwin;
     curwin = g_wins[handle].win;
     
     curwin->x = xpos;
@@ -2609,7 +2595,7 @@ SWD_GetWindowXYL(
     int *ly                  // OUTPUT: y length
 )
 {
-    SWIN *curwin;
+    swd_t* curwin;
     curwin = g_wins[handle].win;
     
     if (xpos)
@@ -2637,12 +2623,12 @@ SWD_GetFieldText(
     char *out_text         // OUTPUT: text
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     char *text;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     text = (char*)curfld + curfld->txtoff;
     
@@ -2661,12 +2647,12 @@ SWD_SetFieldText(
     const char *in_text    // OUTPUT: pointer to string
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     char *text;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     text = (char*)curfld + curfld->txtoff;
     
@@ -2690,12 +2676,12 @@ SWD_GetFieldValue(
     int field_id           // INPUT : field handle
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     char *text;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     text = (char*)curfld + curfld->txtoff;
     
@@ -2712,12 +2698,12 @@ SWD_SetFieldValue(
     int num                // INPUT : number to set in fld text
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     char *text;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     text = (char*)curfld + curfld->txtoff;
     
@@ -2736,11 +2722,11 @@ SWD_SetFieldSelect(
     int opt               // INPUT : TRUE, FALSE
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     curfld->selectable = opt;
 }
@@ -2754,11 +2740,11 @@ SWD_GetFieldMark(
     int field_id           // INPUT : field handle
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     return curfld->mark;
 }
@@ -2773,11 +2759,11 @@ SWD_SetFieldMark(
     int opt                // INPUT : TRUE, FALSE
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     curfld->mark = opt;
 }
@@ -2791,11 +2777,11 @@ SWD_GetFieldInputOpt(
     int field_id          // INPUT : field handle
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     return curfld->input_opt;
 }
@@ -2810,12 +2796,12 @@ SWD_SetFieldInputOpt(
     int opt                // INPUT : input option
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     int old_opt;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     old_opt = curfld->input_opt;
     curfld->input_opt = opt;
@@ -2833,11 +2819,11 @@ SWD_SetFieldItem(
     int item               // INPUT : GLB item id
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     if (item != -1)
     {
@@ -2861,11 +2847,11 @@ SWD_GetFieldItem(
     int field_id           // INPUT : field handle
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     return curfld->item;
 }
@@ -2880,12 +2866,12 @@ SWD_SetFieldItemName(
     const char *item_name  // INPUT : pointer to Item Name
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     int item;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     item = GLB_GetItemID(item_name);
     
@@ -2910,11 +2896,11 @@ SWD_GetFieldItemName(
     char *item_name       // OUTPUT: pointer to Item Name
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     memcpy(item_name, curfld->item_name, 16);
 }
@@ -2924,11 +2910,11 @@ SWD_GetFieldItemName(
  ***************************************************************************/
 int                           // RETURN: old Window ID
 SWD_SetWindowID(
-    int handle,             // INPUT : window handle
-    int id                  // INPUT : NEW window ID
+    int handle,            // INPUT : window handle
+    int id                 // INPUT : NEW window ID
 )
 {
-    SWIN *curwin;
+    swd_t* curwin;
     int old_id;
     curwin = g_wins[handle].win;
     old_id = curwin->id;
@@ -2946,7 +2932,7 @@ SWD_GetWindowID(
     int handle             // INPUT : window handle
 )
 {
-    SWIN *curwin;
+    swd_t* curwin;
     curwin = g_wins[handle].win;
     
     return curwin->id;
@@ -2961,7 +2947,7 @@ SWD_SetWindowFlag(
     int flag                // INPUT : TRUE/FALSE
 )
 {
-    SWIN *curwin;
+    swd_t* curwin;
     curwin = g_wins[handle].win;
     
     curwin->display = flag;
@@ -2980,7 +2966,7 @@ SWD_SetWindowType(
     int type               // INPUT : NEW window TYPE
 )
 {
-    SWIN *curwin;
+    swd_t* curwin;
     int old_type;
     curwin = g_wins[handle].win;
     old_type = curwin->type;
@@ -2998,7 +2984,7 @@ SWD_GetWindowType(
     int handle             // INPUT : window handle
 )
 {
-    SWIN *curwin;
+    swd_t* curwin;
     curwin = g_wins[handle].win;
     
     return curwin->type;
@@ -3017,11 +3003,11 @@ SWD_GetFieldXYL(
     int* ly                // OUTPUT: height
 )
 {
-    SWIN *curwin;
-    SFIELD *curfld;
+    swd_t* curwin;
+    swdfield_t *curfld;
     curwin = g_wins[handle].win;
     
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
+    curfld = (swdfield_t*)((char*)curwin + curwin->fldofs) + field_id;
     
     if (x)
         *x = curwin->x + curfld->x;

@@ -2,15 +2,15 @@
 
 #define MAX_OBJS 20
 
-typedef enum
+enum BUYSTUFF
 {
     OBJ_GOTIT,
     OBJ_NOMONEY,
     OBJ_SHIPFULL,
     OBJ_ERROR
-}BUYSTUFF;
+};
 
-typedef enum
+enum OBJ_TYPE
 {
     S_FORWARD_GUNS,   // 00 * DUAL MACHINE GUNS
     S_PLASMA_GUNS,    // 01 * PLASMA GUNS
@@ -37,13 +37,12 @@ typedef enum
     S_ITEMBUY5,       // 23
     S_ITEMBUY6,       // 24
     S_LAST_OBJECT     // 25 LAST OBJECT ( NOT USED )
-}OBJ_TYPE;
+};
 
 #define LAST_WEAPON ( S_DEATH_RAY )
 #define FIRST_SPECIAL ( S_DUMB_MISSLE )
 
-typedef struct
-{
+struct objlib_t {
     int item;                             // LUMPNUM OF PIC
     int numframes;                        // NUMBER OF FRAMES
     int cost;                             // COST OF OBJECT
@@ -58,25 +57,24 @@ typedef struct
     int moneyflag;                        // ADDS MONEY TO PLAYER WHEN PICKED UP
     int game1flag;                        // TRUE=AVALABLE IN ALL GAMES
     int shieldflag;                       // SHOW SHIELD WHEN BONUS
-}OBJ_LIB;
+};
 
-typedef struct OBJ_S
-{
-    struct OBJ_S *prev;                   // LINK LIST PREV
-    struct OBJ_S *next;                   // LINK LIST NEXT
+struct object_t {
+    object_t* prev;                       // LINK LIST PREV
+    object_t* next;                       // LINK LIST NEXT
     int num;                              // NUMBER OF ITEM(S)
     int type;                             // OBJECT TYPE
-    OBJ_LIB *lib;                         // POINTER TO LIB
+    objlib_t *lib;                        // POINTER TO LIB
     int inuse;                            // CURRENTLY EQUIPED
-}OBJ;
+};
 
-extern OBJ first_objs, last_objs;
+extern object_t first_objs, last_objs;
 
 void OBJS_Init(void);
 int OBJS_Add(int type);
 void OBJS_GetNext(void);
 int OBJS_GetAmt(int type);
-OBJ_LIB *OBJS_GetLib(int type);
+objlib_t *OBJS_GetLib(int type);
 int OBJS_CanBuy(int type);
 int OBJS_GetCost(int type);
 int OBJS_CanSell(int type);
@@ -87,7 +85,7 @@ int OBJS_GetResale(int type);
 int OBJS_Buy(unsigned int type);
 int OBJS_Sell(int type);
 void OBJS_Clear(void);
-int OBJS_Load(OBJ *inobj);
+int OBJS_Load(object_t *inobj);
 int OBJS_IsEquip(int type);
 int OBJS_LoseObj(void);
 void OBJS_DisplayStats(void);

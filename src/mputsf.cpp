@@ -53,8 +53,10 @@ TSF_Init(
         char errmsg[255];
         fprintf(stderr, "Could not load %s\n", fn);
         sprintf(errmsg,"Could not load %s\n", fn);
+        #ifndef SDL12
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", errmsg, NULL);
+        #endif
         EXIT_Error("Could not load SoundFont.");
         return 0;
     }

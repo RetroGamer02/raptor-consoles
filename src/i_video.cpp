@@ -21,7 +21,11 @@
 #include <cstring>
 #include <climits>
 #include "SDL.h"
+#ifdef __NDS__
+#include <nds.h>
+#else
 #include "SDL_opengl.h"
+#endif
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -42,8 +46,12 @@
 // These are (1) the window (or the full screen) that our game is rendered to
 // and (2) the renderer that scales the texture (see below) into this window.
 
+#ifdef SDL12
+static SDL_Surface *screen;
+#else
 static SDL_Window *screen;
 static SDL_Renderer *renderer;
+#endif
 
 // Window title
 
@@ -56,10 +64,12 @@ static const char *window_title = "";
 // is upscaled by an integer factor UPSCALE using "nearest" scaling and which
 // in turn is finally rendered to screen using "linear" scaling.
 
+#ifndef SDL12
 static SDL_Surface *screenbuffer = NULL;
 static SDL_Surface *argbbuffer = NULL;
 static SDL_Texture *texture = NULL;
 static SDL_Texture *texture_upscaled = NULL;
+#endif
 
 static SDL_Rect blit_rect = {
     0,
@@ -102,8 +112,13 @@ int video_display = 0;
 
 // Screen width and height, from configuration file.
 
+#ifdef __NDS__
+int window_width = 320;
+int window_height = 200;
+#else
 int window_width = 800;
 int window_height = 600;
+#endif
 
 // Fullscreen mode, 0x0 for SDL_WINDOW_FULLSCREEN_DESKTOP.
 
@@ -199,13 +214,22 @@ int screencoordpoint = 0;
 
 void VIDEO_LoadPrefs(void)
 {
+	#ifdef __NDS__
+	fullscreen = 1;
+	aspect_ratio_correct = 0;
+	txt_fullscreen = 0;
+	#else
     fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
     aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
     txt_fullscreen = INI_GetPreferenceLong("Video", "txt_fullscreen", 0);
+	#endif
 }
 
 static bool MouseShouldBeGrabbed()
 {
+	#ifdef __NDS__
+	return false;
+	#else
     // never grab the mouse when in screensaver mode
 
     if (screensaver_mode)
@@ -243,6 +267,7 @@ static bool MouseShouldBeGrabbed()
     {
         return true;
     }
+    #endif
 }
 
 void I_SetGrabMouseCallback(grabmouse_callback_t func)
@@ -259,6 +284,7 @@ void I_SetGrabMouseCallback(grabmouse_callback_t func)
 
 static void SetShowCursor(bool show)
 {
+	#ifndef __NDS__
     if (!screensaver_mode)
     {
 #if 1
@@ -270,13 +296,16 @@ static void SetShowCursor(bool show)
         SDL_ShowCursor(show);
 #endif
     }
+    #endif
 }
 
 void I_ShutdownGraphics(void)
 {
     if (initialized)
     {
+    	#ifndef __NDS__
         SetShowCursor(true);
+        #endif
 
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
@@ -304,8 +333,10 @@ static void AdjustWindowSize(void)
     }
 }
 
+#ifndef SDL12
 static void HandleWindowEvent(SDL_WindowEvent *event)
 {
+    
     int i;
 
     switch (event->event)
@@ -367,7 +398,9 @@ static void HandleWindowEvent(SDL_WindowEvent *event)
             break;
     }
 }
+#endif
 
+#ifndef SDL12
 static bool ToggleFullScreenKeyShortcut(SDL_Keysym *sym)
 {
     Uint16 flags = (KMOD_LALT | KMOD_RALT);
@@ -377,9 +410,11 @@ static bool ToggleFullScreenKeyShortcut(SDL_Keysym *sym)
     return (sym->scancode == SDL_SCANCODE_RETURN ||
             sym->scancode == SDL_SCANCODE_KP_ENTER) && (sym->mod & flags) != 0;
 }
+#endif
 
 static void I_ToggleFullScreen(void)
 {
+    #ifndef SDL12
     unsigned int flags = 0;
 
     // TODO: Consider implementing fullscreen toggle for SDL_WINDOW_FULLSCREEN
@@ -404,10 +439,108 @@ static void I_ToggleFullScreen(void)
         AdjustWindowSize();
         SDL_SetWindowSize(screen, window_width, window_height);
     }
+    #endif
 }
 
 void I_GetEvent(void)
 {
+    #ifdef __NDS__
+    extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
+    extern void I_HandleMouseEvent(SDL_Event *sdlevent);
+    extern void I_HandleJoystickEvent(SDL_Event *sdlevent);
+
+    scanKeys();
+
+	uint32_t kDown = keysDown();
+
+	uint32_t kUp = keysUp();
+
+	//SDL1 NDS Hat handeling is a pain so use native api.
+    //Rest is handled by SDL
+
+	if (kDown & KEY_LEFT)
+	{
+		Left = 1;
+	}
+	if (kUp & KEY_LEFT)
+	{
+		Left = 0;
+	}
+	if (kDown & KEY_RIGHT)
+	{
+		Right = 1;
+	}
+	if (kUp & KEY_RIGHT)
+	{
+		Right = 0;
+	}
+	if (kDown & KEY_UP)
+	{
+		Up = 1;
+	}
+	if (kUp & KEY_UP)
+	{
+		Up = 0;
+	}
+	if (kDown & KEY_DOWN)
+	{
+		Down = 1;
+	}
+	if (kUp & KEY_DOWN)
+	{
+		Down = 0;
+	}
+
+    SDL_Event sdlevent;
+
+    SDL_PumpEvents();
+    
+    while (SDL_PollEvent(&sdlevent))
+    {
+        switch (sdlevent.type)
+        {
+            case SDL_KEYDOWN:
+                // deliberate fall-though
+            case SDL_KEYUP:
+		        I_HandleKeyboardEvent(&sdlevent);
+                break;
+            /*case SDL_JOYDEVICEADDED:
+                IPT_CalJoy();
+                break;
+            case SDL_JOYDEVICEREMOVED:          
+                IPT_CloJoy();
+                break;*/
+            case SDL_JOYBUTTONUP:
+            case SDL_JOYBUTTONDOWN:
+            case SDL_JOYAXISMOTION:
+                I_HandleJoystickEvent(&sdlevent);
+                break;
+
+            case SDL_QUIT:
+                exit(0);
+                break;
+
+            /*case SDL_WINDOWEVENT:
+                if (sdlevent.window.windowID == SDL_GetWindowID(screen))
+                {
+                    HandleWindowEvent(&sdlevent.window);
+                }
+                break;*/
+
+            default:
+                break;
+        }
+    }
+
+    if ((control == 2) && (!joy_ipt_MenuNew))
+         PTR_JoyHandler();
+    if ((control != 2) || (control == 2 && joy_ipt_MenuNew))
+         PTR_MouseHandler();
+    PTR_UpdateCursor();
+    IPT_GetButtons();
+
+    MUS_Poll();
+    #else
     extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
     extern void I_HandleMouseEvent(SDL_Event *sdlevent);
     extern void I_HandleJoystickEvent(SDL_Event *sdlevent);
@@ -488,6 +621,7 @@ void I_GetEvent(void)
     IPT_GetButtons();
 
     MUS_Poll();
+    #endif
 }
 
 //
@@ -516,6 +650,7 @@ void I_GetEvent(void)
 
 static void UpdateGrab(void)
 {
+    #ifndef SDL12
     static bool currently_grabbed = false;
     bool grab;
 
@@ -549,8 +684,10 @@ static void UpdateGrab(void)
     }
 
     currently_grabbed = grab;
+    #endif
 }
 
+#ifndef SDL12
 static void LimitTextureSize(int *w_upscale, int *h_upscale)
 {
     SDL_RendererInfo rinfo;
@@ -702,6 +839,7 @@ static void CreateUpscaledTexture(bool force)
         SDL_DestroyTexture(old_texture);
     }
 }
+#endif
 
 //
 // I_FinishUpdate
@@ -715,6 +853,18 @@ void I_FinishUpdate (void)
     // if (noblit)
     //     return;
 
+    #ifdef SDL12
+    //UpdateGrab();
+
+    if (palette_to_set)
+    {
+        SDL_SetColors(screen, palette, 0, 256);
+        palette_to_set = false;
+    }
+
+    SDL_Flip(screen); //If Double Buffering
+    //SDL_UpdateRect(screen, 0, 0, 0, 0);
+    #else
     if (need_resize)
     {
         if (SDL_GetTicks() > last_resize_time + RESIZE_DELAY)
@@ -819,6 +969,7 @@ void I_FinishUpdate (void)
     // Restore background and undo the disk indicator, if it was drawn.
     V_RestoreDiskBackground();
 #endif
+    #endif
 }
 
 
@@ -909,7 +1060,9 @@ void I_SetWindowTitle(const char *title)
 
 void I_InitWindowTitle(void)
 {
+    #ifndef SDL12
     SDL_SetWindowTitle(screen, "Raptor");
+    #endif
 #if 0
     char *buf;
 
@@ -1121,6 +1274,7 @@ static void SetSDLVideoDriver(void)
 // Check the display bounds of the display referred to by 'video_display' and
 // set x and y to a location that places the window in the center of that
 // display.
+#ifndef SDL12
 static void CenterWindow(int *x, int *y, int w, int h)
 {
     SDL_Rect bounds;
@@ -1135,9 +1289,11 @@ static void CenterWindow(int *x, int *y, int w, int h)
     *x = bounds.x + SDL_max((bounds.w - w) / 2, 0);
     *y = bounds.y + SDL_max((bounds.h - h) / 2, 0);
 }
+#endif
 
 void I_GetWindowPosition(int *x, int *y, int w, int h)
 {
+    #ifndef SDL12
     // Check that video_display corresponds to a display that really exists,
     // and if it doesn't, reset it.
     if (video_display < 0 || video_display >= SDL_GetNumVideoDisplays())
@@ -1178,10 +1334,24 @@ void I_GetWindowPosition(int *x, int *y, int w, int h)
         fprintf(stderr, "I_GetWindowPosition: invalid window_position setting\n");
         *x = *y = SDL_WINDOWPOS_UNDEFINED;
     }
+    #endif
 }
 
 static void SetVideoMode(void)
 {
+    #ifdef SDL12
+    /*
+     * Initialize the display in a 320x200 8-bit palettized mode,
+     * requesting a hardware surface
+     */
+    
+    screen = SDL_SetVideoMode(window_width, window_height, 8, SDL_HWSURFACE);
+    
+    if ( screen == NULL ) {
+        fprintf(stderr, "Couldn't set 320x200x8 video mode: %s\n",
+                        SDL_GetError());
+    }
+    #else
     int w, h;
     int x, y;
     unsigned int rmask, gmask, bmask, amask;
@@ -1390,10 +1560,41 @@ static void SetVideoMode(void)
     // Initially create the upscaled texture for rendering to screen
 
     CreateUpscaledTexture(true);
+    #endif
 }
 
 void I_InitGraphics(uint8_t *pal)
 {
+    #ifdef SDL12
+    /* Initialize the SDL library */
+    if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+        fprintf(stderr,
+                "Couldn't initialize SDL: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    /* Clean up on exit */
+    atexit(SDL_Quit);
+
+    SDL_ShowCursor(SDL_DISABLE);
+
+    SetVideoMode();
+
+    SDL_FillRect(screen, NULL, 0);
+    I_SetPalette(pal);
+    SDL_SetPalette(screen, 0, palette, 0, 256);
+
+    // The actual 320x200 canvas that we draw to. This is the pixel buffer of
+    // the 8-bit paletted screen buffer that gets blit on an intermediate
+    // 32-bit RGBA screen buffer that gets loaded into a texture that gets
+    // finally rendered into our window or full screen in I_FinishUpdate().
+
+    I_VideoBuffer = (pixel_t*)screen->pixels;
+
+    //while (SDL_PollEvent(&dummy));
+
+    initialized = true;
+    #else
     SDL_Event dummy;
     char *env;
     int rw = 0, rh = 0;
@@ -1496,6 +1697,7 @@ void I_InitGraphics(uint8_t *pal)
     {
         screencoordpoint = 1;
     }
+    #endif
 }
 
 // Bind all variables controlling video options into the configuration
@@ -1526,6 +1728,7 @@ void I_BindVideoVariables(void)
 
 void I_GetMousePos(int *x, int *y)
 {
+    #ifndef SDL12
     SDL_Rect viewport;
     float sx, sy;
     SDL_GetMouseState(x, y);
@@ -1540,10 +1743,12 @@ void I_GetMousePos(int *x, int *y)
 
     *x = (int)(*x / sx) - viewport.x;
     *y = (int)(((*y / sy - viewport.y) * (float)SCREENHEIGHT) / actualheight);
+    #endif
 }
 
 void I_SetMousePos(int x, int y)
 {
+    #ifndef SDL12
     SDL_Rect viewport;
     float sx, sy;
     SDL_RenderGetViewport(renderer, &viewport);
@@ -1558,9 +1763,14 @@ void I_SetMousePos(int x, int y)
     x = (int)((x + viewport.x) * sx);
     y = (int)(((y * actualheight) / (float)SCREENHEIGHT + viewport.y) * sy);
     SDL_WarpMouseInWindow(screen, x, y);
+    #endif
 }
 
 void closewindow(void)
 {
+    #ifdef SDL12
+    SDL_FreeSurface(screen);
+    #else
     SDL_DestroyWindow(screen);
+    #endif
 }

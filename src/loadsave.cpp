@@ -43,11 +43,16 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
+#ifdef __NDS__
+static const char *fmt = SDMC "CHAR%04u.FIL";
+static const char* cdfmt = SDMC "%s\\CHAR%04u.FIL";
+#else
 static const char *fmt = "CHAR%04u.FIL";
 static const char* cdfmt = "%s\\CHAR%04u.FIL";
+#endif
 
-MAZELEVEL *mapmem;
-CSPRITE *csprite;
+map_t *mapmem;
+csprite_t *csprite;
 char *ml;
 
 /***************************************************************************
@@ -211,10 +216,10 @@ RAP_IsSaveFile() - Returns True if thier is a sopt to save a character
  ***************************************************************************/
 int 
 RAP_IsSaveFile(
-    PLAYEROBJ *in_plr
+    player_t *in_plr
 )
 {
-    PLAYEROBJ tp;
+    player_t tp;
     char temp[PATH_MAX];
     int rval, loop;
     FILE *handle;
@@ -255,7 +260,7 @@ RAP_LoadPlayer(
     char filename[PATH_MAX];
     int rval, loop;
     FILE *handle;
-    OBJ inobj;
+    object_t inobj;
 
     rval = 0;
     
@@ -321,7 +326,7 @@ RAP_SavePlayer(
     int rval;
     char filename[PATH_MAX];
     FILE *handle;
-    OBJ *cur;
+    object_t *cur;
 
     rval = 0;
     
@@ -361,9 +366,9 @@ RAP_SavePlayer(
     
     for (cur = first_objs.next; &last_objs != cur; cur = cur->next)
     {
-        GLB_EnCrypt(gdmodestr, cur, sizeof(OBJ));
-        fwrite(cur, 1, sizeof(OBJ), handle);
-        GLB_DeCrypt(gdmodestr, cur, sizeof(OBJ));
+        GLB_EnCrypt(gdmodestr, cur, sizeof(object_t));
+        fwrite(cur, 1, sizeof(object_t), handle);
+        GLB_DeCrypt(gdmodestr, cur, sizeof(object_t));
     }
     
     rval = 1;
@@ -396,8 +401,8 @@ RAP_LoadMap(
     
     ml = GLB_LockItem(map_item);
     
-    mapmem = (MAZELEVEL*)ml;
-    csprite = (CSPRITE*)(ml + sizeof(MAZELEVEL));
+    mapmem = (map_t*)ml;
+    csprite = (csprite_t*)(ml + sizeof(map_t));
 
     ENEMY_LoadLib();
     SND_CacheGFX();
@@ -452,8 +457,8 @@ RAP_LoadWin(
     char filenames[MAX_SAVE][PATH_MAX];
     char temp[PATH_MAX];
     int update, pos, oldpos, fndflag, rval, loop, window, addnum;
-    PLAYEROBJ tplr;
-    SWD_DLG dlg;
+    player_t tplr;
+    wdlg_t dlg;
     update = 1;
     pos = -1;
     oldpos = -2;
@@ -654,7 +659,11 @@ RAP_InitLoadSave(
     
     cdflag = 0;
     
+    #ifdef __NDS__
+    strcpy(g_setup_ini, SDMC "SETUP.INI");
+    #else
     strcpy(g_setup_ini, "SETUP.INI");
+    #endif
     
     return cdpath;
 }
