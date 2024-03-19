@@ -129,7 +129,7 @@ void sys_init()
     }
 
     aptSetHomeAllowed(true);
-    aptSetSleepAllowed(true);
+    //aptSetSleepAllowed(true);
 
 #elif __SWITCH__
 
