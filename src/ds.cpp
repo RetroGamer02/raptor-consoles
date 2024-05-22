@@ -93,9 +93,17 @@ void init_nds()
 
     if (isDSiMode())
     {
+        #ifdef __BLOCKSDS__
+        #undef SDMC
+        #define SDMC "sd:/nds/Raptor/"
+        #endif
 	    setCpuClock(true);
         printf("DSi Enhanced Mode.\n");
     }
+
+    #ifdef __BLOCKSDS__
+    fatInitDefault();
+    #endif
 
 	int rc = nitroFSInit(NULL); //Calls fatInit as well
 	if (!rc)

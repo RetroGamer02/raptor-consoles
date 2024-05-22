@@ -20,5 +20,9 @@ void init_nds();
 #define access checkFile
 
 #define ROMFS "nitro:/"
+#ifdef __BLOCKSDS__
+#define SDMC "fat:/nds/Raptor/"
+#else
 #define SDMC "/nds/Raptor/"
+#endif
 #endif
