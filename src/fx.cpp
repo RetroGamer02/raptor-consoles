@@ -99,8 +99,10 @@ int SND_InitSound(void)
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         return 0;
 
+    #ifdef __NDS__
     if (!isDSiMode())
-    fx_freq = 7000;//5500;
+    fx_freq = 7000;
+    #endif
 
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
