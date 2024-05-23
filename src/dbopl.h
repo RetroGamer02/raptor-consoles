@@ -266,10 +266,18 @@ struct Chip {
 
 struct Handler {
 	DBOPL::Chip chip;
+	
+	#ifdef __XBOX__
+	Bit32u WriteAddr( Bit32u port, Bit8u val );
+	void WriteReg( Bit32u addr, Bit8u val );
+	void Generate( Bit32s *buffer, Bitu samples );
+	void Init( Bitu rate );
+	#else
 	virtual Bit32u WriteAddr( Bit32u port, Bit8u val );
 	virtual void WriteReg( Bit32u addr, Bit8u val );
 	virtual void Generate( Bit32s *buffer, Bitu samples );
 	virtual void Init( Bitu rate );
+	#endif
 
 	Handler(bool opl3Mode) : chip(opl3Mode) {
 	}
