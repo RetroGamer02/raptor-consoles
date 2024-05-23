@@ -1389,10 +1389,17 @@ void InitTables( void ) {
 #if ( DBOPL_WAVE == WAVE_HANDLER )
 	//Add 0.5 for the trunc rounding of the integer cast
 	//Do a PI sinetable instead of the original 0.5 PI
+	#ifdef __XBOX__
+	for ( int i = 0; i < 512; i++ ) {
+		SinTable[i] = (Bit16s)(0.5 - log10(sin((i + 0.5) * (PI / 512.0))) /
+		                                     log10(2.0) * 256);
+	}
+	#else
 	for ( int i = 0; i < 512; i++ ) {
 		SinTable[i] = (Bit16s)(0.5 - log10(sin((i + 0.5) * (M_PI / 512.0))) /
 		                                     log10(2.0) * 256);
 	}
+	#endif
 #endif
 #if ( DBOPL_WAVE == WAVE_TABLEMUL )
 	//Multiplication based tables
@@ -1404,11 +1411,19 @@ void InitTables( void ) {
 	}
 
 	//Sine Wave Base
+	#ifdef __XBOX__
+	for ( int i = 0; i < 512; i++ ) {
+		WaveTable[0x0200 + i] = (Bit16s)(
+		        sin((i + 0.5) * (PI / 512.0)) * 4084);
+		WaveTable[ 0x0000 + i ] = -WaveTable[ 0x200 + i ];
+	}
+	#else
 	for ( int i = 0; i < 512; i++ ) {
 		WaveTable[0x0200 + i] = (Bit16s)(
 		        sin((i + 0.5) * (M_PI / 512.0)) * 4084);
 		WaveTable[ 0x0000 + i ] = -WaveTable[ 0x200 + i ];
 	}
+	#endif
 	//Exponential wave
 	for ( int i = 0; i < 256; i++ ) {
 		WaveTable[ 0x700 + i ] = (Bit16s)( 0.5 + ( pow(2.0, -1.0 + ( 255 - i * 8) * ( 1.0 /256 ) ) ) * 4085 );
