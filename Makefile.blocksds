@@ -111,7 +111,7 @@ SOURCES_CPP	:= $(shell find -L $(SOURCEDIRS) -name "*.cpp")
 # Compiler and linker flags
 # -------------------------
 
-ARCH		:= -mthumb -mcpu=arm946e-s+nofp
+ARCH		:= -marm -mcpu=arm946e-s+nofp
 
 SPECS		:= $(BLOCKSDS)/sys/crts/ds_arm9.specs
 
@@ -135,11 +135,11 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(INCLUDEFLAGS) \
 		   -specs=$(SPECS)
 
 CFLAGS		+= -std=gnu17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O2 -ffunction-sections -fdata-sections \
+		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math \
 		   -specs=$(SPECS)
 
 CXXFLAGS	+= -std=gnu++17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O2 -ffunction-sections -fdata-sections \
+		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math \
 		   -fno-exceptions -fno-rtti \
 		   -specs=$(SPECS)
 

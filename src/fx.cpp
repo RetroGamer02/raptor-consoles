@@ -99,6 +99,9 @@ int SND_InitSound(void)
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         return 0;
 
+    if (!isDSiMode())
+    fx_freq = 7000;//5500;
+
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
     spec.channels = 2;
@@ -128,14 +131,7 @@ int SND_InitSound(void)
     fx_device = FXDEV_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #ifdef __NDS__
-    if (isDSiMode())
-    {
-        music_card = CARD_BLASTER;
-    } else {
-        music_card = CARD_NONE;
-    }
-    #elif __3DS__
+    #if defined (__NDS__) || defined (__3DS__)
     music_card = CARD_BLASTER;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);

@@ -52,7 +52,7 @@ struct Operator;
 struct Channel;
 
 #if (DBOPL_WAVE == WAVE_HANDLER)
-typedef Bits ( DB_FASTCALL *WaveHandler) ( Bitu i, Bitu volume );
+typedef Bits (*WaveHandler)(Bitu i, Bitu volume);
 #endif
 
 typedef Bits ( DBOPL::Operator::*VolumeHandler) ( );
@@ -208,39 +208,38 @@ struct Channel {
 };
 
 struct Chip {
-	//18 channels with 2 operators each. Leave on top of struct for simpler pointer math.
+	// 18 channels with 2 operators each.
+	// Leave on top of struct for simpler pointer math.
 	Channel chan[18];
 
-	//This is used as the base counter for vibrato and tremolo
-	Bit32u lfoCounter;
-	Bit32u lfoAdd;
+	// This is used as the base counter for vibrato and tremolo
+	uint32_t lfoCounter = 0;
+	uint32_t lfoAdd = 0;
 
-	Bit32u noiseCounter;
-	Bit32u noiseAdd;
-	Bit32u noiseValue;
+	uint32_t noiseCounter = 0;
+	uint32_t noiseAdd = 0;
+	uint32_t noiseValue = 0;
 
-	//Frequency scales for the different multiplications
-	Bit32u freqMul[16];
-	//Rates for decay and release for rate of this chip
-	Bit32u linearRates[76];
-	//Best match attack rates for the rate of this chip
-	Bit32u attackRates[76];
+	// Frequency scales for the different multiplications
+	uint32_t freqMul[16];
+	// Rates for decay and release for rate of this chip
+	uint32_t linearRates[76];
+	// Best match attack rates for the rate of this chip
+	uint32_t attackRates[76];
 
-	Bit8u reg104;
-	Bit8u reg08;
-	Bit8u reg04;
-	Bit8u regBD;
-	Bit8u vibratoIndex;
-	Bit8u tremoloIndex;
-	Bit8s vibratoSign;
-	Bit8u vibratoShift;
-	Bit8u tremoloValue;
-	Bit8u vibratoStrength;
-	Bit8u tremoloStrength;
-	//Mask for allowed wave forms
-	Bit8u waveFormMask;
-	//0 or -1 when enabled
-	Bit8s opl3Active;
+	uint8_t reg104 = 0;
+	uint8_t reg08 = 0;
+	uint8_t reg04 = 0;
+	uint8_t regBD = 0;
+	uint8_t vibratoIndex = 0;
+	uint8_t tremoloIndex = 0;
+	int8_t vibratoSign = 0;
+	uint8_t vibratoShift = 0;
+	uint8_t tremoloValue = 0;
+	uint8_t vibratoStrength = 0;
+	uint8_t tremoloStrength = 0;
+	uint8_t waveFormMask = 0x0; // Mask for allowed wave forms
+	int8_t opl3Active = 0; // 0 or -1 when enabled
 	//Running in opl3 mode
 	const bool opl3Mode;
 
@@ -276,4 +275,4 @@ struct Handler {
 };
 
 
-};		//Namespace
+} // namespace DBOPL

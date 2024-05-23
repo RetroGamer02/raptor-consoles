@@ -33,10 +33,12 @@
 */
 
 
-
+#include <cassert>
 #include <math.h>
+#include <cstddef>
 #include <stdlib.h>
 #include <string.h>
+#include <type_traits>
 #include <stddef.h>
 #include "dbopl.h"
 
@@ -226,26 +228,35 @@ static inline Bits MakeVolume( Bitu wave, Bitu volume ) {
 	return (sig >> exp);
 };
 
-static Bits DB_FASTCALL WaveForm0( Bitu i, Bitu volume ) {
+static Bits WaveForm0(Bitu i, Bitu volume)
+{
 	Bits neg = 0 - (( i >> 9) & 1);//Create ~0 or 0
 	Bitu wave = SinTable[i & 511];
 	return (MakeVolume( wave, volume ) ^ neg) - neg;
 }
-static Bits DB_FASTCALL WaveForm1( Bitu i, Bitu volume ) {
+
+static Bits WaveForm1(Bitu i, Bitu volume)
+{
 	Bit32u wave = SinTable[i & 511];
 	wave |= ( ( (i ^ 512 ) & 512) - 1) >> ( 32 - 12 );
 	return MakeVolume( wave, volume );
 }
-static Bits DB_FASTCALL WaveForm2( Bitu i, Bitu volume ) {
+
+static Bits WaveForm2(Bitu i, Bitu volume)
+{
 	Bitu wave = SinTable[i & 511];
 	return MakeVolume( wave, volume );
 }
-static Bits DB_FASTCALL WaveForm3( Bitu i, Bitu volume ) {
+
+static Bits WaveForm3(Bitu i, Bitu volume)
+{
 	Bitu wave = SinTable[i & 255];
 	wave |= ( ( (i ^ 256 ) & 256) - 1) >> ( 32 - 12 );
 	return MakeVolume( wave, volume );
 }
-static Bits DB_FASTCALL WaveForm4( Bitu i, Bitu volume ) {
+
+static Bits WaveForm4(Bitu i, Bitu volume)
+{
 	//Twice as fast
 	i <<= 1;
 	Bits neg = 0 - (( i >> 9) & 1);//Create ~0 or 0
@@ -253,18 +264,24 @@ static Bits DB_FASTCALL WaveForm4( Bitu i, Bitu volume ) {
 	wave |= ( ( (i ^ 512 ) & 512) - 1) >> ( 32 - 12 );
 	return (MakeVolume( wave, volume ) ^ neg) - neg;
 }
-static Bits DB_FASTCALL WaveForm5( Bitu i, Bitu volume ) {
+
+static Bits WaveForm5(Bitu i, Bitu volume)
+{
 	//Twice as fast
 	i <<= 1;
 	Bitu wave = SinTable[i & 511];
 	wave |= ( ( (i ^ 512 ) & 512) - 1) >> ( 32 - 12 );
 	return MakeVolume( wave, volume );
 }
-static Bits DB_FASTCALL WaveForm6( Bitu i, Bitu volume ) {
+
+static Bits WaveForm6(Bitu i, Bitu volume)
+{
 	Bits neg = 0 - (( i >> 9) & 1);//Create ~0 or 0
 	return (MakeVolume( 0, volume ) ^ neg) - neg;
 }
-static Bits DB_FASTCALL WaveForm7( Bitu i, Bitu volume ) {
+
+static Bits WaveForm7(Bitu i, Bitu volume)
+{
 	//Negative is reversed here
 	Bits neg = (( i >> 9) & 1) - 1;
 	Bitu wave = (i << 3);
@@ -510,7 +527,7 @@ void Operator::WriteE0( const Chip* chip, Bit8u val ) {
 	if ( !(regE0 ^ val) ) 
 		return;
 	//in opl3 mode you can always selet 7 waveforms regardless of waveformselect
-	const Bit8u waveForm = val & ( ( 0x3 & chip->waveFormMask ) | (0x7 & chip->opl3Active ) );
+	Bit8u waveForm = val & ( ( 0x3 & chip->waveFormMask ) | (0x7 & chip->opl3Active ) );
 	regE0 = val;
 #if ( DBOPL_WAVE == WAVE_HANDLER )
 	waveHandler = WaveHandlerTable[ waveForm ];
@@ -600,43 +617,55 @@ Bits INLINE Operator::GetSample( Bits modulation ) {
 	}
 }
 
-Operator::Operator() {
-	chanData = 0;
-	freqMul = 0;
-	waveIndex = 0;
-	waveAdd = 0;
-	waveCurrent = 0;
-	keyOn = 0;
-	ksr = 0;
-	reg20 = 0;
-	reg40 = 0;
-	reg60 = 0;
-	reg80 = 0;
-	regE0 = 0;
-	SetState( OFF );
-	rateZero = (1 << OFF);
-	sustainLevel = ENV_MAX;
-	currentLevel = ENV_MAX;
-	totalLevel = ENV_MAX;
-	volume = ENV_MAX;
-	releaseAdd = 0;
+Operator::Operator()
+        : volHandler(nullptr),
+#if (DBOPL_WAVE == WAVE_HANDLER)
+          waveHandler(nullptr),
+#else
+          waveBase(nullptr),
+          waveMask(0),
+          waveStart(0),
+#endif
+          waveIndex(0),
+          waveAdd(0),
+          waveCurrent(0),
+          chanData(0),
+          freqMul(0),
+          vibrato(0),
+          sustainLevel(ENV_MAX),
+          totalLevel(ENV_MAX),
+          currentLevel(ENV_MAX),
+          volume(ENV_MAX),
+          attackAdd(0),
+          decayAdd(0),
+          releaseAdd(0),
+          rateIndex(0),
+          rateZero(1 << OFF),
+          keyOn(0),
+          reg20(0),
+          reg40(0),
+          reg60(0),
+          reg80(0),
+          regE0(0),
+          state(0),
+          tremoloMask(0),
+          vibStrength(0),
+          ksr(0)
+{
+	SetState(OFF);
 }
 
-/*
-	Channel
-*/
-
-Channel::Channel() {
-	old[0] = old[1] = 0;
-	chanData = 0;
-	regB0 = 0;
-	regC0 = 0;
-	maskLeft = -1;
-	maskRight = -1;
-	feedback = 31;
-	fourMask = 0;
-	synthHandler = &Channel::BlockTemplate< sm2FM >;
-};
+Channel::Channel()
+        : synthHandler(&Channel::BlockTemplate<sm2FM>),
+          chanData(0),
+          old{0, 0},
+          feedback(31),
+          regB0(0),
+          regC0(0),
+          fourMask(0),
+          maskLeft(-1),
+          maskRight(-1)
+{}
 
 void Channel::SetChanData( const Chip* chip, Bit32u data ) {
 	Bit32u change = chanData ^ data;
@@ -833,7 +862,7 @@ INLINE void Channel::GeneratePercussion( Chip* chip, Bit32s* output ) {
 		Bit32u tcIndex = (1 + phaseBit) << 8;
 		sample += Op(5)->GetWave( tcIndex, tcVol );
 	}
-	sample <<= 1;
+	sample *= 2; // don't bit-shift signed values
 	if ( opl3Mode ) {
 		output[0] += sample;
 		output[1] += sample;
@@ -882,6 +911,9 @@ Channel* Channel::BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output ) {
 			old[0] = old[1] = 0;
 			return (this + 2);
 		}
+		break;
+	case sm2Percussion:
+	case sm3Percussion:
 		break;
 	}
 	//Init the operators with the the current vibrato and tremolo values
@@ -947,6 +979,9 @@ Channel* Channel::BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output ) {
 		case sm3AMAM:
 			output[ i * 2 + 0 ] += sample & maskLeft;
 			output[ i * 2 + 1 ] += sample & maskRight;
+			break;
+		case sm2Percussion:
+		case sm3Percussion:
 			break;
 		}
 	}
@@ -1081,7 +1116,6 @@ void Chip::WriteBD( Bit8u val ) {
 		chan[8].op[1].KeyOff( 0x2 );
 	}
 }
-
 
 #define REGOP( _FUNC_ )															\
 	index = ( ( reg >> 3) & 0x20 ) | ( reg & 0x1f );								\
@@ -1356,7 +1390,8 @@ void InitTables( void ) {
 	//Add 0.5 for the trunc rounding of the integer cast
 	//Do a PI sinetable instead of the original 0.5 PI
 	for ( int i = 0; i < 512; i++ ) {
-		SinTable[i] = (Bit16s)( 0.5 - log10( sin( (i + 0.5) * (PI / 512.0) ) ) / log10(2.0)*256 );
+		SinTable[i] = (Bit16s)(0.5 - log10(sin((i + 0.5) * (M_PI / 512.0))) /
+		                                     log10(2.0) * 256);
 	}
 #endif
 #if ( DBOPL_WAVE == WAVE_TABLEMUL )
@@ -1370,7 +1405,8 @@ void InitTables( void ) {
 
 	//Sine Wave Base
 	for ( int i = 0; i < 512; i++ ) {
-		WaveTable[ 0x0200 + i ] = (Bit16s)(sin( (i + 0.5) * (PI / 512.0) ) * 4084);
+		WaveTable[0x0200 + i] = (Bit16s)(
+		        sin((i + 0.5) * (M_PI / 512.0)) * 4084);
 		WaveTable[ 0x0000 + i ] = -WaveTable[ 0x200 + i ];
 	}
 	//Exponential wave
@@ -1382,7 +1418,9 @@ void InitTables( void ) {
 #if ( DBOPL_WAVE == WAVE_TABLELOG )
 	//Sine Wave Base
 	for ( int i = 0; i < 512; i++ ) {
-		WaveTable[ 0x0200 + i ] = (Bit16s)( 0.5 - log10( sin( (i + 0.5) * (PI / 512.0) ) ) / log10(2.0)*256 );
+		WaveTable[0x0200 + i] = (Bit16s)(
+		        0.5 - log10(sin((i + 0.5) * (M_PI / 512.0))) /
+		                      log10(2.0) * 256);
 		WaveTable[ 0x0000 + i ] = ((Bit16s)0x8000) | WaveTable[ 0x200 + i];
 	}
 	//Exponential wave
@@ -1445,6 +1483,13 @@ void InitTables( void ) {
 		//Add back the bits for highest ones
 		if ( i >= 16 )
 			index += 9;
+
+		static_assert(std::is_standard_layout<Chip>::value,
+		              "struct Chip is not a standard layout type");
+		static_assert(offsetof(Chip, chan) == 0,
+		              "offset table stores values relative to the start of struct");
+		// values stored in offset tables are artificially increased by 1
+		// to keep macros REGCHAN and REGOP working correctly
 		ChanOffsetTable[i] = 1+(Bit16u)(index*sizeof(DBOPL::Channel));
 	}
 	//Same for operators
@@ -1517,4 +1562,4 @@ void Handler::Init( Bitu rate ) {
 }
 
 
-};		//Namespace DBOPL
+} // namespace DBOPL
