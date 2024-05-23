@@ -330,7 +330,7 @@ static opl_channel_data_t channels[MIDI_CHANNELS_PER_TRACK];
 
 
 // Configuration file variable, containing the port number for the
- DBOPL::Handler chip = DBOPL::Handler();
+ DBOPL::Handler chip = DBOPL::Handler(0);
 
 const char *snd_dmxoption = "";
 int opl_io_port = 0x388;
