@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2002-2020  The DOSBox Team
+ *  Copyright (C) 2002-2021  The DOSBox Team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -417,6 +417,7 @@ Bits Operator::TemplateVolume(  ) {
 			return vol;
 		}
 		//In sustain phase, but not sustaining, do regular release
+		/* FALLTHROUGH */
 	case RELEASE: 
 		vol += RateForward( releaseAdd );;
 		if ( GCC_UNLIKELY(vol >= ENV_MAX) ) {
@@ -509,7 +510,7 @@ void Operator::WriteE0( const Chip* chip, Bit8u val ) {
 	if ( !(regE0 ^ val) ) 
 		return;
 	//in opl3 mode you can always selet 7 waveforms regardless of waveformselect
-	Bit8u waveForm = val & ( ( 0x3 & chip->waveFormMask ) | (0x7 & chip->opl3Active ) );
+	const Bit8u waveForm = val & ( ( 0x3 & chip->waveFormMask ) | (0x7 & chip->opl3Active ) );
 	regE0 = val;
 #if ( DBOPL_WAVE == WAVE_HANDLER )
 	waveHandler = WaveHandlerTable[ waveForm ];
@@ -971,7 +972,7 @@ Channel* Channel::BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output ) {
 	Chip
 */
 
-Chip::Chip() {
+Chip::Chip( bool _opl3Mode ) : opl3Mode( _opl3Mode ) {
 	reg08 = 0;
 	reg04 = 0;
 	regBD = 0;
@@ -982,7 +983,7 @@ Chip::Chip() {
 INLINE Bit32u Chip::ForwardNoise() {
 	noiseCounter += noiseAdd;
 	Bitu count = noiseCounter >> LFO_SH;
-	noiseCounter &= WAVE_MASK;
+	noiseCounter &= ((1<<LFO_SH) - 1);
 	for ( ; count > 0; --count ) {
 		//Noise calculation from mame
 		noiseValue ^= ( 0x800302 ) & ( 0 - (noiseValue & 1 ) );
@@ -1109,7 +1110,8 @@ void Chip::WriteReg( Bit32u reg, Bit8u val ) {
 	switch ( (reg & 0xf0) >> 4 ) {
 	case 0x00 >> 4:
 		if ( reg == 0x01 ) {
-			waveFormMask = ( val & 0x20 ) ? 0x7 : 0x0; 
+			//When the chip is running in opl3 compatible mode, you can't actually disable the waveforms
+			waveFormMask = ( (val & 0x20) || opl3Mode ) ? 0x7 : 0x0; 
 		} else if ( reg == 0x104 ) {
 			//Only detect changes in lowest 6 bits
 			if ( !((reg104 ^ val) & 0x3f) )
@@ -1497,22 +1499,16 @@ void Handler::WriteReg( Bit32u addr, Bit8u val ) {
 }
 
 void Handler::Generate( Bit32s *buffer, Bitu samples ) {
-	if ( !chip.opl3Active )
-		chip.GenerateBlock2( samples, buffer );
-	else
-		chip.GenerateBlock3( samples, buffer );
-#if 0
-	Bit32s buffer[ 512 * 2 ];
+	//Bit32s buffer[ 512 * 2 ];
 	if ( GCC_UNLIKELY(samples > 512) )
 		samples = 512;
 	if ( !chip.opl3Active ) {
 		chip.GenerateBlock2( samples, buffer );
-		chan->AddSamples_m32( samples, buffer );
+		//chan->AddSamples_m32( samples, buffer );
 	} else {
 		chip.GenerateBlock3( samples, buffer );
-		chan->AddSamples_s32( samples, buffer );
+		//chan->AddSamples_s32( samples, buffer );
 	}
-#endif
 }
 
 void Handler::Init( Bitu rate ) {

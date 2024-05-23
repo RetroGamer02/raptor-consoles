@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2002-2020  The DOSBox Team
+ *  Copyright (C) 2002-2021  The DOSBox Team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -214,7 +214,6 @@ struct Chip {
 	//This is used as the base counter for vibrato and tremolo
 	Bit32u lfoCounter;
 	Bit32u lfoAdd;
-	
 
 	Bit32u noiseCounter;
 	Bit32u noiseAdd;
@@ -242,6 +241,8 @@ struct Chip {
 	Bit8u waveFormMask;
 	//0 or -1 when enabled
 	Bit8s opl3Active;
+	//Running in opl3 mode
+	const bool opl3Mode;
 
 	//Return the maximum amount of samples before and LFO change
 	Bit32u ForwardLFO( Bit32u samples );
@@ -260,15 +261,18 @@ struct Chip {
 	void Generate( Bit32u samples );
 	void Setup( Bit32u r );
 
-	Chip();
+	Chip( bool opl3Mode );
 };
 
 struct Handler {
 	DBOPL::Chip chip;
-	Bit32u WriteAddr( Bit32u port, Bit8u val );
-	void WriteReg( Bit32u addr, Bit8u val );
-	void Generate( Bit32s *buffer, Bitu samples );
-	void Init( Bitu rate );
+	virtual Bit32u WriteAddr( Bit32u port, Bit8u val );
+	virtual void WriteReg( Bit32u addr, Bit8u val );
+	virtual void Generate( Bit32s *buffer, Bitu samples );
+	virtual void Init( Bitu rate );
+
+	Handler(bool opl3Mode) : chip(opl3Mode) {
+	}
 };
 
 
