@@ -135,11 +135,11 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(INCLUDEFLAGS) \
 		   -specs=$(SPECS)
 
 CFLAGS		+= -std=gnu17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math \
+		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math -fmodulo-sched-allow-regmoves -fno-ira-share-save-slots \
 		   -specs=$(SPECS)
 
 CXXFLAGS	+= -std=gnu++17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math \
+		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math -fmodulo-sched-allow-regmoves -fno-ira-share-save-slots \
 		   -fno-exceptions -fno-rtti \
 		   -specs=$(SPECS)
 

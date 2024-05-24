@@ -101,7 +101,7 @@ int SND_InitSound(void)
 
     #ifdef __NDS__
     if (!isDSiMode())
-    fx_freq = 7000;
+    fx_freq = 6200;
     #endif
 
     spec.freq = fx_freq;
