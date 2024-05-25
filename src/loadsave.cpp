@@ -660,6 +660,12 @@ RAP_InitLoadSave(
     cdflag = 0;
     
     #if defined (__NDS__) || defined (__3DS__)
+    if (isDSiMode())
+        if(!access(SDMC2 "SETUP.INI", 0))
+        strcpy(g_setup_ini, SDMC2 "SETUP.INI");
+        else
+        strcpy(g_setup_ini, SDMC "SETUP.INI");
+    else
     strcpy(g_setup_ini, SDMC "SETUP.INI");
     #else
     strcpy(g_setup_ini, "SETUP.INI");

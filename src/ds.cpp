@@ -93,10 +93,10 @@ void init_nds()
 
     if (isDSiMode())
     {
-        #ifdef __BLOCKSDS__
-        #undef SDMC
-        #define SDMC "sd:/nds/Raptor/"
-        #endif
+        //#ifdef __BLOCKSDS__
+        //#undef SDMC
+        //#define SDMC "sd:/nds/Raptor/"
+        //#endif
 	    setCpuClock(true);
         printf("DSi Enhanced Mode.\n");
     }

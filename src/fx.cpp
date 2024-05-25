@@ -28,7 +28,7 @@ int fx_device;
 int fx_volume;
 static int fx_init = 0;
 #ifdef __NDS__
-int fx_freq = 11025;
+int fx_freq = 6800;
 #elif __3DS__
 int fx_freq = 22050;
 #else
@@ -100,8 +100,8 @@ int SND_InitSound(void)
         return 0;
 
     #ifdef __NDS__
-    if (!isDSiMode())
-    fx_freq = 6200;
+    if (isDSiMode())
+    fx_freq = 13230;
     #endif
 
     spec.freq = fx_freq;

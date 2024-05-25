@@ -124,10 +124,15 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
                 h = fopen(buffer, mode);
                 if (h == NULL)
                 {
-                    if (a1)
-                        return NULL;
-                    sprintf(buffer, "%s%04u.GLB", prefix, a2);
-                    EXIT_Error("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
+                    sprintf(buffer, "%s%s%04u.GLB", SDMC2, prefix, a2);
+                    h = fopen(buffer, mode);
+                    if (h == NULL)
+                    {
+                        if (a1)
+                            return NULL;
+                        sprintf(buffer, "%s%04u.GLB", prefix, a2);
+                        EXIT_Error("GLB_FindFile: %s, Error #%d,%s", buffer, errno, strerror(errno));
+                    }
                 }
             }
             #else

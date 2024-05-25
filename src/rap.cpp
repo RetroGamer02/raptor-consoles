@@ -208,7 +208,7 @@ InitScreen(
 )
 {
     #ifdef __NDS__
-    printf("RAPTOR: Call Of The Shadows V1.2(c)1994 Cygnus Studios\nRaptorDS v1.0.7: \n");
+    printf("RAPTOR: Call Of The Shadows V1.2(c)1994 Cygnus Studios\nRaptorDS v1.0.9: \n");
     #elif __3DS__
     printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS v1.0.6: \n");
     #else
@@ -1286,7 +1286,10 @@ main(
     if (access(RAP_SetupFilename(), 0))
     {
         #if defined (__NDS__) || defined (__3DS__)
-        cp("/nds/Raptor/SETUP.INI", ROMFS "SETUP.INI");
+        if (isDSiMode())
+        cp("sd:/nds/Raptor/SETUP.INI", ROMFS "SETUP.INI");
+        else
+        cp("fat:/nds/Raptor/SETUP.INI", ROMFS "SETUP.INI");
         #else
         printf("\n\n** You must run SETUP first! **\n");
         #ifndef SDL12
@@ -1334,8 +1337,17 @@ main(
     
     if (!access(SDMC "FILE0002.GLB", 0))
         gameflag[1] = 1;
+
+    if (!access(SDMC2 "FILE0002.GLB", 0))
+        gameflag[1] = 1;
     
     if (!access(SDMC "FILE0003.GLB", 0) && !access(SDMC "FILE0004.GLB", 0))
+    {
+        gameflag[2] = 1;
+        gameflag[3] = 1;
+    }
+
+    if (!access(SDMC2 "FILE0003.GLB", 0) && !access(SDMC2 "FILE0004.GLB", 0))
     {
         gameflag[2] = 1;
         gameflag[3] = 1;

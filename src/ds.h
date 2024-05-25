@@ -22,7 +22,9 @@ void init_nds();
 #define ROMFS "nitro:/"
 #ifdef __BLOCKSDS__
 #define SDMC "fat:/nds/Raptor/"
+#define SDMC2 "sd:/nds/Raptor/"
 #else
 #define SDMC "/nds/Raptor/"
+#define SDMC2 ""
 #endif
 #endif

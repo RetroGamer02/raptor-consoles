@@ -18,4 +18,5 @@ void init_ctr();
 
 #define ROMFS "romfs:/"
 #define SDMC "sdmc:/3ds/Raptor/"
+#define SDMC2 ""
 #endif
