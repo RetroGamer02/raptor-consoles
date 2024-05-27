@@ -233,7 +233,7 @@ void VIDEO_LoadPrefs(void)
     #elif __3DS__
         fullscreen = 1;
         aspect_ratio_correct = 0;
-        txt_fullscreen = 0;
+        txt_fullscreen = 1;
     #elif __XBOX__
         fullscreen = 1;
         aspect_ratio_correct = 0;
