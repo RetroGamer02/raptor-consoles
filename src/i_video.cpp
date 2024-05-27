@@ -231,7 +231,7 @@ void VIDEO_LoadPrefs(void)
         aspect_ratio_correct = 0;
         txt_fullscreen = 0;
     #elif __3DS__
-        fullscreen = 0;
+        fullscreen = 1;
         aspect_ratio_correct = 0;
         txt_fullscreen = 0;
     #elif __XBOX__
@@ -724,10 +724,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
     orig_h = *h_upscale;
 
     // Query renderer and limit to maximum texture dimensions of hardware:
-    #if defined (__3DS__)
-        rinfo.max_texture_width = 400;
-        rinfo.max_texture_height = 240;
-    #elif defined (__XBOX__)
+    #if defined (__XBOX__)
         rinfo.max_texture_width = 1920;
         rinfo.max_texture_height = 1080;
     #else
