@@ -20,6 +20,8 @@
 
 #ifdef __NDS__
 #include <nds.h>
+#include <maxmod9.h>
+#include "soundbank.h"  // Soundbank definitions
 #endif
 
 int music_volume;
@@ -28,6 +30,11 @@ int fx_device;
 int fx_volume;
 static int fx_init = 0;
 #ifdef __NDS__
+int NDS_Mus = -1;
+int dsfx_cnt;
+int dsfx_playing = 0;
+mm_sfxhand dsfx_handle;
+mm_sfxhand ds3dfx_handle;
 int fx_freq = 6800;
 #elif __3DS__
 int fx_freq = 22050;
@@ -96,8 +103,10 @@ int SND_InitSound(void)
     if (fx_init)
         return 0;
 
+    #ifndef __NDS__
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         return 0;
+    #endif
 
     #ifdef __NDS__
     if (isDSiMode())
@@ -112,7 +121,9 @@ int SND_InitSound(void)
     spec.userdata = NULL;
 
 	#ifdef SDL12
+    #ifndef __NDS__
 	SDL_OpenAudio(&spec, NULL);
+    #endif
 	#else
     if ((fx_dev = SDL_OpenAudioDevice(NULL, 0, &spec, &actual, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) == 0)
     {
@@ -129,12 +140,46 @@ int SND_InitSound(void)
     }
     #endif
 
+    #ifdef __NDS__
+    mmInitDefault( "soundbank.bin" );
+    mmSelectMode(MM_MODE_C);
+
+    mmLoadEffect(SFX_BONUS_FX_076);
+    mmLoadEffect(SFX_BOSS_FX_0B7);
+    mmLoadEffect(SFX_CRASH_FX_07B);
+    mmLoadEffect(SFX_DAVE_FX_0E4);
+    mmLoadEffect(SFX_DOOR_FX_080);
+    mmLoadEffect(SFX_EGRAB_FX_08A);
+    mmLoadEffect(SFX_ESHOT_FX_0C1);
+    mmLoadEffect(SFX_EXPLO2_FX_071);
+    mmLoadEffect(SFX_EXPLO_FX_06C);
+    mmLoadEffect(SFX_FLYBY_FX_085);
+    mmLoadEffect(SFX_GEXPLO_FX_08F);
+    mmLoadEffect(SFX_GUN_FX_094);
+    mmLoadEffect(SFX_HIT_FX_0BC);
+    mmLoadEffect(SFX_JETSND_FX_099);
+    mmLoadEffect(SFX_LASER_FX_09E);
+    mmLoadEffect(SFX_MISSLE_FX_0A3);
+    mmLoadEffect(SFX_MON1_FX_0C6);
+    mmLoadEffect(SFX_MON2_FX_0CB);
+    mmLoadEffect(SFX_MON3_FX_0D0);
+    mmLoadEffect(SFX_MON4_FX_0D5);
+    mmLoadEffect(SFX_MON5_FX_0DA);
+    mmLoadEffect(SFX_MON6_FX_0DF);
+    mmLoadEffect(SFX_SWEP_FX_0A8);
+    mmLoadEffect(SFX_THEME_FX_067);
+    mmLoadEffect(SFX_TURRET_FX_0AD);
+    mmLoadEffect(SFX_WARN_FX_0B2);
+    #endif
+
     dig_flag = 0;
     fx_device = FXDEV_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #if defined (__NDS__) || defined (__3DS__)
+    #if defined (__3DS__)
     music_card = CARD_BLASTER;
+    #elif defined (__NDS__)
+    music_card = CARD_NONE;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
     #endif
@@ -156,7 +201,13 @@ int SND_InitSound(void)
         break;
     }
 
-    printf("Music Enabled (%s)\n", cards[music_card]);
+    
+    #ifdef __NDS__
+        MUS_SetVolume(music_volume);
+        printf("Music Enabled (MM XM MOD)\n");
+    #else
+        printf("Music Enabled (%s)\n", cards[music_card]);
+    #endif
     if (music_card != CARD_NONE)                               
     {
         MUS_Init(music_card, 0);
@@ -164,8 +215,13 @@ int SND_InitSound(void)
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    #if defined (__NDS__) || defined (__3DS__)
+    #if defined (__3DS__)
     fx_card = 5;
+    fx_chans = 2;
+    #elif defined (__NDS__)
+    //mmEffectVolume(dsfx_handle, fx_volume * 8 -1);
+    //mmEffectVolume(ds3dfx_handle, fx_volume * 8 -1);
+    fx_card = 0;
     fx_chans = 2;
     #else
     fx_card = INI_GetPreferenceLong("SoundFX", "CardType", 0);
@@ -205,7 +261,11 @@ int SND_InitSound(void)
         break;
     }
 
-    printf("SoundFx Enabled (%s)\n", cards[fx_card]);
+    #ifdef __NDS__
+        printf("SoundFx Enabled (MM WAVE)\n");
+    #else
+        printf("SoundFx Enabled (%s)\n", cards[fx_card]);
+    #endif
 
     if (fx_chans < 1 || fx_chans > 8)
         fx_chans = 2;
@@ -695,6 +755,7 @@ int SFX_Playing(int handle)
 int SFX_PlayPatch(char* patch, int pitch, int sep, int vol, int priority)
 {
     int type = *(int16_t*)patch;
+
     switch (type)
     {
     case 0:
@@ -757,6 +818,103 @@ void SND_Patch(int a1, int a2)
             v18->f_10 = SFX_PlayPatch(v1c, v18->f_8 + v28, a2, v2c, v18->f_4);
         }
     }
+    #ifdef __NDS__
+        //printf("FX: %d\n", a1);
+        v18 = &fx_items[a1];
+        //dsfx_playing = 1;
+        //mm_sfxhand dsfx_handle;
+        switch (a1) {
+            case 16:
+            dsfx_handle = mmEffect(SFX_GUN_FX_094);
+            //mmEffectRelease(dsfx_handle);
+            break;
+            case 8:
+            dsfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
+            //mmLoadEffect(SFX_HIT_FX_0BC); //Sounds maybe off
+            //dsfx_handle = mmEffect(SFX_HIT_FX_0BC);
+            //mmEffectRelease(dsfx_handle);
+            break;
+            case 9:
+            dsfx_handle = mmEffect(SFX_EXPLO_FX_06C);
+            break;
+            case 12:
+            dsfx_handle = mmEffect(SFX_DOOR_FX_080);
+            break;
+            case 18:
+            dsfx_handle = mmEffect(SFX_LASER_FX_09E);
+            break;
+            case 19:
+            dsfx_handle = mmEffect(SFX_MISSLE_FX_0A3);
+            //mmEffectRelease(dsfx_handle);
+            break;
+            case 20:
+            dsfx_handle = mmEffect(SFX_SWEP_FX_0A8);
+            break;
+            case 21:
+            dsfx_handle = mmEffect(SFX_EXPLO2_FX_071);
+            break;
+            case 22:
+            dsfx_handle = mmEffect(SFX_WARN_FX_0B2);
+            break;
+            case 24:
+            //mmEffectCancel(dsfx_handle);
+            //mmLoadEffect(SFX_JETSND_FX_099);
+            //dsfx_handle = mmEffect(SFX_JETSND_FX_099);
+            //mmEffectRelease(dsfx_handle);
+            break;
+            case 25:
+            dsfx_handle = mmEffect(278);
+            break;
+            case 26:
+            dsfx_handle = mmEffect(SFX_GUN_FX_094);
+            break;
+            case 27:
+            dsfx_handle = mmEffect(SFX_GUN_FX_094);
+            break;
+            case 34:
+            dsfx_handle = mmEffect(SFX_LASER_FX_09E);
+            break;
+            case 15:
+            dsfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
+            break;
+            case 17:
+            //mmEffectCancel(dsfx_handle);
+            dsfx_handle = mmEffect(SFX_JETSND_FX_099);
+            //mmEffectRelease(dsfx_handle);
+            break;
+            case 10:
+            //mmEffectVolume(279 ,(v18->f_14 * fx_volume) / 127);
+            dsfx_handle = mmEffect(SFX_BONUS_FX_076);
+            break;
+            case 11:
+            //mmEffectVolume(279 ,(v18->f_14 * fx_volume) / 127);
+            dsfx_handle = mmEffect(SFX_EXPLO_FX_06C);
+            break;
+            case 13:
+            //mmEffectVolume(279 ,(v18->f_14 * fx_volume) / 127);
+            dsfx_handle = mmEffect(SFX_FLYBY_FX_085);
+            break;
+            case 23:
+            //mmEffectVolume(271 ,(v18->f_14 * fx_volume) / 127);
+            dsfx_handle = mmEffect(SFX_BOSS_FX_0B7);
+            break;
+            case 33:
+            dsfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
+            break;
+            default:
+            printf("FX id: %d\n", a1);
+            break;
+        }
+        mmEffectRate(dsfx_handle, 512 * 2^(v18->f_8 + v28)/12); //Sounds right
+        mmEffectPanning(dsfx_handle, a2);
+        //printf("FX Vol: %d\n", (v18->f_14 * fx_volume) / 127);
+        //mmEffectVolume(dsfx_handle, (a2 * fx_volume) / 127);
+        mmEffectVolume(dsfx_handle, fx_volume * 2 -1);
+        //printf("Priority: %d\n", v18->f_4);
+        if(v18->f_4 <= 0) {
+            mmEffectRelease(dsfx_handle);
+        }
+    #endif
 }
 
 void SND_3DPatch(int a1, int a2, int a3)
@@ -819,14 +977,54 @@ void SND_3DPatch(int a1, int a2, int a3)
             v14->f_10 = SFX_PlayPatch(v18, v14->f_8 + v24, v28, v3c, v14->f_4);
         }
     }
+    #ifdef __NDS__
+        
+        v14 = &fx_items[a1];
+        //dsfx_playing = 1;
+        
+        switch (a1) {
+            case 8:
+            ds3dfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
+            //mmEffectRelease(ds3dfx_handle);
+            break;
+            case 15:
+            ds3dfx_handle = mmEffect(SFX_EXPLO2_FX_071);
+            //mmEffectRelease(ds3dfx_handle);
+            break;
+            case 28:
+            ds3dfx_handle = mmEffect(SFX_ESHOT_FX_0C1);
+            //mmEffectRelease(ds3dfx_handle);
+            break;
+            case 30:
+            ds3dfx_handle = mmEffect(SFX_MISSLE_FX_0A3);
+            //mmEffectRelease(ds3dfx_handle);
+            break;
+            default:
+            printf("3DFX id: %d\n", a1);
+            break;
+        }
+        mmEffectRate(ds3dfx_handle, 512 * 2^(v14->f_8 + v24)/12); //Sounds right*/
+        //mmEffectPanning(ds3dfx_handle, a2);
+        mmEffectVolume(ds3dfx_handle, fx_volume * 2 -1);
+        //printf("Priority: %d\n", v14->f_4);
+
+        if(v14->f_4 <= 0) {
+            mmEffectRelease(ds3dfx_handle);
+        }
+    #endif
 }
 
 int SND_IsPatchPlaying(int a1)
 {
     fxitem_t *v1c;
     v1c = &fx_items[a1];
+    #ifdef __NDS__
+    if (v1c->f_10 != -1)
+        return 1;
+    #else
     if (v1c->f_10 != -1 && SFX_Playing(v1c->f_10))
         return 1;
+    #endif
     return 0;
 }
 
@@ -837,6 +1035,9 @@ void SND_StopPatch(int a1)
     if (v1c->f_10 != -1)
     {
         SFX_StopPatch(v1c->f_10);
+        #ifdef __NDS__
+        //mmEffectCancel(dsfx_handle);
+        #endif
         GLB_UnlockItem(v1c->f_0);
         v1c->f_10 = -1;
     }
@@ -875,6 +1076,9 @@ void SND_PlaySong(int musres, int loop, int fade)
         MUS_StopSong(fade);
         if (fade)
         {
+            #ifdef __NDS__
+                mmStop();
+            #endif
             while (MUS_SongPlaying())
             {
                 I_GetEvent();
@@ -888,6 +1092,64 @@ void SND_PlaySong(int musres, int loop, int fade)
         music_song = musres;
         ptr = GLB_LockItem(musres);
         MUS_PlaySong(ptr, loop, fade);
+
+        #ifdef __NDS__
+        if (NDS_Mus != -1)
+        mmUnload(NDS_Mus);
+        printf("Current Song: %d\n", music_song);
+        switch (music_song)
+        {
+            case 86:
+                NDS_Mus = 14; //Was 15
+                break;
+            case 87:
+                NDS_Mus = 6;
+                break;
+            case 88:
+                NDS_Mus = 5;
+                break;
+            case 89:
+                NDS_Mus = 7;
+                break;
+            case 90:
+                NDS_Mus = 8;
+                break;
+            case 91:
+                NDS_Mus = 9;
+                break;
+            case 92:
+                NDS_Mus = 10;
+                break;
+            case 93:
+                NDS_Mus = 11;
+                break;
+            case 94:
+                NDS_Mus = 12;
+                break;
+            case 95:
+                NDS_Mus = 13; //?
+                break;
+            case 96:
+                NDS_Mus = 15; //Was 14
+                break;
+            case 97:
+                NDS_Mus = 0;
+                break;
+            default:
+                NDS_Mus = -1;
+                break;
+        }
+        
+        mmLoad(NDS_Mus);
+        if (loop)
+        {
+            mmStart(NDS_Mus, MM_PLAY_LOOP );
+            //mmResume();
+        } else {
+            mmStart(NDS_Mus, MM_PLAY_ONCE );
+            //mmResume();
+        }
+        #endif
     }
 }
 

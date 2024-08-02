@@ -33,9 +33,9 @@ SOURCEDIRS	:= src
 INCLUDEDIRS	:= src include/textscreen/include include/TimGM6mb include/TinySoundFont
 GFXDIRS		:= 
 BINDIRS		:= 
-AUDIODIRS	:= 
+AUDIODIRS	:= Music Effects
 # A single directory that is the root of NitroFS:
-NITROFSDIR	:= romfs
+NITROFSDIR	:= nitrofs
 
 # Defines passed to all files
 # ---------------------------
@@ -135,11 +135,11 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(INCLUDEFLAGS) \
 		   -specs=$(SPECS)
 
 CFLAGS		+= -std=gnu17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math -fmodulo-sched-allow-regmoves -fno-ira-share-save-slots \
+		   $(ARCH) -O2 \
 		   -specs=$(SPECS)
 
 CXXFLAGS	+= -std=gnu++17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O3 -fomit-frame-pointer -ffast-math -fmodulo-sched-allow-regmoves -fno-ira-share-save-slots \
+		   $(ARCH) -O2 \
 		   -fno-exceptions -fno-rtti \
 		   -specs=$(SPECS)
 

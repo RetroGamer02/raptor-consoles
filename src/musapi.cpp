@@ -1,5 +1,10 @@
 #ifdef __3DS__
 #include "SDL/SDL.h"
+#elif __NDS__
+#include "SDL.h"
+#include <nds.h>
+#include <maxmod9.h>
+#include "soundbank.h"  // Soundbank definitions
 #else
 #include "SDL.h"
 #endif
@@ -551,7 +556,7 @@ MUS_StopSong(
         SND_Unlock();
         return;
     }
-    
+
     music_active = 0;
     
     for (int i = 0; i < 16; i++)
@@ -577,8 +582,16 @@ MUS_SongPlaying(
     void
 )
 {
+    #ifdef __NDS__
+        if(mmActive()){
+            music_active = 1;
+        } else {
+            music_active = 0;
+        }
+    #else
     if (!music_init)
         return 0;
+    #endif
     
     return music_active;
 }
@@ -641,6 +654,9 @@ MUS_SetVolume(
         return;
 
     music_currentvol = volume;
+    #ifdef __NDS__
+    mmSetModuleVolume(volume * 8);
+    #endif
 }
 
 /***************************************************************************
