@@ -35,7 +35,7 @@ GFXDIRS		:=
 BINDIRS		:= 
 AUDIODIRS	:= Music Effects
 # A single directory that is the root of NitroFS:
-NITROFSDIR	:= nitrofs
+NITROFSDIR	:= romfs
 
 # Defines passed to all files
 # ---------------------------
@@ -135,11 +135,11 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(INCLUDEFLAGS) \
 		   -specs=$(SPECS)
 
 CFLAGS		+= -std=gnu17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O2 \
+		   $(ARCH) -Os \
 		   -specs=$(SPECS)
 
 CXXFLAGS	+= -std=gnu++17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O2 \
+		   $(ARCH) -Os \
 		   -fno-exceptions -fno-rtti \
 		   -specs=$(SPECS)
 

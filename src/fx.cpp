@@ -142,34 +142,7 @@ int SND_InitSound(void)
 
     #ifdef __NDS__
     mmInitDefault( "soundbank.bin" );
-    mmSelectMode(MM_MODE_C);
-
-    mmLoadEffect(SFX_BONUS_FX_076);
-    mmLoadEffect(SFX_BOSS_FX_0B7);
-    mmLoadEffect(SFX_CRASH_FX_07B);
-    mmLoadEffect(SFX_DAVE_FX_0E4);
-    mmLoadEffect(SFX_DOOR_FX_080);
-    mmLoadEffect(SFX_EGRAB_FX_08A);
-    mmLoadEffect(SFX_ESHOT_FX_0C1);
-    mmLoadEffect(SFX_EXPLO2_FX_071);
-    mmLoadEffect(SFX_EXPLO_FX_06C);
-    mmLoadEffect(SFX_FLYBY_FX_085);
-    mmLoadEffect(SFX_GEXPLO_FX_08F);
-    mmLoadEffect(SFX_GUN_FX_094);
-    mmLoadEffect(SFX_HIT_FX_0BC);
-    mmLoadEffect(SFX_JETSND_FX_099);
-    mmLoadEffect(SFX_LASER_FX_09E);
-    mmLoadEffect(SFX_MISSLE_FX_0A3);
-    mmLoadEffect(SFX_MON1_FX_0C6);
-    mmLoadEffect(SFX_MON2_FX_0CB);
-    mmLoadEffect(SFX_MON3_FX_0D0);
-    mmLoadEffect(SFX_MON4_FX_0D5);
-    mmLoadEffect(SFX_MON5_FX_0DA);
-    mmLoadEffect(SFX_MON6_FX_0DF);
-    mmLoadEffect(SFX_SWEP_FX_0A8);
-    mmLoadEffect(SFX_THEME_FX_067);
-    mmLoadEffect(SFX_TURRET_FX_0AD);
-    mmLoadEffect(SFX_WARN_FX_0B2);
+    mmSelectMode(MM_MODE_A);
     #endif
 
     dig_flag = 0;
@@ -204,7 +177,7 @@ int SND_InitSound(void)
     
     #ifdef __NDS__
         MUS_SetVolume(music_volume);
-        printf("Music Enabled (MM XM MOD)\n");
+        printf("Music Enabled (MaxMod NDS)\n");
     #else
         printf("Music Enabled (%s)\n", cards[music_card]);
     #endif
@@ -262,7 +235,7 @@ int SND_InitSound(void)
     }
 
     #ifdef __NDS__
-        printf("SoundFx Enabled (MM WAVE)\n");
+        printf("SoundFx Enabled (MaxMod NDS)\n");
     #else
         printf("SoundFx Enabled (%s)\n", cards[fx_card]);
     #endif
@@ -819,87 +792,142 @@ void SND_Patch(int a1, int a2)
         }
     }
     #ifdef __NDS__
+        mmUnloadEffect(SFX_BONUS_FX_076);
+        mmUnloadEffect(SFX_BOSS_FX_0B7);
+        mmUnloadEffect(SFX_CRASH_FX_07B);
+        mmUnloadEffect(SFX_DAVE_FX_0E4);
+        mmUnloadEffect(SFX_DOOR_FX_080);
+        mmUnloadEffect(SFX_EGRAB_FX_08A);
+        mmUnloadEffect(SFX_ESHOT_FX_0C1);
+        mmUnloadEffect(SFX_EXPLO2_FX_071);
+        mmUnloadEffect(SFX_EXPLO_FX_06C);
+        mmUnloadEffect(SFX_FLYBY_FX_085);
+        mmUnloadEffect(SFX_GEXPLO_FX_08F);
+        mmUnloadEffect(SFX_GUN_FX_094);
+        mmUnloadEffect(SFX_HIT_FX_0BC);
+        mmUnloadEffect(SFX_JETSND_FX_099);
+        mmUnloadEffect(SFX_LASER_FX_09E);
+        mmUnloadEffect(SFX_MISSLE_FX_0A3);
+        mmUnloadEffect(SFX_MON1_FX_0C6);
+        mmUnloadEffect(SFX_MON2_FX_0CB);
+        mmUnloadEffect(SFX_MON3_FX_0D0);
+        mmUnloadEffect(SFX_MON4_FX_0D5);
+        mmUnloadEffect(SFX_MON5_FX_0DA);
+        mmUnloadEffect(SFX_MON6_FX_0DF);
+        mmUnloadEffect(SFX_SWEP_FX_0A8);
+        mmUnloadEffect(SFX_THEME_FX_067);
+        mmUnloadEffect(SFX_TURRET_FX_0AD);
+        mmUnloadEffect(SFX_WARN_FX_0B2);
+
         //printf("FX: %d\n", a1);
         v18 = &fx_items[a1];
-        //dsfx_playing = 1;
-        //mm_sfxhand dsfx_handle;
+
         switch (a1) {
             case 16:
+            mmLoadEffect(SFX_GUN_FX_094);
             dsfx_handle = mmEffect(SFX_GUN_FX_094);
-            //mmEffectRelease(dsfx_handle);
+            mmEffectVolume(dsfx_handle, fx_volume * 0.3);
             break;
             case 8:
+            mmLoadEffect(SFX_GEXPLO_FX_08F);
             dsfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
-            //mmLoadEffect(SFX_HIT_FX_0BC); //Sounds maybe off
-            //dsfx_handle = mmEffect(SFX_HIT_FX_0BC);
-            //mmEffectRelease(dsfx_handle);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 9:
+            mmLoadEffect(SFX_EXPLO_FX_06C);
             dsfx_handle = mmEffect(SFX_EXPLO_FX_06C);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 12:
+            mmLoadEffect(SFX_DOOR_FX_080);
             dsfx_handle = mmEffect(SFX_DOOR_FX_080);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 18:
+            mmLoadEffect(SFX_LASER_FX_09E);
             dsfx_handle = mmEffect(SFX_LASER_FX_09E);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 19:
+            mmLoadEffect(SFX_MISSLE_FX_0A3);
             dsfx_handle = mmEffect(SFX_MISSLE_FX_0A3);
-            //mmEffectRelease(dsfx_handle);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 20:
+            mmLoadEffect(SFX_SWEP_FX_0A8);
             dsfx_handle = mmEffect(SFX_SWEP_FX_0A8);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 21:
+            mmLoadEffect(SFX_EXPLO2_FX_071);
             dsfx_handle = mmEffect(SFX_EXPLO2_FX_071);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 22:
+            mmLoadEffect(SFX_WARN_FX_0B2);
             dsfx_handle = mmEffect(SFX_WARN_FX_0B2);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 24:
             //mmEffectCancel(dsfx_handle);
             //mmLoadEffect(SFX_JETSND_FX_099);
             //dsfx_handle = mmEffect(SFX_JETSND_FX_099);
-            //mmEffectRelease(dsfx_handle);
+            //mmEffectVolume(dsfx_handle, fx_volume * 2 -1);
             break;
             case 25:
+            mmLoadEffect(278);
             dsfx_handle = mmEffect(278);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 26:
+            mmLoadEffect(SFX_GUN_FX_094);
             dsfx_handle = mmEffect(SFX_GUN_FX_094);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 27:
+            mmLoadEffect(SFX_GUN_FX_094);
             dsfx_handle = mmEffect(SFX_GUN_FX_094);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 34:
+            mmLoadEffect(SFX_LASER_FX_09E);
             dsfx_handle = mmEffect(SFX_LASER_FX_09E);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 15:
+            mmLoadEffect(SFX_GEXPLO_FX_08F);
             dsfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 17:
-            //mmEffectCancel(dsfx_handle);
+            mmLoadEffect(SFX_JETSND_FX_099);
             dsfx_handle = mmEffect(SFX_JETSND_FX_099);
-            //mmEffectRelease(dsfx_handle);
+            mmEffectVolume(dsfx_handle, fx_volume * 0.3);
             break;
             case 10:
-            //mmEffectVolume(279 ,(v18->f_14 * fx_volume) / 127);
+            mmLoadEffect(SFX_BONUS_FX_076);
             dsfx_handle = mmEffect(SFX_BONUS_FX_076);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 11:
-            //mmEffectVolume(279 ,(v18->f_14 * fx_volume) / 127);
+            mmLoadEffect(SFX_EXPLO_FX_06C);
             dsfx_handle = mmEffect(SFX_EXPLO_FX_06C);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             case 13:
-            //mmEffectVolume(279 ,(v18->f_14 * fx_volume) / 127);
+            mmLoadEffect(SFX_FLYBY_FX_085);
             dsfx_handle = mmEffect(SFX_FLYBY_FX_085);
+            mmEffectVolume(dsfx_handle, fx_volume * 3);
             break;
             case 23:
-            //mmEffectVolume(271 ,(v18->f_14 * fx_volume) / 127);
+            mmLoadEffect(SFX_BOSS_FX_0B7);
             dsfx_handle = mmEffect(SFX_BOSS_FX_0B7);
+            mmEffectVolume(dsfx_handle, fx_volume * 2);
             break;
             case 33:
+            mmLoadEffect(SFX_GEXPLO_FX_08F);
             dsfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
+            mmEffectVolume(dsfx_handle, fx_volume);
             break;
             default:
             printf("FX id: %d\n", a1);
@@ -907,9 +935,8 @@ void SND_Patch(int a1, int a2)
         }
         mmEffectRate(dsfx_handle, 512 * 2^(v18->f_8 + v28)/12); //Sounds right
         mmEffectPanning(dsfx_handle, a2);
-        //printf("FX Vol: %d\n", (v18->f_14 * fx_volume) / 127);
-        //mmEffectVolume(dsfx_handle, (a2 * fx_volume) / 127);
-        mmEffectVolume(dsfx_handle, fx_volume * 2 -1);
+        //printf("FX Vol: %d\n", fx_volume);
+        
         //printf("Priority: %d\n", v18->f_4);
         if(v18->f_4 <= 0) {
             mmEffectRelease(dsfx_handle);
@@ -978,26 +1005,56 @@ void SND_3DPatch(int a1, int a2, int a3)
         }
     }
     #ifdef __NDS__
-        
+        mmUnloadEffect(SFX_BONUS_FX_076);
+        mmUnloadEffect(SFX_BOSS_FX_0B7);
+        mmUnloadEffect(SFX_CRASH_FX_07B);
+        mmUnloadEffect(SFX_DAVE_FX_0E4);
+        mmUnloadEffect(SFX_DOOR_FX_080);
+        mmUnloadEffect(SFX_EGRAB_FX_08A);
+        mmUnloadEffect(SFX_ESHOT_FX_0C1);
+        mmUnloadEffect(SFX_EXPLO2_FX_071);
+        mmUnloadEffect(SFX_EXPLO_FX_06C);
+        mmUnloadEffect(SFX_FLYBY_FX_085);
+        mmUnloadEffect(SFX_GEXPLO_FX_08F);
+        mmUnloadEffect(SFX_GUN_FX_094);
+        mmUnloadEffect(SFX_HIT_FX_0BC);
+        mmUnloadEffect(SFX_JETSND_FX_099);
+        mmUnloadEffect(SFX_LASER_FX_09E);
+        mmUnloadEffect(SFX_MISSLE_FX_0A3);
+        mmUnloadEffect(SFX_MON1_FX_0C6);
+        mmUnloadEffect(SFX_MON2_FX_0CB);
+        mmUnloadEffect(SFX_MON3_FX_0D0);
+        mmUnloadEffect(SFX_MON4_FX_0D5);
+        mmUnloadEffect(SFX_MON5_FX_0DA);
+        mmUnloadEffect(SFX_MON6_FX_0DF);
+        mmUnloadEffect(SFX_SWEP_FX_0A8);
+        mmUnloadEffect(SFX_THEME_FX_067);
+        mmUnloadEffect(SFX_TURRET_FX_0AD);
+        mmUnloadEffect(SFX_WARN_FX_0B2);
+
+
         v14 = &fx_items[a1];
-        //dsfx_playing = 1;
         
         switch (a1) {
             case 8:
+            mmLoadEffect(SFX_GEXPLO_FX_08F);
             ds3dfx_handle = mmEffect(SFX_GEXPLO_FX_08F);
-            //mmEffectRelease(ds3dfx_handle);
+            mmEffectVolume(ds3dfx_handle, fx_volume);
             break;
             case 15:
+            mmLoadEffect(SFX_EXPLO2_FX_071);
             ds3dfx_handle = mmEffect(SFX_EXPLO2_FX_071);
-            //mmEffectRelease(ds3dfx_handle);
+            mmEffectVolume(ds3dfx_handle, fx_volume * 0.3);
             break;
             case 28:
+            mmLoadEffect(SFX_ESHOT_FX_0C1);
             ds3dfx_handle = mmEffect(SFX_ESHOT_FX_0C1);
-            //mmEffectRelease(ds3dfx_handle);
+            mmEffectVolume(ds3dfx_handle, fx_volume * 0.3);
             break;
             case 30:
+            mmLoadEffect(SFX_MISSLE_FX_0A3);
             ds3dfx_handle = mmEffect(SFX_MISSLE_FX_0A3);
-            //mmEffectRelease(ds3dfx_handle);
+            mmEffectVolume(ds3dfx_handle, fx_volume * 0.3);
             break;
             default:
             printf("3DFX id: %d\n", a1);
@@ -1005,7 +1062,6 @@ void SND_3DPatch(int a1, int a2, int a3)
         }
         mmEffectRate(ds3dfx_handle, 512 * 2^(v14->f_8 + v24)/12); //Sounds right*/
         //mmEffectPanning(ds3dfx_handle, a2);
-        mmEffectVolume(ds3dfx_handle, fx_volume * 2 -1);
         //printf("Priority: %d\n", v14->f_4);
 
         if(v14->f_4 <= 0) {
@@ -1037,6 +1093,7 @@ void SND_StopPatch(int a1)
         SFX_StopPatch(v1c->f_10);
         #ifdef __NDS__
         //mmEffectCancel(dsfx_handle);
+        //mmEffectCancel(ds3dfx_handle);
         #endif
         GLB_UnlockItem(v1c->f_0);
         v1c->f_10 = -1;
@@ -1099,6 +1156,18 @@ void SND_PlaySong(int musres, int loop, int fade)
         printf("Current Song: %d\n", music_song);
         switch (music_song)
         {
+            case 82:
+                NDS_Mus = 1; //???
+                break;
+            case 83:
+                NDS_Mus = 2; //???
+                break;
+            case 84:
+                NDS_Mus = 3; //???
+                break;
+            case 85:
+                NDS_Mus = 4;
+                break;
             case 86:
                 NDS_Mus = 14; //Was 15
                 break;
