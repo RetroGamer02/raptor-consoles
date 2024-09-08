@@ -309,8 +309,13 @@ DSP_StartPatch(
     int i, lowpriority, samples, best, step, lvol, rvol;
     int handle = (dsp_cnt++) & FXHAND_MASK;
 
+    #ifdef __PPC__
+    if (dsp->format.get_value() != 3 || dsp->length.get_value() <= 32)
+        return -1;
+    #else
     if (dsp->format != 3 || dsp->length <= 32)
         return -1;
+    #endif
 
     SND_Lock();
     
@@ -365,8 +370,13 @@ DSP_StartPatch(
         chan = &dsp_channels[best];
     }
 
+    #ifdef __PPC__
+    samples = dsp->length.get_value() - 32;
+    step = (pitchtable[pitch] * dsp->freq.get_value() + dsp_freq / 2) / dsp_freq; // .8
+    #else
     samples = dsp->length - 32;
     step = (pitchtable[pitch] * dsp->freq + dsp_freq / 2) / dsp_freq; // .8
+    #endif 
 
     lvol = (pantable[255 - sep] * volume) / 127;
     rvol = (pantable[sep] * volume) / 127;

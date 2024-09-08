@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdint.h>
-#if defined (__3DS__) || defined (__SWITCH__)
+#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -578,6 +578,58 @@ GFX_PutTexture(
     if (y2 >= SCREENHEIGHT)
         y2 = SCREENHEIGHT - 1;
     
+    #ifdef __PPC__
+    for (loopy = y; loopy < maxyloop; loopy += h->height.get_value())
+    {
+        if (loopy <= y2 && loopy + h->height.get_value() > 0)
+        {
+            if (loopy < 0)
+            {
+                new_ly += loopy;
+                buf += (-loopy) * h->width.get_value();
+                ypos = 0;
+            }
+            else
+                ypos = loopy;
+            
+            for (loopx = x; loopx < maxxloop; loopx += h->width.get_value())
+            {
+                if (loopx <= x2 && loopx + h->width.get_value() > 0)
+                {
+                    buf = intxt + sizeof(GFX_PIC);
+                    new_lx = h->width.get_value();
+                    new_ly = h->height.get_value();
+                    
+                    if (loopx < 0)
+                    {
+                        new_lx += loopx;
+                        buf += -loopx;
+                        xpos = 0;
+                    }
+                    else
+                        xpos = loopx;
+                    
+                    if (xpos + new_lx - 1 >= x2)
+                        new_lx = (x2 + 1) - xpos;
+                    
+                    if (ypos + new_ly - 1 >= y2)
+                        new_ly = (y2 + 1) - ypos;
+                    
+                    gfx_inmem = buf;
+                    gfx_xp = xpos;
+                    gfx_yp = ypos;
+                    gfx_lx = new_lx;
+                    gfx_ly = new_ly;
+                    gfx_imga = h->width.get_value() - new_lx;
+                    
+                    GFX_PutPic();
+                    
+                    GFX_MarkUpdate(xpos, ypos, new_lx, new_ly);
+                }
+            }
+        }
+    }
+    #else
     for (loopy = y; loopy < maxyloop; loopy += h->height)
     {
         if (loopy <= y2 && loopy + h->height > 0)
@@ -628,6 +680,7 @@ GFX_PutTexture(
             }
         }
     }
+    #endif
 }
 
 /*************************************************************************
@@ -690,8 +743,13 @@ GFX_ShadeShape(
     char *dest;
     int ox = x;
     int oy = y;
+    #ifdef __PPC__
+    int lx = h->width.get_value();
+    int ly = h->height.get_value();
+    #else
     int lx = h->width;
     int ly = h->height;
+    #endif
     
     inmem += sizeof(GFX_PIC);
 
@@ -723,22 +781,41 @@ GFX_ShadeShape(
     
     case 2:
         ah = (GFX_SPRITE*)inmem;
+
+        #ifdef __PPC__
+        while (ah->offset.get_value() != -1)
+        #else
         while (ah->offset != -1)
+        #endif
         {
             inmem += sizeof(GFX_SPRITE);
+
+            #ifdef __PPC__
+            ox = ah->x.get_value() + x;
+            oy = ah->y.get_value() + y;
+            #else
             ox = ah->x + x;
             oy = ah->y + y;
+            #endif
             
             if (oy > SCREENHEIGHT)
                 return;
             
+            #ifdef __PPC__
+            lx = ah->length.get_value();
+            #else
             lx = ah->length;
+            #endif
             ly = 1;
             
             if (GFX_ClipLines(NULL, &ox, &oy, &lx, &ly))
                 GFX_Shade(&displaybuffer[ox + ylookup[oy]], lx, cur_table);
             
+            #ifdef __PPC__
+            inmem += ah->length.get_value();
+            #else
             inmem += ah->length;
+            #endif
 
             ah = (GFX_SPRITE*)inmem;
         }
@@ -1120,8 +1197,13 @@ GFX_ScalePic(
     char *dest = displaybuffer;
     int accum_x, accum_y, i;
     char *pic = buffin + sizeof(GFX_PIC);
+    #ifdef __PPC__
+    int addx = (h->width.get_value()<<16) / new_lx;
+    int addy = (h->height.get_value()<<16) / new_ly;
+    #else
     int addx = (h->width<<16) / new_lx;
     int addy = (h->height<<16) / new_ly;
+    #endif
     accum_x = 0;
     accum_y = 0;
     
@@ -1143,7 +1225,11 @@ GFX_ScalePic(
     if (y < 0)
     {
         accum_y = addy * (-y);
+        #ifdef __PPC__
+        pic += (h->width.get_value()) * (accum_y >> 16);
+        #else
         pic += (h->width) * (accum_y >> 16);
+        #endif
         accum_y &= 0xffff;
         new_ly += y;
         y = 0;
@@ -1174,7 +1260,11 @@ GFX_ScalePic(
     {
         while (new_ly--)
         {
+            #ifdef __PPC__
+            GFX_CScaleLine(dest, pic + h->width.get_value() * (accum_y>>16));
+            #else
             GFX_CScaleLine(dest, pic + h->width * (accum_y>>16));
+            #endif
             accum_y += addy;
             dest += SCREENWIDTH;
         }
@@ -1183,7 +1273,11 @@ GFX_ScalePic(
     {
         while (new_ly--)
         {
+            #ifdef __PPC__
+            GFX_ScaleLine(dest, pic + h->width.get_value() * (accum_y>>16));
+            #else
             GFX_ScaleLine(dest, pic + h->width * (accum_y>>16));
+            #endif
             accum_y += addy;
             dest += SCREENWIDTH;
         }
@@ -1376,8 +1470,13 @@ GFX_PutImage(
 {
     GFX_PIC* h = (GFX_PIC*)image;
     
+    #ifdef __PPC__
+    gfx_lx = h->width.get_value();
+    gfx_ly = h->height.get_value();
+    #else
     gfx_lx = h->width;
     gfx_ly = h->height;
+    #endif
     
     if (h->type == GSPRITE)
     {
@@ -1395,7 +1494,11 @@ GFX_PutImage(
             gfx_yp = y;
 
             gfx_inmem = image;
+            #ifdef __PPC__
+            gfx_imga = h->width.get_value();
+            #else
             gfx_imga = h->width;
+            #endif
 
             if (!see_thru)
             {
@@ -1425,8 +1528,14 @@ GFX_PutSprite(
     char *outline;
     int ox = x;
     int oy = y;
+
+    #ifdef __PPC__
+    int lx = h->width.get_value();
+    int ly = h->height.get_value();
+    #else
     int lx = h->width;
     int ly = h->height;
+    #endif
     
     rval = GFX_ClipLines(NULL, &ox, &oy, &lx, &ly);
     
@@ -1448,16 +1557,29 @@ GFX_PutSprite(
     case 2:
         ah = (GFX_SPRITE*)inmem;
 
+        #ifdef __PPC__
+        while (ah->offset.get_value() != -1)
+        #else
         while (ah->offset != -1)
+        #endif
         {
             inmem += sizeof(GFX_SPRITE);
 
+            #ifdef __PPC__
+            ox = ah->x.get_value() + x;
+            oy = ah->y.get_value() + y;
+            #else
             ox = ah->x + x;
             oy = ah->y + y;
+            #endif
 
             if (oy > SCREENHEIGHT) break;
 
+            #ifdef __PPC__
+            lx = ah->length.get_value();
+            #else
             lx = ah->length;
+            #endif
             ly = 1;
 
             outline = inmem;
@@ -1465,7 +1587,11 @@ GFX_PutSprite(
             if (GFX_ClipLines(&outline, &ox, &oy, &lx, &ly))
                 memcpy(displaybuffer + ox + ylookup[oy], outline, lx);
 
+            #ifdef __PPC__
+            inmem += ah->length.get_value();
+            #else
             inmem += ah->length;
+            #endif
 
             ah = (GFX_SPRITE*)inmem;
         }
@@ -1487,6 +1613,31 @@ GFX_OverlayImage(
     GFX_PIC* bh = (GFX_PIC*)baseimage;
     GFX_PIC* oh = (GFX_PIC*)overimage;
     int addnum, loop, i;
+
+    #ifdef __PPC__
+    int x2 = x + oh->width.get_value() - 1;
+    int y2 = y + oh->height.get_value() - 1;
+
+    if (x >= 0 && y >= 0 && x2 < bh->width.get_value() && y2 < bh->height.get_value())
+    {
+        baseimage += sizeof(GFX_PIC);
+        baseimage += (x + (y * bh->width.get_value()));
+
+        overimage += sizeof(GFX_PIC);
+
+        addnum = bh->width.get_value() - oh->width.get_value();
+
+        for (loop = 0; loop < oh->height.get_value(); loop++)
+        {
+            for (i = 0; i < oh->width.get_value(); i++, baseimage++, overimage++)
+            {
+                if (i != 255)
+                    *baseimage = *overimage;
+            }
+            baseimage += addnum;
+        }
+    }
+    #else
     int x2 = x + oh->width - 1;
     int y2 = y + oh->height - 1;
     
@@ -1509,6 +1660,7 @@ GFX_OverlayImage(
             baseimage += addnum;
         }
     }
+    #endif
 }
 
 /***************************************************************************
@@ -1548,8 +1700,14 @@ GFX_PutChar(
     char *dest;
     int lx = font->width[inchar];
     int addx;
+    #ifdef __PPC__
+    int ly = font->height.get_value();
+    char* cdata = source + font->charofs[inchar].get_value();
+    #else
     int ly = font->height;
     char* cdata = source + font->charofs[inchar];
+    #endif
+    
     addx = lx;
     
     if (GFX_ClipLines(&cdata, &x, &y, &lx, &ly))
@@ -1591,8 +1749,13 @@ GFX_Print(
     {
         while ((ch = *str++) != 0)
         {
+            #ifdef __PPC__
+            if (font->charofs[ch].get_value() == (short)-1) 
+                continue;
+            #else
             if (font->charofs[ch] == (short)-1) 
                 continue;
+            #endif
             cwidth = GFX_PutChar(x, y, ch, font, basecolor);
             lx += (cwidth + fontspacing);
             x += (font->width[ch] + fontspacing);
@@ -1653,7 +1816,11 @@ GFX_3D_PutImage(
     
     if (z == G3D_DIST)
     {
+        #ifdef __PPC__
+        GFX_MarkUpdate(x, y, h->width.get_value(), h->height.get_value());
+        #else
         GFX_MarkUpdate(x, y, h->width, h->height);
+        #endif
         GFX_PutImage(image, x, y, see_thru);
     }
     else
@@ -1665,8 +1832,13 @@ GFX_3D_PutImage(
         x1 = G3D_screenx;
         y1 = G3D_screeny;
 
+        #ifdef __PPC__
+        G3D_x = x + h->width.get_value() - 1;
+        G3D_y = y + h->height.get_value() - 1;
+        #else
         G3D_x = x + h->width - 1;
         G3D_y = y + h->height - 1;
+        #endif
         G3D_z = z;
         GFX_3DPoint();
 

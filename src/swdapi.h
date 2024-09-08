@@ -91,6 +91,35 @@ typedef enum
 #define MAX_WINDOWS 12
 #define MAX_FONTS 2
 
+#ifdef __PPC__
+typedef struct
+{
+    little_int32_t version;                 // VERSION NUMBER ( not used )
+    little_int32_t swdsize;                 // SIZE OF WIN/FIELD AND TEXT ( not used )
+    little_int32_t arrowflag;               // Use Arrow Keys ( TRUE/FALSE )
+    little_int32_t display;                 // DISPLAY FLAG
+    little_int32_t opt3;                    // OPTION 3 ( not used )
+    little_int32_t opt4;                    // OPTION 4 ( not used )
+    little_int32_t id;                      // WINDOW ID NUMBER
+    little_int32_t type;                    // WINDOW TYPE NUMBER
+    char name[16];                          // TEXT NAME OF WINDOW ( NOT DISPLAYED )
+    char item_name[16];                     // TEXT NAME OF ITEM
+    little_int32_t item;                    // ITEM ID NUMBER
+    little_int32_t picflag;                 // FILL/TEXTURE/PICTURE
+    little_int32_t lock;                    // TRUE = cannot goto other windows
+    little_int32_t fldofs;                  // OFFSET IN BYTES TO FIRST FIELD
+    little_int32_t txtofs;                  // OFFSET IN BYTES TO TEXT AREA ( not used )
+    little_int32_t firstfld;                // FIELD TO GOTO FIRST
+    little_int32_t opt;                     // WINDOW TYPE
+    little_int32_t color;                   // COLOR OF WINDOW
+    little_int32_t numflds;                 // NUMBER OF FIELDS
+    little_int32_t x;                       // X POSITON ON SCREEN
+    little_int32_t y;                       // Y POSITION ON SCREEN
+    little_int32_t lx;                      // WIDTH IN PIXELS
+    little_int32_t ly;                      // HEIGHT IN PIXELS
+    little_int32_t shadow;                  // SHADOW TRUE/FALSE
+}SWIN;
+#else
 typedef struct
 {
     int version;                 // VERSION NUMBER ( not used )
@@ -118,7 +147,41 @@ typedef struct
     int ly;                      // HEIGHT IN PIXELS
     int shadow;                  // SHADOW TRUE/FALSE
 }SWIN;
+#endif
 
+#ifdef __PPC__
+typedef struct 
+{
+    little_int32_t opt;                     // FIELD TYPE
+    little_int32_t id;                      // FIELD ID
+    little_int32_t hotkey;                  // SCAN CODE OF HOT KEY
+    little_int32_t kbflag;                  // TRUE if field should be KBACTIVE
+    little_int32_t opt3;                    // not used
+    little_int32_t opt4;                    // not used
+    little_int32_t input_opt;               // OPTIONS used in INPUT FIELDS
+    little_int32_t bstatus;                 // BUTTON STATUS NORMAL/UP/DOWN
+    char name[16];                          // TEXT NAME OF FIELD ( NOT DISPLAYED )
+    char item_name[16];                     // TEXT NAME OF ITEM #
+    little_int32_t item;                    // ITEM ID NUMBER
+    char font_name[16];                     // FONT .GLB NAME
+    little_int32_t fontid;                  // FONT NUMBER
+    little_int32_t fontbasecolor;           // FONT BASE COLOR
+    little_int32_t maxchars;                // MAXCHARS IN FIELD TEXT
+    little_int32_t picflag;                 // PICTURE TRUE/FALSE
+    little_int32_t color;                   // COLOR OF FIELD
+    little_int32_t lite;                    // HIGHLIGHT COLOR
+    little_int32_t mark;                    // FIELD MARK ( TRUE/FLASE )
+    little_int32_t saveflag;                // MEM TO SAVE PIC UNDER FIELD ( Y/N )
+    little_int32_t shadow;                  // SHADOW ON/OFF
+    little_int32_t selectable;              // SELECTABLE ON/OFF
+    little_int32_t x;                       // X POSITION ON SCREEN
+    little_int32_t y;                       // Y POSITION ON SCREEN
+    little_int32_t lx;                      // WIDTH IN PIXELS
+    little_int32_t ly;                      // HEIGHT IN PIXELS
+    little_int32_t txtoff;                  // OFFSET TO TEXT DATA ( BYTES )
+    char *sptr;                             // SEG POINTER TO SAVE INFO
+}SFIELD;
+#else
 typedef struct 
 {
     int opt;                     // FIELD TYPE
@@ -150,7 +213,41 @@ typedef struct
     int txtoff;                  // OFFSET TO TEXT DATA ( BYTES )
     char *sptr;                  // SEG POINTER TO SAVE INFO
 }SFIELD;
+#endif
 
+#ifdef __PPC__
+typedef struct 
+{
+    little_int32_t opt;                     // FIELD TYPE
+    little_int32_t id;                      // FIELD ID
+    little_int32_t hotkey;                  // SCAN CODE OF HOT KEY
+    little_int32_t kbflag;                  // TRUE if field should be KBACTIVE
+    little_int32_t opt3;                    // not used
+    little_int32_t opt4;                    // not used
+    little_int32_t input_opt;               // OPTIONS used in INPUT FIELDS
+    little_int32_t bstatus;                 // BUTTON STATUS NORMAL/UP/DOWN
+    char name[16];                          // TEXT NAME OF FIELD ( NOT DISPLAYED )
+    char item_name[16];                     // TEXT NAME OF ITEM #
+    little_int32_t item;                    // ITEM ID NUMBER
+    char font_name[16];                     // FONT .GLB NAME
+    little_int32_t fontid;                  // FONT NUMBER
+    little_int32_t fontbasecolor;           // FONT BASE COLOR
+    little_int32_t maxchars;                // MAXCHARS IN FIELD TEXT
+    little_int32_t picflag;                 // PICTURE TRUE/FALSE
+    little_int32_t color;                   // COLOR OF FIELD
+    little_int32_t lite;                    // HIGHLIGHT COLOR
+    little_int32_t mark;                    // FIELD MARK ( TRUE/FLASE )
+    little_int32_t saveflag;                // MEM TO SAVE PIC UNDER FIELD ( Y/N )
+    little_int32_t shadow;                  // SHADOW ON/OFF
+    little_int32_t selectable;              // SELECTABLE ON/OFF
+    little_int32_t x;                       // X POSITION ON SCREEN
+    little_int32_t y;                       // Y POSITION ON SCREEN
+    little_int32_t lx;                      // WIDTH IN PIXELS
+    little_int32_t ly;                      // HEIGHT IN PIXELS
+    little_int32_t txtoff;                  // OFFSET TO TEXT DATA ( BYTES )
+    little_int32_t PlaceHolder;             // PLACEHOLDER TO KEEP SIZE
+}SFIELD32;
+#else
 typedef struct 
 {
     int opt;                     // FIELD TYPE
@@ -181,7 +278,8 @@ typedef struct
     int ly;                      // HEIGHT IN PIXELS
     int txtoff;                  // OFFSET TO TEXT DATA ( BYTES )
     int PlaceHolder;             // PLACEHOLDER TO KEEP SIZE
-}SFIELD32; 
+}SFIELD32;
+#endif
 
 typedef struct
 {

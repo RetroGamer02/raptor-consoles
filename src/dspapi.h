@@ -1,11 +1,21 @@
 #pragma once
 
+#ifdef __PPC__
+#include "ppc.h"
+struct dsp_t {
+    little_int16_t format;
+    little_int16_t freq;
+    little_int32_t length;
+    char data[1];
+};
+#else
 struct dsp_t {
     int16_t format;
     int16_t freq;
     int32_t length;
     char data[1];
 };
+#endif
 
 void DSP_Init(int channels, int freq);
 void DSP_Mix(int16_t *buffer, int len);

@@ -50,8 +50,13 @@ SHADOW_Draw(
     ox = G3D_screenx;
     oy = G3D_screeny;
     
+    #ifdef __PPC__
+    G3D_x = ox + h->width.get_value() - 1;
+    G3D_y = oy + h->height.get_value() - 1;
+    #else
     G3D_x = ox + h->width - 1;
     G3D_y = oy + h->height - 1;
+    #endif
     G3D_z = MAXZ;
     GFX_3DPoint();
     lx = G3D_screenx - ox + 1;
@@ -64,14 +69,27 @@ SHADOW_Draw(
     
     ah = (GFX_SPRITE*)pic;
     
+    #ifdef __PPC__
+    while (ah->offset.get_value() != -1)
+    #else
     while (ah->offset != -1)
+    #endif
     {
         pic += sizeof(GFX_SPRITE);
         
+        #ifdef __PPC__
+        ox = ah->x.get_value() + x;
+        oy = ah->y.get_value() + y;
+
+        x2 = ox + ah->length.get_value() - 1;
+        #else
         ox = ah->x + x;
         oy = ah->y + y;
-        
+
         x2 = ox + ah->length - 1;
+        #endif
+        
+        
         y2 = oy + 1;
         
         G3D_x = ox;
@@ -92,8 +110,13 @@ SHADOW_Draw(
         
         drawflag = 1;
         
+        #ifdef __PPC__
+        if (ah->y.get_value() != oldy && oldsy == sy)
+            drawflag = 0;
+        #else
         if (ah->y != oldy && oldsy == sy)
             drawflag = 0;
+        #endif
         
         if (drawflag)
         {
@@ -102,12 +125,20 @@ SHADOW_Draw(
             if (GFX_ClipLines(0, &sx, &sy, &lx, &ly))
                 GFX_Shade(displaybuffer + sx + ylookup[sy], lx, sdtable);
             
+            #ifdef __PPC__
+            oldy = ah->y.get_value();
+            #else
             oldy = ah->y;
+            #endif
         }
         
         oldsy = sy;
         
+        #ifdef __PPC__
+        pic += ah->length.get_value();
+        #else
         pic += ah->length;
+        #endif
         
         ah = (GFX_SPRITE*)pic;
     }

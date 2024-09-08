@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#if defined (__3DS__) || defined (__SWITCH__)
+#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -216,6 +216,12 @@ InitScreen(
     #elif __XBOX__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
     printf(" RAPTOR-Xbox: V0.5.1 by RetroGamer02\n");
+    #elif __GCN__
+    printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
+    printf(" RAPTOR-Gamecube: V0.0.1 by RetroGamer02\n");
+    #elif __WII__
+    printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
+    printf(" RAPTOR-Wii: V0.0.1 by RetroGamer02\n");
     #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     #endif
@@ -651,7 +657,11 @@ RAP_DisplayStats(
             {
                 pic = GLB_GetItem(FILE111_WEPDEST_PIC);
                 h = (GFX_PIC*)pic;
+                #ifdef __PPC__
+                GFX_PutSprite(pic, (320 - h->width.get_value()) >> 1, MAP_BOTTOM - 9);
+                #else
                 GFX_PutSprite(pic, (320 - h->width) >> 1, MAP_BOTTOM - 9);
+                #endif
             }
             
             if (startendwave == -1)
@@ -659,7 +669,11 @@ RAP_DisplayStats(
             
             pic = GLB_GetItem(FILE110_SHLDLOW_PIC);
             h = (GFX_PIC*)pic;
+            #ifdef __PPC__
+            GFX_PutSprite(pic, (320 - h->width.get_value()) >> 1, MAP_BOTTOM);
+            #else
             GFX_PutSprite(pic, (320 - h->width) >> 1, MAP_BOTTOM);
+            #endif
         }
     }
     
@@ -1279,7 +1293,7 @@ main(
 
     var1 = getenv("S_HOST");
 
-    #if defined (__ARM__) || defined (__XBOX__)
+    #if defined (__ARM__) || defined (__XBOX__) || defined (__PPC__)
     sys_init();
     #endif
 
@@ -1304,6 +1318,16 @@ main(
         {
             printf("\n\n** You must run SETUP first! **\n");
             CopyFileA(XBOX_DVD_DIR "SETUP.INI", XBOX_HDD_DIR "SETUP.INI", NULL);
+        }
+    #elif __GCN__
+        if (access(RAP_SetupFilename(), 0))
+        {
+            printf("\n\n** You must run SETUP first! **\n");
+        }
+    #elif __WII__
+        if (access(RAP_SetupFilename(), 0))
+        {
+            printf("\n\n** You must run SETUP first! **\n");
         }
     #else
         if (access(RAP_SetupFilename(), 0))
@@ -1360,6 +1384,19 @@ main(
             gameflag[2] = 1;
             gameflag[3] = 1;
         }
+    #elif defined (__GCN__) || defined (__WII__)
+        if (!access(RAP_SD_DIR "FILE0001.GLB", 0) || !access(RAP_HD_DIR "FILE0001.GLB", 0))
+            gameflag[0] = 1;
+        
+        if (!access(RAP_SD_DIR "FILE0002.GLB", 0) || !access(RAP_HD_DIR "FILE0002.GLB", 0))
+            gameflag[1] = 1;
+        
+        if ((!access(RAP_SD_DIR "FILE0003.GLB", 0) && !access(RAP_SD_DIR "FILE0004.GLB", 0)) || 
+            (!access(RAP_HD_DIR "FILE0003.GLB", 0) && !access(RAP_HD_DIR "FILE0004.GLB", 0)))
+        {
+            gameflag[2] = 1;
+            gameflag[3] = 1;
+        }
     #elif __XBOX__
         if (!access(XBOX_DVD_DIR "FILE0001.GLB", 0))
             gameflag[0] = 1;
@@ -1404,6 +1441,11 @@ main(
             //SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             //    "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
             //exit(0);
+        }
+    #elif defined (__GCN__) || defined (__WII__)
+        if ((access(RAP_SD_DIR "FILE0000.GLB", 0) || access(RAP_HD_DIR "FILE0000.GLB", 0)) || !numfiles)
+        {
+            printf("All game data files NOT FOUND cannot proceed !!\n");
         }
     #elif __NDS__
         if (access(ROMFS "FILE0000.GLB", 0) || !numfiles)
@@ -1524,7 +1566,7 @@ main(
         fflush(stdout);
     }
     
-    #if defined (__ARM__) || defined (__XBOX__)
+    #if defined (__ARM__) || defined (__XBOX__)  || defined (__PPC__)
     GLB_InitSystem("", 6, 0);
     #else
     GLB_InitSystem(argv[0], 6, 0);

@@ -33,6 +33,15 @@ typedef struct __attribute__((packed))
     unsigned short length;
 }ANIMLINE;
 #else
+#ifdef __PPC__
+typedef struct 
+{
+    little_uint16_t opt;
+    little_uint16_t fill;
+    little_uint16_t offset;
+    little_uint16_t length;
+}ANIMLINE;
+#else
 typedef struct 
 {
     unsigned short opt;
@@ -40,6 +49,7 @@ typedef struct
     unsigned short offset;
     unsigned short length;
 }ANIMLINE;
+#endif
 #endif
 
 typedef struct

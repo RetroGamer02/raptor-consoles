@@ -7,6 +7,19 @@
 #define  DEMO_PLAYBACK  2
 #define  MAX_DEMO       2800
 
+#ifdef __PPC__
+typedef struct
+{
+    char b1;
+    char b2;
+    char b3;
+    char b4;
+    little_int16_t px;
+    little_int16_t py;
+    little_int16_t playerpic;
+    little_int16_t fil;
+}RECORD;
+#else
 typedef struct
 {
     char b1;
@@ -18,6 +31,7 @@ typedef struct
     short playerpic;
     short fil;
 }RECORD;
+#endif
 #pragma pack(pop)
 
 

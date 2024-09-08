@@ -61,11 +61,19 @@ typedef struct
 	const char *permissions;
 }FILEDESC;
 
+#ifdef __PPC__
+typedef struct
+{
+	uint16_t filenum;
+	uint16_t itemnum;
+}ITEM_ID;
+#else
 typedef struct
 {
 	uint16_t itemnum;
 	uint16_t filenum;
 }ITEM_ID;
+#endif
 
 typedef union
 {
@@ -181,6 +189,21 @@ GLB_FindFile(
         {
             #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
 				sprintf(filename, "%s%s%04u.GLB", ROMFS, prefix, filenum);
+				handle = fopen(filename, permissions);
+				if (handle == NULL)
+				{
+					sprintf(filename, "%s%s%04u.GLB", RAP_SD_DIR, prefix, filenum);
+					handle = fopen(filename, permissions);
+					if (handle == NULL)
+					{
+						if (return_on_failure)
+							return NULL;
+						sprintf(filename, "%s%04u.GLB", prefix, filenum);
+						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
+					}
+				}
+			#elif defined (__GCN__) || defined(__WII__)
+				sprintf(filename, "%s%s%04u.GLB", RAP_HD_DIR, prefix, filenum);
 				handle = fopen(filename, permissions);
 				if (handle == NULL)
 				{
@@ -323,7 +346,11 @@ GLB_NumItems(
 	GLB_DeCrypt(serial, (uint8_t*)&key, sizeof(KEYFILE));
 #endif
 
+	#ifdef __PPC__
+	return ((int)key.offset.get_value());
+	#else
 	return ((int)key.offset);
+	#endif
 }
 
 /*--------------------------------------------------------------------------
@@ -360,11 +387,19 @@ GLB_LoadIDT(
 #ifdef _SCOTTGAME
 			GLB_DeCrypt(serial, (void*)&key[n], sizeof(KEYFILE));
 #endif
+			#ifdef __PPC__
+			if (key[n].opt.get_value() == GLB_ENCODED)
+				ii->flags |= ITF_ENCODED;
+
+			ii->size = key[n].filesize.get_value();
+			ii->offset = key[n].offset.get_value();
+			#else
 			if (key[n].opt == GLB_ENCODED)
 				ii->flags |= ITF_ENCODED;
 
 			ii->size = key[n].filesize;
 			ii->offset = key[n].offset;
+			#endif
 			memcpy(ii->name, key[n].name, sizeof(ii->name));
 			ii++;
 		}
@@ -380,7 +415,7 @@ GLB_UseVM(
 	void
 )
 {
-	#ifdef __ARM__
+	#if defined (__ARM__) || defined(__PPC__)
 	fVmem = 0;
 	#else
 	fVmem = 1;

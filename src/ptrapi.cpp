@@ -1,4 +1,4 @@
-#if defined (__3DS__) || defined (__SWITCH__)
+#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -396,7 +396,7 @@ PTR_DrawCursor(
     int flag               // INPUT: TRUE/FALSE
 )
 {
-    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__)
+    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__) || defined (__GCN__) || defined (__WII__)
     g_drawcursor = 0;
     #else
     if (ptractive)

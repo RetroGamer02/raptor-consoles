@@ -119,8 +119,13 @@ BONUS_Init(
     
     h = (GFX_PIC*)GLB_CacheItem(FILE125_ICNGLW_BLK);
     
+    #ifdef __PPC__
+    glow_lx = h->width.get_value();
+    glow_ly = h->height.get_value();
+    #else
     glow_lx = h->width;
     glow_ly = h->height;
+    #endif
     
     GLB_CacheItem(FILE126_ICNGLW_BLK);
     GLB_CacheItem(FILE127_ICNGLW_BLK);

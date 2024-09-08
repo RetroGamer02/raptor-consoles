@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __PPC__
+#include "ppc.h"
+#endif
+
 #define MAX_SHIELD 100
 #define MAX_SUPER  100
 
@@ -153,12 +157,21 @@ typedef enum
     K_EXITDOS
 }KEYOPTS;
 
+#ifdef __PPC__
+typedef struct 
+{
+    little_int32_t linkflat;
+    little_int16_t bonus;
+    little_int16_t bounty;
+}FLATS;
+#else
 typedef struct 
 {
     int linkflat; 
     short bonus; 
     short bounty;
 }FLATS;
+#endif
 
 extern FLATS *flatlib[4];
 extern PLAYEROBJ plr;

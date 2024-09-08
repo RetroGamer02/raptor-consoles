@@ -169,9 +169,15 @@ DEMO_GLBFile(
         
     cur_play = 1;
     
+    #ifdef __PPC__
+    max_play = playback[0].playerpic.get_value();
+    demo_game = playback[0].px.get_value();
+    demo_wave = playback[0].py.get_value();
+    #else
     max_play = playback[0].playerpic;
     demo_game = playback[0].px;
     demo_wave = playback[0].py;
+    #endif
         
     GLB_FreeItem(item);
 }
@@ -191,9 +197,15 @@ DEMO_LoadFile(
     
     cur_play = 1;
     
+    #ifdef __PPC__
+    max_play = playback[0].playerpic.get_value();
+    demo_game = playback[0].px.get_value();
+    demo_wave = playback[0].py.get_value();
+    #else
     max_play = playback[0].playerpic;
     demo_game = playback[0].px;
     demo_wave = playback[0].py;
+    #endif
 }
 
 /***************************************************************************
@@ -297,11 +309,20 @@ DEMO_Think(
         buttons[1] = playback[cur_play].b2;
         buttons[2] = playback[cur_play].b3;
         buttons[3] = playback[cur_play].b4;
+        #ifdef __PPC__
+        playerx = playback[cur_play].px.get_value();
+        playery = playback[cur_play].py.get_value();
+        #else
         playerx = playback[cur_play].px;
         playery = playback[cur_play].py;
+        #endif
         player_cx = playerx + 16;
         player_cy = playery + 16;
+        #ifdef __PPC__
+        playerpic = playback[cur_play].playerpic.get_value();
+        #else
         playerpic = playback[cur_play].playerpic;
+        #endif
         cur_play++;
         if (cur_play > max_play)
         {

@@ -170,8 +170,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_ALL;
 
     // == PLASMA_GUNS =====================================
@@ -198,8 +203,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_AIR;
 
     // == MICRO_MISSLE =====================================
@@ -226,8 +236,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_GRALL;
 
     // == DUMB_MISSLE =====================================
@@ -255,8 +270,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_ALL;
 
     // == MINI_GUN =====================================
@@ -284,8 +304,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_GRALL;
 
     // == LASER TURRET =====================================
@@ -342,8 +367,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_AIR;
 
     // == AIR TO AIR =====================================
@@ -371,8 +401,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_AIR;
 
     // == AIR TO GROUND =====================================
@@ -400,8 +435,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_GROUND;
 
     // == GROUND BOMB =====================================
@@ -429,8 +469,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_GTILE;
 
     // == ENERGY GRAB =====================================
@@ -458,8 +503,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_SUCK;
 
     // == MEGA BOMB =====================================
@@ -488,8 +538,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_ALL;
 
     // == PULSE CANNON =====================================
@@ -518,8 +573,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_ALL;
 
     // == FORWARD LASER =====================================
@@ -548,8 +608,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_AIR;
 
     // == DEATH RAY =====================================
@@ -578,8 +643,13 @@ SHOTS_Init(
         slib->pic[i] = (char*)GLB_LockItem(item);
     }
     slib->h = (GFX_PIC*)slib->pic[0];
+    #ifdef __PPC__
+    slib->hlx = slib->h->width.get_value() >> 1;
+    slib->hly = slib->h->height.get_value() >> 1;
+    #else
     slib->hlx = slib->h->width >> 1;
     slib->hly = slib->h->height >> 1;
+    #endif
     slib->ht = S_GRALL;
 }
 
@@ -1292,7 +1362,11 @@ SHOTS_Display(
             
             h = (GFX_PIC*)lashit[shot->cnt];
             
+            #ifdef __PPC__
+            x = shot->x - (h->width.get_value() >> 2);
+            #else
             x = shot->x - (h->width >> 2);
+            #endif
             y = shot->move.y2 - 8;
             
             if (y > 0)

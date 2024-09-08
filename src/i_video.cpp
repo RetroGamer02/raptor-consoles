@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#if defined (__3DS__) || defined (__SWITCH__)
+#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_opengl.h"
 #elif defined (__NDS__)
@@ -125,6 +125,12 @@ int window_height = 200;
 int window_width = 1280;
 int window_height = 720;
 #elif __XBOX__
+int window_width = 640;
+int window_height = 480;
+#elif __GCN__
+int window_width = 640;
+int window_height = 480;
+#elif __WII__
 int window_width = 640;
 int window_height = 480;
 #else
@@ -238,6 +244,14 @@ void VIDEO_LoadPrefs(void)
         fullscreen = 1;
         aspect_ratio_correct = 0;
         txt_fullscreen = 0;
+    #elif __GCN__
+        fullscreen = 1;
+        aspect_ratio_correct = 1;
+        txt_fullscreen = 1;
+    #elif __WII__
+        fullscreen = 1;
+        aspect_ratio_correct = 0;
+        txt_fullscreen = 1;
     #else
         fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
         aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
@@ -569,6 +583,68 @@ void I_GetEvent(void)
 		kDownOld = kDown;
 		//kHeldOld = kHeld;
 		kUpOld = kUp;
+    #elif __WII__
+        // Call WPAD_ScanPads each loop, this reads the latest controller states
+		WPAD_ScanPads();
+        PAD_ScanPads();
+
+		// WPAD_ButtonsDown tells us which buttons were pressed in this loop
+		// this is a "one shot" state which will not fire again until the button has been released
+		u32 kDown = WPAD_ButtonsDown(0);
+        u32 kUp = WPAD_ButtonsUp(0);
+        u32 kDownGC = PAD_ButtonsDown(0);
+        u32 kUpGC = PAD_ButtonsUp(0);
+
+        //Wii Inputs
+        if ( kDown & WPAD_BUTTON_PLUS) Start = 1;
+        if ( kDown & WPAD_BUTTON_MINUS) Back = 1;
+        if ( kDown & WPAD_BUTTON_A ) XButton = 1;
+        if ( kDown & WPAD_BUTTON_B ) YButton = 1;
+        if ( kDown & WPAD_BUTTON_1 ) BButton = 1;
+        if ( kDown & WPAD_BUTTON_2 ) AButton = 1;
+        if ( kDown & WPAD_BUTTON_UP ) Left = 1;
+        if ( kDown & WPAD_BUTTON_DOWN ) Right = 1;
+        if ( kDown & WPAD_BUTTON_LEFT ) Down = 1;
+        if ( kDown & WPAD_BUTTON_RIGHT) Up = 1;
+
+        if ( kUp & WPAD_BUTTON_PLUS) Start = 0;
+        if ( kUp & WPAD_BUTTON_MINUS) Back = 0;
+        if ( kUp & WPAD_BUTTON_A ) XButton = 0;
+        if ( kUp & WPAD_BUTTON_B ) YButton = 0;
+        if ( kUp & WPAD_BUTTON_1 ) BButton = 0;
+        if ( kUp & WPAD_BUTTON_2 ) AButton = 0;
+        if ( kUp & WPAD_BUTTON_UP ) Left = 0;
+        if ( kUp & WPAD_BUTTON_DOWN ) Right = 0;
+        if ( kUp & WPAD_BUTTON_LEFT ) Down = 0;
+        if ( kUp & WPAD_BUTTON_RIGHT) Up = 0;
+
+        //GC Inputs
+        if ( kDownGC & PAD_BUTTON_START) Start = 1;
+        if ( kDownGC & PAD_TRIGGER_Z) Back = 1;
+        if ( kDownGC & PAD_BUTTON_A ) AButton = 1;
+        if ( kDownGC & PAD_BUTTON_B ) BButton = 1;
+        if ( kDownGC & PAD_BUTTON_X ) XButton = 1;
+        if ( kDownGC & PAD_BUTTON_Y ) YButton = 1;
+        if ( kDownGC & PAD_BUTTON_UP ) Up = 1;
+        if ( kDownGC & PAD_BUTTON_DOWN ) Down = 1;
+        if ( kDownGC & PAD_BUTTON_LEFT ) Left = 1;
+        if ( kDownGC & PAD_BUTTON_RIGHT) Right = 1;
+        if ( kDownGC & PAD_TRIGGER_L) LeftShoulder = 1;
+        if ( kDownGC & PAD_TRIGGER_R) RightShoulder = 1;
+
+        if ( kUpGC & PAD_BUTTON_START) Start = 0;
+        if ( kUpGC & PAD_TRIGGER_Z) Back = 0;
+        if ( kUpGC & PAD_BUTTON_A ) AButton = 0;
+        if ( kUpGC & PAD_BUTTON_B ) BButton = 0;
+        if ( kUpGC & PAD_BUTTON_X ) XButton = 0;
+        if ( kUpGC & PAD_BUTTON_Y ) YButton = 0;
+        if ( kUpGC & PAD_BUTTON_UP ) Up = 0;
+        if ( kUpGC & PAD_BUTTON_DOWN ) Down = 0;
+        if ( kUpGC & PAD_BUTTON_LEFT ) Left = 0;
+        if ( kUpGC & PAD_BUTTON_RIGHT) Right = 0;
+        if ( kUpGC & PAD_TRIGGER_L) LeftShoulder = 0;
+        if ( kUpGC & PAD_TRIGGER_R) RightShoulder = 0;
+        
     #else
     extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
     extern void I_HandleMouseEvent(SDL_Event *sdlevent);
@@ -984,6 +1060,12 @@ void I_FinishUpdate (void)
     // Render this intermediate texture into the upscaled texture
     // using "nearest" integer scaling.
 
+    #if defined (__GCN__) || defined (__WII__)
+    // Finally, render this upscaled texture to screen using linear scaling.
+
+    SDL_SetRenderTarget(renderer, NULL);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    #else
     SDL_SetRenderTarget(renderer, texture_upscaled);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
 
@@ -991,6 +1073,7 @@ void I_FinishUpdate (void)
 
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderCopy(renderer, texture_upscaled, NULL, NULL);
+    #endif
 
     // Draw!
 
@@ -1458,7 +1541,12 @@ static void SetVideoMode(void)
 
     // The SDL_RENDERER_TARGETTEXTURE flag is required to render the
     // intermediate texture into the upscaled texture.
+
+    #if defined (__GCN__) || defined (__WII__)
+    renderer_flags = 0;
+    #else
     renderer_flags = SDL_RENDERER_TARGETTEXTURE;
+    #endif
 
     if (SDL_GetCurrentDisplayMode(video_display, &mode) != 0)
     {

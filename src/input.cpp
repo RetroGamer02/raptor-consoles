@@ -1,4 +1,4 @@
-#if defined (__3DS__) || defined (__SWITCH__)
+#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -540,7 +540,7 @@ IPT_LoadPrefs(
     void
 )
 {
-    #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
+    #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
         opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
         control = 2;
         haptic = 0;

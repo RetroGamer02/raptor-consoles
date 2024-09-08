@@ -1287,7 +1287,7 @@ int I_OPL_InitMusic(int dummy)
 {
     int i;
     //const char *dmxoption;
-
+    
     if (music_initialized++ != 0)
         return 0;
 

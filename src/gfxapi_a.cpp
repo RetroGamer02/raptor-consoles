@@ -88,8 +88,21 @@ GFX_ShadeSprite(
     GFX_PIC* h = (GFX_PIC*)inmem;
     GFX_SPRITE* ah = (GFX_SPRITE*)inmem;
 
+    #ifdef __PPC__
+    while ((int16_t)ah->offset.get_value() != -1)
+    #else
     while ((int16_t)ah->offset != -1)
+    #endif
     {
+        #ifdef __PPC__
+        char* d = dest + (uint16_t)ah->offset.get_value();
+
+        for (int loop = 0; loop < (uint16_t)h->width.get_value(); loop++, d++)
+            *d = dtable[(uint8_t)*d];
+
+        h = (GFX_PIC*)((char*)&h->height + (uint16_t)h->width.get_value());
+        ah = (GFX_SPRITE*)h;
+        #else
         char* d = dest + (uint16_t)ah->offset;
 
         for (int loop = 0; loop < (uint16_t)h->width; loop++, d++)
@@ -97,6 +110,7 @@ GFX_ShadeSprite(
 
         h = (GFX_PIC*)((char*)&h->height + (uint16_t)h->width);
         ah = (GFX_SPRITE*)h;
+        #endif
     }
 }
 
@@ -112,13 +126,24 @@ GFX_DrawSprite(
     GFX_PIC* h = (GFX_PIC*)inmem;
     GFX_SPRITE* ah = (GFX_SPRITE*)inmem;
     
+    #ifdef __PPC__
+    while ((int16_t)ah->offset.get_value() != -1)
+    #else
     while ((int16_t)ah->offset != -1)
+    #endif
     {
+        #ifdef __PPC__
+        memcpy(dest + (uint16_t)ah->offset.get_value(), (char*)&h->height, (uint16_t)h->width.get_value());
+
+        h = (GFX_PIC*)((char*)&h->height + (uint16_t)h->width.get_value());
+        ah = (GFX_SPRITE*)h;
+        #else
         //Fixme for NDS
         memcpy(dest + (uint16_t)ah->offset, (char*)&h->height, (uint16_t)h->width);
 
         h = (GFX_PIC*)((char*)&h->height + (uint16_t)h->width);
         ah = (GFX_SPRITE*)h;
+        #endif
     }
 }
 

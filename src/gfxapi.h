@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __PPC__
+#include "ppc.h"
+#endif
+
 #define G3D_DIST 200
 
 #define GFX_DARK  0
@@ -34,6 +38,16 @@ typedef enum
 #define CLIP_YTOP      8
 #define CLIP_YBOTTOM   16
 
+#ifdef __PPC__
+typedef struct
+{
+    GFX_TYPE type;                     // type of picture
+    little_int32_t opt1;               // option 1
+    little_int32_t opt2;               // option 2
+    little_int32_t width;              // width of pic
+    little_int32_t height;             // heigth of pic
+}GFX_PIC;
+#else
 typedef struct
 {
     GFX_TYPE type;          // type of picture
@@ -42,6 +56,7 @@ typedef struct
     int width;              // width of pic
     int height;             // heigth of pic
 }GFX_PIC;
+#endif
 
 #if defined (__ARM__)
 typedef struct __attribute__((packed))
@@ -52,6 +67,15 @@ typedef struct __attribute__((packed))
     int length;             // LENGTH OF LINE
 }GFX_SPRITE;
 #else
+#ifdef __PPC__
+typedef struct
+{
+    little_int32_t x;                  // X POS OF SEG
+    little_int32_t y;                  // Y POS OF SEG
+    little_int32_t offset;             // OFFSET FROM X, Y
+    little_int32_t length;             // LENGTH OF LINE
+}GFX_SPRITE;
+#else
 typedef struct
 {
     int x;                  // X POS OF SEG
@@ -60,13 +84,23 @@ typedef struct
     int length;             // LENGTH OF LINE
 }GFX_SPRITE;
 #endif
+#endif
 
+#ifdef __PPC__
+typedef struct
+{
+    little_int32_t height;
+    little_int16_t charofs[256];
+    char width[256];
+}FONT;
+#else
 typedef struct
 {
     int height;
     short charofs[256];
     char width[256];
 }FONT;
+#endif
 
 extern char *displaybuffer;
 extern char *displayscreen;

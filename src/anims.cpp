@@ -128,8 +128,13 @@ ANIMS_Register(
     cur->adir = adir;
     
     h = (GFX_PIC*)GLB_LockItem(item);
+    #ifdef __PPC__
+    cur->xoff = h->width.get_value() >> 1;
+    cur->yoff = h->height.get_value() >> 1;
+    #else
     cur->xoff = h->width >> 1;
     cur->yoff = h->height >> 1;
+    #endif
     GLB_FreeItem(item);
     
     return handle;

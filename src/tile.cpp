@@ -262,25 +262,45 @@ TILE_CacheLevel(
     // == CACHE TILES =========================
     for (loop = 0; loop < MAP_SIZE; loop++)
     {
+        #ifdef __PPC__
+        game = mapmem->map[loop].fgame.get_value();
+        #else
         game = mapmem->map[loop].fgame;
+        #endif
         lib = flatlib[game];
         
+        #ifdef __PPC__
+        money[loop] = lib[mapmem->map[loop].flats.get_value()].bounty.get_value();
+        #else
         money[loop] = lib[mapmem->map[loop].flats].bounty;
+        #endif
         
         item = startflat[game];
+        #ifdef __PPC__
+        item += mapmem->map[loop].flats.get_value();
+        #else
         item += mapmem->map[loop].flats;
+        #endif
         titems[loop] = item;
         GLB_CacheItem(item);
         
         item = startflat[game];
+        #ifdef __PPC__
+        item += lib[mapmem->map[loop].flats.get_value()].linkflat.get_value();
+        #else
         item += lib[mapmem->map[loop].flats].linkflat;
+        #endif
         eitems[loop] = item;
         
         if (eitems[loop] != titems[loop])
             GLB_CacheItem(item);
         
         if (eitems[loop] != titems[loop])
+            #ifdef __PPC__
+            hits[loop] = lib[mapmem->map[loop].flats.get_value()].bonus.get_value();
+            #else
             hits[loop] = lib[mapmem->map[loop].flats].bonus;
+            #endif
         else
             hits[loop] = 1;
     }
