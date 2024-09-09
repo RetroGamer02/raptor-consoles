@@ -3,10 +3,10 @@
 #include "common.h"
 #include "prefapi.h"
 
-#if defined (_WIN32) && !defined (__XBOX__)
+#if defined (_WIN32) && !defined (XBOX)
 #include <io.h>
 #endif // _WIN32
-#if defined (__GNUC__) || defined (__XBOX__)
+#if defined (__GNUC__) || defined (XBOX)
 #include <unistd.h>
 char* ltoa(long i, char* s, int dummy_radix) {
     sprintf(s, "%ld", i);
@@ -256,7 +256,7 @@ WritePrivateProfileString(
         fseek(fptr, delta, SEEK_END);
         pos1 = ftell(fptr);
         
-        #if defined (_MSC_VER) && !defined (__XBOX__)
+        #if defined (_MSC_VER) && !defined (XBOX)
         chsize(fileno(fptr), pos1);
         #endif
         #ifdef __GNUC__

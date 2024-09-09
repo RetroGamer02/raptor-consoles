@@ -136,7 +136,7 @@ SND_InitSound(
     fx_device = SND_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__)
+    #if defined (__3DS__) || defined (__SWITCH__) || defined (XBOX)
     music_card = M_SB;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
@@ -168,7 +168,7 @@ SND_InitSound(
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__)
+    #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__) || defined (XBOX)
         fx_card = 5;
         fx_chans = 2;
     #else
@@ -1073,7 +1073,7 @@ SND_PlaySong(
         
         if (fadeflag)
         {
-            #ifndef __XBOX__
+            #ifndef XBOX
             while (MUS_SongPlaying()) //Fixme
             {
                 I_GetEvent();
@@ -1101,7 +1101,7 @@ SND_IsSongPlaying(
     void
 ) 
 {
-    #ifdef __XBOX__
+    #ifdef XBOX
     return 0; //Fixme
     #else
     return MUS_SongPlaying();

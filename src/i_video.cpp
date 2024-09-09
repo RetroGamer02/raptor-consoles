@@ -124,7 +124,7 @@ int window_height = 200;
 #elif __SWITCH__
 int window_width = 1280;
 int window_height = 720;
-#elif __XBOX__
+#elif XBOX
 int window_width = 640;
 int window_height = 480;
 #else
@@ -163,7 +163,11 @@ int vga_porch_flash = false;
 // Force software rendering, for systems which lack effective hardware
 // acceleration
 
+#ifdef XBOX
+int force_software_renderer = true;
+#else
 int force_software_renderer = false;
+#endif
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -234,7 +238,7 @@ void VIDEO_LoadPrefs(void)
         fullscreen = 1;
         aspect_ratio_correct = 0;
         txt_fullscreen = 1;
-    #elif __XBOX__
+    #elif XBOX
         fullscreen = 1;
         aspect_ratio_correct = 0;
         txt_fullscreen = 0;
@@ -724,7 +728,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
     orig_h = *h_upscale;
 
     // Query renderer and limit to maximum texture dimensions of hardware:
-    #if defined (__XBOX__)
+    #if defined (XBOX)
         rinfo.max_texture_width = 1920;
         rinfo.max_texture_height = 1080;
     #else
@@ -1296,7 +1300,7 @@ static void SetSDLVideoDriver(void)
         char *env_string;
 
         env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
-        #ifndef __XBOX__
+        #ifndef XBOX
         putenv(env_string);
         #endif
         free(env_string);
@@ -1646,7 +1650,7 @@ void I_InitGraphics(uint8_t *pal)
         sscanf(env, "0x%x", &winid);
         M_snprintf(winenv, sizeof(winenv), "SDL_WINDOWID=%u", winid);
 
-        #ifndef __XBOX__
+        #ifndef XBOX
         putenv(winenv);
         #endif
     }

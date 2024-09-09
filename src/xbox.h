@@ -1,4 +1,4 @@
-#ifdef __XBOX__
+#ifdef XBOX
 #include <nxdk/mount.h>
 #include <hal/debug.h>
 #include <hal/xbox.h>

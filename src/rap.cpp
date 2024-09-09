@@ -37,7 +37,7 @@
 #include "i_lastscr.h"
 #include "fileids.h"
 
-#if defined (_WIN32) && !defined (__XBOX__)
+#if defined (_WIN32) && !defined (XBOX)
 #include <io.h>
 #endif // _WIN32
 #ifdef __GNUC__
@@ -165,7 +165,7 @@ FLATS *flatlib[4];
 
 #ifdef __3DS__
 const char *ctrRegAttention[] = {"**************************************************\n                   ATTENTION! \n This version of RAPTOR is a COMMERCIAL VERSION. \n         DO NOT upload this to any bulletin \n       boards or distribute it in any fashion. \n     Please report software piracy to the S.P.A \n         hotline by calling 1-800-388-PIR8.\n\n**************************************************"};
-#elif __XBOX__
+#elif XBOX
 const char *xboxRegAttention[] = {"***************************************************************                         ATTENTION!\n       This version of RAPTOR is a COMMERCIAL VERSION.\n DO NOT upload this to any bulletin boards or distribute it in\nany fashion. Please report software piracy to the S.P.A hotline                  by calling 1-800-388-PIR8.\n***************************************************************"};
 #endif
 
@@ -213,7 +213,7 @@ InitScreen(
     #elif __SWITCH__
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     printf(" RAPTOR-Switch: V0.5.1 by RetroGamer02\n");
-    #elif __XBOX__
+    #elif XBOX
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
     printf(" RAPTOR-Xbox: V0.5.2 by RetroGamer02\n");
     #else
@@ -246,12 +246,12 @@ ShutDown(
         mem = GLB_GetItem(FILE001_LASTSCR1_TXT);     //Get ANSI Screen Shareware from GLB to char*
 
     closewindow();                                   //Close Main Window
-    #if !defined (__XBOX__) && !defined (__NDS__)
+    #if !defined (XBOX) && !defined (__NDS__)
     I_LASTSCR(mem);                                  //Call to display ANSI Screen 
     #endif
     GLB_FreeAll();
     IPT_CloJoy();                                    //Close Joystick
-    #ifdef __XBOX__
+    #ifdef XBOX
     nxUnmountDrive('E');
     nxUnmountDrive('Z');
     HalReturnToFirmware(HalRebootRoutine);
@@ -1279,7 +1279,7 @@ main(
 
     var1 = getenv("S_HOST");
 
-    #if defined (__ARM__) || defined (__XBOX__)
+    #if defined (__ARM__) || defined (XBOX)
     sys_init();
     #endif
 
@@ -1299,7 +1299,7 @@ main(
             printf("\n\n** You must run SETUP first! **\n");
             cp(RAP_SD_DIR "SETUP.INI", ROMFS "SETUP.INI");
         }
-    #elif __XBOX__
+    #elif XBOX
         if (access(RAP_SetupFilename(), 0))
         {
             printf("\n\n** You must run SETUP first! **\n");
@@ -1360,7 +1360,7 @@ main(
             gameflag[2] = 1;
             gameflag[3] = 1;
         }
-    #elif __XBOX__
+    #elif XBOX
         if (!access(XBOX_DVD_DIR "FILE0001.GLB", 0))
             gameflag[0] = 1;
         
@@ -1411,7 +1411,7 @@ main(
             printf("All game data files NOT FOUND cannot proceed !!\n");
             //exit(0);
         }
-    #elif __XBOX__
+    #elif XBOX
         if (access(XBOX_DVD_DIR "FILE0000.GLB", 0) || !numfiles)
         {
             printf("All game data files NOT FOUND cannot proceed !!\n");
@@ -1468,7 +1468,7 @@ main(
     bday[5].year = 1996;
     bday[5].name = "Paul R.";
 
-    #ifndef __XBOX__
+    #ifndef XBOX
     RAP_Bday();
     #endif
 
@@ -1524,7 +1524,7 @@ main(
         fflush(stdout);
     }
     
-    #if defined (__ARM__) || defined (__XBOX__)
+    #if defined (__ARM__) || defined (XBOX)
     GLB_InitSystem("", 6, 0);
     #else
     GLB_InitSystem(argv[0], 6, 0);
@@ -1534,7 +1534,7 @@ main(
     {
         #ifdef __3DS__
             printf("%s", ctrRegAttention[0]);
-        #elif __XBOX__
+        #elif XBOX
             printf("%s", xboxRegAttention[0]);
         #else
             tptr = GLB_GetItem(FILE000_ATENTION_TXT);

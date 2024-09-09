@@ -27,6 +27,54 @@
 #include "txt_utf8.h"
 #include "txt_window.h"
 
+#ifdef XBOX
+//Microsoft Copilot produced code
+#include <ctype.h>
+
+double atof(const char *str) {
+    double result = 0.0;
+    double fraction = 1.0;
+    int sign = 1;
+    int decimal_point_seen = 0;
+
+    // Skip leading whitespace
+    while (isspace(*str)) {
+        str++;
+    }
+
+    // Handle optional sign
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    // Convert digits
+    while (*str) {
+        if (isdigit(*str)) {
+            if (decimal_point_seen) {
+                fraction /= 10.0;
+                result += (*str - '0') * fraction;
+            } else {
+                result = result * 10.0 + (*str - '0');
+            }
+        } else if (*str == '.') {
+            if (decimal_point_seen) {
+                break; // Second decimal point is invalid
+            }
+            decimal_point_seen = 1;
+        } else {
+            break; // Invalid character
+        }
+        str++;
+    }
+
+    return sign * result;
+}
+//End of copilot code
+#endif
+
 // Generate the format string to be used for displaying floats
 
 static void FloatFormatString(float step, char *buf, size_t buf_len)
@@ -251,9 +299,7 @@ static void FinishEditing(txt_spincontrol_t *spincontrol)
             break;
 
         case TXT_SPINCONTROL_FLOAT:
-            #ifndef __XBOX__
             spincontrol->value->f = (float) atof(spincontrol->buffer);
-            #endif
             break;
     }
 

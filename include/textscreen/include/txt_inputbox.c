@@ -33,7 +33,7 @@
 extern txt_widget_class_t txt_inputbox_class;
 extern txt_widget_class_t txt_int_inputbox_class;
 
-#ifdef __XBOX__
+#ifdef XBOX
 int strnlen(const char *str, int maxlen)
 {
 	int len;

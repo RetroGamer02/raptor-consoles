@@ -435,7 +435,7 @@ MUS_Init(
     default:
         if (sys_midi)
         {
-            #if defined (_WIN32) && !defined (__XBOX__)
+            #if defined (_WIN32) && !defined (XBOX)
             music_device = &mus_device_mpu;
             #endif // _WIN32
             
@@ -580,7 +580,7 @@ MUS_SongPlaying(
     if (!music_init)
         return 0;
     
-    //#ifdef __XBOX__
+    //#ifdef XBOX
     //return 0; //Fixme
     //#else
     return music_active;

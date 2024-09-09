@@ -1,4 +1,4 @@
-#if defined (_WIN32) && !defined (__XBOX__)
+#if defined (_WIN32) && !defined (XBOX)
 #include "SDL.h"
 #include "common.h"
 #include "musapi.h"

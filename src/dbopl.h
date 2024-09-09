@@ -265,7 +265,7 @@ struct Chip {
 
 struct Handler {
 	DBOPL::Chip chip;
-	#ifdef __XBOX__
+	#ifdef XBOX
 	Bit32u WriteAddr( Bit32u port, Bit8u val );
 	void WriteReg( Bit32u addr, Bit8u val );
 	void Generate( Bit32s *buffer, Bitu samples );

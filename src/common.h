@@ -3,7 +3,7 @@
 
 #ifdef __ARM__
 #include "arm.h"
-#elif __XBOX__
+#elif XBOX
 #include "xbox.h"
 #endif
 

@@ -9,10 +9,10 @@
 #include "glbapi.h"
 #include "vmemapi.h"
 
-#if defined (_WIN32) && !defined (__XBOX__)
+#if defined (_WIN32) && !defined (XBOX)
 #include <io.h>
 #endif // _WIN32
-#if defined (__GNUC__) || defined (__XBOX__)
+#if defined (__GNUC__) || defined (XBOX)
 #include <unistd.h>
 char* strupr(char* s)
 {
@@ -194,7 +194,7 @@ GLB_FindFile(
 						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
 					}
 				}
-			#elif __XBOX__
+			#elif XBOX
 				sprintf(filename, "%s%s%04u.GLB", XBOX_DVD_DIR, prefix, filenum);
 				handle = fopen(filename, permissions);
 				if (handle == NULL)

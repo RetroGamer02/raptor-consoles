@@ -396,7 +396,7 @@ PTR_DrawCursor(
     int flag               // INPUT: TRUE/FALSE
 )
 {
-    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__)
+    #if defined (__3DS__) || defined (__SWITCH__) || defined (XBOX)
     g_drawcursor = 0;
     #else
     if (ptractive)

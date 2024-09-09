@@ -52,12 +52,12 @@ TOOLS        = cxbe vp20compiler fp20compiler extract-xiso
 
 ifeq ($(DEBUG),y)
 NXDK_ASFLAGS += -g -gdwarf-4
-NXDK_CFLAGS += -g -gdwarf-4 -D__XBOX__
-NXDK_CXXFLAGS += -g -gdwarf-4 -D__XBOX__ -Iinclude/TinySoundFont -Iinclude/textscreen/include
+NXDK_CFLAGS += -g -gdwarf-4
+NXDK_CXXFLAGS += -g -gdwarf-4 -Iinclude/TinySoundFont -Iinclude/textscreen/include
 NXDK_LDFLAGS += -debug
 else
-NXDK_CFLAGS += -O3 -D__XBOX__ 
-NXDK_CXXFLAGS += -O3 -D__XBOX__ -Iinclude/TinySoundFont -Iinclude/textscreen/include
+NXDK_CFLAGS += -O3 -fno-math-errno -fno-trapping-math
+NXDK_CXXFLAGS += -O3 -fno-math-errno -fno-trapping-math -Iinclude/TinySoundFont -Iinclude/textscreen/include
 endif
 
 ifeq ($(LTO),y)

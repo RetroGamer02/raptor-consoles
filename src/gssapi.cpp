@@ -57,7 +57,7 @@ GSS_Init(
     case M_GMIDI:
     default:
 
-        #if defined (_WIN32) && !defined (__XBOX__)
+        #if defined (_WIN32) && !defined (XBOX)
         gss_device = &mus_device_mpu;
         #endif // _WIN32
         break;

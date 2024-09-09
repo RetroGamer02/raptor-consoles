@@ -21,7 +21,7 @@
 #include "fileids.h"
 #include "winids.h"
 
-#if defined (_WIN32) && !defined (__XBOX__)
+#if defined (_WIN32) && !defined (XBOX)
 #include <io.h>
 #endif // _WIN32
 #ifdef __GNUC__
@@ -46,7 +46,7 @@ int curplr_diff = 2;
 #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
     static const char *fmt = RAP_SD_DIR "CHAR%04u.FIL";
     static const char* cdfmt = RAP_SD_DIR "%s\\CHAR%04u.FIL";
-#elif defined (__XBOX__)
+#elif defined (XBOX)
     static const char *fmt = XBOX_HDD_DIR "CHAR%04u.FIL";
     static const char* cdfmt = XBOX_HDD_DIR "%s\\CHAR%04u.FIL";
 #else
@@ -664,7 +664,7 @@ RAP_InitLoadSave(
     
     #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
         strcpy(g_setup_ini, RAP_SD_DIR "SETUP.INI");
-    #elif __XBOX__
+    #elif XBOX
         strcpy(g_setup_ini, XBOX_HDD_DIR "SETUP.INI");
     #else
         strcpy(g_setup_ini, "SETUP.INI");

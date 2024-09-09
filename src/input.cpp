@@ -563,7 +563,7 @@ IPT_LoadPrefs(
         j_lookup[1] = 1;
         j_lookup[2] = 2;
         j_lookup[3] = 3;
-    #elif defined (__XBOX__)
+    #elif defined (XBOX)
         opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
         control = 2;
         haptic = INI_GetPreferenceLong("Setup", "Haptic", 0);

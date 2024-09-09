@@ -1,4 +1,4 @@
-#ifdef __XBOX__
+#ifdef XBOX
 #include "xbox.h"
 
 //Replaces access() function for Xbox.

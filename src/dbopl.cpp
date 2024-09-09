@@ -47,7 +47,7 @@
 #define PI 3.14159265358979323846
 #endif
 
-#ifdef __XBOX__
+#ifdef XBOX
 #define M_PI PI
 #endif
 

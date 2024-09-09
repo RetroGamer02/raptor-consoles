@@ -120,7 +120,7 @@ static const SDL_Color ega_colors[] =
 
 static int Win32_UseLargeFont(void)
 {
-    #ifdef __XBOX__
+    #ifdef XBOX
     return 0;
     #else
     HDC hdc = GetDC(NULL);
