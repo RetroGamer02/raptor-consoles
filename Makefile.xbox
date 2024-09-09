@@ -1,4 +1,4 @@
-XBE_TITLE = RAPTOR-Xbox-V0.5.0
+XBE_TITLE = RAPTOR-Xbox-V0.5.2
 GEN_XISO = $(XBE_TITLE).iso
 SRCS = $(wildcard $(CURDIR)/src/*.cpp) $(wildcard $(CURDIR)/src/*.c) $(wildcard $(CURDIR)/include/textscreen/include/*.cpp) $(wildcard $(CURDIR)/include/textscreen/include/*.c) $(wildcard $(CURDIR)/include/TinySoundFont/*.cpp) $(wildcard $(CURDIR)/include/TinySoundFont/*.c)
 NXDK_DIR ?= /home/devin/Documents/GitHub/nxdk/

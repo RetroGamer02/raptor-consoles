@@ -215,7 +215,7 @@ InitScreen(
     printf(" RAPTOR-Switch: V0.5.1 by RetroGamer02\n");
     #elif __XBOX__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
-    printf(" RAPTOR-Xbox: V0.5.1 by RetroGamer02\n");
+    printf(" RAPTOR-Xbox: V0.5.2 by RetroGamer02\n");
     #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     #endif

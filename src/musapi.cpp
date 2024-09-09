@@ -580,11 +580,11 @@ MUS_SongPlaying(
     if (!music_init)
         return 0;
     
-    #ifdef __XBOX__
-    return 0; //Fixme
-    #else
+    //#ifdef __XBOX__
+    //return 0; //Fixme
+    //#else
     return music_active;
-    #endif
+    //#endif
 }
 
 /***************************************************************************

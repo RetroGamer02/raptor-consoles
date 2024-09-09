@@ -1073,10 +1073,12 @@ SND_PlaySong(
         
         if (fadeflag)
         {
-            while (MUS_SongPlaying())
+            #ifndef __XBOX__
+            while (MUS_SongPlaying()) //Fixme
             {
                 I_GetEvent();
             }
+            #endif
         }
         
         GLB_UnlockItem(music_song);
@@ -1099,7 +1101,11 @@ SND_IsSongPlaying(
     void
 ) 
 {
+    #ifdef __XBOX__
+    return 0; //Fixme
+    #else
     return MUS_SongPlaying();
+    #endif
 }
 
 /***************************************************************************
