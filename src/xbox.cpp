@@ -1,25 +1,55 @@
 #ifdef XBOX
 #include "xbox.h"
 
-//Replaces access() function for Xbox.
-int checkFile(const char* path, int mode)
-{
-    //Todo add better mode check.
-    FILE* f;
-    //Mode 1 being write is a guess as no 
-    //docs or source was found on how access works.
-    if (mode == 1) {
-        f = fopen(path, "w");
-    } else {
-        f = fopen(path, "r");
+int stat(const char *path, struct stat *buf) {
+    if (!path || !buf) {
+        return -1; // Invalid arguments
     }
-	
-	if (f) {
-        fclose(f);
-		return false;
-	} else {
-        return true;
+
+    // Clear the buffer
+    memset(buf, 0, sizeof(struct stat));
+
+    // Use the Windows API to get file attributes
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
+    if (!GetFileAttributesExA(path, GetFileExInfoStandard, &fileInfo)) {
+        return -1; // Failed to get file attributes
     }
+
+    // Fill in the stat structure
+    buf->st_size = fileInfo.nFileSizeLow; // File size in bytes (assuming file size is less than 4GB)
+    buf->st_mode = S_IRUSR | S_IWUSR | S_IXUSR; // File permissions (example)
+    buf->st_mtime = fileInfo.ftLastWriteTime.dwLowDateTime; // Last modification time
+    buf->st_atime = fileInfo.ftLastAccessTime.dwLowDateTime; // Last access time
+    buf->st_nlink = 1; // Number of hard links (example)
+
+    return 0; // Success
+}
+
+
+int access(const char *pathname, int mode) {
+    struct stat st;
+    if (stat(pathname, &st) != 0) {
+        // File does not exist
+        return -1;
+    }
+
+    // Check for read permission
+    if ((mode & R_OK) && !(st.st_mode & S_IRUSR)) {
+        return -1;
+    }
+
+    // Check for write permission
+    if ((mode & W_OK) && !(st.st_mode & S_IWUSR)) {
+        return -1;
+    }
+
+    // Check for execute permission
+    if ((mode & X_OK) && !(st.st_mode & S_IXUSR)) {
+        return -1;
+    }
+
+    // All requested permissions are granted
+    return 0;
 }
 
 void sys_init()
