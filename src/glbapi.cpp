@@ -195,11 +195,11 @@ GLB_FindFile(
 					}
 				}
 			#elif XBOX
-				sprintf(filename, "%s%s%04u.GLB", XBOX_DVD_DIR, prefix, filenum);
+				sprintf(filename, "%s%s%04u.GLB", XBOX_HDD_DIR, prefix, filenum);
 				handle = fopen(filename, permissions);
 				if (handle == NULL)
 				{
-					sprintf(filename, "%s%s%04u.GLB", XBOX_HDD_DIR, prefix, filenum);
+					sprintf(filename, "%s%s%04u.GLB", XBOX_DVD_DIR, prefix, filenum);
 					handle = fopen(filename, permissions);
 					if (handle == NULL)
 					{
