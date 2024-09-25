@@ -69,6 +69,16 @@ struct genmidi_op_t
     byte level;
 };
 
+#ifdef __PPC__
+struct genmidi_voice_t
+{
+    genmidi_op_t modulator;
+    byte feedback;
+    genmidi_op_t carrier;
+    byte unused;
+    little_int16_t base_note_offset;
+};
+#else
 struct genmidi_voice_t
 {
     genmidi_op_t modulator;
@@ -77,7 +87,18 @@ struct genmidi_voice_t
     byte unused;
     short base_note_offset;
 };
+#endif
 
+#ifdef __PPC__
+struct genmidi_instr_t
+{
+    little_uint16_t flags;
+    byte fine_tuning;
+    byte fixed_note;
+
+    genmidi_voice_t voices[2];
+};
+#else
 struct genmidi_instr_t
 {
     unsigned short flags;
@@ -87,6 +108,7 @@ struct genmidi_instr_t
     genmidi_voice_t voices[2];
 };
 #pragma pack(pop)
+#endif
 
 // Data associated with a channel of a track that is currently playing.
 
@@ -735,11 +757,18 @@ static unsigned int FrequencyForVoice(opl_voice_t *voice)
 
     gm_voice = &voice->current_instr->voices[voice->current_instr_voice];
 
-    // TODO: endian fix
+    
+    #ifdef __PPC__
+    if ((voice->current_instr->flags.get_value() & GENMIDI_FLAG_FIXED) == 0)
+    {
+        note += (signed short) gm_voice->base_note_offset.get_value();
+    }
+    #else
     if ((voice->current_instr->flags & GENMIDI_FLAG_FIXED) == 0)
     {
         note += (signed short) gm_voice->base_note_offset;
     }
+    #endif
 
     // Avoid possible overflow due to base note offset:
 
@@ -852,7 +881,17 @@ static void VoiceKeyOn(opl_channel_data_t *channel,
     // Work out the note to use.  This is normally the same as
     // the key, unless it is a fixed pitch instrument.
 
-    // TODO: endian fix
+    
+    #ifdef __PPC__
+    if ((instrument->flags.get_value() & GENMIDI_FLAG_FIXED) != 0)
+    {
+        voice->note = instrument->fixed_note;
+    }
+    else
+    {
+        voice->note = note;
+    }
+    #else
     if ((instrument->flags & GENMIDI_FLAG_FIXED) != 0)
     {
         voice->note = instrument->fixed_note;
@@ -861,6 +900,7 @@ static void VoiceKeyOn(opl_channel_data_t *channel,
     {
         voice->note = note;
     }
+    #endif
 
     voice->reg_pan = channel->pan;
 
@@ -922,8 +962,12 @@ static void KeyOnEvent(int chan, unsigned int key, unsigned int volume)
         instrument = channel->instrument;
     }
 
-    // TODO: endian fix
+    
+    #ifdef __PPC__
+    double_voice = (instrument->flags.get_value() & GENMIDI_FLAG_2VOICE) != 0;
+    #else
     double_voice = (instrument->flags & GENMIDI_FLAG_2VOICE) != 0;
+    #endif
 
     switch (opl_drv_ver)
     {

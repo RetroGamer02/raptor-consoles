@@ -142,7 +142,7 @@ SND_InitSound(
     fx_device = SND_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__)// Broken? || defined (__WII__)
+    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__) || defined (__WII__)
     music_card = M_SB;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
@@ -813,7 +813,11 @@ SFX_PlayPatch(
     int priority
 )
 {
+    #ifdef __PPC__
+    int type = (*(little_int16_t*)patch).get_value();
+    #else
     int type = *(int16_t*)patch;
+    #endif
     
     switch (type)
     {

@@ -41,6 +41,16 @@ int music_chanvel[16];
 int music_chanvol[16];
 int music_chanvol2[16];
 
+#ifdef __PPC__
+#pragma pack(push, 1)
+struct mushead_t {
+    char id[4];
+    little_uint16_t len;
+    little_uint16_t offset;
+    little_uint16_t channels;
+};
+#pragma pack(pop)
+#else
 #pragma pack(push, 1)
 struct mushead_t {
     char id[4];
@@ -49,6 +59,7 @@ struct mushead_t {
     uint16_t channels;
 };
 #pragma pack(pop)
+#endif
 
 /***************************************************************************
 MUS_SetupFader() -
@@ -516,15 +527,24 @@ MUS_PlaySong(
         MUS_StopSong(0);
     
     music_ptr = (char*)ptr;
+    #ifdef __PPC__
+    music_len = head->len.get_value();
+    music_startoffset = head->offset.get_value();
+    #else
     music_len = head->len;
     music_startoffset = head->offset;
+    #endif
     music_cmdptr = 0;
     music_loop = loop;
     music_active = 1;
     music_delay = 0;
     music_vol = 127;
     music_fading = 0;
+    #ifdef __PPC__
+    music_channels = head->channels.get_value();
+    #else
     music_channels = head->channels;
+    #endif
     MUS_Reset();
     
     if (fadein)
