@@ -160,7 +160,6 @@ if (!fatInitDefault()) {
 	VIDEO_WaitVSync();
 	if(rmode->viTVMode&VI_NON_INTERLACE) VIDEO_WaitVSync();
 
-
 	// The console understands VT terminal escape codes
 	// This positions the cursor on row 2, column 0
 	// we can use variables for this with format codes too
@@ -171,14 +170,6 @@ if (!fatInitDefault()) {
 		printf("fatInitDefault failure: terminating\n");
 	}
 
-    /*DIR* dir = opendir("/wii/Raptor");
-    if (dir) {
-        closedir(dir);
-    } else if (ENOENT == errno) {
-        mkdir("/wii/Raptor", 0700);
-    } else {
-        printf("Raptor directory unknown error.\n");
-    }*/
 #endif
 }
 #endif
