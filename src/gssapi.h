@@ -1,7 +1,6 @@
 #pragma once
 #include <stdint.h>
 
-#ifdef __PPC__
 struct gss1_t {
     little_int16_t format;
     little_int16_t len;
@@ -17,23 +16,6 @@ struct gss2_t {
     little_int16_t note;
     little_int16_t len;
 };
-#else
-struct gss1_t {
-    int16_t format;
-    int16_t len;
-    int16_t bank;
-    int16_t patch;
-    uint8_t data[1];
-};
-
-struct gss2_t {
-    int16_t format;
-    int16_t bank;
-    int16_t patch;
-    int16_t note;
-    int16_t len;
-};
-#endif
 
 extern int gsshack;
 extern int gssrate;

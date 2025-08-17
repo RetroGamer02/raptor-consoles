@@ -46,6 +46,10 @@ IMS_CheckAck(
     
     if (joy_ack)
         rval = 1;
+
+    //Fixes a few input issues when using native input api.
+    if (Start || AButton)
+        rval = 1;
     
     return rval;
 }

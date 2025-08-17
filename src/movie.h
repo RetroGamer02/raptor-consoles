@@ -24,16 +24,6 @@ typedef enum
     S_STOP
 }SONGOPTS;
 
-#ifdef __NDS__
-typedef struct __attribute__((packed))
-{
-    unsigned short opt;
-    unsigned short fill;
-    unsigned short offset;
-    unsigned short length;
-}ANIMLINE;
-#else
-#ifdef __PPC__
 typedef struct 
 {
     little_uint16_t opt;
@@ -41,16 +31,6 @@ typedef struct
     little_uint16_t offset;
     little_uint16_t length;
 }ANIMLINE;
-#else
-typedef struct 
-{
-    unsigned short opt;
-    unsigned short fill;
-    unsigned short offset;
-    unsigned short length;
-}ANIMLINE;
-#endif
-#endif
 
 typedef struct
 {

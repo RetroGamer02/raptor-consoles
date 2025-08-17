@@ -185,11 +185,7 @@ SWD_GetLine(
                 if (x > textcmd_x2 || y > textcmd_y2)
                     break;
                 
-                #ifdef __PPC__
                 textdraw_x += h->width.get_value() + 1;
-                #else
-                textdraw_x += h->width + 1;
-                #endif
                 textdraw_y = y;
                 
                 GFX_PutImage(pic, x, y, 0);
@@ -292,11 +288,7 @@ SWD_FillText(
         if (!textcmd_flag)
         {
             GFX_Print(textdraw_x, textdraw_y, textfill, font, textcolor);
-            #ifdef __PPC__
             textdraw_y += font->height.get_value() + 3;
-            #else
-            textdraw_y += font->height + 3;
-            #endif
         }
         
         if (len < sizerec)
@@ -332,43 +324,23 @@ SWD_PutField(
     char *pic;
     GFX_PIC *h;
 
-    #ifdef __PPC__
     fld_font = (FONT*)GLB_GetItem(curfld->fontid.get_value());
     fld_text = (char*)curfld + curfld->txtoff.get_value();
 
     fontheight = fld_font->height.get_value();
-    #else
-    fld_font = (FONT*)GLB_GetItem(curfld->fontid);
-    fld_text = (char*)curfld + curfld->txtoff;
-    
-    fontheight = fld_font->height;
-    #endif
     
     draw_style = 0;
-    #ifdef __PPC__
     fld_x = curfld->x.get_value() + curwin->x.get_value();
     draw_text = 0;
     fld_y = curfld->y.get_value() + curwin->y.get_value();
-    #else
-    fld_x = curfld->x + curwin->x;
-    draw_text = 0;
-    fld_y = curfld->y + curwin->y;
-    #endif
     curpos = strlen(fld_text);
     
     rval = GFX_StrPixelLen(fld_font, fld_text, curpos);
     
-    #ifdef __PPC__
     text_x = fld_x + ((curfld->lx.get_value() - rval) >> 1);
     text_y = fld_y + ((curfld->ly.get_value() - fld_font->height.get_value()) >> 1);
 
     if (curfld->bstatus.get_value() == DOWN && curfld->opt.get_value() != FLD_DRAGBAR)
-    #else
-    text_x = fld_x + ((curfld->lx - rval) >> 1);
-    text_y = fld_y + ((curfld->ly - fld_font->height) >> 1);
-
-    if (curfld->bstatus == DOWN && curfld->opt != FLD_DRAGBAR)
-    #endif
     {
         if (text_x > 0)
             text_x--;
@@ -376,19 +348,11 @@ SWD_PutField(
         text_y++;
     }
     
-    #ifdef __PPC__
     if (curfld->saveflag.get_value() && curfld->sptr)
         GFX_PutImage(curfld->sptr, fld_x, fld_y, 0);
 
     if (curfld->picflag.get_value() && curfld->picflag.get_value() != INVISABLE)
-    #else
-    if (curfld->saveflag && curfld->sptr)
-        GFX_PutImage(curfld->sptr, fld_x, fld_y, 0);
-
-    if (curfld->picflag && curfld->picflag != INVISABLE)
-    #endif
     {
-        #ifdef __PPC__
         if (curfld->item.get_value() == -1) 
             goto PutField_Exit;
 
@@ -582,206 +546,9 @@ SWD_PutField(
             if (!curfld->color.get_value())
                 GFX_ColorBox(fld_x + 1, fld_y + 1, curfld->lx.get_value() - 2, curfld->ly.get_value() - 2, 0);
             break;
-        }
-        #else
-        if (curfld->item == -1) 
-            goto PutField_Exit;
-
-        if (curwin->numflds == SEE_THRU)
-            draw_style = 1;
-
-        switch (curfld->opt)
-        {
-        case FLD_BUTTON:
-            pic = (char*)GLB_GetItem(curfld->item);
-            
-            if (curfld->picflag == TEXTURE)
-            {
-                GFX_PutTexture(pic, fld_x, fld_y, curfld->lx, curfld->ly);
-                SWD_ShadeButton(curfld->bstatus, fld_x, fld_y, curfld->lx, curfld->ly);
-            }
-            else
-            {
-                GFX_PutImage(pic, fld_x, fld_y, draw_style);
-            }
-            draw_text = 1;
-            break;
-        
-        case FLD_DRAGBAR:
-            pic = (char*)GLB_GetItem(curfld->item);
-            
-            if (curfld->picflag == TEXTURE)
-            {
-                GFX_PutTexture(pic, fld_x, fld_y, curfld->lx, curfld->ly);
-                GFX_LightBox(UPPER_RIGHT, fld_x, fld_y, curfld->lx, curfld->ly);
-            }
-            else
-            {
-                GFX_PutImage(pic, fld_x, fld_y, draw_style);
-            }
-            if (curwin != g_wins[active_window].win)
-                GFX_ShadeArea(GREY, fld_x, fld_y, curfld->lx, curfld->ly);
-            
-            draw_text = 1;
-            break;
-        
-        case FLD_ICON:
-            pic = (char*)GLB_GetItem(curfld->item);
-            
-            if (!pic)
-                break;
-            
-            if (curfld->picflag == TEXTURE)
-            {
-                GFX_PutTexture(pic, fld_x, fld_y, curfld->lx, curfld->ly);
-                goto PutField_Exit;
-            }
-            
-            h = (GFX_PIC*)pic;
-
-            if (curfld->lx < h->width || curfld->ly < h->height)
-            {
-                GFX_ScalePic(pic, fld_x, fld_y, curfld->lx, curfld->ly, 0);
-            }
-            else
-            {
-                GFX_PutImage(pic, fld_x, fld_y, draw_style);
-            }
-            break;
-        
-        case FLD_MARK:
-        case FLD_CLOSE:
-            pic = (char*)GLB_GetItem(curfld->item);
-            GFX_PutImage(pic, fld_x, fld_y, draw_style);
-            break;
-        
-        case FLD_TEXT:
-            SWD_FillText(fld_font, curfld->item, curfld->fontbasecolor, fld_x, fld_y, curfld->lx, curfld->ly);
-            break;
-        
-        case 3:
-        case 8:
-        case 7:
-            break;
-        }
-        
-        if (!curfld->bstatus)
-            goto PutField_Exit;
-    }
-    else
-    {
-        switch (curfld->opt)
-        {
-        case FLD_TEXT:
-            if (curfld->maxchars)
-                GFX_Print(fld_x, fld_y, fld_text, fld_font, curfld->fontbasecolor);
-            break;
-        
-        case FLD_BUTTON:
-            if (curfld->picflag != INVISABLE)
-            {
-                GFX_ColorBox(fld_x, fld_y, curfld->lx, curfld->ly, curfld->color);
-                SWD_ShadeButton(curfld->bstatus, fld_x, fld_y, curfld->lx, curfld->ly);
-                draw_text = 1;
-            }
-            else
-            {
-                GFX_Print(text_x, text_y, fld_text, fld_font, curfld->fontbasecolor);
-            }
-            break;
-        
-        case FLD_INPUT:
-            if (curfld->bstatus == NORMAL)
-                GFX_ColorBox(fld_x, fld_y, curfld->lx, curfld->ly, curfld->color);
-            else
-                GFX_ColorBox(fld_x, fld_y, curfld->lx, curfld->ly, curfld->lite);
-            
-            if (curfld->maxchars)
-                GFX_Print(fld_x + 1, text_y, fld_text, fld_font, curfld->fontbasecolor);
-            
-            if (curfld->bstatus)
-            {
-                curpos = strlen(fld_text);
-                rval = GFX_StrPixelLen(fld_font, fld_text, curpos);
-                
-                text_x = fld_x + 1 + rval;
-                
-                if (rval + 2 < curfld->lx)
-                    GFX_VLine(text_x, fld_y + 1, fontheight - 1, curfld->fontbasecolor);
-            }
-            break;
-        
-        case FLD_MARK:
-            GFX_ColorBox(fld_x, fld_y, curfld->lx, curfld->ly, curfld->color);
-            GFX_LightBox(UPPER_RIGHT, fld_x, fld_y, curfld->lx, curfld->ly);
-            GFX_ColorBox(fld_x + 2, fld_y + 2, curfld->lx - 4, curfld->ly - 4, 0);
-            text_x = fld_x + 3;
-            text_y = fld_y + 3;
-            if (curfld->mark)
-            {
-                GFX_ColorBox(fld_x + 3, fld_y + 3, curfld->lx - 6, curfld->ly - 6, curfld->lite);
-                SWD_ShadeButton(curfld->bstatus, fld_x + 3, fld_y + 3, curfld->lx - 6, curfld->ly - 6);
-            }
-            else
-            {
-                GFX_ColorBox(fld_x + 3, fld_y + 3, curfld->lx - 6, curfld->ly - 6, 0);
-            }
-            break;
-        
-        case FLD_CLOSE:
-            if (curfld->picflag == INVISABLE) 
-                goto PutField_Exit;
-
-            GFX_ColorBox(fld_x, fld_y, curfld->lx, curfld->ly, curfld->lite);
-            GFX_LightBox(UPPER_RIGHT, fld_x, fld_y, curfld->lx, curfld->ly);
-            GFX_ColorBox(fld_x + 2, fld_y + 2, curfld->lx - 4, curfld->ly - 4, curfld->lite);
-            GFX_ColorBox(fld_x + 3, fld_y + 3, curfld->lx - 6, curfld->ly - 6, curfld->lite);
-            SWD_ShadeButton(curfld->bstatus, fld_x + 3, fld_y + 3, curfld->lx - 6, curfld->ly - 6);
-            text_x = fld_x + 3;
-            text_y = fld_y + 3;
-            break;
-        
-        case FLD_DRAGBAR:
-            if (curfld->picflag != INVISABLE)
-                GFX_ColorBox(fld_x, fld_y, curfld->lx, curfld->ly, curfld->color);
-            
-            if (curfld->maxchars > 1)
-                GFX_Print(text_x, text_y, fld_text, fld_font, curfld->fontbasecolor);
-            
-            if (curfld->picflag != INVISABLE && curwin != g_wins[active_window].win)
-            {
-                GFX_ShadeArea(DARK, fld_x, fld_y, curfld->lx, curfld->ly);
-                
-                if (curfld->color)
-                {
-                    for (loop = 0; loop < curfld->ly; loop += 2)
-                    {
-                        GFX_HShadeLine(DARK, fld_x, fld_y + loop, curfld->lx);
-                    }
-                }
-            }
-            break;
-        
-        case FLD_BUMPIN:
-            if (curfld->color)
-                GFX_ShadeArea(DARK, fld_x + 1, fld_y, curfld->lx - 1, curfld->ly - 1);
-            GFX_LightBox(LOWER_LEFT, fld_x, fld_y, curfld->lx, curfld->ly);
-            if (!curfld->color)
-                GFX_ColorBox(fld_x + 1, fld_y + 1, curfld->lx - 2, curfld->ly - 2, 0);
-            break;
-        
-        case FLD_BUMPOUT:
-            GFX_ShadeArea(LIGHT, fld_x + 1, fld_y, curfld->lx - 1, curfld->ly - 1);
-            GFX_LightBox(UPPER_RIGHT, fld_x, fld_y, curfld->lx, curfld->ly);
-            if (!curfld->color)
-                GFX_ColorBox(fld_x + 1, fld_y + 1, curfld->lx - 2, curfld->ly - 2, 0);
-            break;
-        }
-        #endif
-        
+        }        
     }
     
-    #ifdef __PPC__
     if (curfld->bstatus.get_value() && curfld->opt.get_value() != FLD_INPUT)
     {
         if (curfld->picflag.get_value() == PICTURE)
@@ -804,40 +571,11 @@ SWD_PutField(
                 GFX_ShadeArea(LIGHT, fld_x, fld_y, curfld->lx.get_value(), curfld->ly.get_value());
         }
     }
-    #else
-    if (curfld->bstatus && curfld->opt != FLD_INPUT)
-    {
-        if (curfld->picflag == PICTURE)
-            h = (GFX_PIC*)GLB_GetItem(curfld->item);
-        else
-            h = NULL;
-        
-        if (curfld->bstatus == DOWN)
-        {
-            if (h && h->type == 0)
-                GFX_ShadeShape(DARK, (char*)h, fld_x, fld_y);
-            else
-                GFX_ShadeArea(DARK, fld_x, fld_y, curfld->lx, curfld->ly);
-        }
-        else if (curfld->bstatus == UP)
-        {
-            if (h && h->type == 0)
-                GFX_ShadeShape(LIGHT, (char*)h, fld_x, fld_y);
-            else
-                GFX_ShadeArea(LIGHT, fld_x, fld_y, curfld->lx, curfld->ly);
-        }
-    }
-    #endif
 
 PutField_Exit:
     
-    #ifdef __PPC__
     if (draw_text && curfld->maxchars.get_value() > 1)
         GFX_Print(text_x, text_y, fld_text, fld_font, curfld->fontbasecolor.get_value());
-    #else
-    if (draw_text && curfld->maxchars > 1)
-        GFX_Print(text_x, text_y, fld_text, fld_font, curfld->fontbasecolor);
-    #endif
 }
 
 /*------------------------------------------------------------------------
@@ -913,7 +651,6 @@ SWD_DoButton(
         cur_cmd = F_SELECT;
         break;
     
-    #ifdef __PPC__
     case SC_DOWN:
         if (curwin->arrowflag.get_value())                                                         
         {
@@ -945,39 +682,6 @@ SWD_DoButton(
             cur_cmd = F_LEFT;
         }
         break;
-    #else
-    case SC_DOWN:
-        if (curwin->arrowflag)                                                         
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_DOWN;
-        }
-        break;
-    
-    case SC_UP:                                                                
-        if (curwin->arrowflag)
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_UP;
-        }
-        break;
-    
-    case SC_RIGHT:
-        if (curwin->arrowflag)                                                        
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_RIGHT;
-        }
-        break;
-    
-    case SC_LEFT:
-        if (curwin->arrowflag)                                                        
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_LEFT;
-        }
-        break;
-    #endif
     }
 }
 
@@ -996,13 +700,8 @@ SWD_FieldInput(
     int flag;
     flag = 0;
 
-    #ifdef __PPC__
     fld_font = (FONT*)GLB_GetItem(curfld->fontid.get_value());
     wrkbuf = (char*)curfld + curfld->txtoff.get_value();
-    #else
-    fld_font = (FONT*)GLB_GetItem(curfld->fontid);
-    wrkbuf = (char*)curfld + curfld->txtoff;
-    #endif
     
     curpos = strlen(wrkbuf);
     
@@ -1176,7 +875,6 @@ SWD_FieldInput(
         cur_cmd = F_SELECT;
         break;
     
-    #ifdef __PPC__
     case SC_DOWN:
         if (curwin->arrowflag.get_value())
         {
@@ -1208,39 +906,6 @@ SWD_FieldInput(
             cur_cmd = F_LEFT;
         }
         break;
-    #else
-    case SC_DOWN:
-        if (curwin->arrowflag)
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_DOWN;
-        }
-        break;
-    
-    case SC_UP:
-        if (curwin->arrowflag)
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_UP;
-        }
-        break;
-    
-    case SC_RIGHT:
-        if (curwin->arrowflag)
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_RIGHT;
-        }
-        break;
-    
-    case SC_LEFT:
-        if (curwin->arrowflag)
-        {
-            cur_act = S_FLD_COMMAND;
-            cur_cmd = F_LEFT;
-        }
-        break;
-    #endif
     
     case SC_BACKSPACE:
         flag = 1;
@@ -1256,19 +921,11 @@ SWD_FieldInput(
             flag = 1;
             *wrkbuf = 0;
         }
-        #ifdef __PPC__
         else if (!KBD_Key(SC_ALT) && !KBD_Key(SC_CTRL) && g_key > 0 && curfld->maxchars.get_value()-1 > curpos)
-        #else
-        else if (!KBD_Key(SC_ALT) && !KBD_Key(SC_CTRL) && g_key > 0 && curfld->maxchars-1 > curpos)
-        #endif
         {
             if (g_ascii > 31 && g_ascii < 127)
             {
-                #ifdef __PPC__
                 switch (curfld->input_opt.get_value())
-                #else
-                switch (curfld->input_opt)
-                #endif
                 {
                 case I_NORM:
                     wrkbuf[curpos] = g_ascii;
@@ -1289,13 +946,8 @@ SWD_FieldInput(
             else
                 wrkbuf[curpos] = 0;
             
-            #ifdef __PPC__
             if (GFX_StrPixelLen(fld_font, wrkbuf, curpos + 1) >= curfld->lx.get_value())
                 curpos--;
-            #else
-            if (GFX_StrPixelLen(fld_font, wrkbuf, curpos + 1) >= curfld->lx)
-                curpos--;
-            #endif
             
             flag = 1;
             wrkbuf[curpos + 1] = 0;
@@ -1330,7 +982,6 @@ SWD_GetObjAreaInfo(
     
     cwin = g_wins[handle].win;
 
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)cwin + cwin->fldofs.get_value());
 
     for (loop = 0; loop < cwin->numflds.get_value(); loop++)
@@ -1344,22 +995,6 @@ SWD_GetObjAreaInfo(
             return;
         }
     }
-    #else
-    curfld = (SFIELD*)((char*)cwin + cwin->fldofs);
-
-    for (loop = 0; loop < cwin->numflds; loop++)
-    {
-        if (curfld[loop].opt == FLD_OBJAREA)
-        {
-            obj_x = curfld[loop].x;
-            obj_y = curfld[loop].y;
-            obj_width = curfld[loop].lx;
-            obj_height = curfld[loop].ly;
-            return;
-        }
-    }
-    #endif
-    
 }
 
 /*------------------------------------------------------------------------
@@ -1381,21 +1016,13 @@ SWD_GetNextWindow(
     
     for (loop = 0; loop < MAX_WINDOWS; loop++)
     {
-        #ifdef __PPC__
         if (g_wins[pos].flag && g_wins[pos].win->display.get_value())
         {
             active_window = pos;
             active_field = g_wins[pos].win->firstfld.get_value();
             break;
         }
-        #else
-        if (g_wins[pos].flag && g_wins[pos].win->display)
-        {
-            active_window = pos;
-            active_field = g_wins[pos].win->firstfld;
-            break;
-        }
-        #endif
+
         pos--;
         if (pos < 0)
             pos = MAX_WINDOWS - 1;
@@ -1415,11 +1042,7 @@ SWD_GetFirstField(
     void
 )
 {
-    #ifdef __PPC__
     return g_wins[active_window].win->firstfld.get_value();
-    #else
-    return g_wins[active_window].win->firstfld;
-    #endif
 }
 
 /*------------------------------------------------------------------------
@@ -1437,7 +1060,6 @@ SWD_GetLastField(
     
     for (loop = maxfields - 1; loop >= 0; loop--)
     {
-        #ifdef __PPC__
         switch (firstfld[loop].opt.get_value())
         {
         case FLD_OFF:
@@ -1453,23 +1075,6 @@ SWD_GetLastField(
                 rval = loop;
             break;
         }
-        #else
-        switch (firstfld[loop].opt)
-        {
-        case FLD_OFF:
-        case FLD_TEXT:
-        case FLD_DRAGBAR:
-        case FLD_BUMPIN:
-        case FLD_BUMPOUT:
-        case FLD_ICON:
-            break;
-        
-        default:
-            if (firstfld[loop].selectable)
-                rval = loop;
-            break;
-        }
-        #endif
         
         if (rval != -1)
             break;
@@ -1496,7 +1101,6 @@ SWD_GetNextField(
 
     for (loop = 0; loop < maxfields; loop++)
     {
-        #ifdef __PPC__
         if (firstfld[loop].opt.get_value() != FLD_DRAGBAR && firstfld[loop].selectable.get_value() && firstfld[loop].id.get_value() > activefld->id.get_value())
         {
             del = abs(firstfld[loop].id.get_value() - activefld->id.get_value());
@@ -1507,18 +1111,6 @@ SWD_GetNextField(
                 rval = loop;
             }
         }
-        #else
-        if (firstfld[loop].opt != FLD_DRAGBAR && firstfld[loop].selectable && firstfld[loop].id > activefld->id)
-        {
-            del = abs(firstfld[loop].id - activefld->id);
-
-            if (del < low)
-            {
-                low = del;
-                rval = loop;
-            }
-        }
-        #endif
     }
 
     if (rval != -1)
@@ -1545,7 +1137,6 @@ SWD_GetPrevField(
     
     for (loop = 0; loop < maxfields; loop++)
     {
-        #ifdef __PPC__
         if (firstfld[loop].opt.get_value() != FLD_DRAGBAR && firstfld[loop].selectable.get_value() && firstfld[loop].id.get_value() < activefld->id.get_value())
         {
             del = abs(activefld->id.get_value() - firstfld[loop].id.get_value());
@@ -1556,18 +1147,6 @@ SWD_GetPrevField(
                 rval = loop;
             }
         }
-        #else
-        if (firstfld[loop].opt != FLD_DRAGBAR && firstfld[loop].selectable && firstfld[loop].id < activefld->id)
-        {
-            del = abs(activefld->id - firstfld[loop].id);
-            
-            if (del < low)
-            {
-                low = del;
-                rval = loop;
-            }
-        }
-        #endif
     }
     
     if (rval != -1)
@@ -1594,7 +1173,6 @@ SWD_GetRightField(
     
     for (loop = 0; loop < maxfields; loop++)
     {
-        #ifdef __PPC__
         switch (firstfld[loop].opt.get_value())
         {
         default:
@@ -1618,31 +1196,6 @@ SWD_GetRightField(
         case FLD_ICON:
             break;
         }
-        #else
-        switch (firstfld[loop].opt)
-        {
-        default:
-            if (firstfld[loop].x > activefld->x)
-            {
-                del = abs(firstfld[loop].x - activefld->x) + abs(firstfld[loop].y - activefld->y);
-                
-                if (del < low && firstfld[loop].selectable)
-                {
-                    low = del;
-                    rval = loop;
-                }
-            }
-            break;
-        
-        case FLD_OFF:
-        case FLD_TEXT:
-        case FLD_DRAGBAR:
-        case FLD_BUMPIN:
-        case FLD_BUMPOUT:
-        case FLD_ICON:
-            break;
-        }
-        #endif
     }
     
     if (rval < 0)
@@ -1671,7 +1224,6 @@ SWD_GetUpField(
     
     for (loop = 0; loop < maxfields; loop++)
     {
-        #ifdef __PPC__
         switch (firstfld[loop].opt.get_value())
         {
         default:
@@ -1695,31 +1247,6 @@ SWD_GetUpField(
         case FLD_ICON:
             break;
         }
-        #else
-        switch (firstfld[loop].opt)
-        {
-        default:
-            if (firstfld[loop].y < activefld->y)
-            {
-                del = abs(firstfld[loop].x - activefld->x) + abs(firstfld[loop].y - activefld->y);
-                
-                if (del < low && firstfld[loop].selectable)
-                {
-                    low = del;
-                    rval = loop;
-                }
-            }
-            break;
-        
-        case FLD_OFF:
-        case FLD_TEXT:
-        case FLD_DRAGBAR:
-        case FLD_BUMPIN:
-        case FLD_BUMPOUT:
-        case FLD_ICON:
-            break;
-        }
-        #endif
     }
     
     if (rval < 0)
@@ -1748,7 +1275,6 @@ SWD_GetDownField(
     
     for (loop = 0; loop < maxfields; loop++)
     {
-        #ifdef __PPC__
         switch (firstfld[loop].opt.get_value())
         {
         default:
@@ -1772,31 +1298,6 @@ SWD_GetDownField(
         case FLD_ICON:
             break;
         }
-        #else
-        switch (firstfld[loop].opt)
-        {
-        default:
-            if (firstfld[loop].y > activefld->y)
-            {
-                del = abs(firstfld[loop].x - activefld->x) + abs(firstfld[loop].y - activefld->y);
-                
-                if (del < low && firstfld[loop].selectable)
-                {
-                    low = del;
-                    rval = loop;
-                }
-            }
-            break;
-        
-        case FLD_OFF:
-        case FLD_TEXT:
-        case FLD_DRAGBAR:
-        case FLD_BUMPIN:
-        case FLD_BUMPOUT:
-        case FLD_ICON:
-            break;
-        }
-        #endif
     }
     
     if (rval < 0)
@@ -1825,7 +1326,6 @@ SWD_GetLeftField(
     
     for (loop = 0; loop < maxfields; loop++)
     {
-        #ifdef __PPC__
         switch (firstfld[loop].opt.get_value())
         {
         default:
@@ -1849,31 +1349,6 @@ SWD_GetLeftField(
         case FLD_ICON:
             break;
         }
-        #else
-        switch (firstfld[loop].opt)
-        {
-        default:
-            if (firstfld[loop].x < activefld->x)
-            {
-                del = abs(firstfld[loop].x - activefld->x) + abs(firstfld[loop].y - activefld->y);
-                
-                if (del < low && firstfld[loop].selectable)
-                {
-                    low = del;
-                    rval = loop;
-                }
-            }
-            break;
-        
-        case FLD_OFF:
-        case FLD_TEXT:
-        case FLD_DRAGBAR:
-        case FLD_BUMPIN:
-        case FLD_BUMPOUT:
-        case FLD_ICON:
-            break;
-        }
-        #endif
     }
     
     if (rval < 0)
@@ -1898,7 +1373,6 @@ SWD_ShowAllFields(
     GFX_PIC* pich;
     SWIN* header = (SWIN*)inptr;
 
-    #ifdef __PPC__
     SFIELD *fld = (SFIELD*)((char*)inptr + header->fldofs.get_value());
 
     for (loop = 0; loop < header->numflds.get_value(); loop++, fld++, numflds++)
@@ -1934,46 +1408,7 @@ SWD_ShowAllFields(
 
             SWD_PutField(header, fld);
         }
-    }
-    #else
-    SFIELD *fld = (SFIELD*)((char*)inptr + header->fldofs);
-
-    for (loop = 0; loop < header->numflds; loop++, fld++, numflds++)
-    {
-        if (fld->opt != FLD_OFF)
-        {
-            fx = header->x + fld->x;
-            fy = header->y + fld->y;
-
-            if (fld->saveflag && fld->sptr)
-            {
-                picdata = (char*)fld->sptr;
-                pich = (GFX_PIC*)picdata;
-                picdata += sizeof(GFX_PIC);
-                pich->width = (short)fld->lx;
-                pich->height = (short)fld->ly;
-                GFX_GetScreen(picdata, fx, fy, fld->lx, fld->ly);
-            }
-
-            if (fld->shadow)
-            {
-                if (fld->picflag != SEE_THRU)
-                    GFX_LightBox(UPPER_RIGHT, fx - 1, fy + 1, fld->lx, fld->ly);
-                else
-                {
-                    if (fld->item != -1)
-                    {
-                        picdata = GLB_GetItem(fld->item);
-                        GFX_ShadeShape(DARK, picdata, fx - 1, fy + 1);
-                    }
-                }
-            }
-
-            SWD_PutField(header, fld);
-        }
-    }
-    #endif
-    
+    }    
     
     return loop;
 }
@@ -1992,7 +1427,6 @@ SWD_PutWin(
     int ly, y2, x, lx, y;
     cwin = g_wins[handle].win;
     ly = 8;
-    #ifdef __PPC__
     y2 = cwin->y.get_value() + cwin->ly.get_value();
     x = cwin->x.get_value() - 8;
     lx = cwin->lx.get_value();
@@ -2073,91 +1507,7 @@ SWD_PutWin(
             wdlg.field = active_field;
             winfuncs[handle](&wdlg);
         }
-    }
-    #else
-    y2 = cwin->y + cwin->ly;
-    x = cwin->x - 8;
-    lx = cwin->lx;
-    y = cwin->y + 8;
-
-    if (cwin->display)
-    {
-        if (cwin->shadow)
-        {
-            if (cwin->picflag == SEE_THRU && cwin->item != -1)
-            {
-                pic = (char*)GLB_GetItem(cwin->item);
-                GFX_ShadeShape(DARK, pic, x, y);
-            }
-            else
-            {
-                GFX_ShadeArea(DARK, x, y, 8, cwin->ly - 8);
-                GFX_ShadeArea(DARK, x, y2, lx, ly);
-            }
-        }
-        
-        switch (cwin->picflag)
-        {
-        case FILL:
-            GFX_ColorBox(cwin->x, cwin->y, cwin->lx, cwin->ly, cwin->color);
-            
-            if (cwin->lx < 320 && cwin->ly < 200)
-                GFX_LightBox(UPPER_RIGHT, cwin->x, cwin->y, cwin->lx, cwin->ly);
-            break;
-        
-        case PICTURE:
-            if (cwin->item != -1)
-            {
-                pic = (char*)GLB_GetItem(cwin->item);
-                GFX_PutImage(pic, cwin->x, cwin->y, 0);
-            }
-            break;
-        
-        case SEE_THRU:
-            if (cwin->item != -1)
-            {
-                pic = (char*)GLB_GetItem(cwin->item);
-                GFX_PutImage(pic, cwin->x, cwin->y, 1);
-            }
-            break;
-        
-        case TEXTURE:
-            if (cwin->item != -1)
-            {
-                pic = (char*)GLB_GetItem(cwin->item);
-                GFX_PutTexture(pic, cwin->x, cwin->y, cwin->lx, cwin->ly);
-                GFX_LightBox(UPPER_RIGHT, cwin->x, cwin->y, cwin->lx, cwin->ly);
-            }
-            break;
-        
-        case INVISABLE:
-            if (cwin->color == 0)
-            {
-                GFX_ShadeArea(DARK, cwin->x, cwin->y, cwin->lx, cwin->ly);
-                GFX_LightBox(UPPER_RIGHT, cwin->x, cwin->y, cwin->lx, cwin->ly);
-            }
-            break;
-        }
-        
-        if (cwin->numflds)
-            SWD_ShowAllFields(cwin);
-        
-        if (winfuncs[handle])
-        {
-            SWD_GetObjAreaInfo(handle);
-            wdlg.x = obj_x;
-            wdlg.y = obj_y;
-            wdlg.width = obj_width;
-            wdlg.height = obj_height;
-            wdlg.id = cwin->id;
-            wdlg.type = cwin->type;
-            wdlg.window = active_window;
-            wdlg.field = active_field;
-            winfuncs[handle](&wdlg);
-        }
-    }
-    #endif
-    
+    }    
     
 }
 
@@ -2252,13 +1602,8 @@ SWD_ReformatFieldData(
 )
 {
     int fileLen = GLB_ItemSize(handle);
-    #ifdef __PPC__
     int len = sizeof(SWIN) + (header->numflds.get_value() * sizeof(SFIELD));
     int oldLen = sizeof(SWIN) + (header->numflds.get_value() * sizeof(SFIELD32));
-    #else
-    int len = sizeof(SWIN) + (header->numflds * sizeof(SFIELD));
-    int oldLen = sizeof(SWIN) + (header->numflds * sizeof(SFIELD32));
-    #endif
     int eof = fileLen - oldLen;
 
     SWIN *swdNewData = (SWIN*)calloc(1, len + eof);
@@ -2266,17 +1611,10 @@ SWD_ReformatFieldData(
     memcpy(swdNewData, header, sizeof(SWIN));
     memcpy((char*)swdNewData + len, (char*)header + oldLen, eof);
 
-    #ifdef __PPC__
     SFIELD32* swdfield32 = (SFIELD32*)((char*)header + header->fldofs.get_value());
     SFIELD* swdfield = (SFIELD*)((char*)swdNewData + swdNewData->fldofs.get_value());
     
     for (size_t loop = 0; loop < header->numflds.get_value(); loop++)
-    #else
-    SFIELD32* swdfield32 = (SFIELD32*)((char*)header + header->fldofs);
-    SFIELD* swdfield = (SFIELD*)((char*)swdNewData + swdNewData->fldofs);
-
-    for (size_t loop = 0; loop < header->numflds; loop++)
-    #endif
     {
         swdfield[loop].opt = swdfield32[loop].opt;
         swdfield[loop].id = swdfield32[loop].id;
@@ -2311,16 +1649,10 @@ SWD_ReformatFieldData(
         swdfield[loop].ly = swdfield32[loop].ly;
         swdfield[loop].txtoff = swdfield32[loop].txtoff;
         
-        #ifdef __PPC__
         if (swdfield32[loop].opt.get_value() == FLD_TEXT || swdfield32[loop].opt.get_value() == FLD_BUTTON || swdfield32[loop].opt.get_value() == FLD_INPUT || swdfield32[loop].opt.get_value() == FLD_DRAGBAR) {
             //swdfield[loop].txtoff += (header->numflds.get_value() - loop) * 4; //Fixme?
             swdfield[loop].txtoff = swdfield[loop].txtoff.get_value() + (header->numflds.get_value() - loop) * 4;
         }
-        #else
-        if (swdfield32[loop].opt == FLD_TEXT || swdfield32[loop].opt == FLD_BUTTON || swdfield32[loop].opt == FLD_INPUT || swdfield32[loop].opt == FLD_DRAGBAR) {
-            swdfield[loop].txtoff += (header->numflds - loop) * 4;
-        }
-        #endif
     }
     
     //GLB_SetItemSize(a1, len + eof);
@@ -2371,11 +1703,7 @@ SWD_InitWindow(
 #endif // __aarch64__
 #endif // __GNUC__
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)header + header->fldofs.get_value());
-    #else
-    curfld = (SFIELD*)((char*)header + header->fldofs);
-    #endif
     
     for (rec_num = 0; rec_num < MAX_WINDOWS; rec_num++)
     {
@@ -2388,7 +1716,6 @@ SWD_InitWindow(
             active_window = rec_num;
             header->display = 1;
 
-            #ifdef __PPC__
             active_field = g_wins[rec_num].win->firstfld.get_value();
 
             if (!curfld[active_field].selectable.get_value())
@@ -2456,79 +1783,7 @@ SWD_InitWindow(
                         if (!curfld[loop].sptr)
                             EXIT_Error("SWD Error: out of memory");
                     }
-                }
-            #else
-            active_field = g_wins[rec_num].win->firstfld;
-
-            if (!curfld[active_field].selectable)
-                active_field = SWD_GetFirstField();
-
-            if (header->picflag)
-            {
-                header->item = GLB_GetItemID(header->item_name);
-                GLB_LockItem(header->item);
-            }
-
-            for (loop = 0; loop < header->numflds; loop++)
-            {
-                if (curfld[loop].opt) //Fixme? Wii breaks here?
-                {
-                    if (curfld[loop].opt == FLD_VIEWAREA)
-                        g_wins[active_window].viewflag = 1;
-                    
-                    switch (curfld[loop].opt)
-                    {
-                    case FLD_BUTTON:
-                    case FLD_MARK:
-                    case FLD_CLOSE:
-                    case FLD_DRAGBAR:
-                        if (usekb_flag && curfld[loop].selectable)
-                            curfld[loop].kbflag = 1;
-                        else
-                            curfld[loop].kbflag = 0;
-                        break;
-                    
-                    case FLD_INPUT:
-                        curfld[loop].kbflag = 1;
-                        break;
-                    
-                    default:
-                        curfld[loop].kbflag = 0;
-                        break;
-                    }
-                    
-                    curfld[loop].bstatus = NORMAL;
-                    curfld[loop].fontid = GLB_GetItemID(curfld[loop].font_name);
-                    
-                    if (curfld[loop].fontid != -1)
-                        GLB_LockItem(curfld[loop].fontid);
-                    
-                    if (!curfld[loop].picflag)
-                        curfld[loop].item = -1;
-                    else
-                        curfld[loop].item = GLB_GetItemID(curfld[loop].item_name);
-                    
-                    if (curfld[loop].item != -1)
-                        GLB_LockItem(curfld[loop].item);
-                    
-                    curfld[loop].sptr = NULL;
-                    
-                    if (curfld[loop].saveflag)
-                    {
-                        pic_size = curfld[loop].lx * curfld[loop].ly + 20;
-                        
-                        if (pic_size < 0 || pic_size > 64000)
-                            EXIT_Error("SWD Error: pic save to big...");
-                        
-                        curfld[loop].sptr = (char*)malloc(pic_size);
-                        
-                        if (!curfld[loop].sptr)
-                            EXIT_Error("SWD Error: out of memory");
-                    }
-                }
-            #endif
-            
-            
+                }      
             }
             
             return rec_num;
@@ -2638,7 +1893,6 @@ SWD_SetWindowPtr(
     if (!ptractive || handle == -1)
         return;
 
-    #ifdef __PPC__
     if (active_field == -1 || !curwin->numflds.get_value())
     {
         if (!g_wins[handle].flag || curwin == NULL)
@@ -2653,22 +1907,6 @@ SWD_SetWindowPtr(
         
         PTR_SetPos(curfld->x.get_value() + (curfld->lx.get_value()>>1), curfld->y.get_value() + (curfld->ly.get_value()>>1));
     }
-    #else
-    if (active_field == -1 || !curwin->numflds)
-    {
-        if (!g_wins[handle].flag || curwin == NULL)
-            return;
-        
-        PTR_SetPos(curwin->x + (curwin->lx>>1), curwin->y + (curwin->ly>>1));
-    }
-    else
-    {
-        curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-        curfld += active_field;
-        
-        PTR_SetPos(curfld->x + (curfld->lx>>1), curfld->y + (curfld->ly>>1));
-    }
-    #endif
 }
 
 /***************************************************************************
@@ -2687,7 +1925,6 @@ SWD_SetFieldPtr(
     if (!ptractive || handle == -1)
         return;
 
-    #ifdef __PPC__
     if (field == -1 || !curwin->numflds.get_value())
     {
         if (!g_wins[handle].flag || curwin == NULL)
@@ -2702,22 +1939,6 @@ SWD_SetFieldPtr(
         
         PTR_SetPos(curfld->x.get_value() + (curfld->lx.get_value()>>1), curfld->y.get_value() + (curfld->ly.get_value()>>1));
     }
-    #else
-    if (field == -1 || !curwin->numflds)
-    {
-        if (!g_wins[handle].flag || curwin == NULL)
-            return;
-        
-        PTR_SetPos(curwin->x + (curwin->lx>>1), curwin->y + (curwin->ly>>1));
-    }
-    else
-    {
-        curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-        curfld += field;
-        
-        PTR_SetPos(curfld->x + (curfld->lx>>1), curfld->y + (curfld->ly>>1));
-    }
-    #endif
 }
 
 /***************************************************************************
@@ -2747,7 +1968,6 @@ SWD_SetActiveField(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     if (active_field != -1)
         lastfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + active_field;
     
@@ -2759,19 +1979,6 @@ SWD_SetActiveField(
     
     kbactive = curfld->kbflag.get_value() != 0;
     active_field = field_id;
-    #else
-    if (active_field != -1)
-        lastfld = (SFIELD*)((char*)curwin + curwin->fldofs) + active_field;
-    
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-    curfld += field_id;
-
-    if (curfld->kbflag != 0)
-        highlight_flag = 1;
-    
-    kbactive = curfld->kbflag != 0;
-    active_field = field_id;
-    #endif
 }
 
 /***************************************************************************
@@ -2792,7 +1999,6 @@ SWD_DestroyWindow(
     if (!g_wins[handle].flag)
         EXIT_Error("SWD: DestroyWindow %d", handle);
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value());
     
     for (loop = 0; loop < curwin->numflds.get_value(); loop++)
@@ -2811,26 +2017,6 @@ SWD_DestroyWindow(
         GLB_FreeItem(curwin->item.get_value());
     
     GLB_FreeItem(g_wins[handle].gitem);
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-    
-    for (loop = 0; loop < curwin->numflds; loop++)
-    {
-        if (curfld[loop].item != -1)
-            GLB_FreeItem(curfld[loop].item);
-        
-        if (curfld[loop].fontid != -1)
-            GLB_FreeItem(curfld[loop].fontid);
-        
-        if (curfld[loop].saveflag && curfld[loop].sptr)
-            free(curfld[loop].sptr);
-    }
-    
-    if (curwin->item)
-        GLB_FreeItem(curwin->item);
-    
-    GLB_FreeItem(g_wins[handle].gitem);
-    #endif
     
     g_wins[handle].flag = 0;
     winfuncs[handle] = NULL;
@@ -2847,17 +2033,10 @@ SWD_DestroyWindow(
     if (active_field != -1)
     {
         curwin = g_wins[active_window].win;
-        #ifdef __PPC__
         curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value());
         
         if (curfld[active_field].kbflag.get_value())
             kbactive = 1;
-        #else
-        curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-        
-        if (curfld[active_field].kbflag)
-            kbactive = 1;
-        #endif
     }
     
     if (prev_window >= 0) if (g_wins[prev_window].flag)
@@ -2865,11 +2044,7 @@ SWD_DestroyWindow(
         hold = prev_window;
         prev_window = active_window;
         active_window = hold;
-        #ifdef __PPC__
         active_field = g_wins[active_window].win->firstfld.get_value();
-        #else
-        active_field = g_wins[active_window].win->firstfld;
-        #endif
     }
     
     if (active_window != -1)
@@ -2893,7 +2068,6 @@ SWD_FindWindow(
     curwin = g_wins[active_window].win;
     rval = -1;
 
-    #ifdef __PPC__
     x2 = curwin->x.get_value() + curwin->lx.get_value();
     y2 = curwin->y.get_value() + curwin->ly.get_value();
     
@@ -2917,31 +2091,6 @@ SWD_FindWindow(
             }
         }
     }
-    #else
-    x2 = curwin->x + curwin->lx;
-    y2 = curwin->y + curwin->ly;
-    
-    if (x > curwin->x && x < x2 && y > curwin->y && y < y2)
-        rval = active_window;
-    else
-    {
-        for (loop = 0; loop < MAX_WINDOWS; loop++)
-        {
-            if (g_wins[loop].flag == 1)
-            {
-                curwin = g_wins[loop].win;
-                x2 = curwin->x + curwin->lx;
-                y2 = curwin->y + curwin->ly;
-                
-                if (x > curwin->x && x < x2 && y > curwin->y && y < y2)
-                {
-                    rval = loop;
-                    break;
-                }
-            }
-        }
-    }
-    #endif
     
     return rval;
 }
@@ -2971,43 +2120,24 @@ SWD_CheckMouse(
     px = cur_mx;
     py = cur_my;
   
-    #ifdef __PPC__
     for (loop = 0; loop < curwin->numflds.get_value(); loop++)
-    #else
-    for (loop = 0; loop < curwin->numflds; loop++)
-    #endif
     {
-        #ifdef __PPC__
         x1 = curwin->x.get_value() + curfld[loop].x.get_value();
         y1 = curwin->y.get_value() + curfld[loop].y.get_value();
         x2 = x1 + curfld[loop].lx.get_value() + 1;
         y2 = y1 + curfld[loop].ly.get_value() + 1;
-        #else
-        x1 = curwin->x + curfld[loop].x;
-        y1 = curwin->y + curfld[loop].y;
-        x2 = x1 + curfld[loop].lx + 1;
-        y2 = y1 + curfld[loop].ly + 1;
-        #endif
         
         if (px >= x1 && px <= x2 && y1 <= py && py <= y2)
         {
             flag = 1;
-            #ifdef __PPC__
             switch (curfld[loop].opt.get_value())
-            #else
-            switch (curfld[loop].opt)
-            #endif
             {
             default:
                 flag = 0;
                 break;
             
             case FLD_DRAGBAR:
-                #ifdef __PPC__
                 if (curfld[loop].selectable.get_value())
-                #else
-                if (curfld[loop].selectable)
-                #endif
                 {
                     active_field = loop;
                     cur_act = S_WIN_COMMAND;
@@ -3074,7 +2204,6 @@ SWD_CheckViewArea(
     px = cur_mx;
     py = cur_my;
     
-    #ifdef __PPC__
     for (loop = 0; loop < curwin->numflds.get_value(); loop++)
     {
         x1 = curwin->x.get_value() + curfld[loop].x.get_value();
@@ -3101,34 +2230,6 @@ SWD_CheckViewArea(
                 break;
         }
     }
-    #else
-    for (loop = 0; loop < curwin->numflds; loop++)
-    {
-        x1 = curwin->x + curfld[loop].x;
-        y1 = curwin->y + curfld[loop].y;
-        x2 = x1 + curfld[loop].lx + 1;
-        y2 = y1 + curfld[loop].ly + 1;
-        
-        if (x1 <= px && px <= x2 && y1 <= py && py <= y2)
-        {
-            switch (curfld[loop].opt)
-            {
-            case FLD_VIEWAREA:
-                flag = 1;
-                dlg->viewactive = 1;
-                dlg->sx = curfld[loop].x;
-                dlg->sy = curfld[loop].y;
-                dlg->height = curfld[loop].lx;
-                dlg->width = curfld[loop].ly;
-                dlg->sfield = loop;
-                break;
-            }
-            
-            if (flag)
-                break;
-        }
-    }
-    #endif
     
     return flag;
 }
@@ -3150,21 +2251,12 @@ SWD_ClearAllButtons(
         if (g_wins[wloop].flag)
         {
             curwin = g_wins[wloop].win;
-            #ifdef __PPC__
             curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value());
             
             for (loop = 0; loop < curwin->numflds.get_value(); loop++)
             {
                 curfld[loop].bstatus = NORMAL;
             }
-            #else
-            curfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-            
-            for (loop = 0; loop < curwin->numflds; loop++)
-            {
-                curfld[loop].bstatus = NORMAL;
-            }
-            #endif
         }
     }
 }
@@ -3196,11 +2288,7 @@ SWD_Dialog(
 
     curwin = g_wins[active_window].win;
 
-    #ifdef __PPC__
     firstfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value());
-    #else
-    firstfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-    #endif
     curfld = firstfld + active_field;
     
     cur_act = S_IDLE;
@@ -3234,17 +2322,10 @@ SWD_Dialog(
         highlight_flag = 1;
         cur_cmd = C_IDLE;
         
-        #ifdef __PPC__
         if (curfld->kbflag.get_value())
             kbactive = 1;
         else
             kbactive = 0;
-        #else
-        if (curfld->kbflag)
-            kbactive = 1;
-        else
-            kbactive = 0;
-        #endif
     }
     
     old_win = active_window;
@@ -3261,24 +2342,15 @@ SWD_Dialog(
     {
         old_field = active_field;
         
-        #ifdef __PPC__
         if (SWD_CheckMouse(curwin->lock.get_value(), curwin, firstfld))
-        #else
-        if (SWD_CheckMouse(curwin->lock, curwin, firstfld))
-        #endif
         {
             if (old_win != active_window)
             {
                 SWD_ClearAllButtons();
                 lastfld = NULL;
                 curwin = g_wins[active_window].win;
-                #ifdef __PPC__
                 firstfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value());
                 active_field = curwin->firstfld.get_value();
-                #else
-                firstfld = (SFIELD*)((char*)curwin + curwin->fldofs);
-                active_field = curwin->firstfld;
-                #endif
                 curfld = firstfld + active_field;
                 SWD_ShowAllWindows();
                 GFX_DisplayUpdate();
@@ -3289,7 +2361,6 @@ SWD_Dialog(
                 highlight_flag = 1;
             }
             
-            #ifdef __PPC__
             if (curfld->kbflag.get_value())
             {
                 highlight_flag = 1;
@@ -3300,23 +2371,10 @@ SWD_Dialog(
                 kbactive = 0;
                 highlight_flag = 1;
             }
-            #else
-            if (curfld->kbflag)
-            {
-                highlight_flag = 1;
-                kbactive = 1;
-            }
-            else
-            {
-                kbactive = 0;
-                highlight_flag = 1;
-            }
-            #endif
         }
     }
     else
     {
-        #ifdef __PPC__
         if (fldfuncs[curfld->opt.get_value()] != NULL && cur_act == S_IDLE)
         {
             fldfuncs[curfld->opt.get_value()](curwin, curfld);
@@ -3354,80 +2412,28 @@ SWD_Dialog(
                 kbactive = 1;
             }
         }
-        #else
-        if (fldfuncs[curfld->opt] != NULL && cur_act == S_IDLE)
-        {
-            fldfuncs[curfld->opt](curwin, curfld);
-            
-            for (loop = 0; loop < curwin->numflds; loop++)
-            {
-                if (firstfld[loop].hotkey && firstfld[loop].hotkey == g_key)
-                {
-                    if (!usekb_flag)
-                        kbactive = 0;
-                    
-                    active_field = loop;
-                    curfld = firstfld + loop;
-                    
-                    if (lastfld)
-                    {
-                        lastfld->bstatus = NORMAL;
-                        SWD_PutField(curwin, lastfld);
-                        update = 1;
-                        lastfld = NULL;
-                    }
-                    
-                    highlight_flag = 1;
-                    cur_act = S_FLD_COMMAND;
-                    cur_cmd = F_SELECT;
-                    lastfld = curfld;
-                    break;
-                }
-            }
-            if (cur_act && cur_cmd != F_SELECT && !kbactive)
-            {
-                highlight_flag = 1;
-                cur_act = S_FLD_COMMAND;
-                cur_cmd = F_FIRST;
-                kbactive = 1;
-            }
-        }
-        #endif
     }
     
     old_field = active_field;
     
     swd_dlg->window = active_window;
     swd_dlg->field = active_field;
-    #ifdef __PPC__
     swd_dlg->id = curwin->id.get_value();
     swd_dlg->type = curwin->type.get_value();
-    #else
-    swd_dlg->id = curwin->id;
-    swd_dlg->type = curwin->type;
-    #endif
-        swd_dlg->cur_act = cur_act;
+    swd_dlg->cur_act = cur_act;
     swd_dlg->cur_cmd = cur_cmd;
     swd_dlg->keypress = g_key;
     
     switch (cur_act)
     {
     case S_FLD_COMMAND:
-        #ifdef __PPC__
         swd_dlg->x = curfld->x.get_value();
         swd_dlg->y = curfld->y.get_value();
         swd_dlg->width = curfld->lx.get_value();
         swd_dlg->height = curfld->ly.get_value();
-        #else
-        swd_dlg->x = curfld->x;
-        swd_dlg->y = curfld->y;
-        swd_dlg->width = curfld->lx;
-        swd_dlg->height = curfld->ly;
-        #endif
         
         switch (cur_cmd)
         {
-        #ifdef __PPC__
         case F_DOWN:
             SWD_GetDownField(firstfld, curwin->numflds.get_value());
             break;
@@ -3484,92 +2490,17 @@ SWD_Dialog(
             break;
         }
         break;
-        #else
-        case F_DOWN:
-            SWD_GetDownField(firstfld, curwin->numflds);
-            break;
-        
-        case F_UP:
-            SWD_GetUpField(firstfld, curwin->numflds);
-            break;
-        
-        case F_NEXT:
-        case F_RIGHT:
-            SWD_GetNextField(firstfld, curwin->numflds);
-            break;
-        
-        case F_PREV:
-        case F_LEFT:
-            SWD_GetPrevField(firstfld, curwin->numflds);
-            break;
-        
-        case F_TOP:
-            active_field = SWD_GetFirstField();
-            break;
-        
-        case F_BOTTOM:
-            active_field = SWD_GetLastField(firstfld, curwin->numflds);
-            break;
-        
-        case F_FIRST:
-            active_field = curwin->firstfld;
-            break;
-        
-        case F_SELECT:
-            curfld->bstatus = DOWN;
-            SWD_PutField(curwin, curfld);
-            #ifdef __PPC__
-            curfld->mark ^= 1;
-            if (lastfld && lastfld != curfld)
-            {
-                lastfld->bstatus.get_value() = NORMAL;
-                SWD_PutField(curwin, lastfld);
-                lastfld = NULL;
-            }
-            #else
-            curfld->mark ^= 1;
-            if (lastfld && lastfld != curfld)
-            {
-                lastfld->bstatus = NORMAL;
-                SWD_PutField(curwin, lastfld);
-                lastfld = NULL;
-            }
-            #endif
-            GFX_DisplayUpdate();
-            while (SWD_IsButtonDown())
-            {
-                I_GetEvent();
-            }
-            if (kbactive || curfld->kbflag)
-                curfld->bstatus = UP;
-            else
-                curfld->bstatus = NORMAL;
-            
-            SWD_PutField(curwin, curfld);
-            update = 1;
-            break;
-        }
-        break;
-        #endif
     
     case S_WIN_COMMAND:
-        #ifdef __PPC__
         swd_dlg->x = curwin->x.get_value();
         swd_dlg->y = curwin->y.get_value();
         swd_dlg->width = curwin->lx.get_value();
         swd_dlg->height = curwin->ly.get_value();
-        #else
-        swd_dlg->x = curwin->x;
-        swd_dlg->y = curwin->y;
-        swd_dlg->width = curwin->lx;
-        swd_dlg->height = curwin->ly;
-        #endif
         
         switch (cur_cmd)
         {
         case W_NEXT:
 
-            #ifdef __PPC__
             if (!curwin->lock.get_value())
             {
                 SWD_GetNextWindow();
@@ -3582,20 +2513,6 @@ SWD_Dialog(
                 update = 1;
                 break;
             }
-            #else
-            if (!curwin->lock)
-            {
-                SWD_GetNextWindow();
-                if (active_window == master_window)
-                    SWD_GetNextWindow();
-                active_field = SWD_GetFirstField();
-                if (lastfld)
-                    lastfld->bstatus = 0;
-                SWD_ShowAllWindows();
-                update = 1;
-                break;
-            }
-            #endif
             break;
         
         case W_MOVE:
@@ -3611,13 +2528,8 @@ SWD_Dialog(
                 }
                 GFX_DisplayUpdate();
 
-                #ifdef __PPC__
                 sx = cur_mx - curwin->x.get_value();
                 sy = cur_my - curwin->y.get_value();
-                #else
-                sx = cur_mx - curwin->x;
-                sy = cur_my - curwin->y;
-                #endif
                 
                 KBD_Key(SC_ENTER) = 0;
                 lastscan = SC_NONE;
@@ -3698,11 +2610,7 @@ SWD_SetWindowXY(
     curwin->x = xpos;
     curwin->x = ypos;
     
-    #ifdef __PPC__
     return curwin->opt.get_value();
-    #else
-    return curwin->opt;
-    #endif
 }
 
 /***************************************************************************
@@ -3720,7 +2628,6 @@ SWD_GetWindowXYL(
     SWIN *curwin;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     if (xpos)
         *xpos = curwin->x.get_value();
     
@@ -3734,21 +2641,6 @@ SWD_GetWindowXYL(
         *ly = curwin->ly.get_value();
 
     return curwin->opt.get_value();
-    #else
-    if (xpos)
-        *xpos = curwin->x;
-    
-    if (ypos)
-        *ypos = curwin->y;
-    
-    if (lx)
-        *lx = curwin->lx;
-    
-    if (ly)
-        *ly = curwin->ly;
-
-    return curwin->opt;
-    #endif
 }
 
 /***************************************************************************
@@ -3766,7 +2658,6 @@ SWD_GetFieldText(
     char *text;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
 
     text = (char*)curfld + curfld->txtoff.get_value();
@@ -3774,15 +2665,6 @@ SWD_GetFieldText(
     memcpy(out_text, text, curfld->maxchars.get_value());
     
     return curfld->maxchars.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-
-    text = (char*)curfld + curfld->txtoff;
-    
-    memcpy(out_text, text, curfld->maxchars);
-    
-    return curfld->maxchars;
-    #endif
 }
 
 /***************************************************************************
@@ -3800,7 +2682,6 @@ SWD_SetFieldText(
     char *text;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
 
     text = (char*)curfld + curfld->txtoff.get_value();
@@ -3814,23 +2695,7 @@ SWD_SetFieldText(
         *text = 0;
     
     return curfld->maxchars.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-
-    text = (char*)curfld + curfld->txtoff;
-    
-    if (in_text)
-    {
-        text[curfld->maxchars - 1] = 0;
-        memcpy(text, in_text, curfld->maxchars - 1);             
-    }
-    else
-        *text = 0;
-    
-    return curfld->maxchars;
-    #endif
-    
-    
+     
 }
 
 /***************************************************************************
@@ -3846,16 +2711,9 @@ SWD_GetFieldValue(
     SFIELD *curfld;
     char *text;
     curwin = g_wins[handle].win;
-    
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
 
     text = (char*)curfld + curfld->txtoff.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-
-    text = (char*)curfld + curfld->txtoff;
-    #endif
     
     return atoi(text);
 }
@@ -3875,15 +2733,9 @@ SWD_SetFieldValue(
     char *text;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     text = (char*)curfld + curfld->txtoff.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    text = (char*)curfld + curfld->txtoff;
-    #endif
     
     sprintf(text, "%d", num);
     
@@ -3904,11 +2756,7 @@ SWD_SetFieldSelect(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    #endif
 
     curfld->selectable = opt;
 }
@@ -3926,15 +2774,9 @@ SWD_GetFieldMark(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     return curfld->mark.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    return curfld->mark;
-    #endif
 }
 
 /***************************************************************************
@@ -3951,11 +2793,7 @@ SWD_SetFieldMark(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    #endif
     
     curfld->mark = opt;
 }
@@ -3973,15 +2811,9 @@ SWD_GetFieldInputOpt(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     return curfld->input_opt.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    return curfld->input_opt;
-    #endif
 }
 
 /***************************************************************************
@@ -3999,15 +2831,9 @@ SWD_SetFieldInputOpt(
     int old_opt;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
 
     old_opt = curfld->input_opt.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-
-    old_opt = curfld->input_opt;
-    #endif
     
     
     curfld->input_opt = opt;
@@ -4029,7 +2855,6 @@ SWD_SetFieldItem(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     if (item != -1)
@@ -4043,21 +2868,6 @@ SWD_SetFieldItem(
     }
     else
         curfld->item = -1;
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    if (item != -1)
-    {
-        if (curfld->item != -1)
-            GLB_FreeItem(curfld->item);
-        
-        curfld->item = item;
-        
-        GLB_LockItem(item);
-    }
-    else
-        curfld->item = -1;
-    #endif
 }
 
 /***************************************************************************
@@ -4073,15 +2883,9 @@ SWD_GetFieldItem(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     return curfld->item.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    return curfld->item;
-    #endif
 }
 
 /***************************************************************************
@@ -4099,7 +2903,6 @@ SWD_SetFieldItemName(
     int item;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     item = GLB_GetItemID(item_name);
@@ -4113,21 +2916,6 @@ SWD_SetFieldItemName(
         curfld->item = item;
         GLB_LockItem(item);
     }
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    item = GLB_GetItemID(item_name);
-    
-    if (item != -1)
-    {
-        if (curfld->item != -1)
-            GLB_FreeItem(curfld->item);
-        
-        memcpy(curfld->item_name, item_name, 16);
-        curfld->item = item;
-        GLB_LockItem(item);
-    }
-    #endif
 }
 
 /***************************************************************************
@@ -4144,15 +2932,9 @@ SWD_GetFieldItemName(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     memcpy(item_name, curfld->item_name, 16);
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    memcpy(item_name, curfld->item_name, 16);
-    #endif
 }
 
 /***************************************************************************
@@ -4166,12 +2948,7 @@ SWD_SetWindowID(
 {
     SWIN *curwin;
     int old_id;
-    curwin = g_wins[handle].win;
-    #ifdef __PPC__
     old_id = curwin->id.get_value();
-    #else
-    old_id = curwin->id;
-    #endif
     
     curwin->id = id;
     
@@ -4189,11 +2966,7 @@ SWD_GetWindowID(
     SWIN *curwin;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     return curwin->id.get_value();
-    #else
-    return curwin->id;
-    #endif
 }
 
 /***************************************************************************
@@ -4211,12 +2984,7 @@ SWD_SetWindowFlag(
     curwin->display = flag;
     
     SWD_GetNextWindow();
-    
-    #ifdef __PPC__
     return curwin->id.get_value();
-    #else
-    return curwin->id;
-    #endif
 }
 
 /***************************************************************************
@@ -4230,12 +2998,7 @@ SWD_SetWindowType(
 {
     SWIN *curwin;
     int old_type;
-    curwin = g_wins[handle].win;
-    #ifdef __PPC__
     old_type = curwin->type.get_value();
-    #else
-    old_type = curwin->type;
-    #endif
     
     curwin->type = type;
     
@@ -4253,11 +3016,7 @@ SWD_GetWindowType(
     SWIN *curwin;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     return curwin->type.get_value();
-    #else
-    return curwin->type;
-    #endif
 }
 
 /***************************************************************************
@@ -4277,7 +3036,6 @@ SWD_GetFieldXYL(
     SFIELD *curfld;
     curwin = g_wins[handle].win;
     
-    #ifdef __PPC__
     curfld = (SFIELD*)((char*)curwin + curwin->fldofs.get_value()) + field_id;
     
     if (x)
@@ -4293,21 +3051,4 @@ SWD_GetFieldXYL(
         *ly = curfld->ly.get_value();
     
     return curfld->lx.get_value();
-    #else
-    curfld = (SFIELD*)((char*)curwin + curwin->fldofs) + field_id;
-    
-    if (x)
-        *x = curwin->x + curfld->x;
-    
-    if (y)
-        *y = curwin->y + curfld->y;
-    
-    if (lx)
-        *lx = curfld->lx;
-    
-    if (ly)
-        *ly = curfld->ly;
-    
-    return curfld->lx;
-    #endif
 }

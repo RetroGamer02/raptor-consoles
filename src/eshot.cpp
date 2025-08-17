@@ -158,13 +158,8 @@ ESHOT_Init(
     for (loop = 0; loop < cur->num_frames; loop++)
         cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
     h = (GFX_PIC*)cur->pic[0];
-    #ifdef __PPC__
     cur->xoff = h->width.get_value() >> 1;
     cur->yoff = h->height.get_value() >> 1;
-    #else
-    cur->xoff = h->width >> 1;
-    cur->yoff = h->height >> 1;
-    #endif
 
     cur = &plib[LIB_ATPLAY];                          
     cur->hits = 1;
@@ -175,13 +170,8 @@ ESHOT_Init(
     for (loop = 0; loop < cur->num_frames; loop++)
         cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
     h = (GFX_PIC*)cur->pic[0];
-    #ifdef __PPC__
     cur->xoff = h->width.get_value() >> 1;
     cur->yoff = h->height.get_value() >> 1;
-    #else
-    cur->xoff = h->width >> 1;
-    cur->yoff = h->height >> 1;
-    #endif
 
     cur = &plib[LIB_MISSLE];                         
     cur->hits = 4;
@@ -192,13 +182,8 @@ ESHOT_Init(
     for (loop = 0; loop < cur->num_frames; loop++)
         cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
     h = (GFX_PIC*) cur->pic[0];
-    #ifdef __PPC__
     cur->xoff = h->width.get_value() >> 1;
     cur->yoff = h->height.get_value() >> 1;
-    #else
-    cur->xoff = h->width >> 1;
-    cur->yoff = h->height >> 1;
-    #endif
 
     cur = &plib[LIB_MINES];                        
     cur->hits = 0x10;
@@ -209,13 +194,8 @@ ESHOT_Init(
     for (loop = 0; loop < cur->num_frames; loop++)
         cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
     h = (GFX_PIC*)cur->pic[0];
-    #ifdef __PPC__
     cur->xoff = h->width.get_value() >> 1;
     cur->yoff = h->height.get_value() >> 1;
-    #else
-    cur->xoff = h->width >> 1;
-    cur->yoff = h->height >> 1;
-    #endif
 
     cur = &plib[LIB_LASER];                        
     cur->hits = 0xc;
@@ -226,13 +206,8 @@ ESHOT_Init(
     for (loop = 0; loop < cur->num_frames; loop++)
         cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
     h = (GFX_PIC*)cur->pic[0];
-    #ifdef __PPC__
     cur->xoff = h->width.get_value() >> 1;
     cur->yoff = h->height.get_value() >> 1;
-    #else
-    cur->xoff = h->width >> 1;
-    cur->yoff = h->height >> 1;
-    #endif
 
     cur = &plib[LIB_PLASMA];                       
     cur->hits = 0xf;
@@ -243,13 +218,8 @@ ESHOT_Init(
     for (loop = 0; loop < cur->num_frames; loop++)
         cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
     h = (GFX_PIC*)cur->pic[0];
-    #ifdef __PPC__
     cur->xoff = h->width.get_value() >> 1;
     cur->yoff = h->height.get_value() >> 1;
-    #else
-    cur->xoff = h->width >> 1;
-    cur->yoff = h->height >> 1;
-    #endif
 
     cur = &plib[LIB_COCO];                       
     cur->hits = 1;
@@ -260,13 +230,8 @@ ESHOT_Init(
     for (loop = 0; loop < cur->num_frames; loop++)
         cur->pic[loop] = (char*)GLB_LockItem(cur->item + loop);
     h = (GFX_PIC*)cur->pic[0];
-    #ifdef __PPC__
     cur->xoff = h->width.get_value() >> 1;
     cur->yoff = h->height.get_value() >> 1;
-    #else
-    cur->xoff = h->width >> 1;
-    cur->yoff = h->height >> 1;
-    #endif
 }
 
 /***************************************************************************
@@ -283,13 +248,8 @@ ESHOT_Shoot(
     int g_shoot_type;
     ESHOT *cur;
     
-    #ifdef __PPC__
     x = enemy->x + enemy->lib->shootx[gun_num].get_value();
     y = enemy->y + enemy->lib->shooty[gun_num].get_value();
-    #else
-    x = enemy->x + enemy->lib->shootx[gun_num];
-    y = enemy->y + enemy->lib->shooty[gun_num];
-    #endif
     
     if (((x >= 0) && (x < 320)) && ((y >= 0) && (y < 200)))
     {
@@ -302,11 +262,7 @@ ESHOT_Shoot(
         cur->move.y = y;
         cur->en = enemy;
         cur->gun_num = gun_num;
-        #ifdef __PPC__
         g_shoot_type = enemy->lib->shoot_type[gun_num].get_value();
-        #else
-        g_shoot_type = enemy->lib->shoot_type[gun_num];
-        #endif
         
         switch (g_shoot_type)
         {
@@ -451,13 +407,8 @@ ESHOT_Think(
         case ES_LASER:
             if (shot->en && shot->en->lib && shot->curframe < lib->num_frames)
             {
-                #ifdef __PPC__
                 shot->x = shot->en->x + shot->en->lib->shootx[shot->gun_num].get_value() - 4;
                 shot->y = shot->en->y + shot->en->lib->shooty[shot->gun_num].get_value();
-                #else
-                shot->x = shot->en->x + shot->en->lib->shootx[shot->gun_num] - 4;
-                shot->y = shot->en->y + shot->en->lib->shooty[shot->gun_num];
-                #endif
                 shot->move.y2 = 200;  
                 
                 dx = abs(shot->x - player_cx);
@@ -578,11 +529,7 @@ ESHOT_Display(
             
             if (y > 0 && y < 200)
             {
-                #ifdef __PPC__
                 GFX_PutSprite((char*)h, shot->x - (h->width.get_value() >> 2), y);
-                #else
-                GFX_PutSprite((char*)h, shot->x - (h->width >> 2), y);
-                #endif
             }
         }
         else

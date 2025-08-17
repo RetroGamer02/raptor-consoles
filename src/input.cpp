@@ -1,4 +1,4 @@
-#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -540,33 +540,10 @@ IPT_LoadPrefs(
     void
 )
 {
-    #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__)
         opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
         control = 2;
         haptic = 0;
-        joy_ipt_MenuNew = 1;
-
-        k_Up = SC_UP;
-        k_Down = SC_DOWN;
-        k_Left = SC_LEFT;
-        k_Right = SC_RIGHT;
-        k_Fire = SC_CTRL;
-        k_FireSp = SC_ALT;
-        k_ChangeSp = SC_SPACE;
-        k_Mega = SC_RIGHT_SHIFT;
-
-        m_lookup[0] = 0;
-        m_lookup[1] = 1;
-        m_lookup[2] = 2;
-
-        j_lookup[0] = 0;
-        j_lookup[1] = 1;
-        j_lookup[2] = 2;
-        j_lookup[3] = 3;
-    #elif defined (__XBOX__)
-        opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
-        control = 2;
-        haptic = INI_GetPreferenceLong("Setup", "Haptic", 0);
         joy_ipt_MenuNew = 1;
 
         k_Up = SC_UP;

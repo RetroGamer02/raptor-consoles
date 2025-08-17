@@ -1,4 +1,4 @@
-#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -41,7 +41,6 @@ int music_chanvel[16];
 int music_chanvol[16];
 int music_chanvol2[16];
 
-#ifdef __PPC__
 #pragma pack(push, 1)
 struct mushead_t {
     char id[4];
@@ -50,16 +49,6 @@ struct mushead_t {
     little_uint16_t channels;
 };
 #pragma pack(pop)
-#else
-#pragma pack(push, 1)
-struct mushead_t {
-    char id[4];
-    uint16_t len;
-    uint16_t offset;
-    uint16_t channels;
-};
-#pragma pack(pop)
-#endif
 
 /***************************************************************************
 MUS_SetupFader() -
@@ -446,7 +435,7 @@ MUS_Init(
     default:
         if (sys_midi)
         {
-            #if defined (_WIN32) && !defined (__XBOX__)
+            #if defined (_WIN32)
             music_device = &mus_device_mpu;
             #endif // _WIN32
             
@@ -527,24 +516,15 @@ MUS_PlaySong(
         MUS_StopSong(0);
     
     music_ptr = (char*)ptr;
-    #ifdef __PPC__
     music_len = head->len.get_value();
     music_startoffset = head->offset.get_value();
-    #else
-    music_len = head->len;
-    music_startoffset = head->offset;
-    #endif
     music_cmdptr = 0;
     music_loop = loop;
     music_active = 1;
     music_delay = 0;
     music_vol = 127;
     music_fading = 0;
-    #ifdef __PPC__
     music_channels = head->channels.get_value();
-    #else
-    music_channels = head->channels;
-    #endif
     MUS_Reset();
     
     if (fadein)
@@ -600,11 +580,7 @@ MUS_SongPlaying(
     if (!music_init)
         return 0;
     
-    #ifdef __XBOX__
-    return 0; //Fixme
-    #else
     return music_active;
-    #endif
 }
 
 /***************************************************************************

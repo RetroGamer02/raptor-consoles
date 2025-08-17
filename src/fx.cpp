@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -26,11 +26,8 @@ int fx_device;
 int fx_volume;
 static int fx_init = 0;
 static int lockcount;
-#ifdef __NDS__
-int fx_freq = 11025;
-#elif __3DS__
-int fx_freq = 22050;
-#elif __GCN__
+
+#ifdef __GCN__
 int fx_freq = 22050;
 #elif __WII__
 int fx_freq = 22050;
@@ -142,7 +139,7 @@ SND_InitSound(
     fx_device = SND_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #if defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__)
     music_card = M_SB;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
@@ -174,7 +171,7 @@ SND_InitSound(
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__) || defined (__XBOX__) || defined (__GCN__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__)
         fx_card = 5;
         fx_chans = 2;
     #else
@@ -813,11 +810,7 @@ SFX_PlayPatch(
     int priority
 )
 {
-    #ifdef __PPC__
     int type = (*(little_int16_t*)patch).get_value();
-    #else
-    int type = *(int16_t*)patch;
-    #endif
     
     switch (type)
     {

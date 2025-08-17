@@ -30,9 +30,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#ifndef __XBOX__
 #include <shellapi.h>
-#endif
 #endif
 
 #ifdef _MSC_VER
@@ -596,9 +594,7 @@ void TXT_SetWindowHelpURL(txt_window_t *window, const char *help_url)
 
 void TXT_OpenURL(const char *url)
 {
-    #ifndef __XBOX__
     ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
-    #endif
 }
 
 #else

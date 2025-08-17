@@ -9,10 +9,14 @@
 #include "glbapi.h"
 #include "vmemapi.h"
 
-#if defined (_WIN32) && !defined (__XBOX__)
+//#if defined (__GCN__) || defined (__WII__)
+#include "embeded_file_loader.h"
+//#endif
+
+#if defined (_WIN32)
 #include <io.h>
 #endif // _WIN32
-#if defined (__GNUC__) || defined (__XBOX__)
+#if defined (__GNUC__)
 #include <unistd.h>
 char* strupr(char* s)
 {
@@ -57,23 +61,18 @@ typedef struct
 	char filepath[PATH_MAX];
 	ITEMINFO* item;
 	int      items;
-	FILE     *handle;
+	union {
+        FILE*   f;      // on-disk
+        MemFILE* m;     // in-RAM
+    } handle;
 	const char *permissions;
 }FILEDESC;
 
-#ifdef __PPC__
 typedef struct
 {
 	uint16_t filenum;
 	uint16_t itemnum;
 }ITEM_ID;
-#else
-typedef struct
-{
-	uint16_t itemnum;
-	uint16_t filenum;
-}ITEM_ID;
-#endif
 
 typedef union
 {
@@ -187,42 +186,12 @@ GLB_FindFile(
 		sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
 		if (handle == NULL)
         {
-            #if defined (__NDS__) || defined (__3DS__) || defined (__SWITCH__)
-				sprintf(filename, "%s%s%04u.GLB", ROMFS, prefix, filenum);
-				handle = fopen(filename, permissions);
-				if (handle == NULL)
-				{
-					sprintf(filename, "%s%s%04u.GLB", RAP_SD_DIR, prefix, filenum);
-					handle = fopen(filename, permissions);
-					if (handle == NULL)
-					{
-						if (return_on_failure)
-							return NULL;
-						sprintf(filename, "%s%04u.GLB", prefix, filenum);
-						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
-					}
-				}
-			#elif defined (__GCN__) || defined(__WII__)
+            #if defined (__GCN__) || defined(__WII__)
 				sprintf(filename, "%s%s%04u.GLB", RAP_HD_DIR, prefix, filenum);
 				handle = fopen(filename, permissions);
 				if (handle == NULL)
 				{
 					sprintf(filename, "%s%s%04u.GLB", RAP_SD_DIR, prefix, filenum);
-					handle = fopen(filename, permissions);
-					if (handle == NULL)
-					{
-						if (return_on_failure)
-							return NULL;
-						sprintf(filename, "%s%04u.GLB", prefix, filenum);
-						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
-					}
-				}
-			#elif __XBOX__
-				sprintf(filename, "%s%s%04u.GLB", XBOX_DVD_DIR, prefix, filenum);
-				handle = fopen(filename, permissions);
-				if (handle == NULL)
-				{
-					sprintf(filename, "%s%s%04u.GLB", XBOX_HDD_DIR, prefix, filenum);
 					handle = fopen(filename, permissions);
 					if (handle == NULL)
 					{
@@ -253,7 +222,7 @@ GLB_FindFile(
 
 	strcpy(fd->filepath, filename);
 	fd->permissions = permissions;
-	fd->handle = handle;
+	fd->handle.f = handle; //Fixme for __GCN__?
 
 	return handle;
 }
@@ -274,13 +243,13 @@ GLB_OpenFile(
 
 	fd = &filedesc[filenum];
 
-	if (fd->handle == 0)
+	if (fd->handle.f == 0)
 		return GLB_FindFile(return_on_failure, filenum, permissions);
 	else if (fd->permissions != permissions)
 	{
-		fclose(fd->handle);
+		fclose(fd->handle.f);
 		
-		if ((fd->handle = fopen(fd->filepath, permissions)) == NULL)
+		if ((fd->handle.f = fopen(fd->filepath, permissions)) == NULL)
 		{
 			if (return_on_failure)
 				return NULL;
@@ -291,10 +260,35 @@ GLB_OpenFile(
 	}
 	else
 	{
-		fseek(fd->handle, 0L, SEEK_SET);
+		fseek(fd->handle.f, 0L, SEEK_SET);
 	}
 	
-	return fd->handle;
+	return fd->handle.f;
+}
+
+/*------------------------------------------------------------------------
+   GLB_OpenFile() - Opens & Caches file handle
+ ------------------------------------------------------------------------*/
+static MemFILE*
+GLB_OpenMemFile(
+	int	return_on_failure,	     // INPUT : Don't bomb if file not open
+	int	filenum,                 // INPUT : file number
+	const char *permissions		 // INPUT : file access permissions
+)
+{
+	FILEDESC* fd;
+
+	ASSERT(filenum >= 0 && filenum < MAX_GLB_FILES);
+
+	fd = &filedesc[filenum];
+
+	if (filenum == 0) {
+		fd->handle.m = mfopen_FILE0000(fd->filepath);
+		return fd->handle.m;
+	} else if (filenum == 1) {
+		fd->handle.m = mfopen_FILE0001(fd->filepath);
+		return fd->handle.m;
+	}
 }
 
 /*------------------------------------------------------------------------
@@ -306,15 +300,19 @@ GLB_CloseFiles(
 )
 {
 	int j;
-
+	
+	#if defined (__GCN__) || defined (__WII__)
+	//Todo
+	#else
 	for (j = 0; j < MAX_GLB_FILES; j++)
 	{
-		if (filedesc[j].handle)
+		if (filedesc[j].handle.f)
 		{
-			fclose(filedesc[j].handle);
-			filedesc[j].handle = 0;
+			fclose(filedesc[j].handle.f);
+			filedesc[j].handle.f = 0;
 		}
 	}
+	#endif
 }
 
 /*------------------------------------------------------------------------
@@ -326,31 +324,59 @@ GLB_NumItems(
 )
 {
 	KEYFILE key;
-	FILE *handle;
+	
+	union {
+        FILE*   f;      // on-disk
+        MemFILE* m;     // in-RAM
+    } handle;
+
+	#if defined (__GCN__) || defined (__WII__)
 
 	ASSERT(filenum >= 0 && filenum < num_glbs);
 
-	handle = GLB_OpenFile(1, filenum, "rb");
+	if (filenum == 0 || filenum == 1) {
+		handle.m = GLB_OpenMemFile(1, filenum, "rb");
 	
-	if (handle == NULL)
+		if (handle.m == NULL)
+			return 0;
+
+		memf_seek(handle.m, 0L, SEEK_SET);
+		memf_read(&key, sizeof(KEYFILE), 1, handle.m);
+	} else {
+		handle.f = GLB_OpenFile(1, filenum, "rb");
+	
+		if (handle.f == NULL)
+			return 0;
+
+		fseek(handle.f, 0L, SEEK_SET);
+		
+		if (!fread(&key, sizeof(KEYFILE), 1, handle.f))
+		{
+			EXIT_Error("GLB_NumItems: Read failed!");
+		}
+	}
+	#else
+
+	ASSERT(filenum >= 0 && filenum < num_glbs);
+
+	handle.f = GLB_OpenFile(1, filenum, "rb");
+	
+	if (handle.f == NULL)
 		return 0;
 
-	fseek(handle, 0L, SEEK_SET);
+	fseek(handle.f, 0L, SEEK_SET);
 	
-	if (!fread(&key, sizeof(KEYFILE), 1, handle))
+	if (!fread(&key, sizeof(KEYFILE), 1, handle.f))
 	{
 		EXIT_Error("GLB_NumItems: Read failed!");
 	}
+	#endif
 
 #ifdef _SCOTTGAME
 	GLB_DeCrypt(serial, (uint8_t*)&key, sizeof(KEYFILE));
 #endif
 
-	#ifdef __PPC__
 	return ((int)key.offset.get_value());
-	#else
-	return ((int)key.offset);
-	#endif
 }
 
 /*--------------------------------------------------------------------------
@@ -368,7 +394,7 @@ GLB_LoadIDT(
 	KEYFILE key[10];
 	ITEMINFO* ii;
 
-	handle = fd->handle;
+	handle = fd->handle.f;
 	ii = fd->item;
 
 	fseek(handle, sizeof(KEYFILE), SEEK_SET);
@@ -387,19 +413,57 @@ GLB_LoadIDT(
 #ifdef _SCOTTGAME
 			GLB_DeCrypt(serial, (void*)&key[n], sizeof(KEYFILE));
 #endif
-			#ifdef __PPC__
 			if (key[n].opt.get_value() == GLB_ENCODED)
 				ii->flags |= ITF_ENCODED;
 
 			ii->size = key[n].filesize.get_value();
 			ii->offset = key[n].offset.get_value();
-			#else
-			if (key[n].opt == GLB_ENCODED)
+			memcpy(ii->name, key[n].name, sizeof(ii->name));
+			ii++;
+		}
+		j += k;
+	}
+}
+
+/*--------------------------------------------------------------------------
+ GLB_LoadIDT() Loads a item descriptor table from a GLB file.
+ --------------------------------------------------------------------------*/
+static void
+GLB_LoadMemIDT(
+	FILEDESC* fd               // INPUT: file to load
+)
+{
+	MemFILE *handle;
+	int j;
+	int k;
+	int n;
+	KEYFILE key[10];
+	ITEMINFO* ii;
+
+	handle = fd->handle.m;
+	ii = fd->item;
+
+	memf_seek(handle, sizeof(KEYFILE), SEEK_SET);
+	
+	for (j = 0; j < fd->items; )
+	{
+		k = fd->items - j;
+		
+		if (k > ASIZE(key))
+			k = ASIZE(key);
+
+		memf_read(key, sizeof(KEYFILE), k, handle);
+		
+		for (n = 0; n < k; n++)
+		{
+#ifdef _SCOTTGAME
+			GLB_DeCrypt(serial, (void*)&key[n], sizeof(KEYFILE));
+#endif
+			if (key[n].opt.get_value() == GLB_ENCODED)
 				ii->flags |= ITF_ENCODED;
 
-			ii->size = key[n].filesize;
-			ii->offset = key[n].offset;
-			#endif
+			ii->size = key[n].filesize.get_value();
+			ii->offset = key[n].offset.get_value();
 			memcpy(ii->name, key[n].name, sizeof(ii->name));
 			ii++;
 		}
@@ -415,7 +479,7 @@ GLB_UseVM(
 	void
 )
 {
-	#if defined (__ARM__) || defined(__PPC__)
+	#if defined(__PPC__)
 	fVmem = 0;
 	#else
 	fVmem = 1;
@@ -450,6 +514,7 @@ GLB_InitSystem(
 	num_glbs = innum;
 	ASSERT(num_glbs >= 1 && num_glbs <= MAX_GLB_FILES);
 
+	#if !defined (__GCN__) || !defined (__WII__)
 	if (iprefix)
 	{
 		ASSERT(strlen(iprefix) < sizeof(prefix) - 1);
@@ -458,6 +523,7 @@ GLB_InitSystem(
 		strupr(prefix);
 	}
 	memset(filedesc, 0, sizeof(filedesc));
+	#endif
 	
 	/*
 	* Next, read in header of each file and allocate cache
@@ -482,6 +548,9 @@ GLB_InitSystem(
 			/*
 			* Load Item Descriptor Table for file
 			*/
+			if (filenum == 0 || filenum == 1)
+			GLB_LoadMemIDT(fd);
+			else
 			GLB_LoadIDT(fd);
 			opened++;
 		}
@@ -500,15 +569,33 @@ GLB_Load(
 	int itemnum                   // INPUT: item in file number
 )
 {
-	FILE *handle;
+	//FILE *handle;
+    union {
+        FILE*   f;      // on-disk
+        MemFILE* m;     // in-RAM
+    } handle;
 	ITEMINFO* ii;
 
 	ASSERT(filenum >= 0 && filenum < num_glbs);
 
-	handle = filedesc[filenum].handle;
-	
-	if (handle == 0)
+	#if defined (__GCN__) || defined (__WII__)
+	if (filenum == 0 || filenum == 1) {
+	handle.m = filedesc[filenum].handle.m;
+
+	if (handle.m == 0)
 		return 0;
+	} else {
+	handle.f = filedesc[filenum].handle.f;
+
+	if (handle.f == 0)
+		return 0;
+	}
+	#else
+	handle.f = filedesc[filenum].handle.f;
+
+	if (handle.f == 0)
+		return 0;
+	#endif
 
 	ASSERT(itemnum < (WORD)filedesc[filenum].items);
 
@@ -521,8 +608,18 @@ GLB_Load(
 			memcpy(inmem, ii->vm_mem.obj, ii->size);
 		else
 		{
-			fseek(handle, ii->offset, SEEK_SET);
-			fread(inmem, ii->size, 1, handle);
+			#if defined (__GCN__) || defined (__WII__)
+				if (filenum == 0 || filenum == 1) {
+					memf_seek(handle.m, ii->offset, SEEK_SET);
+					memf_read(inmem, ii->size, 1, handle.m);
+				} else {
+					fseek(handle.f, ii->offset, SEEK_SET);
+					fread(inmem, ii->size, 1, handle.f);
+				}
+			#else
+				fseek(handle.f, ii->offset, SEEK_SET);
+				fread(inmem, ii->size, 1, handle.f);
+			#endif
 #ifdef _SCOTTGAME
 			if (ii->flags & ITF_ENCODED)
 			{
@@ -564,7 +661,7 @@ GLB_FetchItem(
 
 	if (mode == FI_LOCK)
 		ii->flags |= ITF_LOCKED;
-
+	
 	if ((obj = ii->vm_mem.obj) == NULL)
 	{
 		ii->lock_cnt = 0;
@@ -601,6 +698,7 @@ GLB_FetchItem(
 		VM_Lock(obj);
 	}
 	
+
 	if (ii->vm_mem.obj == NULL && mode != FI_CACHE)
 	{
 		EXIT_Error("GLB_FetchItem: failed on %d bytes, mode=%d.", ii->size, mode);
@@ -929,7 +1027,14 @@ GLB_ReadFile(
 	if ((handle = fopen(name, "rb")) == NULL)
 		EXIT_Error("LoadFile: Open failed!");
 
+	#if defined (__GCN__) || defined (__WII__)
+	if (name == "FILE0000" || name == "FILE0001")
+		memf_seek((MemFILE*)handle, 0, SEEK_END);
+	else
+		fseek(handle, 0, SEEK_END);
+	#else
 	fseek(handle, 0, SEEK_END);
+	#endif
 	sizerec = ftell(handle);
 	rewind(handle);
 

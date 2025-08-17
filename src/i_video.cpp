@@ -20,11 +20,9 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_opengl.h"
-#elif defined (__NDS__)
-#include "SDL.h"
 #else
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -115,19 +113,7 @@ int video_display = 0;
 
 // Screen width and height, from configuration file.
 
-#ifdef __NDS__
-int window_width = 320;
-int window_height = 200;
-#elif __3DS__
-int window_width = 320;
-int window_height = 200;
-#elif __SWITCH__
-int window_width = 1280;
-int window_height = 720;
-#elif __XBOX__
-int window_width = 640;
-int window_height = 480;
-#elif __GCN__
+#ifdef __GCN__
 int window_width = 640;
 int window_height = 480;
 #elif __WII__
@@ -232,21 +218,9 @@ int screencoordpoint = 0;
 
 void VIDEO_LoadPrefs(void)
 {
-    #ifdef __NDS__
+    #ifdef __GCN__
         fullscreen = 1;
         aspect_ratio_correct = 0;
-        txt_fullscreen = 0;
-    #elif __3DS__
-        fullscreen = 1;
-        aspect_ratio_correct = 0;
-        txt_fullscreen = 1;
-    #elif __XBOX__
-        fullscreen = 1;
-        aspect_ratio_correct = 0;
-        txt_fullscreen = 0;
-    #elif __GCN__
-        fullscreen = 1;
-        aspect_ratio_correct = 1;
         txt_fullscreen = 1;
     #elif __WII__
         fullscreen = 1;
@@ -644,6 +618,42 @@ void I_GetEvent(void)
         if ( kUpGC & PAD_BUTTON_RIGHT) Right = 0;
         if ( kUpGC & PAD_TRIGGER_L) LeftShoulder = 0;
         if ( kUpGC & PAD_TRIGGER_R) RightShoulder = 0;
+    
+    #elif __GCN__
+        // Call WPAD_ScanPads each loop, this reads the latest controller states
+        PAD_ScanPads();
+
+		// WPAD_ButtonsDown tells us which buttons were pressed in this loop
+		// this is a "one shot" state which will not fire again until the button has been released
+        u32 kDownGC = PAD_ButtonsDown(0);
+        u32 kUpGC = PAD_ButtonsUp(0);
+
+        //GC Inputs
+        if ( kDownGC & PAD_BUTTON_START) Start = 1;
+        if ( kDownGC & PAD_TRIGGER_Z) Back = 1;
+        if ( kDownGC & PAD_BUTTON_A ) AButton = 1;
+        if ( kDownGC & PAD_BUTTON_B ) BButton = 1;
+        if ( kDownGC & PAD_BUTTON_X ) XButton = 1;
+        if ( kDownGC & PAD_BUTTON_Y ) YButton = 1;
+        if ( kDownGC & PAD_BUTTON_UP ) Up = 1;
+        if ( kDownGC & PAD_BUTTON_DOWN ) Down = 1;
+        if ( kDownGC & PAD_BUTTON_LEFT ) Left = 1;
+        if ( kDownGC & PAD_BUTTON_RIGHT) Right = 1;
+        if ( kDownGC & PAD_TRIGGER_L) LeftShoulder = 1;
+        if ( kDownGC & PAD_TRIGGER_R) RightShoulder = 1;
+
+        if ( kUpGC & PAD_BUTTON_START) Start = 0;
+        if ( kUpGC & PAD_TRIGGER_Z) Back = 0;
+        if ( kUpGC & PAD_BUTTON_A ) AButton = 0;
+        if ( kUpGC & PAD_BUTTON_B ) BButton = 0;
+        if ( kUpGC & PAD_BUTTON_X ) XButton = 0;
+        if ( kUpGC & PAD_BUTTON_Y ) YButton = 0;
+        if ( kUpGC & PAD_BUTTON_UP ) Up = 0;
+        if ( kUpGC & PAD_BUTTON_DOWN ) Down = 0;
+        if ( kUpGC & PAD_BUTTON_LEFT ) Left = 0;
+        if ( kUpGC & PAD_BUTTON_RIGHT) Right = 0;
+        if ( kUpGC & PAD_TRIGGER_L) LeftShoulder = 0;
+        if ( kUpGC & PAD_TRIGGER_R) RightShoulder = 0;
         
     #else
     extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
@@ -800,16 +810,11 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
     orig_h = *h_upscale;
 
     // Query renderer and limit to maximum texture dimensions of hardware:
-    #if defined (__XBOX__)
-        rinfo.max_texture_width = 1920;
-        rinfo.max_texture_height = 1080;
-    #else
-        if (SDL_GetRendererInfo(renderer, &rinfo) != 0)
-        {
-            EXIT_Error("CreateUpscaledTexture: SDL_GetRendererInfo() call failed: %s",
-                    SDL_GetError());
-        }
-    #endif
+    if (SDL_GetRendererInfo(renderer, &rinfo) != 0)
+    {
+        EXIT_Error("CreateUpscaledTexture: SDL_GetRendererInfo() call failed: %s",
+                SDL_GetError());
+    }
 
     while (*w_upscale * SCREENWIDTH > rinfo.max_texture_width)
     {
@@ -1379,9 +1384,7 @@ static void SetSDLVideoDriver(void)
         char *env_string;
 
         env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
-        #ifndef __XBOX__
         putenv(env_string);
-        #endif
         free(env_string);
     }
 }
@@ -1466,11 +1469,7 @@ static void SetVideoMode(void)
     #else
     int w, h;
     int x, y;
-    #if defined (__3DS__)
-        long unsigned int rmask, gmask, bmask, amask;
-    #else
-        unsigned int rmask, gmask, bmask, amask;
-    #endif
+    unsigned int rmask, gmask, bmask, amask;
     int bpp;
     int window_flags = 0, renderer_flags = 0;
     SDL_DisplayMode mode;
@@ -1734,9 +1733,7 @@ void I_InitGraphics(uint8_t *pal)
         sscanf(env, "0x%x", &winid);
         M_snprintf(winenv, sizeof(winenv), "SDL_WINDOWID=%u", winid);
 
-        #ifndef __XBOX__
         putenv(winenv);
-        #endif
     }
 
     SetSDLVideoDriver();
@@ -1871,7 +1868,7 @@ void I_GetMousePos(int *x, int *y)
 
 void I_SetMousePos(int x, int y)
 {
-    #ifndef SDL12
+    #if !defined (SDL12) && !defined (__GCN__)
     SDL_Rect viewport;
     float sx, sy;
     SDL_RenderGetViewport(renderer, &viewport);

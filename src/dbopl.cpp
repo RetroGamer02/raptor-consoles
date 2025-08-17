@@ -47,10 +47,6 @@
 #define PI 3.14159265358979323846
 #endif
 
-#ifdef __XBOX__
-#define M_PI PI
-#endif
-
 namespace DBOPL {
 
 #define OPLRATE		((double)(14318180.0 / 288.0))

@@ -2,7 +2,6 @@
 
 #include "rap.h"
 
-#ifdef __PPC__
 typedef struct 
 {
     little_int32_t link;
@@ -12,33 +11,13 @@ typedef struct
     little_int32_t game;
     little_int32_t level;
 }CSPRITE;
-#else
-typedef struct 
-{
-    int link;
-    int slib;
-    int x;
-    int y;
-    int game;
-    int level;
-}CSPRITE;
-#endif
 
-#ifdef __PPC__
 typedef struct 
 {
     little_int16_t flats;
     little_int16_t fgame;
 }MAZEDATA;
-#else
-typedef struct 
-{
-    short flats;
-    short fgame;
-}MAZEDATA;
-#endif
 
-#ifdef __PPC__
 typedef struct 
 {
     little_int32_t sizerec;
@@ -46,15 +25,6 @@ typedef struct
     little_int32_t numsprites;
     MAZEDATA map[MAP_SIZE];
 }MAZELEVEL;
-#else
-typedef struct 
-{
-    int sizerec;
-    int spriteoff;
-    int numsprites;
-    MAZEDATA map[MAP_SIZE];
-}MAZELEVEL;
-#endif
 
 extern int curplr_diff;
 

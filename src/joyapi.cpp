@@ -1,4 +1,4 @@
-#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -44,10 +44,17 @@ IPT_CalJoy(
 
 	MaxJoysticks = SDL_NumJoysticks();
 	ControllerIndex = 0;
+	#if defined (__GCN__) || defined (__WII__)
+	AButtonconvert = 0;
+	BButtonconvert = 1;
+	XButtonconvert = 2;
+	YButtonconvert = 3;
+	#else
 	AButtonconvert = 0;
 	BButtonconvert = 0;
 	XButtonconvert = 0;
 	YButtonconvert = 0;
+	#endif
 
 	for (JoystickIndex = 0; JoystickIndex < MaxJoysticks; ++JoystickIndex)
 	{
@@ -161,44 +168,36 @@ GetJoyButtonMapping(
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-		//NXDK Has SDL 2.0.10 but SDL_GameControllerTypeForIndex requires 2.0.12
-		#ifdef __XBOX__
+		switch (SDL_GameControllerTypeForIndex(ControllerIndex))
+		{
+		case SDL_CONTROLLER_TYPE_PS3:
+		case SDL_CONTROLLER_TYPE_PS4:
+		case SDL_CONTROLLER_TYPE_PS5:
+			AButtonconvert = 0;
+			BButtonconvert = 1;
+			XButtonconvert = 3;
+			YButtonconvert = 2;
+			break;
+		
+		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
+		case SDL_CONTROLLER_TYPE_XBOX360:
+		case SDL_CONTROLLER_TYPE_XBOXONE:
 			AButtonconvert = 0;
 			BButtonconvert = 1;
 			XButtonconvert = 2;
 			YButtonconvert = 3;
-		#else
-			switch (SDL_GameControllerTypeForIndex(ControllerIndex))
+			break;
+		
+		default:
+			if ((AButtonconvert == 0) && (BButtonconvert == 0) && (XButtonconvert == 0) && (YButtonconvert == 0))
 			{
-			case SDL_CONTROLLER_TYPE_PS3:
-			case SDL_CONTROLLER_TYPE_PS4:
-			case SDL_CONTROLLER_TYPE_PS5:
-				AButtonconvert = 0;
-				BButtonconvert = 1;
-				XButtonconvert = 3;
-				YButtonconvert = 2;
-				break;
-			
-			case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
-			case SDL_CONTROLLER_TYPE_XBOX360:
-			case SDL_CONTROLLER_TYPE_XBOXONE:
 				AButtonconvert = 0;
 				BButtonconvert = 1;
 				XButtonconvert = 2;
 				YButtonconvert = 3;
-				break;
-			
-			default:
-				if ((AButtonconvert == 0) && (BButtonconvert == 0) && (XButtonconvert == 0) && (YButtonconvert == 0))
-				{
-					AButtonconvert = 0;
-					BButtonconvert = 1;
-					XButtonconvert = 2;
-					YButtonconvert = 3;
-				}
-				break;
 			}
-		#endif
+			break;
+		}
 	}
 	#endif
 }

@@ -1,4 +1,4 @@
-#if defined (__3DS__) || defined (__SWITCH__) || defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -57,7 +57,7 @@ GSS_Init(
     case M_GMIDI:
     default:
 
-        #if defined (_WIN32) && !defined (__XBOX__)
+        #if defined (_WIN32)
         gss_device = &mus_device_mpu;
         #endif // _WIN32
         break;
@@ -126,22 +126,13 @@ GSS_Service(
             if (gss_device && gss_device->ControllerEvent)
             {
                 gss_device->ControllerEvent(14, 4, gss_sep >> 1);
-                #ifdef __PPC__
                 gss_device->ControllerEvent(14, 1, gss->bank.get_value());
                 gss_device->ControllerEvent(14, 0, gss->patch.get_value());
-                #else
-                gss_device->ControllerEvent(14, 1, gss->bank);
-                gss_device->ControllerEvent(14, 0, gss->patch);
-                #endif
             }
             if (gss_device && gss_device->PitchBendEvent)
                 gss_device->PitchBendEvent(14, 127);
         }
-        #ifdef __PPC__
         else if (gss_currentptr >= gss->len.get_value())
-        #else
-        else if (gss_currentptr >= gss->len)
-        #endif
         {
             if (gss_lastnote)
             {
@@ -335,11 +326,7 @@ GSS_StopPatch(
         case 1:
         {
             gss1_t *gss = (gss1_t*)gss_ptr;
-            #ifdef __PPC__
             gss_currentptr = gss->len.get_value();
-            #else
-            gss_currentptr = gss->len;
-            #endif
         }
         }
     }

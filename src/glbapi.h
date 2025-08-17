@@ -1,7 +1,6 @@
 #pragma once
 #include <stdint.h>
 
-#ifdef __PPC__
 #include "ppc.h"
 
 typedef struct
@@ -11,15 +10,6 @@ typedef struct
     little_uint32_t filesize;      // filesize
     char name[16];                 // text name ( end with null )
 }KEYFILE;
-#else
-typedef struct
-{
-	uint32_t opt;           // option (encode on/off)
-	uint32_t offset;        // offset into file
-	uint32_t filesize;      // filesize
-	char name[16];          // text name ( end with null )
-}KEYFILE;
-#endif
 
 typedef struct
 {
