@@ -568,6 +568,11 @@ void I_GetEvent(void)
         u32 kUp = WPAD_ButtonsUp(0);
         u32 kDownGC = PAD_ButtonsDown(0);
         u32 kUpGC = PAD_ButtonsUp(0);
+        // Get analog stick values
+        s8 gcStickX = PAD_StickX(0);     // left stick X (-128 left, +127 right)
+        s8 gcStickY = PAD_StickY(0);     // left stick Y (-128 down, +127 up)
+        //s8 cgCStickX = PAD_SubStickX(0); // C-stick X
+        //s8 cgCStickY = PAD_SubStickY(0); // C-stick Y
 
         //Wii Inputs
         if ( kDown & WPAD_BUTTON_PLUS) Start = 1;
@@ -618,6 +623,19 @@ void I_GetEvent(void)
         if ( kUpGC & PAD_BUTTON_RIGHT) Right = 0;
         if ( kUpGC & PAD_TRIGGER_L) LeftShoulder = 0;
         if ( kUpGC & PAD_TRIGGER_R) RightShoulder = 0;
+
+        if (gcStickX >= 15 || gcStickX <= -15)
+        {
+            StickX = gcStickX / 20;
+        } else {
+            StickX = 0;
+        }
+        if (gcStickY >= 15 || gcStickY <= -15)
+        {
+            StickY = gcStickY / 20 *-1;
+        } else {
+            StickY = 0;
+        }
     
     #elif __GCN__
         // Call WPAD_ScanPads each loop, this reads the latest controller states
@@ -627,6 +645,11 @@ void I_GetEvent(void)
 		// this is a "one shot" state which will not fire again until the button has been released
         u32 kDownGC = PAD_ButtonsDown(0);
         u32 kUpGC = PAD_ButtonsUp(0);
+        // Get analog stick values
+        s8 gcStickX = PAD_StickX(0);     // left stick X (-128 left, +127 right)
+        s8 gcStickY = PAD_StickY(0);     // left stick Y (-128 down, +127 up)
+        //s8 cgCStickX = PAD_SubStickX(0); // C-stick X
+        //s8 cgCStickY = PAD_SubStickY(0); // C-stick Y
 
         //GC Inputs
         if ( kDownGC & PAD_BUTTON_START) Start = 1;
@@ -654,6 +677,19 @@ void I_GetEvent(void)
         if ( kUpGC & PAD_BUTTON_RIGHT) Right = 0;
         if ( kUpGC & PAD_TRIGGER_L) LeftShoulder = 0;
         if ( kUpGC & PAD_TRIGGER_R) RightShoulder = 0;
+
+        if (gcStickX >= 15 || gcStickX <= -15)
+        {
+            StickX = gcStickX / 20;
+        } else {
+            StickX = 0;
+        }
+        if (gcStickY >= 15 || gcStickY <= -15)
+        {
+            StickY = gcStickY / 20 *-1;
+        } else {
+            StickY = 0;
+        }
         
     #else
     extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);

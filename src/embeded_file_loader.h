@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#if defined (__GCN__) || defined (__WII__)
 #include "FILE0000_GLB.h"
 
 extern const uint8_t FILE0000_GLB[];
@@ -13,7 +12,6 @@ extern const uint8_t FILE0000_GLB_end[];
 
 extern const uint8_t FILE0001_GLB[];
 extern const uint8_t FILE0001_GLB_end[];
-#endif
 
 typedef struct {
     const uint8_t* buf;    // start

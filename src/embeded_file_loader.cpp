@@ -57,29 +57,3 @@ MemFILE* mfopen_FILE0001(const char* name) {
     mf->pos  = 0;
     return mf;
 }
-
-// Example usage
-void loadViaMemFILE0000() {
-    MemFILE* f = mfopen_FILE0000("scene.glb");
-    if (!f) return;
-
-    // pretend fread/fseek on f…
-    uint8_t header[12];
-    memf_read(header, 1, sizeof(header), f);
-    // … etc.
-
-    free(f);
-}
-
-// Example usage
-void loadViaMemFILE0001() {
-    MemFILE* f = mfopen_FILE0001("scene.glb");
-    if (!f) return;
-
-    // pretend fread/fseek on f…
-    uint8_t header[12];
-    memf_read(header, 1, sizeof(header), f);
-    // … etc.
-
-    free(f);
-}

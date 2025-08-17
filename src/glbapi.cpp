@@ -185,8 +185,8 @@ GLB_FindFile(
 	{
 		sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
 		if (handle == NULL)
-        {
-            #if defined (__GCN__) || defined(__WII__)
+		{
+			#if defined (__GCN__) || defined(__WII__)
 				sprintf(filename, "%s%s%04u.GLB", RAP_HD_DIR, prefix, filenum);
 				handle = fopen(filename, permissions);
 				if (handle == NULL)
@@ -201,7 +201,7 @@ GLB_FindFile(
 						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
 					}
 				}
-            #else
+			#else
 				if ((handle = fopen(filename, permissions)) == NULL)
 				{
 					if (return_on_failure)
@@ -301,9 +301,6 @@ GLB_CloseFiles(
 {
 	int j;
 	
-	#if defined (__GCN__) || defined (__WII__)
-	//Todo
-	#else
 	for (j = 0; j < MAX_GLB_FILES; j++)
 	{
 		if (filedesc[j].handle.f)
@@ -312,7 +309,6 @@ GLB_CloseFiles(
 			filedesc[j].handle.f = 0;
 		}
 	}
-	#endif
 }
 
 /*------------------------------------------------------------------------
@@ -514,7 +510,7 @@ GLB_InitSystem(
 	num_glbs = innum;
 	ASSERT(num_glbs >= 1 && num_glbs <= MAX_GLB_FILES);
 
-	#if !defined (__GCN__) || !defined (__WII__)
+	//#if !defined (__GCN__) || !defined (__WII__)
 	if (iprefix)
 	{
 		ASSERT(strlen(iprefix) < sizeof(prefix) - 1);
@@ -523,7 +519,7 @@ GLB_InitSystem(
 		strupr(prefix);
 	}
 	memset(filedesc, 0, sizeof(filedesc));
-	#endif
+	//#endif
 	
 	/*
 	* Next, read in header of each file and allocate cache

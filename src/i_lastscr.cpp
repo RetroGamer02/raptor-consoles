@@ -73,7 +73,7 @@ void I_LASTSCR(char* mem)
         TXT_UpdateScreen();
         I_GetEvent();
 
-        if (joy_ack || kbd_ack || mouse_b1_ack || mouse_b2_ack || mouse_b3_ack)
+        if (joy_ack || kbd_ack || mouse_b1_ack || mouse_b2_ack || mouse_b3_ack || Start || AButton)
             break;
 
         TXT_Sleep(0);

@@ -210,10 +210,10 @@ InitScreen(
 {
     #ifdef __GCN__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
-    printf(" RAPTOR-Gamecube: V0.0.1 by RetroGamer02\n");
+    printf(" RAPTOR-Gamecube: V1.0.0 by RetroGamer02\n");
     #elif __WII__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
-    printf(" RAPTOR-Wii: V0.0.1 by RetroGamer02\n");
+    printf(" RAPTOR-Wii: V1.0.0 by RetroGamer02\n");
     #else
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     #endif
@@ -1493,7 +1493,9 @@ main(
     SND_InitSound();
     IPT_Init();
     GLB_FreeAll();
+    #if !defined (__GCN__)
     RAP_InitMem();
+    #endif
     
     printf("Loading Graphics\n");
     
