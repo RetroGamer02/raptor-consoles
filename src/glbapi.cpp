@@ -9,7 +9,7 @@
 #include "glbapi.h"
 #include "vmemapi.h"
 
-//#if defined (__GCN__) || defined (__WII__)
+//#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "embeded_file_loader.h"
 //#endif
 
@@ -186,7 +186,7 @@ GLB_FindFile(
 		sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
 		if (handle == NULL)
 		{
-			#if defined (__GCN__) || defined(__WII__)
+			#if defined (__GCN__) || defined(__WII__) || defined (__WIIU__)
 				sprintf(filename, "%s%s%04u.GLB", RAP_HD_DIR, prefix, filenum);
 				handle = fopen(filename, permissions);
 				if (handle == NULL)
@@ -326,7 +326,7 @@ GLB_NumItems(
         MemFILE* m;     // in-RAM
     } handle;
 
-	#if defined (__GCN__) || defined (__WII__)
+	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 
 	ASSERT(filenum >= 0 && filenum < num_glbs);
 
@@ -510,7 +510,7 @@ GLB_InitSystem(
 	num_glbs = innum;
 	ASSERT(num_glbs >= 1 && num_glbs <= MAX_GLB_FILES);
 
-	//#if !defined (__GCN__) || !defined (__WII__)
+	//#if !defined (__GCN__) && !defined (__WII__) && !defined (__WIIU__)
 	if (iprefix)
 	{
 		ASSERT(strlen(iprefix) < sizeof(prefix) - 1);
@@ -574,7 +574,7 @@ GLB_Load(
 
 	ASSERT(filenum >= 0 && filenum < num_glbs);
 
-	#if defined (__GCN__) || defined (__WII__)
+	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 	if (filenum == 0 || filenum == 1) {
 	handle.m = filedesc[filenum].handle.m;
 
@@ -604,7 +604,7 @@ GLB_Load(
 			memcpy(inmem, ii->vm_mem.obj, ii->size);
 		else
 		{
-			#if defined (__GCN__) || defined (__WII__)
+			#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 				if (filenum == 0 || filenum == 1) {
 					memf_seek(handle.m, ii->offset, SEEK_SET);
 					memf_read(inmem, ii->size, 1, handle.m);
@@ -1023,7 +1023,7 @@ GLB_ReadFile(
 	if ((handle = fopen(name, "rb")) == NULL)
 		EXIT_Error("LoadFile: Open failed!");
 
-	#if defined (__GCN__) || defined (__WII__)
+	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 	if (name == "FILE0000" || name == "FILE0001")
 		memf_seek((MemFILE*)handle, 0, SEEK_END);
 	else

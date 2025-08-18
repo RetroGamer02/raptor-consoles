@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#if defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -30,6 +30,8 @@ static int lockcount;
 #ifdef __GCN__
 int fx_freq = 22050;
 #elif __WII__
+int fx_freq = 22050;
+#elif __WIIU__
 int fx_freq = 22050;
 #else
 int fx_freq = 44100;
@@ -139,7 +141,7 @@ SND_InitSound(
     fx_device = SND_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #if defined (__GCN__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
     music_card = M_SB;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
@@ -171,7 +173,7 @@ SND_InitSound(
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    #if defined (__GCN__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         fx_card = 5;
         fx_chans = 2;
     #else

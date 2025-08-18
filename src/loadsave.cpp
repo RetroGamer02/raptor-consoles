@@ -43,7 +43,7 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
-#if defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
     static const char *fmt = RAP_SD_DIR "CHAR%04u.FIL";
     static const char* cdfmt = RAP_SD_DIR "%s\\CHAR%04u.FIL";
 #else
@@ -659,7 +659,7 @@ RAP_InitLoadSave(
     
     cdflag = 0;
     
-    #if defined (__GCN__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         strcpy(g_setup_ini, RAP_SD_DIR "SETUP.INI"); //Fixme HDD Loading on GCN and Wii
     #else
         strcpy(g_setup_ini, "SETUP.INI");

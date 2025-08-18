@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ppc.h"
+
 struct dsp_t {
     little_int16_t format;
     little_int16_t freq;

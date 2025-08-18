@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#if defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_opengl.h"
 #else
@@ -119,6 +119,9 @@ int window_height = 480;
 #elif __WII__
 int window_width = 640;
 int window_height = 480;
+#elif __WIIU__
+int window_width = 640;
+int window_height = 480;
 #else
 int window_width = 800;
 int window_height = 600;
@@ -155,7 +158,11 @@ int vga_porch_flash = false;
 // Force software rendering, for systems which lack effective hardware
 // acceleration
 
+#ifdef __WIIU__
+int force_software_renderer = true;
+#else
 int force_software_renderer = false;
+#endif
 
 // Time to wait for the screen to settle on startup before starting the
 // game (ms)
@@ -226,6 +233,10 @@ void VIDEO_LoadPrefs(void)
         fullscreen = 1;
         aspect_ratio_correct = 0;
         txt_fullscreen = 1;
+    #elif __WIIU__
+        fullscreen = 0;
+        aspect_ratio_correct = 0;
+        txt_fullscreen = 0;
     #else
         fullscreen = INI_GetPreferenceLong("Video", "fullscreen", 0);
         aspect_ratio_correct = INI_GetPreferenceLong("Video", "aspect_ratio_correct", 1);
@@ -557,6 +568,8 @@ void I_GetEvent(void)
 		kDownOld = kDown;
 		//kHeldOld = kHeld;
 		kUpOld = kUp;
+    //#elif __WIIU__
+    //Todo: Implement WiiU controller input handling
     #elif __WII__
         // Call WPAD_ScanPads each loop, this reads the latest controller states
 		WPAD_ScanPads();

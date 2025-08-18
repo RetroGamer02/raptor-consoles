@@ -3,6 +3,8 @@
 
 #ifdef __PPC__
 #include <iostream>
+#include <stdio.h>
+#include <string.h>
 #ifdef __GCN__
 #include <ogcsys.h>
 #include <gccore.h>
@@ -13,6 +15,14 @@
 #include <wiiuse/wpad.h>
 #include <SDL2/SDL.h>
 #include <fat.h>
+#elif __WIIU__
+#include <wut.h>
+#include <coreinit/screen.h>
+#include <coreinit/memdefaultheap.h>
+#include <coreinit/systeminfo.h>
+#include <coreinit/foreground.h>
+#include <vpad/input.h>
+#include <SDL2/SDL.h>
 #endif
 
 //Generic file copy function.
@@ -140,8 +150,13 @@ private:
 #elif __WII__
 #define SDMC "sd:/"
 #define HDFS "fat:/"
-#define RAP_SD_DIR SDMC "apps/Raptor/"
-#define RAP_HD_DIR HDFS "apps/Raptor/"
+#define RAP_SD_DIR SDMC "./"
+#define RAP_HD_DIR HDFS "./"
+#elif __WIIU__
+#define SDMC "sd:/"
+#define HDFS "fat:/"
+#define RAP_SD_DIR SDMC "./"
+#define RAP_HD_DIR HDFS "./"
 #endif
 
 #endif

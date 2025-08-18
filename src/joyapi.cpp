@@ -1,4 +1,4 @@
-#if defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -44,7 +44,7 @@ IPT_CalJoy(
 
 	MaxJoysticks = SDL_NumJoysticks();
 	ControllerIndex = 0;
-	#if defined (__GCN__) || defined (__WII__)
+	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 	AButtonconvert = 0;
 	BButtonconvert = 1;
 	XButtonconvert = 2;

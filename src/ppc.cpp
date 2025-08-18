@@ -87,6 +87,7 @@ int checkFile(const char* path, int mode)
     }
 }
 
+#ifdef __GCN__
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
 
@@ -114,6 +115,14 @@ void * GC_Initialise() {
 	return framebuffer;
 
 }
+#endif
+
+/*#ifdef __WIIU__
+static void drawString(int buffer, int row, int col, const char *msg) {
+    // OSScreenPrintFontEx prints a string at a grid position (row, col)
+    OSScreenPutFontEx(buffer, col, row, msg);
+}
+#endif*/
 
 //Init the target system
 void sys_init()
@@ -170,6 +179,64 @@ if (!fatInitDefault()) {
 		printf("fatInitDefault failure: terminating\n");
 	}
 
+#elif __WIIU__
+
+    // Initialize the screen subsystem and double buffers
+    OSScreenInit();
+
+    // Query required buffer sizes for TV (0) and DRC/GamePad (1)
+    uint32_t tvSize  = OSScreenGetBufferSizeEx(SCREEN_TV);
+    uint32_t drcSize = OSScreenGetBufferSizeEx(SCREEN_DRC);
+
+    // Allocate from default heap (aligned)
+    void *tvBuffer  = MEMAllocFromDefaultHeapEx(tvSize,  0x100);
+    void *drcBuffer = MEMAllocFromDefaultHeapEx(drcSize, 0x100);
+
+    // Attach the buffers
+    OSScreenSetBufferEx(SCREEN_TV,  tvBuffer);
+    OSScreenSetBufferEx(SCREEN_DRC, drcBuffer);
+
+    // Clear once before the main loop
+    OSScreenClearBufferEx(SCREEN_TV,  0);
+    OSScreenClearBufferEx(SCREEN_DRC, 0);
+    OSScreenFlipBuffersEx(SCREEN_TV);
+    OSScreenFlipBuffersEx(SCREEN_DRC);
+
+    // Setup VPAD
+    VPADInit();
+
+    // Foreground lock so HOME/OS interactions behave nicely
+    //OSEnableForeground();
+
+    /*int frame = 0;
+    for (;;) {
+        // Read GamePad
+        VPADStatus vpad;
+        VPADReadError err;
+        memset(&vpad, 0, sizeof(vpad));
+        VPADRead(VPAD_CHAN_0, &vpad, 1, &err);
+
+        // Clear both buffers
+        OSScreenClearBufferEx(SCREEN_TV,  0);
+        OSScreenClearBufferEx(SCREEN_DRC, 0);
+
+        // Draw some text
+        char line[128];
+        snprintf(line, sizeof(line), "Hello, Wii U!  Frame: %d", frame++);
+        drawString(SCREEN_TV,  3, 4, line);
+        drawString(SCREEN_DRC, 3, 4, line);
+
+        drawString(SCREEN_TV,  5, 4, "Press  +  (START) to quit.");
+        drawString(SCREEN_DRC, 5, 4, "Press  +  (START) to quit.");
+
+        // Show pressed buttons for fun
+        snprintf(line, sizeof(line), "Buttons: 0x%08X", (err == VPAD_READ_SUCCESS) ? vpad.hold : 0);
+        drawString(SCREEN_TV,  7, 4, line);
+        drawString(SCREEN_DRC, 7, 4, line);
+
+        // Present
+        OSScreenFlipBuffersEx(SCREEN_TV);
+        OSScreenFlipBuffersEx(SCREEN_DRC);*/
 #endif
 }
 #endif

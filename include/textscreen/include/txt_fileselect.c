@@ -551,6 +551,79 @@ char *TXT_SelectFile(const char *window_title, const char **extensions)
     return result;
 }
 
+#elif __WIIU__
+
+// Linux version: invoke the Zenity command line program to pop up a
+// dialog box. This avoids adding Gtk+ as a compile dependency.
+
+#define ZENITY_BINARY "/usr/bin/zenity"
+
+static unsigned int NumExtensions(const char **extensions)
+{
+    unsigned int result = 0;
+
+    if (extensions != NULL)
+    {
+        for (result = 0; extensions[result] != NULL; ++result);
+    }
+
+    return result;
+}
+
+static int ZenityAvailable(void)
+{
+    return system(ZENITY_BINARY " --help >/dev/null 2>&1") == 0;
+}
+
+int TXT_CanSelectFiles(void)
+{
+    return ZenityAvailable();
+}
+
+//
+// ExpandExtension
+// given an extension (like wad)
+// return a pointer to a string that is a case-insensitive
+// pattern representation (like [Ww][Aa][Dd])
+//
+static char *ExpandExtension(const char *orig)
+{
+    int oldlen, newlen, i;
+    char *c, *newext = NULL;
+
+    oldlen = strlen(orig);
+    newlen = oldlen * 4; // pathological case: 'w' => '[Ww]'
+    newext = malloc(newlen+1);
+
+    if (newext == NULL)
+    {
+        return NULL;
+    }
+
+    c = newext;
+    for (i = 0; i < oldlen; ++i)
+    {
+        if (isalpha(orig[i]))
+        {
+            *c++ = '[';
+            *c++ = tolower(orig[i]);
+            *c++ = toupper(orig[i]);
+            *c++ = ']';
+        }
+        else
+        {
+            *c++ = orig[i];
+        }
+    }
+    *c = '\0';
+    return newext;
+}
+
+char *TXT_SelectFile(const char *window_title, const char **extensions)
+{
+   return NULL;
+}
+
 #else
 
 // Linux version: invoke the Zenity command line program to pop up a

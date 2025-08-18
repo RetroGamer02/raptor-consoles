@@ -24,6 +24,15 @@ typedef enum
     S_STOP
 }SONGOPTS;
 
+/*#ifdef __GCN__
+typedef struct __attribute__((packed))
+{
+    little_uint16_t opt;
+    little_uint16_t fill;
+    little_uint16_t offset;
+    little_uint16_t length;
+}ANIMLINE;
+#else*/
 typedef struct 
 {
     little_uint16_t opt;
@@ -31,6 +40,7 @@ typedef struct
     little_uint16_t offset;
     little_uint16_t length;
 }ANIMLINE;
+//#endif
 
 typedef struct
 {

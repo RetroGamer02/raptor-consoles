@@ -45,6 +45,15 @@ typedef struct
     little_int32_t height;             // heigth of pic
 }GFX_PIC;
 
+#ifdef __GCN__
+typedef __attribute__((aligned(4))) struct
+{
+    little_int32_t x;                  // X POS OF SEG
+    little_int32_t y;                  // Y POS OF SEG
+    little_int32_t offset;             // OFFSET FROM X, Y
+    little_int32_t length;             // LENGTH OF LINE
+}GFX_SPRITE;
+#else
 typedef struct
 {
     little_int32_t x;                  // X POS OF SEG
@@ -52,6 +61,7 @@ typedef struct
     little_int32_t offset;             // OFFSET FROM X, Y
     little_int32_t length;             // LENGTH OF LINE
 }GFX_SPRITE;
+#endif
 
 typedef struct
 {

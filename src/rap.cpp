@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#if defined (__GCN__) || defined (__WII__)
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -1287,6 +1287,11 @@ main(
         {
             printf("\n\n** You must run SETUP first! **\n");
         }
+    #elif __WIIU__
+        if (access(RAP_SetupFilename(), 0))
+        {
+            printf("\n\n** You must run SETUP first! **\n");
+        }
     #else
         if (access(RAP_SetupFilename(), 0))
         {
@@ -1330,7 +1335,7 @@ main(
     
     cur_diff = 0;
 
-    #if defined (__GCN__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
             gameflag[0] = 1;
         
         if (!access(RAP_SD_DIR "FILE0002.GLB", 0) || !access(RAP_HD_DIR "FILE0002.GLB", 0))
@@ -1367,7 +1372,7 @@ main(
             numfiles++;
     }
 
-    #if !defined (__GCN__) && !defined (__WII__)
+    #if !defined (__GCN__) && !defined (__WII__) && !defined (__WIIU__)
     if (access("FILE0000.GLB", 0) || !numfiles)
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
