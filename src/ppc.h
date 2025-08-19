@@ -22,7 +22,12 @@
 #include <coreinit/systeminfo.h>
 #include <coreinit/foreground.h>
 #include <vpad/input.h>
+#include <whb/log.h>
+#include <whb/log_udp.h>
+#include <whb/sdcard.h>
 #include <SDL2/SDL.h>
+
+#define printf WHBLogPrintf
 #endif
 
 //Generic file copy function.
@@ -150,13 +155,13 @@ private:
 #elif __WII__
 #define SDMC "sd:/"
 #define HDFS "fat:/"
-#define RAP_SD_DIR SDMC "./"
-#define RAP_HD_DIR HDFS "./"
+#define RAP_SD_DIR SDMC "apps/Raptor/"
+#define RAP_HD_DIR HDFS "apps/Raptor/"
 #elif __WIIU__
-#define SDMC "sd:/"
-#define HDFS "fat:/"
-#define RAP_SD_DIR SDMC "./"
-#define RAP_HD_DIR HDFS "./"
+#define SDMC "fs:/vol/external01/"
+#define HDFS "fs:/vol/internal01/"
+#define RAP_SD_DIR SDMC "apps/Raptor/"
+#define RAP_HD_DIR HDFS "apps/Raptor/"
 #endif
 
 #endif

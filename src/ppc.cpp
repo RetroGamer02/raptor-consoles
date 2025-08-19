@@ -208,35 +208,12 @@ if (!fatInitDefault()) {
     // Foreground lock so HOME/OS interactions behave nicely
     //OSEnableForeground();
 
-    /*int frame = 0;
-    for (;;) {
-        // Read GamePad
-        VPADStatus vpad;
-        VPADReadError err;
-        memset(&vpad, 0, sizeof(vpad));
-        VPADRead(VPAD_CHAN_0, &vpad, 1, &err);
+   WHBLogUdpInit();
 
-        // Clear both buffers
-        OSScreenClearBufferEx(SCREEN_TV,  0);
-        OSScreenClearBufferEx(SCREEN_DRC, 0);
-
-        // Draw some text
-        char line[128];
-        snprintf(line, sizeof(line), "Hello, Wii U!  Frame: %d", frame++);
-        drawString(SCREEN_TV,  3, 4, line);
-        drawString(SCREEN_DRC, 3, 4, line);
-
-        drawString(SCREEN_TV,  5, 4, "Press  +  (START) to quit.");
-        drawString(SCREEN_DRC, 5, 4, "Press  +  (START) to quit.");
-
-        // Show pressed buttons for fun
-        snprintf(line, sizeof(line), "Buttons: 0x%08X", (err == VPAD_READ_SUCCESS) ? vpad.hold : 0);
-        drawString(SCREEN_TV,  7, 4, line);
-        drawString(SCREEN_DRC, 7, 4, line);
-
-        // Present
-        OSScreenFlipBuffersEx(SCREEN_TV);
-        OSScreenFlipBuffersEx(SCREEN_DRC);*/
+    if (!WHBMountSdCard()) {
+        WHBLogPrintf("Failed to mount SD.");
+    }
+    
 #endif
 }
 #endif
