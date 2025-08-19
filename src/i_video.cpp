@@ -120,8 +120,8 @@ int window_height = 480;
 int window_width = 640;
 int window_height = 480;
 #elif __WIIU__
-int window_width = 640;
-int window_height = 480;
+int window_width = 960;
+int window_height = 720;
 #else
 int window_width = 800;
 int window_height = 600;

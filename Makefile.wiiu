@@ -24,7 +24,7 @@ DATA		:=	data
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CFLAGS	= -g -Wall -O2 -ffunction-sections -D__PPC__ -D__WIIU__ $(MACHDEP) $(INCLUDE)
+CFLAGS	= -g -Wall -O3 -ffunction-sections -D__PPC__ -D__WIIU__ $(MACHDEP) $(INCLUDE)
 CXXFLAGS	=	$(CFLAGS)
 
 ASFLAGS		:=	-g $(MACHDEP)
