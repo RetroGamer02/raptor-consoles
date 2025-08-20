@@ -667,6 +667,8 @@ RAP_InitLoadSave(
         strcpy(g_setup_ini, SDMC "SETUP.INI");
     else
     strcpy(g_setup_ini, SDMC "SETUP.INI");
+    #elif defined (__DC__)
+    strcpy(g_setup_ini, SDMC "SETUP.INI");
     #else
     strcpy(g_setup_ini, "SETUP.INI");
     #endif

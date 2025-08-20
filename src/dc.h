@@ -5,6 +5,7 @@
 #include <dc/sd.h>
 #include <kos/blockdev.h>
 #include <dc/maple.h>
+#include <dc/maple/vmu.h>
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -27,6 +28,6 @@ void init_dc();
 #define printf dcprintf
 
 #define ROMFS "/rd/"
-#define SDMC "/sd/dc/Raptor/"
-#define SDMC2 ""
+#define SDMC "/vmu/a1/"
+#define SDMC2 "/sd/dc/Raptor/"
 #endif

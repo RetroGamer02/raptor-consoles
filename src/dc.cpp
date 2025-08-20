@@ -31,6 +31,7 @@ void dcprintf(const char* fmt, ...)
 void init_dc()
 {
     //kos_init_all();
+    maple_init();
     vid_set_mode(DM_640x480, PM_RGB555);
     if(sd_init()) {
         printf("Could not initialize the SD card. Please make sure that you have an SD card adapter plugged in and an SD card inserted.\n");
