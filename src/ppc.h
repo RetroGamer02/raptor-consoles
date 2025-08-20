@@ -150,8 +150,8 @@ private:
 #ifdef __GCN__
 #define SDMC "sd:/"
 #define HDFS "fat:/"
-#define RAP_SD_DIR SDMC "gcn/Raptor/"
-#define RAP_HD_DIR HDFS "gcn/Raptor/"
+#define RAP_SD_DIR SDMC "apps/Raptor/"
+#define RAP_HD_DIR HDFS "apps/Raptor/"
 #elif __WII__
 #define SDMC "sd:/"
 #define HDFS "fat:/"

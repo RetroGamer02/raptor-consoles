@@ -117,13 +117,6 @@ void * GC_Initialise() {
 }
 #endif
 
-/*#ifdef __WIIU__
-static void drawString(int buffer, int row, int col, const char *msg) {
-    // OSScreenPrintFontEx prints a string at a grid position (row, col)
-    OSScreenPutFontEx(buffer, col, row, msg);
-}
-#endif*/
-
 //Init the target system
 void sys_init()
 {

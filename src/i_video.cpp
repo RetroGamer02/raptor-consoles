@@ -568,8 +568,7 @@ void I_GetEvent(void)
 		kDownOld = kDown;
 		//kHeldOld = kHeld;
 		kUpOld = kUp;
-    //#elif __WIIU__
-    //Todo: Implement WiiU controller input handling
+
     #elif __WII__
         // Call WPAD_ScanPads each loop, this reads the latest controller states
 		WPAD_ScanPads();
