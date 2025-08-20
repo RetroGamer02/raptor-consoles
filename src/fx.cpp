@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -30,6 +30,8 @@ static int fx_init = 0;
 #ifdef __NDS__
 int fx_freq = 6800;
 #elif __3DS__
+int fx_freq = 22050;
+#elif __DC__
 int fx_freq = 22050;
 #else
 int fx_freq = 44100;
@@ -133,7 +135,7 @@ int SND_InitSound(void)
     fx_device = FXDEV_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #if defined (__NDS__) || defined (__3DS__)
+    #if defined (__NDS__) || defined (__3DS__) || defined (__DC__)
     music_card = CARD_BLASTER;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", CARD_NONE);
@@ -164,7 +166,7 @@ int SND_InitSound(void)
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    #if defined (__NDS__) || defined (__3DS__)
+    #if defined (__NDS__) || defined (__3DS__) || defined (__DC__)
     fx_card = 5;
     fx_chans = 2;
     #else

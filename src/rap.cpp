@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -1277,6 +1277,8 @@ main(
     init_nds();
     #elif __3DS__
     init_ctr();
+    #elif __DC__
+    init_dc();
     #endif
 
     InitScreen();
@@ -1296,7 +1298,7 @@ main(
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", "** You must run SETUP first! **", NULL);
         #endif
-        exit(0);
+        //exit(0);
         #endif
     }
 
@@ -1331,7 +1333,7 @@ main(
     
     cur_diff = 0;
 
-    #ifdef __ARM__
+    #if defined (__ARM__) || defined (__DC__)
     if (!access(ROMFS "FILE0001.GLB", 0))
         gameflag[0] = 1;
     
@@ -1377,15 +1379,15 @@ main(
             numfiles++;
     }
 
-    #ifdef __ARM__
-    if (access(ROMFS "FILE0000.GLB", 0) || !numfiles)
+    #if defined (__ARM__) || defined (__DC__)
+    if (!access(ROMFS "FILE0000.GLB", 0) && !numfiles)
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
         #ifndef SDL12
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
             "Raptor", "All game data files NOT FOUND cannot proceed !!", NULL);
         #endif
-        exit(0);
+        //exit(0);
     }
     #else
     if (access("FILE0000.GLB", 0) || !numfiles)
@@ -1445,11 +1447,11 @@ main(
 
     // ================================================
 
-    if (access(RAP_SetupFilename(), 0))
+    /*if (access(RAP_SetupFilename(), 0))
         EXIT_Error("You Must run SETUP.EXE First !!");
 
     if (!INI_InitPreference(RAP_SetupFilename()))
-        EXIT_Error("SETUP Error");
+        EXIT_Error("SETUP Error");*/
 
     fflush(stdout);
     KBD_Install();

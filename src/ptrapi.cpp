@@ -1,4 +1,4 @@
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -396,24 +396,28 @@ PTR_DrawCursor(
     int flag               // INPUT: TRUE/FALSE
 )
 {
-    if (ptractive)
-    {
-        if (!flag && ptrerase == 1)
-        {
-            if (ptrclip)
-                PTR_ClipErase();
-            else
-                PTR_Erase();
-            ptrerase = 0;
-        }
-        
-        if (flag == 1)
-            ptrupdate = 1;
-        
-        g_drawcursor = flag;
-    }
-    else
+    #ifdef __DC__
         g_drawcursor = 0;
+    #else
+        if (ptractive)
+        {
+            if (!flag && ptrerase == 1)
+            {
+                if (ptrclip)
+                    PTR_ClipErase();
+                else
+                    PTR_Erase();
+                ptrerase = 0;
+            }
+            
+            if (flag == 1)
+                ptrupdate = 1;
+            
+            g_drawcursor = flag;
+        }
+        else
+            g_drawcursor = 0;
+    #endif
 }
 
 /***************************************************************************

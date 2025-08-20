@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -29,6 +29,11 @@
 #include <nds.h>
 #elif __3DS__
 #include <3ds.h>
+#elif __DC__
+#include <kos.h>
+#include <dc/maple.h>
+#include <dc/maple/controller.h>
+#include <stdio.h>
 #else
 #include "SDL_opengl.h"
 #endif
@@ -121,6 +126,9 @@ int video_display = 0;
 #if defined (__NDS__) || defined (__3DS__)
 int window_width = 320;
 int window_height = 200;
+#elif defined (__DC__)
+int window_width = 320;
+int window_height = 220;
 #else
 int window_width = 800;
 int window_height = 600;
@@ -222,6 +230,10 @@ void VIDEO_LoadPrefs(void)
 {
 	#if defined (__NDS__) || defined (__3DS__)
 	fullscreen = 1;
+	aspect_ratio_correct = 0;
+	txt_fullscreen = 0;
+    #elif defined (__DC__)
+    fullscreen = 1;
 	aspect_ratio_correct = 0;
 	txt_fullscreen = 0;
 	#else
@@ -639,6 +651,79 @@ void I_GetEvent(void)
     IPT_GetButtons();
 
     MUS_Poll();
+    #elif __DC__
+        maple_device_t *dev;
+        cont_state_t *state;
+
+        dev = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
+
+        if(dev) {
+            state = (cont_state_t *)maple_dev_status(dev);
+
+            int LPressed = (state->ltrig > 128) ? 1 : 0;
+            int RPressed = (state->rtrig > 128) ? 1 : 0;
+
+            if (state) {
+                // Check digital buttons
+                if(state->buttons & CONT_START)
+                    Start = 1;
+                else
+                    Start = 0;
+
+                if(state->buttons & CONT_A)
+                    AButton = 1;
+                else
+                    AButton = 0;
+
+                if(state->buttons & CONT_X)
+                    BButton = 1;
+                else
+                    BButton = 0;
+
+                if(state->buttons & CONT_B)
+                    XButton = 1;
+                else
+                    XButton = 0;
+
+                if(state->buttons & CONT_Y)
+                    YButton = 1;
+                else
+                    YButton = 0;
+
+                if(state->buttons & CONT_DPAD_UP)
+                    Up = 1;
+                else
+                    Up = 0;
+
+                if(state->buttons & CONT_DPAD_DOWN)
+                    Down = 1;
+                else
+                    Down = 0;
+
+                if(state->buttons & CONT_DPAD_LEFT)
+                    Left = 1;
+                else
+                    Left = 0;
+
+                if(state->buttons & CONT_DPAD_RIGHT)
+                    Right = 1;
+                else
+                    Right = 0;
+
+                if (LPressed)
+                    LeftShoulder = 1;
+                else
+                    LeftShoulder = 0;
+
+                if (RPressed)
+                    RightShoulder = 1;
+                else
+                    RightShoulder = 0;
+
+                StickX = state->joyx;
+                StickY = state->joyy;
+            }
+        }
     #else
     extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
     extern void I_HandleMouseEvent(SDL_Event *sdlevent);
@@ -1669,7 +1754,7 @@ void I_InitGraphics(uint8_t *pal)
     if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
         fprintf(stderr,
                 "Couldn't initialize SDL: %s\n", SDL_GetError());
-        exit(1);
+        //exit(1);
     }
 
     /* Clean up on exit */

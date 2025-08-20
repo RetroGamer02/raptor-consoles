@@ -115,7 +115,7 @@ FILE *GLB_FindFile(int a1, int a2, const char *mode)
         h = fopen(buffer, mode);
         if (h == NULL)
         {
-            #if defined (__NDS__) || defined (__3DS__)
+            #if defined (__NDS__) || defined (__3DS__) || defined (__DC__)
             sprintf(buffer, "%s%s%04u.GLB", ROMFS, prefix, a2);
             h = fopen(buffer, mode);
             if (h == NULL)
@@ -226,7 +226,7 @@ void GLB_LoadIDT(filedesc_t *a1)
 
 void GLB_UseVM(void)
 {
-	#ifdef __ARM__
+	#if defined (__ARM__) || defined (__DC__)
 	fVmem = 0;
 	#else
     fVmem = 1;

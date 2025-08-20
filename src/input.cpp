@@ -1,4 +1,4 @@
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -540,7 +540,8 @@ IPT_LoadPrefs(
     void
 )
 {
-	#if defined (__NDS__) || defined (__3DS__)
+	#if defined (__NDS__) || defined (__3DS__) || defined (__DC__)
+
 	opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
     control = 2;
     haptic = 0;

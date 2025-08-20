@@ -1,4 +1,4 @@
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -447,9 +447,11 @@ MUS_Init(
             music_device = &mus_device_core;
             #endif // __APPLE__
         }
+        #ifndef __DC__
         else
         music_device = &mus_device_tsf;
         break;
+        #endif
     }
 
     if (music_device && music_device->Init)

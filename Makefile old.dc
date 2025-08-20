@@ -1,0 +1,95 @@
+TARGET = Raptor.elf
+
+CFLAGS += -O2 -D__DC__ -DSDL12
+CPPFLAGS += -O2 -D__DC__ -DSDL12
+CXXFLAGS += -O2 -D__DC__ -DSDL12
+
+# Source and include directories
+SRC_DIRS := src
+INC_DIRS := src include/textscreen/include include/TimGM6mb include/TinySoundFont
+
+# Find all source files in the SRC_DIRS
+SRC_FILES := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c $(dir)/*.cc $(dir)/*.cpp $(dir)/*.m $(dir)/*.mm $(dir)/*.s $(dir)/*.S))
+
+# Convert sources to object files
+OBJS := $(patsubst %.c,%.o,$(patsubst %.cc,%.o,$(patsubst %.cpp,%.o,$(patsubst %.m,%.o,$(patsubst %.mm,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES))))))))
+
+KOS_ROMDISK_DIR = romfs
+
+# Add include flags
+CPPFLAGS += $(foreach dir,$(INC_DIRS),-I$(dir))
+
+all: rm-elf $(TARGET)
+
+# --- Default KallistiOS build rules remain unchanged ---
+# (kept your existing %.o build rules, subdir rules, romdisk rules, etc.)
+
+ifndef KOS_DEPDIR
+
+%.o: %.c
+	$(KOS_BASE)/utils/build_wrappers/kos-cc $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+%.o: %.cc
+	$(KOS_BASE)/utils/build_wrappers/kos-c++ $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+
+%.o: %.cpp
+	$(KOS_BASE)/utils/build_wrappers/kos-c++ $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+
+%.o: %.m
+	$(KOS_BASE)/utils/build_wrappers/kos-cc $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+%.o: %.mm
+	$(KOS_BASE)/utils/build_wrappers/kos-c++ $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+
+
+else
+
+%.o: %.c
+	$(KOS_BASE)/utils/build_wrappers/kos-cc -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS) -MD -MF $(KOS_DEPDIR)/$(patsubst %.c,%.md,$(subst /,__,$(subst ..,,$<)))
+
+%.o: %.cc
+	$(KOS_BASE)/utils/build_wrappers/kos-c++ -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS) -MD -MF $(KOS_DEPDIR)/$(patsubst %.cc,%.md,$(subst /,__,$(subst ..,,$<)))
+
+%.o: %.cpp
+	$(KOS_BASE)/utils/build_wrappers/kos-c++ -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS) -MD -MF $(KOS_DEPDIR)/$(patsubst %.cpp,%.md,$(subst /,__,$(subst ..,,$<)))
+
+%.o: %.m
+	$(KOS_BASE)/utils/build_wrappers/kos-cc -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS) -MD -MF $(KOS_DEPDIR)/$(patsubst %.m,%.md,$(subst /,__,$(subst ..,,$<)))
+
+%.o: %.mm
+	$(KOS_BASE)/utils/build_wrappers/kos-c++ -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS) -MD -MF $(KOS_DEPDIR)/$(patsubst %.mm,%.md,$(subst /,__,$(subst ..,,$<)))
+
+-include $(wildcard $(KOS_DEPDIR)/*.md)
+
+endif
+
+%.o: %.s
+	/opt/toolchains/dc/kos/utils/build_wrappers/kos-as $< -o $@
+
+%.o: %.S
+	/opt/toolchains/dc/kos/utils/build_wrappers/kos-cc -c $< -o $@
+
+%.bin: %.elf
+	/opt/toolchains/dc/kos/utils/build_wrappers/kos-objcopy -O binary $< $@
+
+# --- End rules ---
+
+clean:
+	-rm -f $(OBJS) $(TARGET)
+
+rm-elf:
+	-rm -f $(TARGET)
+
+$(TARGET): $(OBJS)
+	/opt/toolchains/dc/kos/utils/build_wrappers/kos-c++ -o $(TARGET) $(OBJS) -lSDL -lkosfat
+
+stages:
+	$(KOS_GENROMFS) -f stage1.img -d stage1 -v
+	$(KOS_GENROMFS) -f stage2.img -d stage1 -v
+
+run: $(TARGET)
+	$(KOS_LOADER) $(TARGET)
+
+dist: $(TARGET)
+	-rm -f $(OBJS)
+	$(KOS_STRIP) $(TARGET)

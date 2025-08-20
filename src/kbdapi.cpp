@@ -1,6 +1,6 @@
 #include <string.h>
 #include <ctype.h>
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"

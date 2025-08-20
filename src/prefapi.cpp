@@ -220,7 +220,7 @@ static int INI_SaveFile(const char *section, const char *key, const char *value,
         #ifdef _MSC_VER
         _chsize(fileno(vs), ftell(vs));
         #endif
-        #ifdef __GNUC__
+        #if defined (__GNUC__) && !defined (__DC__)
         ftruncate(fileno(vs), ftell(vs));
         #endif
 

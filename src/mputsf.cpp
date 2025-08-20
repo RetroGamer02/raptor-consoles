@@ -1,9 +1,10 @@
+#ifndef __DC__
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#ifdef __3DS__
+#if defined (__3DS__)// || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -233,3 +234,4 @@ musdevice_t mus_device_tsf = {
     ProgramEvent,
     AllNotesOffEvent,
 };
+#endif

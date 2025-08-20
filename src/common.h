@@ -5,12 +5,16 @@
 #include "ds.h"
 #elif __3DS__
 #include "ctr.h"
+#elif __DC__
+#include "dc.h"
 #endif
 
-static inline void EXIT_Error(const char *a1, ...)
+#define EXIT_Error printf
+
+/*static inline void EXIT_Error(const char *a1, ...)
 {
      exit(0);
-}
+}*/
 
 static inline void EXIT_Clean(void)
 {

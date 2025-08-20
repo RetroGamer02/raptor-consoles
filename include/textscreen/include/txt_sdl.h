@@ -21,7 +21,7 @@
 // The textscreen API itself doesn't need SDL; however, SDL needs its
 // headers included where main() is defined.
 
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"

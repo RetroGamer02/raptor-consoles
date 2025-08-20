@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdint.h>
-#ifdef __3DS__
+#if defined (__3DS__) || defined (__DC__)
 #include "SDL/SDL.h"
 #else
 #include "SDL.h"
@@ -34,7 +34,11 @@ int update_start;
 
 void (*framehook)(void (*call)(void));
 
+#ifdef __DC__
+static int timer_init_dc = 0;
+#else
 static int timer_init = 0;
+#endif
 
 int retraceflag = 1;
 int fontspacing = 1;
@@ -54,7 +58,11 @@ void GFX_InitTimer(void)
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 #endif
     SDL_Init(SDL_INIT_TIMER);
+    #ifdef __DC__
+    timer_init_dc = 1;
+    #else
     timer_init = 1;
+    #endif
 }
 
 #define GFX_RATE 70
@@ -67,8 +75,13 @@ GFX_UpdateTimer(
     void
 )
 {
+    #ifdef __DC__
+    if (!timer_init_dc)
+        return;
+    #else
     if (!timer_init)
         return;
+    #endif
     
     static int last;
     static int accm;
