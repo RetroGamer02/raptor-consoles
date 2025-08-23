@@ -34,7 +34,7 @@ LDFLAGS		:=	-g $(MACHDEP) $(RPXSPECS) -Wl,-Map,$(notdir $*.map)
 #---------------------------------------------------------------------------------
 # Wii U libraries (adjust as needed for your project)
 #---------------------------------------------------------------------------------
-LIBS	:= -lSDL2 -lwut -lm
+LIBS	:= -lSDL2 -lSDL2main -lwut -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

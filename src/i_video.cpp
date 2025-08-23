@@ -120,8 +120,8 @@ int window_height = 480;
 int window_width = 640;
 int window_height = 480;
 #elif __WIIU__
-int window_width = 960;
-int window_height = 720;
+int window_width = 640;//960;
+int window_height = 480;//720;
 #else
 int window_width = 800;
 int window_height = 600;
@@ -450,6 +450,21 @@ static void I_ToggleFullScreen(void)
 }
 #endif
 
+#ifdef __WII__
+// Map raw stick to –1…1, dead-zone compensated
+static float ReadNormalized(float raw, float maxRaw, float deadZone) {
+    // raw: –maxRaw…+maxRaw, deadZone: 0…1 (fraction of maxRaw)
+    float norm  = raw / maxRaw;
+    float absn  = fabsf(norm);
+
+    if (absn < deadZone) return 0;
+
+    // scale [deadZone…1] → [0…1]
+    float mapped = (absn - deadZone) / (1.0f - deadZone);
+    return copysignf(mapped, norm);
+}
+#endif
+
 void I_GetEvent(void)
 {
     #ifdef SDL12
@@ -568,7 +583,52 @@ void I_GetEvent(void)
 		kDownOld = kDown;
 		//kHeldOld = kHeld;
 		kUpOld = kUp;
+    #elif __WIIU__
+        VPADInit();
 
+        VPADStatus vpad_data;
+        VPADReadError vpad_error;
+
+        // Read data from GamePad (controller 0)
+        // Read data from GamePad (channel 0)
+        int32_t read_count = VPADRead(VPAD_CHAN_0, &vpad_data, 1, &vpad_error);
+
+        if (read_count > 0 && vpad_error == VPAD_READ_SUCCESS) {
+            // Check buttons
+            /*if (vpad_data.hold & VPAD_BUTTON_A) {
+                // A button held
+            }*/
+
+            if (vpad_data.trigger & VPAD_BUTTON_PLUS) Start = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_MINUS) Back = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_A) BButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_B) YButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_X) AButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_Y) XButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_UP) Up = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_DOWN) Down = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_LEFT) Left = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_RIGHT) Right = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_L) LeftShoulder = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_R) RightShoulder = 1;
+
+            if (vpad_data.release & VPAD_BUTTON_PLUS) Start = 0;
+            if (vpad_data.release & VPAD_BUTTON_MINUS) Back = 0;
+            if (vpad_data.release & VPAD_BUTTON_A) BButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_B) YButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_X) AButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_Y) XButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_UP) Up = 0;
+            if (vpad_data.release & VPAD_BUTTON_DOWN) Down = 0;
+            if (vpad_data.release & VPAD_BUTTON_LEFT) Left = 0;
+            if (vpad_data.release & VPAD_BUTTON_RIGHT) Right = 0;
+            if (vpad_data.release & VPAD_BUTTON_L) LeftShoulder = 0;
+            if (vpad_data.release & VPAD_BUTTON_R) RightShoulder = 0;
+
+            StickX = vpad_data.leftStick.x;
+            StickY = vpad_data.leftStick.y *-1;
+        }
+        
     #elif __WII__
         // Call WPAD_ScanPads each loop, this reads the latest controller states
 		WPAD_ScanPads();
@@ -586,28 +646,102 @@ void I_GetEvent(void)
         //s8 cgCStickX = PAD_SubStickX(0); // C-stick X
         //s8 cgCStickY = PAD_SubStickY(0); // C-stick Y
 
-        //Wii Inputs
-        if ( kDown & WPAD_BUTTON_PLUS) Start = 1;
-        if ( kDown & WPAD_BUTTON_MINUS) Back = 1;
-        if ( kDown & WPAD_BUTTON_A ) XButton = 1;
-        if ( kDown & WPAD_BUTTON_B ) YButton = 1;
-        if ( kDown & WPAD_BUTTON_1 ) BButton = 1;
-        if ( kDown & WPAD_BUTTON_2 ) AButton = 1;
-        if ( kDown & WPAD_BUTTON_UP ) Left = 1;
-        if ( kDown & WPAD_BUTTON_DOWN ) Right = 1;
-        if ( kDown & WPAD_BUTTON_LEFT ) Down = 1;
-        if ( kDown & WPAD_BUTTON_RIGHT) Up = 1;
+        WPADData *wd = WPAD_Data(0);
 
-        if ( kUp & WPAD_BUTTON_PLUS) Start = 0;
-        if ( kUp & WPAD_BUTTON_MINUS) Back = 0;
-        if ( kUp & WPAD_BUTTON_A ) XButton = 0;
-        if ( kUp & WPAD_BUTTON_B ) YButton = 0;
-        if ( kUp & WPAD_BUTTON_1 ) BButton = 0;
-        if ( kUp & WPAD_BUTTON_2 ) AButton = 0;
-        if ( kUp & WPAD_BUTTON_UP ) Left = 0;
-        if ( kUp & WPAD_BUTTON_DOWN ) Right = 0;
-        if ( kUp & WPAD_BUTTON_LEFT ) Down = 0;
-        if ( kUp & WPAD_BUTTON_RIGHT) Up = 0;
+        expansion_t *exp = &wd->exp;
+
+        u32 kDownNC = exp->nunchuk.btns;
+        u32 kUpNC = exp->nunchuk.btns_released;
+
+        u32 kDownCC = exp->classic.btns;      // buttons held down
+        u32 kUpCC = exp->classic.btns_released; // use btns / btns_held / btns_released if needed
+
+        //Wiimote Expansion inputs)
+        if (wd->exp.type == WPAD_EXP_NUNCHUK) {
+            expansion_t *exp = &wd->exp;
+
+            // Wiimote + Nunchuk buttons
+            if ( kDown & WPAD_BUTTON_PLUS) Start = 1;
+            if ( kDown & WPAD_BUTTON_MINUS) Back = 1;
+            if ( kDown & WPAD_BUTTON_A ) BButton = 1;
+            if ( kDown & WPAD_BUTTON_B ) AButton = 1;
+            if ( kDown & WPAD_BUTTON_1 ) YButton = 1;
+            if ( kDown & WPAD_BUTTON_2 ) XButton = 1;
+            if ( kDown & WPAD_BUTTON_UP ) Up = 1;
+            if ( kDown & WPAD_BUTTON_DOWN ) Down = 1;
+            if ( kDown & WPAD_BUTTON_LEFT ) Left = 1;
+            if ( kDown & WPAD_BUTTON_RIGHT) Right = 1;
+
+            if ( kUp & WPAD_BUTTON_PLUS) Start = 0;
+            if ( kUp & WPAD_BUTTON_MINUS) Back = 0;
+            if ( kUp & WPAD_BUTTON_A ) BButton = 0;
+            if ( kUp & WPAD_BUTTON_B ) AButton = 0;
+            if ( kUp & WPAD_BUTTON_1 ) YButton = 0;
+            if ( kUp & WPAD_BUTTON_2 ) XButton = 0;
+            if ( kUp & WPAD_BUTTON_UP ) Up = 0;
+            if ( kUp & WPAD_BUTTON_DOWN ) Down = 0;
+            if ( kUp & WPAD_BUTTON_LEFT ) Left = 0;
+            if ( kUp & WPAD_BUTTON_RIGHT) Right = 0;
+
+            if (kDownNC & NUNCHUK_BUTTON_C) RightShoulder = 1;
+            if (kDownNC & NUNCHUK_BUTTON_Z) LeftShoulder = 1;
+
+            if (kUpNC & NUNCHUK_BUTTON_C) RightShoulder = 0;
+            if (kUpNC & NUNCHUK_BUTTON_Z) LeftShoulder = 0;
+
+        } else if (wd->exp.type == WPAD_EXP_CLASSIC) {
+
+            // Map Classic buttons -> your game actions
+            if (kDownCC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_MINUS) Back = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_A)     AButton = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_B)     BButton = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_X)     XButton = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_Y)     YButton = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_UP)    Up = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_DOWN)  Down = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_LEFT)  Left = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_RIGHT) Right = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_FULL_L) LeftShoulder = 1;
+            if (kDownCC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 1;
+
+            if (kUpCC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_MINUS) Back = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_A)     AButton = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_B)     BButton = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_X)     XButton = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_Y)     YButton = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_UP)    Up = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_DOWN)  Down = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_LEFT)  Left = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_RIGHT) Right = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_FULL_L) LeftShoulder = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 0;
+
+        } else {
+            //Wiimote Inputs
+            if ( kDown & WPAD_BUTTON_PLUS) Start = 1;
+            if ( kDown & WPAD_BUTTON_MINUS) Back = 1;
+            if ( kDown & WPAD_BUTTON_A ) XButton = 1;
+            if ( kDown & WPAD_BUTTON_B ) YButton = 1;
+            if ( kDown & WPAD_BUTTON_1 ) BButton = 1;
+            if ( kDown & WPAD_BUTTON_2 ) AButton = 1;
+            if ( kDown & WPAD_BUTTON_UP ) Left = 1;
+            if ( kDown & WPAD_BUTTON_DOWN ) Right = 1;
+            if ( kDown & WPAD_BUTTON_LEFT ) Down = 1;
+            if ( kDown & WPAD_BUTTON_RIGHT) Up = 1;
+
+            if ( kUp & WPAD_BUTTON_PLUS) Start = 0;
+            if ( kUp & WPAD_BUTTON_MINUS) Back = 0;
+            if ( kUp & WPAD_BUTTON_A ) XButton = 0;
+            if ( kUp & WPAD_BUTTON_B ) YButton = 0;
+            if ( kUp & WPAD_BUTTON_1 ) BButton = 0;
+            if ( kUp & WPAD_BUTTON_2 ) AButton = 0;
+            if ( kUp & WPAD_BUTTON_UP ) Left = 0;
+            if ( kUp & WPAD_BUTTON_DOWN ) Right = 0;
+            if ( kUp & WPAD_BUTTON_LEFT ) Down = 0;
+            if ( kUp & WPAD_BUTTON_RIGHT) Up = 0;
+        }
 
         //GC Inputs
         if ( kDownGC & PAD_BUTTON_START) Start = 1;
@@ -636,18 +770,61 @@ void I_GetEvent(void)
         if ( kUpGC & PAD_TRIGGER_L) LeftShoulder = 0;
         if ( kUpGC & PAD_TRIGGER_R) RightShoulder = 0;
 
-        if (gcStickX >= 15 || gcStickX <= -15)
-        {
-            StickX = gcStickX / 20;
-        } else {
-            StickX = 0;
+        //Combined Stick Input (Wiimote Nunchuk or Classic Controller, else GC)
+        // 2) Read raw axes
+        float rawGC_X = PAD_StickX(0);                    // –128…+127
+        float rawGC_Y = PAD_StickY(0);
+
+        float rawNC_X = (wd->exp.type==WPAD_EXP_NUNCHUK)
+                    ? (float)wd->exp.nunchuk.js.pos.x - 128.0f  // convert 0…255 → –128…+127
+                    : 0.0f;
+        float rawNC_Y = (wd->exp.type==WPAD_EXP_NUNCHUK)
+                    ? (float)wd->exp.nunchuk.js.pos.y - 128.0f
+                    : 0.0f;
+
+        float rawCC_X = (wd->exp.type==WPAD_EXP_CLASSIC)
+                    ? (float)wd->exp.classic.ljs.pos.x - 31.5f           // –63…+63
+                    : 0.0f;
+        float rawCC_Y = (wd->exp.type==WPAD_EXP_CLASSIC)
+                    ? (float)wd->exp.classic.ljs.pos.y - 31.5f
+                    : 0.0f;
+
+        // 3) Normalize each with its dead-zone
+        // Dead-zones as fraction of full-range
+        const float gcDZ = 12.0f/127.0f;
+        const float ncDZ = 15.0f/127.0f;
+        const float ccDZ =  8.0f/ 63.0f;
+
+        float nx = ReadNormalized(rawGC_X, 127.0f, gcDZ);
+        float ny = ReadNormalized(rawGC_Y, 127.0f, gcDZ);
+
+        if (wd->exp.type==WPAD_EXP_NUNCHUK) {
+            nx += ReadNormalized(rawNC_X, 127.0f, ncDZ);
+            ny += ReadNormalized(rawNC_Y, 127.0f, ncDZ);
         }
-        if (gcStickY >= 15 || gcStickY <= -15)
-        {
-            StickY = gcStickY / 20 *-1;
-        } else {
-            StickY = 0;
+
+        if (wd->exp.type==WPAD_EXP_CLASSIC) {
+            nx += ReadNormalized(rawCC_X,  31.5f, ccDZ);
+            ny += ReadNormalized(rawCC_Y,  31.5f, ccDZ);
         }
+
+        // 4) Average by number of sources
+        // GC always counted; add 1 if Nunchuk, +1 if Classic
+        int count = 1
+                + (wd->exp.type==WPAD_EXP_NUNCHUK ? 1 : 0)
+                + (wd->exp.type==WPAD_EXP_CLASSIC ? 1 : 0);
+
+        nx /= (float)count;
+        ny /= (float)count;
+
+        // 5) Clamp & scale back to –127…+127
+        nx = fmaxf(-1.0f, fminf(1.0f, nx));
+        ny = fmaxf(-1.0f, fminf(1.0f, ny));
+
+        StickX = (s8)(nx * 127.0f);
+        StickY = (s8)(-ny * 127.0f);   // invert Y if your game convention needs it
+
+        // …now StickX/StickY blends all active sticks together…
     
     #elif __GCN__
         // Call WPAD_ScanPads each loop, this reads the latest controller states
@@ -1113,7 +1290,7 @@ void I_FinishUpdate (void)
     // Render this intermediate texture into the upscaled texture
     // using "nearest" integer scaling.
 
-    #if defined (__GCN__) || defined (__WII__)
+    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
     // Finally, render this upscaled texture to screen using linear scaling.
 
     SDL_SetRenderTarget(renderer, NULL);
@@ -1727,7 +1904,11 @@ static void SetVideoMode(void)
 
     // Initially create the upscaled texture for rendering to screen
 
+    #ifdef __WIIU__
+    CreateUpscaledTexture(false);
+    #else
     CreateUpscaledTexture(true);
+    #endif
     #endif
 }
 

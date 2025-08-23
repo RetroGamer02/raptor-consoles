@@ -87,10 +87,12 @@ int checkFile(const char* path, int mode)
     }
 }
 
-#ifdef __GCN__
+#if defined (__GCN__) || defined (__WII__)
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
+#endif
 
+#ifdef __GCN__
 void *GC_Initialise();
 
 void * GC_Initialise() {
@@ -135,6 +137,9 @@ if (!fatInitDefault()) {
 
 	// This function initialises the attached controllers
 	WPAD_Init();
+
+    // Always get buttons, accelerometer & IR by default
+    WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
 
 	// Obtain the preferred video mode from the system
 	// This will correspond to the settings in the Wii menu

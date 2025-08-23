@@ -186,32 +186,15 @@ GLB_FindFile(
 		sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
 		if (handle == NULL)
 		{
-			#if defined (__GCN__) || defined(__WII__) || defined (__WIIU__)
-				sprintf(filename, "%s%s%04u.GLB", RAP_HD_DIR, prefix, filenum);
-				handle = fopen(filename, permissions);
-				if (handle == NULL)
-				{
-					sprintf(filename, "%s%s%04u.GLB", RAP_SD_DIR, prefix, filenum);
-					handle = fopen(filename, permissions);
-					if (handle == NULL)
-					{
-						if (return_on_failure)
-							return NULL;
-						sprintf(filename, "%s%04u.GLB", prefix, filenum);
-						EXIT_Error("GLB_FindFile: %s, Error #%d,%s", filename, errno, strerror(errno));
-					}
-				}
-			#else
-				if ((handle = fopen(filename, permissions)) == NULL)
-				{
-					if (return_on_failure)
-						return NULL;
+			if ((handle = fopen(filename, permissions)) == NULL)
+			{
+				if (return_on_failure)
+					return NULL;
 
-					sprintf(filename, "%s%04u.GLB", prefix, filenum);
-					EXIT_Error("GLB_FindFile: %s, Error #%d,%s",
-						filename, errno, strerror(errno));
-				}
-			#endif
+				sprintf(filename, "%s%04u.GLB", prefix, filenum);
+				EXIT_Error("GLB_FindFile: %s, Error #%d,%s",
+					filename, errno, strerror(errno));
+			}
 		}
 	}
 	

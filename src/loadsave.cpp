@@ -43,13 +43,8 @@ int filepos = -1;
 int map_item = -1;
 int curplr_diff = 2;
 
-#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
-    static const char *fmt = RAP_SD_DIR "CHAR%04u.FIL";
-    static const char* cdfmt = RAP_SD_DIR "%s\\CHAR%04u.FIL";
-#else
-    static const char *fmt = "CHAR%04u.FIL";
-    static const char* cdfmt = "%s\\CHAR%04u.FIL";
-#endif
+//    static const char *fmt = "CHAR%04u.FIL";
+//    static const char* cdfmt = "%s\\CHAR%04u.FIL";
 
 MAZELEVEL *mapmem;
 CSPRITE *csprite;
@@ -135,6 +130,13 @@ RAP_AreSavedFiles(
 {
     char temp[PATH_MAX];
     int loop;
+
+    char fmt[PATH_MAX];
+    strcpy(fmt, gExeDir);
+    strcat(fmt, "CHAR%04u.FIL");
+    char cdfmt[PATH_MAX];
+    strcpy(cdfmt, gExeDir);
+    strcat(cdfmt, "%s\\CHAR%04u.FIL");
     
     for (loop = 0; loop < MAX_SAVE; loop++)
     {
@@ -191,6 +193,13 @@ RAP_FFSaveFile(
     rval = 0;
     
     filepos = -1;
+
+    char fmt[PATH_MAX];
+    strcpy(fmt, gExeDir);
+    strcat(fmt, "CHAR%04u.FIL");
+    char cdfmt[PATH_MAX];
+    strcpy(cdfmt, gExeDir);
+    strcat(cdfmt, "%s\\CHAR%04u.FIL");
     
     for (loop = 0; loop < MAX_SAVE; loop++)
     {
@@ -225,6 +234,13 @@ RAP_IsSaveFile(
     FILE *handle;
     rval = 0;
     
+    char fmt[PATH_MAX];
+    strcpy(fmt, gExeDir);
+    strcat(fmt, "CHAR%04u.FIL");
+    char cdfmt[PATH_MAX];
+    strcpy(cdfmt, gExeDir);
+    strcat(cdfmt, "%s\\CHAR%04u.FIL");
+
     for (loop = 0; loop < MAX_SAVE; loop++)
     {
         if (cdflag)
@@ -270,6 +286,13 @@ RAP_LoadPlayer(
     // == Clear Player =======================
     OBJS_Clear();
     memset(&plr, 0, sizeof(plr));
+
+    char fmt[PATH_MAX];
+    strcpy(fmt, gExeDir);
+    strcat(fmt, "CHAR%04u.FIL");
+    char cdfmt[PATH_MAX];
+    strcpy(cdfmt, gExeDir);
+    strcat(cdfmt, "%s\\CHAR%04u.FIL");
     
     if (cdflag)
         sprintf(filename, cdfmt, cdpath, filepos);
@@ -329,6 +352,13 @@ RAP_SavePlayer(
     OBJ *cur;
 
     rval = 0;
+
+    char fmt[PATH_MAX];
+    strcpy(fmt, gExeDir);
+    strcat(fmt, "CHAR%04u.FIL");
+    char cdfmt[PATH_MAX];
+    strcpy(cdfmt, gExeDir);
+    strcat(cdfmt, "%s\\CHAR%04u.FIL");
     
     if (filepos == -1)
         EXIT_Error("RAP_Save() ERR: Try to Save Invalid Player");
@@ -465,6 +495,13 @@ RAP_LoadWin(
     fndflag = 0;
     rval = 0;
     
+    char fmt[PATH_MAX];
+    strcpy(fmt, gExeDir);
+    strcat(fmt, "CHAR%04u.FIL");
+    char cdfmt[PATH_MAX];
+    strcpy(cdfmt, gExeDir);
+    strcat(cdfmt, "%s\\CHAR%04u.FIL");
+
     memset(filenames, 0, sizeof(filenames));
     for (loop = 0; loop < MAX_SAVE; loop++)
     {
@@ -660,7 +697,10 @@ RAP_InitLoadSave(
     cdflag = 0;
     
     #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
-        strcpy(g_setup_ini, RAP_SD_DIR "SETUP.INI"); //Fixme HDD Loading on GCN and Wii
+        char setupPath[PATH_MAX];
+        strcpy(setupPath, gExeDir);
+        strcat(setupPath, "SETUP.INI");        
+        strcpy(g_setup_ini, setupPath); //Fixme HDD Loading on GCN and Wii
     #else
         strcpy(g_setup_ini, "SETUP.INI");
     #endif

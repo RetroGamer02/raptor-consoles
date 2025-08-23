@@ -1227,6 +1227,34 @@ void RAP_InitMem(
     GLB_UseVM();
 }
 
+char gExeDir[512];
+
+void InitExeDir(int argc, char **argv)
+{
+    // safe copy if argv[0] exists
+    if (argc > 0 && argv && argv[0]) {
+        strncpy(gExeDir, argv[0], sizeof(gExeDir) - 1);
+        gExeDir[sizeof(gExeDir) - 1] = '\0';
+        char *lastSlash = strrchr(gExeDir, '/');
+        if (lastSlash)
+            lastSlash[1] = '\0';   // keep trailing slash
+        else
+            strcpy(gExeDir, "/");  // no slash in name
+    }
+    else {
+#ifdef __WII__
+        // Wii: default to root of first FAT device
+        strcpy(gExeDir, "/");
+#elif __GCN__
+        // GameCube: default to SD Gecko mount point
+        strcpy(gExeDir, "sd:/");
+#elif __WIIU__
+        // WiiU: default to root of first EXT device
+        strcpy(gExeDir, "fs:/vol/external01/");
+#endif
+    }
+}
+
 /***************************************************************************
 main() -
  ***************************************************************************/
@@ -1237,12 +1265,15 @@ int main(
     char *var1, *tptr, *pal;
     int loop, numfiles, ptrflag, item;
 
+    // determine executable directory safely
+    InitExeDir(argc, argv);
+
     var1 = getenv("S_HOST");
 
 #if defined(__PPC__)
     sys_init();
 #endif
-
+    
     InitScreen();
 
     RAP_InitLoadSave();
@@ -1308,11 +1339,20 @@ int main(
 #if defined(__GCN__) || defined(__WII__) || defined(__WIIU__)
     gameflag[0] = 1;
 
-    if (!access(RAP_SD_DIR "FILE0002.GLB", 0) || !access(RAP_HD_DIR "FILE0002.GLB", 0))
+    char rapFILE0002Path[512];
+    strcpy(rapFILE0002Path, gExeDir);
+    strcat(rapFILE0002Path, "FILE0002.GLB");
+    char rapFILE0003Path[512];
+    strcpy(rapFILE0003Path, gExeDir);
+    strcat(rapFILE0003Path, "FILE0003.GLB");
+    char rapFILE0004Path[512];
+    strcpy(rapFILE0004Path, gExeDir);
+    strcat(rapFILE0004Path, "FILE0004.GLB");
+
+    if (!access(rapFILE0002Path, 0))
         gameflag[1] = 1;
 
-    if ((!access(RAP_SD_DIR "FILE0003.GLB", 0) && !access(RAP_SD_DIR "FILE0004.GLB", 0)) ||
-        (!access(RAP_HD_DIR "FILE0003.GLB", 0) && !access(RAP_HD_DIR "FILE0004.GLB", 0)))
+    if (!access(rapFILE0003Path, 0) && !access(rapFILE0004Path, 0))
     {
         gameflag[2] = 1;
         gameflag[3] = 1;
@@ -1446,7 +1486,7 @@ int main(
     }
 
 #if defined(__PPC__)
-    GLB_InitSystem("", 6, 0);
+    GLB_InitSystem(gExeDir, 6, 0);
 #else
     GLB_InitSystem(argv[0], 6, 0);
 #endif
