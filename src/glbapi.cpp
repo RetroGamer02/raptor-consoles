@@ -493,7 +493,6 @@ GLB_InitSystem(
 	num_glbs = innum;
 	ASSERT(num_glbs >= 1 && num_glbs <= MAX_GLB_FILES);
 
-	//#if !defined (__GCN__) && !defined (__WII__) && !defined (__WIIU__)
 	if (iprefix)
 	{
 		ASSERT(strlen(iprefix) < sizeof(prefix) - 1);
@@ -502,7 +501,6 @@ GLB_InitSystem(
 		strupr(prefix);
 	}
 	memset(filedesc, 0, sizeof(filedesc));
-	//#endif
 	
 	/*
 	* Next, read in header of each file and allocate cache

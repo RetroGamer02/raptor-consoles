@@ -48,7 +48,7 @@ IMS_CheckAck(
         rval = 1;
 
     //Fixes a few input issues when using native input api.
-    if (Start || AButton)
+    if (Start || AButton || BButton || XButton || YButton)
         rval = 1;
     
     return rval;

@@ -1310,7 +1310,7 @@ int main(
     else
         godmode = 0;
 
-#ifndef __GCN__
+#if !defined (__GCN__) && !defined(__WII__) && !defined(__WIIU__)
     if (argv[1])
     {
         if (!strcmp(argv[1], "REC"))

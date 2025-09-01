@@ -696,14 +696,14 @@ RAP_InitLoadSave(
     
     cdflag = 0;
     
-    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+    //#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         char setupPath[PATH_MAX];
         strcpy(setupPath, gExeDir);
         strcat(setupPath, "SETUP.INI");        
         strcpy(g_setup_ini, setupPath); //Fixme HDD Loading on GCN and Wii
-    #else
-        strcpy(g_setup_ini, "SETUP.INI");
-    #endif
+    //#else
+    //    strcpy(g_setup_ini, "SETUP.INI");
+    //#endif
     
     return cdpath;
 }

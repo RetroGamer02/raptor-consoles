@@ -13,6 +13,7 @@
 #elif __WII__
 #include <gccore.h>
 #include <wiiuse/wpad.h>
+#include <wupc/wupc.h>
 #include <SDL2/SDL.h>
 #include <fat.h>
 #elif __WIIU__

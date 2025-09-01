@@ -136,7 +136,9 @@ if (!fatInitDefault()) {
 	VIDEO_Init();
 
 	// This function initialises the attached controllers
+    WUPC_Init();
 	WPAD_Init();
+    PAD_Init();
 
     // Always get buttons, accelerometer & IR by default
     WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
@@ -174,7 +176,7 @@ if (!fatInitDefault()) {
 	printf("\x1b[2;0H");
 
 	if (!fatInitDefault()) {
-		printf("fatInitDefault failure: terminating\n");
+		printf("fatInitDefault failure\n");
 	}
 
 #elif __WIIU__

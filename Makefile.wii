@@ -28,18 +28,18 @@ DATA		:=	data
 CFLAGS	= -O2 -Wall -D__PPC__ -D__WII__ $(MACHDEP) $(INCLUDE)
 CXXFLAGS	=	$(CFLAGS)
 
-LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+LDFLAGS	=	-g $(MACHDEP) -Wl,--wrap=wiiuse_register,-Map,$(notdir $@).map
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lSDL2 -lSDL2main -lopengx -lwiikeyboard -lwiiuse -laesnd -lbte -lfat -logc -lm
+LIBS	:=	-lSDL2 -lSDL2main -lopengx -lwiikeyboard -lwiiuse -lwupc -laesnd -lbte -lfat -logc -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS)
+LIBDIRS	:= $(PORTLIBS) $(CURDIR)/libwupc
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
