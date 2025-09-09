@@ -37,6 +37,15 @@
 #include "i_lastscr.h"
 #include "fileids.h"
 
+#ifdef __WIIU__
+#include <coreinit/screen.h>
+#include <coreinit/exit.h>
+#include <sysapp/launch.h>
+
+//#include <gx2/init.h>
+//#include <nn/socket.h>
+#endif
+
 #if defined(_WIN32)
 #include <io.h>
 #endif // _WIN32
@@ -203,7 +212,7 @@ void InitScreen(
     printf(" RAPTOR-Gamecube: V1.0.0 by RetroGamer02\n");
 #elif __WII__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
-    printf(" RAPTOR-Wii: V1.0.0 by RetroGamer02\n");
+    printf(" RAPTOR-Wii: V1.0.1 by RetroGamer02\n");
 #elif __WIIU__
     printf(" RAPTOR: Call Of The Shadows V1.2                        (c)1994 Cygnus Studios\n");
     printf(" RAPTOR-WiiU: V1.0.0 by RetroGamer02\n");
@@ -219,7 +228,7 @@ void ShutDown(
     int errcode)
 {
     char *mem;
-
+    
     if (!errcode && !godmode)
         WIN_Order();
 
@@ -234,14 +243,35 @@ void ShutDown(
     else
         mem = GLB_GetItem(FILE001_LASTSCR1_TXT); // Get ANSI Screen Shareware from GLB to char*
 
-    closewindow();  // Close Main Window
+    #ifdef __WIIU__
     I_LASTSCR(mem); // Call to display ANSI Screen
+    SDL_Quit();
     GLB_FreeAll();
     IPT_CloJoy(); // Close Joystick
     SWD_End();    // Broken on real Xbox hardware
     SDL_Quit();
 
     free(g_highmem);
+
+    WHBUnmountSdCard();
+	//WHBProcInit();
+	//WHBProcShutdown();
+
+    SYSLaunchMenu();
+    #else
+    closewindow();  // Close Main Window
+    I_LASTSCR(mem); // Call to display ANSI Screen
+    GLB_FreeAll();
+    IPT_CloJoy(); // Close Joystick
+    #ifdef __WII__
+    WUPC_Shutdown();
+    WPAD_Shutdown();
+    #endif
+    SWD_End();    // Broken on real Xbox hardware
+    SDL_Quit();
+
+    free(g_highmem);
+    #endif
 }
 
 /***************************************************************************
@@ -1278,17 +1308,7 @@ int main(
 
     RAP_InitLoadSave();
 
-#ifdef __GCN__
-    if (access(RAP_SetupFilename(), 0))
-    {
-        printf("\n\n** You must run SETUP first! **\n");
-    }
-#elif __WII__
-    if (access(RAP_SetupFilename(), 0))
-    {
-        printf("\n\n** You must run SETUP first! **\n");
-    }
-#elif __WIIU__
+#if defined (__GCN__) || defined(__WII__) || defined(__WIIU__)
     if (access(RAP_SetupFilename(), 0))
     {
         printf("\n\n** You must run SETUP first! **\n");

@@ -594,17 +594,12 @@ void I_GetEvent(void)
         int32_t read_count = VPADRead(VPAD_CHAN_0, &vpad_data, 1, &vpad_error);
 
         if (read_count > 0 && vpad_error == VPAD_READ_SUCCESS) {
-            // Check buttons
-            /*if (vpad_data.hold & VPAD_BUTTON_A) {
-                // A button held
-            }*/
-
             if (vpad_data.trigger & VPAD_BUTTON_PLUS) Start = 1;
             if (vpad_data.trigger & VPAD_BUTTON_MINUS) Back = 1;
-            if (vpad_data.trigger & VPAD_BUTTON_A) BButton = 1;
-            if (vpad_data.trigger & VPAD_BUTTON_B) YButton = 1;
-            if (vpad_data.trigger & VPAD_BUTTON_X) AButton = 1;
-            if (vpad_data.trigger & VPAD_BUTTON_Y) XButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_A) AButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_B) BButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_X) XButton = 1;
+            if (vpad_data.trigger & VPAD_BUTTON_Y) YButton = 1;
             if (vpad_data.trigger & VPAD_BUTTON_UP) Up = 1;
             if (vpad_data.trigger & VPAD_BUTTON_DOWN) Down = 1;
             if (vpad_data.trigger & VPAD_BUTTON_LEFT) Left = 1;
@@ -614,10 +609,10 @@ void I_GetEvent(void)
 
             if (vpad_data.release & VPAD_BUTTON_PLUS) Start = 0;
             if (vpad_data.release & VPAD_BUTTON_MINUS) Back = 0;
-            if (vpad_data.release & VPAD_BUTTON_A) BButton = 0;
-            if (vpad_data.release & VPAD_BUTTON_B) YButton = 0;
-            if (vpad_data.release & VPAD_BUTTON_X) AButton = 0;
-            if (vpad_data.release & VPAD_BUTTON_Y) XButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_A) AButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_B) BButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_X) XButton = 0;
+            if (vpad_data.release & VPAD_BUTTON_Y) YButton = 0;
             if (vpad_data.release & VPAD_BUTTON_UP) Up = 0;
             if (vpad_data.release & VPAD_BUTTON_DOWN) Down = 0;
             if (vpad_data.release & VPAD_BUTTON_LEFT) Left = 0;
@@ -642,31 +637,24 @@ void I_GetEvent(void)
         u32 kUp = WPAD_ButtonsUp(0);
         u32 kDownGC = PAD_ButtonsDown(0);
         u32 kUpGC = PAD_ButtonsUp(0);
-        // Get analog stick values
-        //s8 gcStickX = PAD_StickX(0);     // left stick X (-128 left, +127 right)
-        //s8 gcStickY = PAD_StickY(0);     // left stick Y (-128 down, +127 up)
-        //s8 cgCStickX = PAD_SubStickX(0); // C-stick X
-        //s8 cgCStickY = PAD_SubStickY(0); // C-stick Y
 
        // WUPCData *upc = WUPC_Data(0);
 
         WPADData *wd = WPAD_Data(0);
 
-        expansion_t *exp = &wd->exp;
+        //expansion_t *exp = &wd->exp;
 
         u32 kDownPC = WUPC_ButtonsDown(0);
         u32 kUpPC = WUPC_ButtonsUp(0);
 
-        u32 kDownNC = exp->nunchuk.btns;
-        u32 kUpNC = exp->nunchuk.btns_released;
+        u32 kDownNC = wd->exp.nunchuk.btns;
+        u32 kUpNC = wd->exp.nunchuk.btns_released;
 
-        u32 kDownCC = exp->classic.btns;      // buttons held down
-        u32 kUpCC = exp->classic.btns_released; // use btns / btns_held / btns_released if needed
+        u32 kDownCC = wd->exp.classic.btns;      // buttons held down
+        u32 kUpCC = wd->exp.classic.btns_released; // use btns / btns_held / btns_released if needed
 
         //Wiimote Expansion inputs)
         if (wd->exp.type == WPAD_EXP_NUNCHUK) {
-            expansion_t *exp = &wd->exp;
-
             // Wiimote + Nunchuk buttons
             if ( kDown & WPAD_BUTTON_PLUS) Start = 1;
             if ( kDown & WPAD_BUTTON_MINUS) Back = 1;
@@ -697,22 +685,34 @@ void I_GetEvent(void)
             if (kUpNC & NUNCHUK_BUTTON_Z) LeftShoulder = 0;
 
         } else if (wd->exp.type == WPAD_EXP_CLASSIC) {
-
-            // Map Classic buttons -> your game actions
+            // Classic Controller buttons
             if (kDownCC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 1;
+            else Start = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_MINUS) Back = 1;
+            else Back = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_A)     AButton = 1;
+            else AButton = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_B)     BButton = 1;
+            else BButton = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_X)     XButton = 1;
+            else XButton = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_Y)     YButton = 1;
+            else YButton = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_UP)    Up = 1;
+            else Up = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_DOWN)  Down = 1;
+            else Down = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_LEFT)  Left = 1;
+            else Left = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_RIGHT) Right = 1;
+            else Right = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_FULL_L) LeftShoulder = 1;
+            else LeftShoulder = 0;
             if (kDownCC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 1;
+            else RightShoulder = 0;
 
-            if (kUpCC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 0;
+            //The bellow code should work the same as the above code, but for some reason it doesn't.
+            /*if (kUpCC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 0;
             if (kUpCC & CLASSIC_CTRL_BUTTON_MINUS) Back = 0;
             if (kUpCC & CLASSIC_CTRL_BUTTON_A)     AButton = 0;
             if (kUpCC & CLASSIC_CTRL_BUTTON_B)     BButton = 0;
@@ -723,7 +723,7 @@ void I_GetEvent(void)
             if (kUpCC & CLASSIC_CTRL_BUTTON_LEFT)  Left = 0;
             if (kUpCC & CLASSIC_CTRL_BUTTON_RIGHT) Right = 0;
             if (kUpCC & CLASSIC_CTRL_BUTTON_FULL_L) LeftShoulder = 0;
-            if (kUpCC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 0;
+            if (kUpCC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 0;*/
 
         } else {
             //Wiimote Inputs

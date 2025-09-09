@@ -22,6 +22,9 @@
 #include <coreinit/memdefaultheap.h>
 #include <coreinit/systeminfo.h>
 #include <coreinit/foreground.h>
+#include <coreinit/thread.h>
+#include <sysapp/launch.h>
+#include <whb/proc.h>
 #include <vpad/input.h>
 #include <whb/log.h>
 #include <whb/log_udp.h>

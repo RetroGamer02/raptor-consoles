@@ -141,7 +141,8 @@ if (!fatInitDefault()) {
     PAD_Init();
 
     // Always get buttons, accelerometer & IR by default
-    WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
+    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
+    //WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
 
 	// Obtain the preferred video mode from the system
 	// This will correspond to the settings in the Wii menu
@@ -173,7 +174,9 @@ if (!fatInitDefault()) {
 	// This positions the cursor on row 2, column 0
 	// we can use variables for this with format codes too
 	// e.g. printf ("\x1b[%d;%dH", row, column );
-	printf("\x1b[2;0H");
+	//printf("\x1b[2;0H");
+    printf("\x1b[2J");   // clear screen
+    printf("\x1b[0;0H"); // move cursor home
 
 	if (!fatInitDefault()) {
 		printf("fatInitDefault failure\n");
@@ -181,8 +184,14 @@ if (!fatInitDefault()) {
 
 #elif __WIIU__
 
+    //SYSInit();
+    //SYSSetScreenEnable(true);
+
     // Initialize the screen subsystem and double buffers
     OSScreenInit();
+
+    //OSScreenClear(0);
+    //OSScreenFlipBuffersEx(0);
 
     // Query required buffer sizes for TV (0) and DRC/GamePad (1)
     uint32_t tvSize  = OSScreenGetBufferSizeEx(SCREEN_TV);
