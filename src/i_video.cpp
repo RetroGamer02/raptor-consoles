@@ -638,14 +638,14 @@ void I_GetEvent(void)
         u32 kDownGC = PAD_ButtonsDown(0);
         u32 kUpGC = PAD_ButtonsUp(0);
 
-       // WUPCData *upc = WUPC_Data(0);
+        WUPCData *upc = WUPC_Data(0);
 
         WPADData *wd = WPAD_Data(0);
 
         //expansion_t *exp = &wd->exp;
 
-        u32 kDownPC = WUPC_ButtonsDown(0);
-        u32 kUpPC = WUPC_ButtonsUp(0);
+        u32 kDownPC = upc->button;//WUPC_ButtonsDown(0);
+        //u32 kUpPC = //WUPC_ButtonsUp(0);
 
         u32 kDownNC = wd->exp.nunchuk.btns;
         u32 kUpNC = wd->exp.nunchuk.btns_released;
@@ -779,19 +779,32 @@ void I_GetEvent(void)
 
         // Pro Controller Inputs
         if (kDownPC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 1;
+        else Start = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_MINUS) Back = 1;
+        else Back = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_A)     AButton = 1;
+        else AButton = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_B)     BButton = 1;
+        else BButton = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_X)     XButton = 1;
+        else XButton = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_Y)     YButton = 1;
+        else YButton = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_UP)    Up = 1;
+        else Up = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_DOWN)  Down = 1;
+        else Down = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_LEFT)  Left = 1;
+        else Left = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_RIGHT) Right = 1;
+        else Right = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_FULL_L) LeftShoulder = 1;
+        else LeftShoulder = 0;
         if (kDownPC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 1;
+        else RightShoulder = 0;
 
-        if (kUpPC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 0;
+
+        /*if (kUpPC & CLASSIC_CTRL_BUTTON_PLUS)  Start = 0;
         if (kUpPC & CLASSIC_CTRL_BUTTON_MINUS) Back = 0;
         if (kUpPC & CLASSIC_CTRL_BUTTON_A)     AButton = 0;
         if (kUpPC & CLASSIC_CTRL_BUTTON_B)     BButton = 0;
@@ -802,7 +815,7 @@ void I_GetEvent(void)
         if (kUpPC & CLASSIC_CTRL_BUTTON_LEFT)  Left = 0;
         if (kUpPC & CLASSIC_CTRL_BUTTON_RIGHT) Right = 0;
         if (kUpPC & CLASSIC_CTRL_BUTTON_FULL_L) LeftShoulder = 0;
-        if (kUpPC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 0;
+        if (kUpPC & CLASSIC_CTRL_BUTTON_FULL_R) RightShoulder = 0;*/
 
         //Combined Stick Input (Wiimote Nunchuk or Classic Controller, else GC)
         // 2) Read raw axes
@@ -852,7 +865,7 @@ void I_GetEvent(void)
                 + (wd->exp.type==WPAD_EXP_NUNCHUK ? 1 : 0)
                 + (wd->exp.type==WPAD_EXP_CLASSIC ? 1 : 0);
 
-        int usedPC = (WUPC_ButtonsHeld(0) || rawPC_X || rawPC_Y) ? 1 : 0;
+        int usedPC = (upc->button || rawPC_X || rawPC_Y) ? 1 : 0;
         if (usedPC) {
             nx += ReadNormalized(rawPC_X, 1024.0f, pcDZ);
             ny += ReadNormalized(rawPC_Y, 1024.0f, pcDZ);
