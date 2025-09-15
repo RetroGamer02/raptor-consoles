@@ -1447,11 +1447,7 @@ main(
 
     // ================================================
 
-    /*if (access(RAP_SetupFilename(), 0))
-        EXIT_Error("You Must run SETUP.EXE First !!");
-
-    if (!INI_InitPreference(RAP_SetupFilename()))
-        EXIT_Error("SETUP Error");*/
+    INI_InitPreference(RAP_SetupFilename());
 
     fflush(stdout);
     KBD_Install();
