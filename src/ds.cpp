@@ -109,7 +109,7 @@ void init_nds()
 	if (!rc)
 		printf("fsInit: %08lX\n", rc);
 
-    DIR* dir = opendir("/nds/Raptor");
+    /*DIR* dir = opendir("/nds/Raptor");
     if (dir) {
         closedir(dir);
     } else if (ENOENT == errno) {
@@ -117,6 +117,6 @@ void init_nds()
         mkdir("/nds/Raptor", 0700);
     } else {
         printf("Raptor directory unknown error.\n");
-    }
+    }*/
 }
 #endif

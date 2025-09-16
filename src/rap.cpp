@@ -208,7 +208,7 @@ InitScreen(
 )
 {
     #ifdef __NDS__
-    printf("RAPTOR: Call Of The Shadows V1.2(c)1994 Cygnus Studios\nRaptorDS v1.0.9: \n");
+    printf("RAPTOR: Call Of The Shadows V1.2(c)1994 Cygnus Studios\nRaptorDS v1.1.0: \n");
     #elif __3DS__
     printf("RAPTOR: Call Of The Shadows V1.2\n(c)1994 Cygnus Studios\nRaptor3DS v1.0.6: \n");
     #else
