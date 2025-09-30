@@ -28,6 +28,8 @@ static int lockcount;
 int fx_freq = 11025;
 #elif __3DS__
 int fx_freq = 22050;
+#elif __SWITCH__
+int fx_freq = 22050;
 #else
 int fx_freq = 44100;
 #endif
