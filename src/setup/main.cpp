@@ -10,7 +10,7 @@
 #define PATH_MAX        4096
 #endif // __GNUC__
 
-#include "SDL_filesystem.h"
+#include <SDL3/SDL_filesystem.h>
 #include "textscreen.h"
 #include "prefapi.h"
 #include "main.h"
@@ -183,7 +183,7 @@ void GetSetupSettings(void)
 /////////////////////////////////////////////Get Setup.ini/////////////////////////////////////////////////////////////////////
 const char* RAP_DataPath(void)
 {
-#if _WIN32 || __linux__ || __APPLE__
+#if _WIN32 || __linux__ || SDL_PLATFORM_APPLE
 	char* gethome;
 	char g_setup_pathlc[PATH_MAX];
 
@@ -220,7 +220,7 @@ const char* RAP_DataPath(void)
 		strcpy(g_setup_path, "SETUP.INI");
 
 	return g_data_path;
-#endif // _WIN32 || __linux__ || __APPLE__
+#endif // _WIN32 || __linux__ || SDL_PLATFORM_APPLE
 }
 
 const char* RAP_GetSetupPath(void)

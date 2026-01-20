@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-#include "SDL_filesystem.h"
+#include <SDL3/SDL_filesystem.h>
 #include "common.h"
 #include "loadsave.h"
 #include "rap.h"
@@ -949,7 +949,7 @@ RAP_InitLoadSave(
     void
 )
 {
-#if _WIN32 || __linux__ || __APPLE__
+#if _WIN32 || __linux__ || SDL_PLATFORM_APPLE
     char* gethome;
 
     #if __ANDROID__
@@ -1019,7 +1019,7 @@ RAP_InitLoadSave(
         strcpy(g_setup_ini, "SETUP.INI");
 
     return cdpath;
-#endif // _WIN32 || __linux__ || __APPLE__
+#endif // _WIN32 || __linux__ || SDL_PLATFORM_APPLE
 }
 
 /***************************************************************************
@@ -1050,11 +1050,11 @@ RAP_WriteDefaultSetup(
     INI_PutPreferenceLong("Setup", "Haptic", 1);                           
     INI_PutPreferenceLong("Setup", "joy_ipt_MenuNew", 0);         
 
-#if _WIN32 || __APPLE__
+#if _WIN32 || SDL_PLATFORM_APPLE
     INI_PutPreferenceLong("Setup", "sys_midi", 1);
 #else
     INI_PutPreferenceLong("Setup", "sys_midi", 0);
-#endif // _WIN32 __APPLE__
+#endif // _WIN32 SDL_PLATFORM_APPLE
  
     INI_PutPreferenceLong("Setup", "winmm_mpu_device", 0);       
     INI_PutPreferenceLong("Setup", "core_dls_synth", 1);           
@@ -1064,7 +1064,7 @@ RAP_WriteDefaultSetup(
     INI_PutPreference("Setup", "SoundFont", "SoundFont.sf2");
     INI_PutPreferenceLong("Music", "Volume", 85);
 
-#if _WIN32 || __APPLE__
+#if _WIN32 || SDL_PLATFORM_APPLE
     INI_PutPreferenceLong("Music", "CardType", 8);
     INI_PutPreferenceLong("Music", "MidiPort", 330);
 #else
@@ -1072,7 +1072,7 @@ RAP_WriteDefaultSetup(
     INI_PutPreferenceLong("Music", "BasePort", 220);
     INI_PutPreferenceLong("Music", "Irq", 7);
     INI_PutPreferenceLong("Music", "Dma", 1);
-#endif // _WIN32 __APPLE__
+#endif // _WIN32 SDL_PLATFORM_APPLE
 
     INI_PutPreferenceLong("SoundFX", "Volume", 85);
     INI_PutPreferenceLong("SoundFX", "CardType", 5);

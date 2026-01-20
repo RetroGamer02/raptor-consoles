@@ -1,4 +1,4 @@
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include <stdint.h>
 #include "common.h"
 #include "musapi.h"
@@ -442,12 +442,12 @@ MUS_Init(
             #endif // __linux__
             #endif //__ANDROID__
             
-            #ifdef __APPLE__
+            #ifdef SDL_PLATFORM_APPLE
             if (core_dls_synth)
                 music_device = &mus_device_corea;
             else
                 music_device = &mus_device_corem;
-            #endif // __APPLE__
+            #endif // SDL_PLATFORM_APPLE
         }
         else
         music_device = &mus_device_tsf;

@@ -15,7 +15,7 @@
 // Text mode emulation in SDL
 //
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -185,7 +185,8 @@ static void ChooseFont(void)
     // Get desktop resolution.
     // If in doubt and we can't get a list, always prefer to
     // fall back to the normal font:
-    if (SDL_GetCurrentDisplayMode(0, &desktop_info))
+    //if (SDL_GetCurrentDisplayMode(0, &desktop_info))
+    if (SDL_GetPrimaryDisplay() != 0)
     {
         font = &highdpi_font;
         return;
@@ -253,26 +254,32 @@ int TXT_Init(void)
     // If highdpi_font is selected, try to initialize high dpi rendering.
     if (font == &highdpi_font)
     {
-        flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+        flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
     }
 
     // If fullscreenflag is true, set window to full screen mode. 
     if (fullscreenflag)
     {
-        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        //flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        SDL_SetWindowFullscreen(TXT_SDLWindow, true);
     }
 
     TXT_SDLWindow =
-        SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        SDL_CreateWindow("",
                          screen_image_w, screen_image_h, flags);
+
+    if (TXT_SDLWindow) {
+        // This centers the window on the primary display
+        SDL_SetWindowPosition(TXT_SDLWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    }
 
     if (TXT_SDLWindow == NULL)
         return 0;
 
-    renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, SDL_RENDERER_PRESENTVSYNC);
+    renderer = SDL_CreateRenderer(TXT_SDLWindow, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_NUMBER);
 
     if (renderer == NULL)
-        renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, SDL_RENDERER_SOFTWARE);
+        renderer = SDL_CreateRenderer(TXT_SDLWindow, SDL_SOFTWARE_RENDERER);
 
     if (renderer == NULL)
         return 0;
@@ -285,7 +292,8 @@ int TXT_Init(void)
     int h1;
 
     SDL_GetWindowSize(TXT_SDLWindow, &w, &h);
-    SDL_GL_GetDrawableSize(TXT_SDLWindow, &w1, &h1);
+    
+    SDL_GetWindowSizeInPixels(TXT_SDLWindow, &w1, &h1); //Check me
 
     if ((w != w1) || (h != h1))
         retinaflag = 1;
@@ -294,11 +302,11 @@ int TXT_Init(void)
     // highdpi flag, check the output size for the screen renderer. If we get
     // the 2x doubled size we expect from a retina display, use the large font
     // for drawing the screen.
-    if ((SDL_GetWindowFlags(TXT_SDLWindow) & SDL_WINDOW_ALLOW_HIGHDPI) != 0)
+    if ((SDL_GetWindowFlags(TXT_SDLWindow) & SDL_WINDOW_HIGH_PIXEL_DENSITY) != 0)
     {
         int render_w, render_h;
 
-        if (SDL_GetRendererOutputSize(renderer, &render_w, &render_h) == 0
+        if (SDL_GetCurrentRenderOutputSize(renderer, &render_w, &render_h) == 0 //Check me
          && render_w >= TXT_SCREEN_W * large_font.w
          && render_h >= TXT_SCREEN_H * large_font.h)
         {
@@ -319,14 +327,16 @@ int TXT_Init(void)
     // Instead, we draw everything into an intermediate 8-bit surface
     // the same dimensions as the screen. SDL then takes care of all the
     // 8->32 bit (or whatever depth) color conversions for us.
-    screenbuffer = SDL_CreateRGBSurface(0,
+    /*screenbuffer = SDL_CreateRGBSurface(0,
                                         TXT_SCREEN_W * font->w,
                                         TXT_SCREEN_H * font->h,
-                                        8, 0, 0, 0, 0);
+                                        8, 0, 0, 0, 0);*/
+
+    screenbuffer = SDL_CreateSurface(TXT_SCREEN_W * font->w, TXT_SCREEN_H * font->h,
+            SDL_GetPixelFormatForMasks(8, 0, 0, 0, 0));
 
     SDL_LockSurface(screenbuffer);
-    SDL_SetPaletteColors(screenbuffer->format->palette, ega_colors, 0, 16);
-    SDL_UnlockSurface(screenbuffer);
+    SDL_SetPaletteColors(SDL_CreateSurfacePalette(screenbuffer), ega_colors, 0, 16);
 
     screendata = malloc(TXT_SCREEN_W * TXT_SCREEN_H * 2);
     memset(screendata, 0, TXT_SCREEN_W * TXT_SCREEN_H * 2);
@@ -338,7 +348,7 @@ void TXT_Shutdown(void)
 {
     free(screendata);
     screendata = NULL;
-    SDL_FreeSurface(screenbuffer);
+    SDL_DestroySurface(screenbuffer);
     screenbuffer = NULL;
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
@@ -348,7 +358,7 @@ void TXT_SetColor(txt_color_t color, int r, int g, int b)
     SDL_Color c = {r, g, b, 0xff};
 
     SDL_LockSurface(screenbuffer);
-    SDL_SetPaletteColors(screenbuffer->format->palette, &c, color, 1);
+    SDL_SetPaletteColors(SDL_CreateSurfacePalette(screenbuffer), &c, color, 1);
     SDL_UnlockSurface(screenbuffer);
 }
 
@@ -439,7 +449,8 @@ static void GetDestRect(SDL_Rect *rect)
 {
     int w, h;
 
-    SDL_GetRendererOutputSize(renderer, &w, &h);
+    //Check me
+    SDL_GetCurrentRenderOutputSize(renderer, &w, &h);
     rect->x = (w - screenbuffer->w) / 2;
     rect->y = (h - screenbuffer->h) / 2;
     rect->w = screenbuffer->w;
@@ -471,7 +482,7 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
 
     SDL_UnlockSurface(screenbuffer);
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_SetTextureScaleMode(screentx, SDL_SCALEMODE_LINEAR);
 
     // TODO: This is currently creating a new texture every time we render
     // the screen; find a more efficient way to do it.
@@ -479,7 +490,8 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
 
     SDL_RenderClear(renderer);
     GetDestRect(&rect);
-    SDL_RenderCopy(renderer, screentx, NULL, &rect);
+
+    SDL_RenderTexture(renderer, screentx, NULL, NULL);
     SDL_RenderPresent(renderer);
 
     SDL_DestroyTexture(screentx);
@@ -495,7 +507,10 @@ void TXT_GetMousePosition(int *x, int *y)
     int window_w, window_h;
     int origin_x, origin_y;
 
-    SDL_GetMouseState(x, y);
+    float fx, fy;
+    SDL_GetMouseState(&fx, &fy);
+    *x = (int)fx;
+    *y = (int)fy; //fixme later
 
     // Translate mouse position from 'pixel' position into character position.
     // We are working here in screen coordinates and not pixels, since this is
@@ -570,18 +585,19 @@ static int TranslateScancode(SDL_Scancode scancode)
     }
 }
 
-static int TranslateKeysym(const SDL_Keysym *sym)
+//static int TranslateKeysym(const SDL_Keysym *sym)
+static int TranslateKeysym(const SDL_Event event)
 {
     int translated;
 
     // We cheat here and make use of TranslateScancode. The range of keys
     // associated with printable characters is pretty contiguous, so if it's
     // inside that range we want the localized version of the key instead.
-    translated = TranslateScancode(sym->scancode);
+    translated = TranslateScancode(event.key.scancode);
 
     if (translated >= 0x20 && translated < 0x7f)
     {
-        return sym->sym;
+        return event.key.key;
     }
     else
     {
@@ -661,37 +677,37 @@ signed int TXT_GetChar(void)
 
         switch (ev.type)
         {
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 if (ev.button.button < TXT_MAX_MOUSE_BUTTONS)
                 {
                     return SDLButtonToTXTButton(ev.button.button);
                 }
                 break;
 
-            case SDL_MOUSEWHEEL:
+            case SDL_EVENT_MOUSE_WHEEL:
                 return SDLWheelToTXTButton(&ev.wheel);
 
-            case SDL_KEYDOWN:
+            case SDL_EVENT_KEY_DOWN:
                 switch (input_mode)
                 {
                     case TXT_INPUT_RAW:
-                        return TranslateScancode(ev.key.keysym.scancode);
+                        return TranslateScancode(ev.key.scancode);
                     case TXT_INPUT_NORMAL:
-                        return TranslateKeysym(&ev.key.keysym);
+                        return ev.key.key;
                     case TXT_INPUT_TEXT:
                         // We ignore key inputs in this mode, except for a
                         // few special cases needed during text input:
-                        if (ev.key.keysym.sym == SDLK_ESCAPE
-                         || ev.key.keysym.sym == SDLK_BACKSPACE
-                         || ev.key.keysym.sym == SDLK_RETURN)
+                        if (ev.key.key == SDLK_ESCAPE
+                         || ev.key.key == SDLK_BACKSPACE
+                         || ev.key.key == SDLK_RETURN)
                         {
-                            return TranslateKeysym(&ev.key.keysym);
+                            return ev.key.key;
                         }
                         break;
                 }
                 break;
 
-            case SDL_TEXTINPUT:
+            case SDL_EVENT_TEXT_INPUT:
                 if (input_mode == TXT_INPUT_TEXT)
                 {
                     // TODO: Support input of more than just the first char?
@@ -703,11 +719,11 @@ signed int TXT_GetChar(void)
                 }
                 break;
 
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT:
                 // Quit = escape
                 return 27;
 
-            case SDL_MOUSEMOTION:
+            case SDL_EVENT_MOUSE_MOTION:
                 if (MouseHasMoved())
                 {
                     return 0;
@@ -730,11 +746,11 @@ int TXT_GetModifierState(txt_modifier_t mod)
     switch (mod)
     {
         case TXT_MOD_SHIFT:
-            return (state & KMOD_SHIFT) != 0;
+            return (state & SDL_KMOD_SHIFT) != 0;
         case TXT_MOD_CTRL:
-            return (state & KMOD_CTRL) != 0;
+            return (state & SDL_KMOD_CTRL) != 0;
         case TXT_MOD_ALT:
-            return (state & KMOD_ALT) != 0;
+            return (state & SDL_KMOD_ALT) != 0;
         default:
             return 0;
     }
@@ -799,7 +815,7 @@ static const char *NameForKey(int key)
     {
         if (scancode_translate_table[i] == key)
         {
-            result = SDL_GetKeyName(SDL_GetKeyFromScancode(i));
+            result = SDL_GetKeyName(SDL_GetKeyFromScancode(i, SDL_KMOD_NONE, true));
             if (TXT_UTF8_Strlen(result) > 6 || !PrintableName(result))
             {
                 break;
@@ -930,13 +946,13 @@ void TXT_Sleep(int timeout)
 
 void TXT_SetInputMode(txt_input_mode_t mode)
 {
-    if (mode == TXT_INPUT_TEXT && !SDL_IsTextInputActive())
+    if (mode == TXT_INPUT_TEXT && !SDL_TextInputActive(TXT_SDLWindow))
     {
-        SDL_StartTextInput();
+        SDL_StartTextInput(TXT_SDLWindow);
     }
-    else if (SDL_IsTextInputActive() && mode != TXT_INPUT_TEXT)
+    else if (SDL_TextInputActive(TXT_SDLWindow) && mode != TXT_INPUT_TEXT)
     {
-        SDL_StopTextInput();
+        SDL_StopTextInput(TXT_SDLWindow);
     }
 
     input_mode = mode;

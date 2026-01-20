@@ -1,7 +1,7 @@
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #define MAX_CONTROLLERS 4
 
-extern SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
+extern SDL_Gamepad* ControllerHandles[MAX_CONTROLLERS];
 extern SDL_Haptic* RumbleHandles[MAX_CONTROLLERS];
 
 extern int joy_ack;

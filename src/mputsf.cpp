@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #define TSF_IMPLEMENTATION
 #include "tsf.h"
 
@@ -11,6 +11,8 @@
 #include "prefapi.h"
 
 static tsf* g_TinySoundFont;
+
+extern SDL_AudioStream *fx_dev;
 
 /***************************************************************************
 AudioCallback() -
@@ -37,10 +39,8 @@ TSF_Init(
 {
     SDL_AudioSpec OutputAudioSpec;
     OutputAudioSpec.freq = 44100;
-    OutputAudioSpec.format = AUDIO_S16SYS;
+    OutputAudioSpec.format = SDL_AUDIO_S16;;
     OutputAudioSpec.channels = 2;
-    OutputAudioSpec.samples = 512;
-    OutputAudioSpec.callback = AudioCallback;
     
     char fn[128];
     INI_GetPreference("Setup", "SoundFont", fn, 127, "SoundFont.sf2");
@@ -64,7 +64,7 @@ TSF_Init(
     
 
     // Request the desired audio output format
-    if (SDL_OpenAudio(&OutputAudioSpec, NULL) < 0)
+    if (SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &OutputAudioSpec, NULL, NULL))
     {
         fprintf(stderr, "Could not open the audio hardware or the desired audio output format\n");
         EXIT_Error("Could not open the audio hardware or the desired audio output format.");
@@ -212,7 +212,8 @@ ControllerEvent(
     };
    
     tsf_channel_midi_control(g_TinySoundFont, MPU_MapChannel(chan), event_map[controller], param);
-    SDL_PauseAudio(0);
+    //SDL_PauseAudio(0);
+    SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(fx_dev));
 }
 
 musdevice_t mus_device_tsf = {

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -42,7 +42,7 @@ typedef struct
 DFX fx_items[FX_LAST_SND];
 int fx_loaded;
 
-SDL_AudioDeviceID fx_dev;
+SDL_AudioStream *fx_dev;
 
 char cards[M_LAST][23] = {
     "None",
@@ -60,19 +60,26 @@ char cards[M_LAST][23] = {
 /***************************************************************************
 FX_Fill() -
  ***************************************************************************/
-static void 
-FX_Fill(
+static void FX_Fill(
     void *userdata, 
-    Uint8 *stream, 
-    int len
-)
+    SDL_AudioStream *stream, 
+    int additional_amount, 
+    int total_amount)
 {
-    memset(stream, 0, len);
-    int16_t *stream16 = (int16_t*)stream;
-    len /= 4;
-    MUS_Mix(stream16, len);
-    GSS_Mix(stream16, len);
-    DSP_Mix(stream16, len);
+    if (additional_amount > 0) {
+            uint8_t *data = SDL_stack_alloc(uint8_t, additional_amount);
+            if (data) {
+                // FIX: Zero out the buffer so mixers aren't adding to garbage
+                SDL_memset(data, 0, additional_amount);
+                int16_t *data16 = (int16_t*)data;
+                int len = additional_amount / 4;
+                MUS_Mix(data16, len);
+                GSS_Mix(data16, len);
+                DSP_Mix(data16, len);
+                SDL_PutAudioStreamData(stream, data, additional_amount);
+                SDL_stack_free(data);
+            }
+        }
 }
 
 /***************************************************************************
@@ -94,26 +101,22 @@ SND_InitSound(
         return 0;
 
     spec.freq = fx_freq;
-    spec.format = AUDIO_S16SYS;
+    spec.format = SDL_AUDIO_S16;
     spec.channels = 2;
-    spec.samples = 512;
-    spec.callback = FX_Fill;
-    spec.userdata = NULL;
 
-    if ((fx_dev = SDL_OpenAudioDevice(NULL, 0, &spec, &actual, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) == 0)
+    if ((fx_dev = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, FX_Fill, NULL)) == 0)
     {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
     }
 
-    fx_freq = actual.freq;
+    //fx_freq = actual.freq; //Fix me!!!
     
-    if (actual.format != AUDIO_S16SYS || actual.channels != 2)
+    /*if (actual.format != SDL_AUDIO_S16 || actual.channels != 2)
     {
-        SDL_CloseAudio();
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         return 0;
-    }
+    }*/
 
     dig_flag = 0;
     fx_device = SND_NONE;
@@ -209,7 +212,7 @@ SND_InitSound(
     if (fx_card == M_ADLIB || fx_card == M_WAVE || fx_card == M_CANVAS || fx_card == M_GMIDI)
         GSS_Init(fx_card, 0);
 
-    SDL_PauseAudioDevice(fx_dev, 0);
+    SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(fx_dev));
 
     fx_init = 1;
     
@@ -1106,8 +1109,8 @@ SND_Lock(
     void
 )
 {
-    if (!lockcount)
-        SDL_LockAudioDevice(fx_dev);
+    /*if (!lockcount)
+        SDL_LockAudioDevice(fx_dev);*/
     
     lockcount++;
 }
@@ -1122,6 +1125,6 @@ SND_Unlock(
 {
     lockcount--;
     
-    if (!lockcount)
-        SDL_UnlockAudioDevice(fx_dev);
+    /*if (!lockcount)
+        SDL_UnlockAudioDevice(fx_dev);*/
 }

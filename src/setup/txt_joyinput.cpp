@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "SDL_joystick.h"
+#include <SDL3/SDL_joystick.h>
 
 #include "doomkeys.h"
 #include "input.h"
@@ -145,7 +145,7 @@ static int EventCallback(SDL_Event* event, TXT_UNCAST_ARG(joystick_input))
 
     // Got the joystick button press?
 
-    if (event->type == SDL_JOYBUTTONDOWN)
+    if (event->type == SDL_EVENT_JOYSTICK_BUTTON_DOWN)
     {
         int vbutton, physbutton;
 
@@ -195,9 +195,9 @@ static void PromptWindowClosed(TXT_UNCAST_ARG(widget), TXT_UNCAST_ARG(joystick))
 {
     TXT_CAST_ARG(SDL_Joystick, joystick);
 
-    SDL_JoystickClose(joystick);
+    SDL_CloseJoystick(joystick);
     TXT_SDL_SetEventCallback(NULL, NULL);
-    SDL_JoystickEventState(SDL_DISABLE);
+    SDL_SetJoystickEventsEnabled(0);
     SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 }
 
@@ -236,7 +236,7 @@ static void OpenPromptWindow(txt_joystick_input_t* joystick_input)
 
     // Check the current joystick is valid
 
-    joystick = SDL_JoystickOpen(joystick_index);
+    joystick = SDL_OpenJoystick(joystick_index);
 
     if (joystick == NULL)
     {
@@ -259,7 +259,7 @@ static void OpenPromptWindow(txt_joystick_input_t* joystick_input)
     TXT_SignalConnect(window, "closed", PromptWindowClosed, joystick);
     joystick_input->prompt_window = window;
 
-    SDL_JoystickEventState(SDL_ENABLE);
+    SDL_SetJoystickEventsEnabled(1);
     TXT_SetWidgetFocus(getcontroljoystickwindow, 1);
 
     TXT_SetWindowAction(window, TXT_HORIZ_CENTER, close_button);

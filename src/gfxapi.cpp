@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdint.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "common.h"
 #include "gfxapi.h"
 #include "i_video.h"
@@ -47,10 +47,6 @@ int G3D_viewz;                    // user view z pos
 
 void GFX_InitTimer(void)
 {
-#if SDL_VERSION_ATLEAST(2, 0, 5)
-    SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
-#endif
-    SDL_Init(SDL_INIT_TIMER);
     timer_init = 1;
 }
 

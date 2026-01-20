@@ -38,11 +38,11 @@ elseif(WIN32)
     else()
         set(SDL2_DIR "include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/cmake")
     endif()
-    find_package(SDL2 REQUIRED)
-    include_directories(${SDL2_INCLUDE_DIRS})
+    find_package(SDL3 REQUIRED)
+    include_directories(${SDL3_INCLUDE_DIRS})
 else()
-    find_package(SDL2 REQUIRED)
-    include_directories(${SDL2_INCLUDE_DIRS})
+    find_package(SDL3 REQUIRED)
+    include_directories(${SDL3_INCLUDE_DIRS})
 endif()
 
 include_directories(./include/textscreen/include/)
@@ -113,7 +113,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Android")
     add_library( ${PROJECT_NAME} SHARED ${SOURCE_FILES})   
     target_link_libraries(raptor
         textscreen
-        SDL2::SDL2
+        SDL3::SDL3
         )
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -122,8 +122,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(raptor
         textscreen
         asound
-        SDL2::SDL2main
-        SDL2::SDL2
+        
+        SDL3::SDL3
         )
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -134,8 +134,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
     target_link_libraries(raptor ${AUDIO_TOOLBOX} ${AUDIO_UNIT} ${FOUNDATION_LIBRARY} ${COREMIDI_LIB}
         textscreen
-        SDL2::SDL2main
-        SDL2::SDL2
+        
+        SDL3::SDL3
         )
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -144,8 +144,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     target_link_libraries(raptor
         winmm.lib
         textscreen
-        SDL2::SDL2main
-        SDL2::SDL2
+        
+        SDL3::SDL3
         )
     if(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} MATCHES "Release")
         if(MSVC)
@@ -160,8 +160,8 @@ else()
     add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
     target_link_libraries(raptor
         textscreen
-        SDL2::SDL2main
-        SDL2::SDL2
+        
+        SDL3::SDL3
         )
 endif()
 
@@ -172,17 +172,9 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Android")
     endif()
     target_link_libraries(raptorsetup
         textscreen
-        SDL2::SDL2main
-        SDL2::SDL2
+        
+        SDL3::SDL3
         )
-    if(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} MATCHES "Release")
-        if(MSVC)
-            target_link_options(raptorsetup PRIVATE /subsystem:windows /ENTRY:mainCRTStartup)
-        elseif(WIN32)
-            target_link_options(raptorsetup PRIVATE -mwindows)
-        endif()
-    elseif(WIN32 AND NOT MSVC)
-        target_link_options(raptorsetup PRIVATE -mconsole)
-    endif()
+    
 endif()
    

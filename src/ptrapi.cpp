@@ -1,4 +1,4 @@
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "common.h"
 #include "i_video.h"
 #include "ptrapi.h"
@@ -124,7 +124,7 @@ I_HandleMouseEvent(
 {
     switch (sdlevent->type)
     {
-    case SDL_MOUSEBUTTONDOWN:
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
         switch (sdlevent->button.button)
         {
         case SDL_BUTTON_LEFT:
@@ -144,7 +144,7 @@ I_HandleMouseEvent(
         }
         break;
     
-    case SDL_MOUSEBUTTONUP:
+    case SDL_EVENT_MOUSE_BUTTON_UP:
         switch (sdlevent->button.button)
         {
         case SDL_BUTTON_LEFT:
@@ -171,15 +171,16 @@ I_HandleTouchEvent(
         SDL_Event *sdlevent
 )
 {
+    int *count;
     switch (sdlevent->type)
     {
-        case SDL_FINGERDOWN:
-            if (SDL_GetNumTouchFingers(sdlevent->tfinger.touchId) == 3)
+        case SDL_EVENT_FINGER_DOWN:
+            if (SDL_GetTouchFingers(sdlevent->tfinger.touchID, count) && *count == 3) //Untested
             {
                 mouseb3 = 4;
                 mouse_b3_ack = 1;
             }
-            if (SDL_GetNumTouchFingers(sdlevent->tfinger.touchId) == 2)
+            if (SDL_GetTouchFingers(sdlevent->tfinger.touchID, count) && *count == 2) //Untested
             {
                 static int lasttick;
                 int now = SDL_GetTicks();
@@ -221,7 +222,7 @@ I_HandleTouchEvent(
                 mouse_b1_ack = 1;
             }
             break;
-        case SDL_FINGERUP:
+        case SDL_EVENT_FINGER_UP:
             mouseb2 = 0;
             mouseb3 = 0;
             break;

@@ -1,4 +1,4 @@
-#ifdef __APPLE__
+#ifdef SDL_PLATFORM_APPLE
 #include <AudioUnit/AudioUnit.h>
 #include <AudioToolbox/AudioToolbox.h>
 #include <stdio.h>

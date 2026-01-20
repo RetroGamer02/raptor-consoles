@@ -1,6 +1,6 @@
 #include <string.h>
 #include <ctype.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "common.h"
 #include "kbdapi.h"
 #include "i_video.h"
@@ -152,10 +152,10 @@ I_HandleKeyboardEvent(
 {
     int key = 0;
     
-    if (sdlevent->type != SDL_KEYDOWN && sdlevent->type != SDL_KEYUP)
+    if (sdlevent->type != SDL_EVENT_KEY_DOWN && sdlevent->type != SDL_EVENT_KEY_UP)
         return;
     
-    switch (sdlevent->key.keysym.scancode)
+    switch (sdlevent->key.scancode)
     {
     case SDL_SCANCODE_LCTRL:
     case SDL_SCANCODE_RCTRL:
@@ -182,15 +182,15 @@ I_HandleKeyboardEvent(
 #endif //__ANDROID__
 
     default:
-        if (sdlevent->key.keysym.scancode >= 0 && sdlevent->key.keysym.scancode < 100)
-            key = ScanCodeMap[sdlevent->key.keysym.scancode];
+        if (sdlevent->key.scancode >= 0 && sdlevent->key.scancode < 100)
+            key = ScanCodeMap[sdlevent->key.scancode];
         break;
     }
     
     if (!key)
         return;
 
-    if (sdlevent->type == SDL_KEYUP)
+    if (sdlevent->type == SDL_EVENT_KEY_UP)
     {
         kbd_ack = 0;
         keyboard[key] = 0;

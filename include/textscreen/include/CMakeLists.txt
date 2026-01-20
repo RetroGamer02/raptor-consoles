@@ -26,7 +26,7 @@ target_include_directories(textscreen
                            INTERFACE "."
                            PRIVATE "../src/")
 if(MSVC)
-    target_link_libraries(textscreen SDL2::SDL2)
+    target_link_libraries(textscreen SDL3::SDL3)
 else()
-    target_link_libraries(textscreen m SDL2::SDL2)
+    target_link_libraries(textscreen m SDL3::SDL3)
 endif()

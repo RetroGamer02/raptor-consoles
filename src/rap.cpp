@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "common.h"
 #include "glbapi.h"
 #include "i_video.h"
@@ -1274,7 +1274,7 @@ main(
 
     RAP_InitLoadSave();
     
-#if _WIN32 || __linux__ || __APPLE__
+#if _WIN32 || __linux__ || SDL_PLATFORM_APPLE
     if (access(RAP_SetupFilename(), 0))
     {
         INI_InitPreference(RAP_SetupFilename());
@@ -1288,7 +1288,7 @@ main(
             "Raptor", "** You must run SETUP first! **", NULL);
         exit(0);
     }
-#endif //_WIN32 || __linux__ || __APPLE__
+#endif //_WIN32 || __linux__ || SDL_PLATFORM_APPLE
 
     godmode = 0;
 
@@ -1460,11 +1460,11 @@ main(
         fflush(stdout);
     }
     
-#if _WIN32 || __linux__ || __APPLE__
+#if _WIN32 || __linux__ || SDL_PLATFORM_APPLE
     GLB_InitSystem(RAP_GetPath(), 6, 0);
 #else
     GLB_InitSystem(argv[0], 6, 0);
-#endif //_WIN32 || __linux__ || __APPLE__
+#endif //_WIN32 || __linux__ || SDL_PLATFORM_APPLE
     
     if (reg_flag)
     {

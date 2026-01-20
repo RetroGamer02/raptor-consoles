@@ -1,4 +1,4 @@
-#ifdef __APPLE__
+#ifdef SDL_PLATFORM_APPLE
 #include <CoreMIDI/MIDIServices.h>
 #include <stdio.h>
 #include <stdlib.h>

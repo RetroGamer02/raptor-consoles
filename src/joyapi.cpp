@@ -1,4 +1,4 @@
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "i_video.h"
 #include "joyapi.h"
 
@@ -10,8 +10,8 @@ bool AButton, BButton, XButton, YButton;
 
 int16_t StickX, StickY, TriggerLeft, TriggerRight;
 
-SDL_GameController* ControllerHandles[MAX_CONTROLLERS];
-SDL_Haptic* RumbleHandles[MAX_CONTROLLERS] ;
+SDL_Gamepad* ControllerHandles[MAX_CONTROLLERS];
+SDL_Haptic* RumbleHandles[MAX_CONTROLLERS];
 
 int MaxJoysticks;
 int ControllerIndex;
@@ -28,9 +28,9 @@ IPT_CalJoy(
 	void
 )
 {
-	SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC);
+	SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_HAPTIC);
 
-	MaxJoysticks = SDL_NumJoysticks();
+	SDL_GetJoysticks(&MaxJoysticks);
 	ControllerIndex = 0;
 	AButtonconvert = 0;
 	BButtonconvert = 0;
@@ -39,7 +39,7 @@ IPT_CalJoy(
 
 	for (JoystickIndex = 0; JoystickIndex < MaxJoysticks; ++JoystickIndex)
 	{
-		if (!SDL_IsGameController(JoystickIndex))
+		if (!SDL_IsGamepad(JoystickIndex))
 		{
 			continue;
 		}
@@ -48,12 +48,12 @@ IPT_CalJoy(
 			break;
 		}
 		
-		ControllerHandles[ControllerIndex] = SDL_GameControllerOpen(JoystickIndex);
-		RumbleHandles[ControllerIndex] = SDL_HapticOpen(JoystickIndex);
+		ControllerHandles[ControllerIndex] = SDL_OpenGamepad(JoystickIndex);
+		RumbleHandles[ControllerIndex] = SDL_OpenHaptic(JoystickIndex);
 		
-		if (SDL_HapticRumbleInit(RumbleHandles[ControllerIndex]) != 0)
+		if (SDL_InitHapticRumble(RumbleHandles[ControllerIndex]) != 0)
 		{
-			SDL_HapticClose(RumbleHandles[ControllerIndex]);
+			SDL_CloseHaptic(RumbleHandles[ControllerIndex]);
 			RumbleHandles[ControllerIndex] = 0;
 		}
 	    
@@ -75,9 +75,9 @@ IPT_CloJoy(
 		if (ControllerHandles[ControllerIndex])
 		{
 			if (RumbleHandles[ControllerIndex])
-				SDL_HapticClose(RumbleHandles[ControllerIndex]);
+				SDL_CloseHaptic(RumbleHandles[ControllerIndex]);
 			
-			SDL_GameControllerClose(ControllerHandles[ControllerIndex]);
+			SDL_CloseGamepad(ControllerHandles[ControllerIndex]);
 		}
 	}
 }
@@ -94,31 +94,31 @@ I_HandleJoystickEvent(
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-		if (ControllerHandles[ControllerIndex] != 0 && SDL_GameControllerGetAttached(ControllerHandles[ControllerIndex]))
+		if (ControllerHandles[ControllerIndex] != 0 && SDL_GamepadConnected(ControllerHandles[ControllerIndex]))
 		{
-			Up = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_DPAD_UP);
-			Down = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-			Left = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-			Right = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-			Start = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_START);
-			Back = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_BACK);
-			LeftShoulder = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-			RightShoulder = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-			AButton = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_A);
-			BButton = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_B);
-			XButton = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_X);
-			YButton = SDL_GameControllerGetButton(ControllerHandles[ControllerIndex], SDL_CONTROLLER_BUTTON_Y);
+			Up = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_DPAD_UP);
+			Down = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_DPAD_DOWN);
+			Left = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_DPAD_LEFT);
+			Right = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_DPAD_RIGHT);
+			Start = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_START);
+			Back = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_BACK);
+			LeftShoulder = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_LEFT_SHOULDER);
+			RightShoulder = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER);
+			AButton = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_SOUTH);
+			BButton = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_EAST);
+			XButton = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_WEST);
+			YButton = SDL_GetGamepadButton(ControllerHandles[ControllerIndex], SDL_GAMEPAD_BUTTON_NORTH);
 
-			StickX = SDL_GameControllerGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_LEFTX) / 8000;
-			StickY = SDL_GameControllerGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_LEFTY) / 8000;
-			TriggerLeft = SDL_GameControllerGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 8000;
-			TriggerRight = SDL_GameControllerGetAxis(ControllerHandles[ControllerIndex], SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / 8000;
+			StickX = SDL_GetGamepadAxis(ControllerHandles[ControllerIndex], SDL_GAMEPAD_AXIS_LEFTX) / 8000;
+			StickY = SDL_GetGamepadAxis(ControllerHandles[ControllerIndex], SDL_GAMEPAD_AXIS_LEFTY) / 8000;
+			TriggerLeft = SDL_GetGamepadAxis(ControllerHandles[ControllerIndex], SDL_GAMEPAD_AXIS_LEFT_TRIGGER) / 8000;
+			TriggerRight = SDL_GetGamepadAxis(ControllerHandles[ControllerIndex], SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) / 8000;
 		}
 		
-		if (sdlevent->type == SDL_CONTROLLERBUTTONUP) 
+		if (sdlevent->type == SDL_EVENT_GAMEPAD_BUTTON_UP) 
 			joy_ack = 0;
 		
-		if (sdlevent->type == SDL_CONTROLLERBUTTONDOWN) 
+		if (sdlevent->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) 
 			joy_ack = 1;
 	}
 }
@@ -135,20 +135,20 @@ GetJoyButtonMapping(
 		ControllerIndex < MAX_CONTROLLERS;
 		++ControllerIndex)
 	{
-		switch (SDL_GameControllerTypeForIndex(ControllerIndex))
+		switch (SDL_GetGamepadTypeForID(ControllerIndex))
 		{
-		case SDL_CONTROLLER_TYPE_PS3:
-		case SDL_CONTROLLER_TYPE_PS4:
-		case SDL_CONTROLLER_TYPE_PS5:
+		case SDL_GAMEPAD_TYPE_PS3:
+		case SDL_GAMEPAD_TYPE_PS4:
+		case SDL_GAMEPAD_TYPE_PS5:
 			AButtonconvert = 0;
 			BButtonconvert = 1;
 			XButtonconvert = 3;
 			YButtonconvert = 2;
 			break;
 		
-		case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
-		case SDL_CONTROLLER_TYPE_XBOX360:
-		case SDL_CONTROLLER_TYPE_XBOXONE:
+		case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
+		case SDL_GAMEPAD_TYPE_XBOX360:
+		case SDL_GAMEPAD_TYPE_XBOXONE:
 			AButtonconvert = 0;
 			BButtonconvert = 1;
 			XButtonconvert = 2;
@@ -181,7 +181,7 @@ IPT_CalJoyRumbleLow(
 		++ControllerIndex)
 	{
 		if (ControllerHandles[ControllerIndex])
-			SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x3fff, 0x3fff, 1000);
+			SDL_RumbleGamepad(ControllerHandles[ControllerIndex], 0x3fff, 0x3fff, 1000);
 	}
 }
 
@@ -198,7 +198,7 @@ IPT_CalJoyRumbleMedium(
 		++ControllerIndex)
 	{
 		if (ControllerHandles[ControllerIndex])
-		    SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0x7ffe, 0x7ffe, 1000);
+		    SDL_RumbleGamepad(ControllerHandles[ControllerIndex], 0x7ffe, 0x7ffe, 1000);
 	}
 }
 
@@ -215,7 +215,7 @@ IPT_CalJoyRumbleHigh(
 		++ControllerIndex)
 	{
 		if (ControllerHandles[ControllerIndex])
-			SDL_GameControllerRumble(ControllerHandles[ControllerIndex], 0xbffd, 0xbffd, 1000);
+			SDL_RumbleGamepad(ControllerHandles[ControllerIndex], 0xbffd, 0xbffd, 1000);
 	}
 }
 
