@@ -17,6 +17,7 @@
 #include "rap.h"
 #include "gssapi.h"
 #include "fileids.h"
+#include "entypes.h"
 
 int music_volume;
 int dig_flag;
@@ -36,7 +37,7 @@ int fx_freq = 44100;
 int music_song = -1;
 int fx_gus;
 int fx_channels;
-int sys_midi, alsaclient, alsaport;
+int sys_midi, winmm_mpu_device, core_dls_synth, core_midi_port, alsaclient, alsaport;
 
 typedef struct
 {
@@ -144,6 +145,9 @@ SND_InitSound(
     music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);
     #endif
     sys_midi = INI_GetPreferenceLong("Setup", "sys_midi", 0);
+    winmm_mpu_device = INI_GetPreferenceLong("Setup", "winmm_mpu_device", 0);
+    core_dls_synth = INI_GetPreferenceLong("Setup", "core_dls_synth", 1);
+    core_midi_port = INI_GetPreferenceLong("Setup", "core_midi_port", 0);
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
 
@@ -809,7 +813,7 @@ SFX_PlayPatch(
     int priority
 )
 {
-    int type = *(int16_t*)patch;
+    int type = LE_SHORT(*(int16_t*)patch);
     
     switch (type)
     {

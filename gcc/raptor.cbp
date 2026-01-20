@@ -28,11 +28,11 @@
 					<Add directory="../include/textscreen/libwin/x86" />
 				</Linker>
 			</Target>
-			<Target title="Win (32 Bit) Release">
+			<Target title="Win(32 Bit) Release">
 				<Option platforms="Windows;" />
 				<Option output="bin/Release/raptor" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
@@ -50,7 +50,7 @@
 					<Add directory="../include/textscreen/libwin/x86" />
 				</Linker>
 			</Target>
-			<Target title="Linux (32 Bit) Debug">
+			<Target title="Linux(32 Bit) Debug">
 				<Option platforms="Unix;" />
 				<Option output="bin/Debug/raptor" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin/Debug" />
@@ -72,7 +72,7 @@
 					<Add directory="../include/textscreen/liblinux/x86" />
 				</Linker>
 			</Target>
-			<Target title="Linux (32 Bit) Release">
+			<Target title="Linux(32 Bit) Release">
 				<Option platforms="Unix;" />
 				<Option output="bin/Release/raptor" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
@@ -115,11 +115,11 @@
 					<Add directory="../include/textscreen/libwin/x64" />
 				</Linker>
 			</Target>
-			<Target title="Win (64 Bit) Release">
+			<Target title="Win(64 Bit) Release">
 				<Option platforms="Windows;" />
 				<Option output="bin/x64/Release/raptor" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/x64/Release/" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
@@ -137,7 +137,7 @@
 					<Add directory="../include/textscreen/libwin/x64" />
 				</Linker>
 			</Target>
-			<Target title="Linux (64 Bit) Debug">
+			<Target title="Linux(64 Bit) Debug">
 				<Option platforms="Unix;" />
 				<Option output="bin/x64/Debug/raptor" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin/x64/Debug" />
@@ -159,7 +159,7 @@
 					<Add directory="../include/textscreen/liblinux/x64" />
 				</Linker>
 			</Target>
-			<Target title="Linux (64 Bit) Release">
+			<Target title="Linux(64 Bit) Release">
 				<Option platforms="Unix;" />
 				<Option output="bin/x64/Release/raptor" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/x64/Release/" />
@@ -200,6 +200,7 @@
 		<Unit filename="../src/dspapi.h" />
 		<Unit filename="../src/enemy.cpp" />
 		<Unit filename="../src/enemy.h" />
+		<Unit filename="../src/entypes.h" />
 		<Unit filename="../src/eshot.cpp" />
 		<Unit filename="../src/eshot.h" />
 		<Unit filename="../src/fileids.h" />
@@ -236,14 +237,14 @@
 		<Unit filename="../src/loadsave.h" />
 		<Unit filename="../src/m_misc.cpp" />
 		<Unit filename="../src/m_misc.h" />
-		<Unit filename="../src/movia_a.cpp" />
 		<Unit filename="../src/movie.cpp" />
 		<Unit filename="../src/movie.h" />
+		<Unit filename="../src/movie_a.cpp" />
 		<Unit filename="../src/mpualsa.cpp" />
-		<Unit filename="../src/mpuapi.cpp" />
-		<Unit filename="../src/mpuapi.h" />
-		<Unit filename="../src/mpucore.cpp" />
+		<Unit filename="../src/mpucorea.cpp" />
+		<Unit filename="../src/mpucorem.cpp" />
 		<Unit filename="../src/mputsf.cpp" />
+		<Unit filename="../src/mpuwinmm.cpp" />
 		<Unit filename="../src/musapi.cpp" />
 		<Unit filename="../src/musapi.h" />
 		<Unit filename="../src/objects.cpp" />
