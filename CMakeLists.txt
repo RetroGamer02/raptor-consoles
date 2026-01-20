@@ -16,17 +16,16 @@ if(ANDROID)
     include(FetchContent)
     FetchContent_Declare(
         SDL
-        URL            https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.30.10.zip
-        SOURCE_DIR     ${CMAKE_BINARY_DIR}/include/SDL2
+        URL            https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.10.zip
+        SOURCE_DIR     ${CMAKE_BINARY_DIR}/include/SDL3
         )
     set(BUILD_SHARED_LIBS ON)
-    set(SDL2_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
+    set(SDL3_DISABLE_UNINSTALL ON CACHE BOOL "" FORCE)
     set(SDL_TEST_ENABLED_BY_DEFAULT OFF)
-    set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(SDL)
     set(SDL_ACTIVITY_FOLDER app/src/main/java/org/libsdl/app/)
     file(REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/android/${SDL_ACTIVITY_FOLDER})
-    file(COPY ${CMAKE_BINARY_DIR}/include/SDL2/android-project/${SDL_ACTIVITY_FOLDER} DESTINATION ${CMAKE_SOURCE_DIR}/android/${SDL_ACTIVITY_FOLDER})
+    file(COPY ${CMAKE_BINARY_DIR}/include/SDL3/android-project/${SDL_ACTIVITY_FOLDER} DESTINATION ${CMAKE_SOURCE_DIR}/android/${SDL_ACTIVITY_FOLDER})
     file(REMOVE_RECURSE ${CMAKE_SOURCE_DIR}/android/app/src/main/assets)
     file(COPY ${CMAKE_SOURCE_DIR}/include/TinySoundFont/LICENSE DESTINATION ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/licenses)
     file(RENAME ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/licenses/LICENSE ${CMAKE_SOURCE_DIR}/android/app/src/main/assets/licenses/LICENSE.TSF)
@@ -34,9 +33,9 @@ if(ANDROID)
 elseif(WIN32)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     if(MSVC)
-        set(SDL2_DIR "include/SDL2-devel-2.28.2-VC/SDL2-2.28.2/cmake")
+        set(SDL3_DIR "include/SDL3-devel-3.2.10-VC/SDL3-3.2.10/cmake")
     else()
-        set(SDL2_DIR "include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/cmake")
+        set(SDL3_DIR "include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/cmake")
     endif()
     find_package(SDL3 REQUIRED)
     include_directories(${SDL3_INCLUDE_DIRS})
@@ -122,7 +121,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(raptor
         textscreen
         asound
-        
         SDL3::SDL3
         )
 
@@ -134,7 +132,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
     target_link_libraries(raptor ${AUDIO_TOOLBOX} ${AUDIO_UNIT} ${FOUNDATION_LIBRARY} ${COREMIDI_LIB}
         textscreen
-        
         SDL3::SDL3
         )
 
@@ -144,7 +141,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     target_link_libraries(raptor
         winmm.lib
         textscreen
-        
         SDL3::SDL3
         )
     if(${CMAKE_BUILD_TYPE} MATCHES "RelWithDebInfo" OR ${CMAKE_BUILD_TYPE} MATCHES "Release")
@@ -160,7 +156,6 @@ else()
     add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
     target_link_libraries(raptor
         textscreen
-        
         SDL3::SDL3
         )
 endif()
@@ -172,7 +167,6 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Android")
     endif()
     target_link_libraries(raptorsetup
         textscreen
-        
         SDL3::SDL3
         )
     
