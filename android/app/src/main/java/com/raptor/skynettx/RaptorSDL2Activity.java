@@ -2,12 +2,12 @@ package com.raptor.skynettx;
 
 import org.libsdl.app.SDLActivity;
 
-public class RaptorSDL2Activity extends SDLActivity
+public class RaptorSDL3Activity extends SDLActivity
 {
     @Override
     protected String[] getLibraries() {
         return new String[]{
-                "SDL2",
+                "SDL3",
                 "raptor"
         };
     }

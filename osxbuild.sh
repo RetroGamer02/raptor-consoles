@@ -61,7 +61,7 @@ cmake -DCMAKE_OSX_ARCHITECTURES=$arch -DCMAKE_BUILD_TYPE=Release ..
 make -j `sysctl -n hw.ncpu`
 cd ..
 cp -r build/bin/. pkg/osx/build/Release/raptorlauncher.app/Contents/MacOS
-cp -R /Library/Frameworks/SDL2.framework pkg/osx/build/Release/raptorlauncher.app/Contents/MacOS
+cp -R /Library/Frameworks/SDL3.framework pkg/osx/build/Release/raptorlauncher.app/Contents/MacOS
 printf '#!/bin/sh\ncd "${0%%/*}"\n./raptor' >> pkg/osx/build/Release/raptorlauncher.app/Contents/MacOS/raptor.sh
 printf '#!/bin/sh\ncd "${0%%/*}"\n./raptorsetup' >> pkg/osx/build/Release/raptorlauncher.app/Contents/MacOS/raptorsetup.sh
 chmod 755 pkg/osx/build/Release/raptorlauncher.app/Contents/MacOS/raptor.sh
@@ -101,10 +101,10 @@ else
     echo -e "raptorsetup.sh \033[0;31mFAILED\033[0m"
     exit 1
 fi
-if [ -d pkg/osx/build/Release/Raptor.app/Contents/MacOS/SDL2.framework ]; then
-    echo -e "SDL2.framework \033[0;32mPASS\033[0m"
+if [ -d pkg/osx/build/Release/Raptor.app/Contents/MacOS/SDL3.framework ]; then
+    echo -e "SDL3.framework \033[0;32mPASS\033[0m"
 else
-    echo -e "SDL2.framework \033[0;31mFAILED\033[0m"
+    echo -e "SDL3.framework \033[0;31mFAILED\033[0m"
     exit 1
 fi
 

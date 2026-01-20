@@ -16,15 +16,15 @@
 				<Compiler>
 					<Add option="-m32" />
 					<Add option="-g" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/i686-w64-mingw32/include/SDL2" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/i686-w64-mingw32/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
-					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL2main -lSDL2" />
+					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL3" />
 					<Add option="-lgdi32" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/i686-w64-mingw32/lib" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/i686-w64-mingw32/lib" />
 					<Add directory="../include/textscreen/libwin/x86" />
 				</Linker>
 			</Target>
@@ -37,16 +37,16 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-m32" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/i686-w64-mingw32/include/SDL2" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/i686-w64-mingw32/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m32" />
-					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL2main -lSDL2" />
+					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL3" />
 					<Add option="-lgdi32" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/i686-w64-mingw32/lib" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/i686-w64-mingw32/lib" />
 					<Add directory="../include/textscreen/libwin/x86" />
 				</Linker>
 			</Target>
@@ -61,13 +61,13 @@
 					<Add option="-Wall" />
 					<Add option="-m32" />
 					<Add option="-g" />
-					<Add directory="/usr/include/SDL2" />
+					<Add directory="/usr/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
-					<Add option="-ltextscreen -lasound -lSDL2main -lSDL2" />
+					<Add option="-ltextscreen -lasound -lSDL3" />
 					<Add directory="/usr/lib32" />
 					<Add directory="../include/textscreen/liblinux/x86" />
 				</Linker>
@@ -81,14 +81,14 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-m32" />
-					<Add directory="/usr/include/SDL2" />
+					<Add directory="/usr/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m32" />
-					<Add option="-ltextscreen -lasound -lSDL2main -lSDL2" />
+					<Add option="-ltextscreen -lasound -lSDL3" />
 					<Add directory="/usr/lib32" />
 					<Add directory="../include/textscreen/liblinux/x86" />
 				</Linker>
@@ -103,15 +103,15 @@
 				<Compiler>
 					<Add option="-m64" />
 					<Add option="-g" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/x86_64-w64-mingw32/include/SDL2" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/x86_64-w64-mingw32/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
-					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL2main -lSDL2" />
+					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL3" />
 					<Add option="-lgdi32" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/x86_64-w64-mingw32/lib" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/x86_64-w64-mingw32/lib" />
 					<Add directory="../include/textscreen/libwin/x64" />
 				</Linker>
 			</Target>
@@ -124,16 +124,16 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-m64" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/x86_64-w64-mingw32/include/SDL2" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/x86_64-w64-mingw32/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
-					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL2main -lSDL2" />
+					<Add option="-lmingw32 -ltextscreen -lwinmm -lSDL3" />
 					<Add option="-lgdi32" />
-					<Add directory="../include/SDL2-devel-2.28.2-mingw/SDL2-2.28.2/x86_64-w64-mingw32/lib" />
+					<Add directory="../include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/x86_64-w64-mingw32/lib" />
 					<Add directory="../include/textscreen/libwin/x64" />
 				</Linker>
 			</Target>
@@ -148,13 +148,13 @@
 					<Add option="-Wall" />
 					<Add option="-m64" />
 					<Add option="-g" />
-					<Add directory="/usr/include/SDL2" />
+					<Add directory="/usr/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-m64" />
-					<Add option="-ltextscreen -lasound -lSDL2main -lSDL2" />
+					<Add option="-ltextscreen -lasound -lSDL3" />
 					<Add directory="/usr/lib" />
 					<Add directory="../include/textscreen/liblinux/x64" />
 				</Linker>
@@ -168,14 +168,14 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-m64" />
-					<Add directory="/usr/include/SDL2" />
+					<Add directory="/usr/include/SDL3" />
 					<Add directory="../include/textscreen/include" />
 					<Add directory="../include/TinySoundFont" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-m64" />
-					<Add option="-ltextscreen -lasound -lSDL2main -lSDL2" />
+					<Add option="-ltextscreen -lasound -lSDL3" />
 					<Add directory="/usr/lib" />
 					<Add directory="../include/textscreen/liblinux/x64" />
 				</Linker>

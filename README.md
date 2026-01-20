@@ -31,9 +31,9 @@ The external system specific directories are the following:
 The config file `SETUP.INI` and the save files are also loaded and saved in these folders.
 On other systems that are not officially supported, the Raptor directory is used for loading and saving the config file and the save files.  
 Copy the `raptor.exe` (Windows) or `raptor` (Linux or macOS) from build directory to Raptor directory. 
-Under Windows copy the file `SDL.dll` from `include\SDL2-devel-2.28.2-VC\SDL2-2.28.2\lib\x86\` for 32 bit installation or for 64 bit installation from 
-`include\SDL2-devel-2.28.2-VC\SDL2-2.28.2\lib\x64\` to Raptor directory.
-Under Linux install lib-sdl2 from the packagemanager of your respective distro. When you use macOS install lib-sdl2 from dmg or from a packagemanager like brew etc. 
+Under Windows copy the file `SDL.dll` from `include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x86\` for 32 bit installation or for 64 bit installation from 
+`include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x64\` to Raptor directory.
+Under Linux install lib-sdl3 from the packagemanager of your respective distro. When you use macOS install lib-sdl3 from dmg or from a packagemanager like brew etc. 
 On an Android device, the APK can be installed via your preferred file manager.
 ### Shareware
 Copy the following files to Raptor or external system specific directory:  
@@ -95,7 +95,7 @@ When you have installed git on your system you can clone the repository by type 
 You can use the projectfile for Visual Studio 2022 under `msvc\` or the projectfile for CodeBlocks under `gcc\`.
 
 ### Linux
-Please remember to install the required dependencies lib-sdl2. In some distros there is an extra libsdl2-dev package like Debian or Ubuntu.  
+Please remember to install the required dependencies lib-sdl3. In some distros there is an extra libsdl3-dev package like Debian or Ubuntu.  
 You can use the projectfile for CodeBlocks under `gcc\`.
 Otherwise you can use CMake. To use CMake type in the root of the repository:   
 ```
@@ -106,7 +106,7 @@ make
 ```
 
 ### macOS
-Install the required dependencies lib-sdl2. To build use CMake, type in the root of the repository:
+Install the required dependencies lib-sdl3. To build use CMake, type in the root of the repository:
 ```
 mkdir build  
 cd build  

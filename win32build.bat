@@ -29,7 +29,7 @@ set arch="Release|x86"
 set archname=win32
 set buildfoldername=raptorx86
 set msvcfolder=msvc\Release
-set sdlfolder=include\SDL2-devel-2.28.2-VC\SDL2-2.28.2\lib\x86\SDL2.dll
+set sdlfolder=include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x86\SDL3.dll
 goto:buildres
 
 :win64:
@@ -37,7 +37,7 @@ set arch="Release|x64"
 set archname=win64
 set buildfoldername=raptorx64
 set msvcfolder=msvc\x64\Release
-set sdlfolder=include\SDL2-devel-2.28.2-VC\SDL2-2.28.2\lib\x64\SDL2.dll
+set sdlfolder=include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x64\SDL3.dll
 goto:buildres
 
 :buildres
@@ -182,10 +182,10 @@ if exist pkg\win32\%buildfoldername%\LICENSE (
   echo LICENSE FAILED
   goto:eof
 )
-if exist pkg\win32\%buildfoldername%\SDL2.dll (
-  echo SDL2.dll PASS
+if exist pkg\win32\%buildfoldername%\SDL3.dll (
+  echo SDL3.dll PASS
 ) else (
-  echo SDL2.dll FAILED
+  echo SDL3.dll FAILED
   goto:eof
 )
 goto:getinfo
@@ -281,7 +281,7 @@ xcopy "%assetspath%\*.GLB" pkg\win32\%buildfoldername%
   echo   File "%buildfoldername%\raptorsetup.exe"
   echo   CreateShortCut "$SMPROGRAMS\Raptor\Raptor Setup.lnk" "$INSTDIR\raptorsetup.exe"
   echo   CreateShortCut "$DESKTOP\Raptor Setup.lnk" "$INSTDIR\raptorsetup.exe"
-  echo   File "%buildfoldername%\SDL2.dll"
+  echo   File "%buildfoldername%\SDL3.dll"
   echo SectionEnd
   echo.
   echo Section -AdditionalIcons
@@ -311,7 +311,7 @@ xcopy "%assetspath%\*.GLB" pkg\win32\%buildfoldername%
   echo.
   echo Section Uninstall
   echo   Delete "$INSTDIR\uninst.exe"
-  echo   Delete "$INSTDIR\SDL2.dll"
+  echo   Delete "$INSTDIR\3.dll"
   echo   Delete "$INSTDIR\raptorsetup.exe"
   echo   Delete "$INSTDIR\raptor.exe"
   echo   Delete "$INSTDIR\LICENSETSF"
