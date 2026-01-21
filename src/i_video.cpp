@@ -714,17 +714,17 @@ static void CreateUpscaledTexture(bool force)
     h_upscale_old = h_upscale;
     w_upscale_old = w_upscale;
 
-    // Set the scaling quality for rendering the upscaled texture to "linear",
-    // which looks much softer and smoother than "nearest" but does a better
-    // job at downscaling from the upscaled texture to screen.
-
-    SDL_SetTextureScaleMode(new_texture, SDL_SCALEMODE_LINEAR);
-
     new_texture = SDL_CreateTexture(renderer,
                                 pixel_format,
                                 SDL_TEXTUREACCESS_TARGET,
                                 w_upscale*SCREENWIDTH,
                                 h_upscale*SCREENHEIGHT);
+
+    // Set the scaling quality for rendering the upscaled texture to "linear",
+    // which looks much softer and smoother than "nearest" but does a better
+    // job at downscaling from the upscaled texture to screen.
+
+    SDL_SetTextureScaleMode(new_texture, SDL_SCALEMODE_LINEAR);
 
     old_texture = texture_upscaled;
     texture_upscaled = new_texture;
@@ -1438,12 +1438,6 @@ static void SetVideoMode(void)
         SDL_DestroyTexture(texture);
     }
 
-    // Set the scaling quality for rendering the intermediate texture into
-    // the upscaled texture to "nearest", which is gritty and pixelated and
-    // resembles software scaling pretty well.
-
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-
     // Create the intermediate texture that the RGBA surface gets loaded into.
     // The SDL_TEXTUREACCESS_STREAMING flag means that this texture's content
     // is going to change frequently.
@@ -1452,6 +1446,12 @@ static void SetVideoMode(void)
                                 pixel_format,
                                 SDL_TEXTUREACCESS_STREAMING,
                                 SCREENWIDTH, SCREENHEIGHT);
+
+    // Set the scaling quality for rendering the intermediate texture into
+    // the upscaled texture to "nearest", which is gritty and pixelated and
+    // resembles software scaling pretty well.
+
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
     // Initially create the upscaled texture for rendering to screen
 

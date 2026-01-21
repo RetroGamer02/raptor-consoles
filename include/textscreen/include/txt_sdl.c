@@ -332,8 +332,8 @@ int TXT_Init(void)
                                         TXT_SCREEN_H * font->h,
                                         8, 0, 0, 0, 0);*/
 
-    screenbuffer = SDL_CreateSurface(TXT_SCREEN_W * font->w, TXT_SCREEN_H * font->h,
-            SDL_GetPixelFormatForMasks(8, 0, 0, 0, 0));
+    screenbuffer = SDL_CreateSurface(TXT_SCREEN_W * font->w, TXT_SCREEN_H * font->h, 
+                                 SDL_PIXELFORMAT_INDEX8);
 
     SDL_LockSurface(screenbuffer);
     SDL_SetPaletteColors(SDL_CreateSurfacePalette(screenbuffer), ega_colors, 0, 16);
@@ -356,9 +356,17 @@ void TXT_Shutdown(void)
 void TXT_SetColor(txt_color_t color, int r, int g, int b)
 {
     SDL_Color c = {r, g, b, 0xff};
-
     SDL_LockSurface(screenbuffer);
-    SDL_SetPaletteColors(SDL_CreateSurfacePalette(screenbuffer), &c, color, 1);
+    
+    // OLD (BUGGY): This wipes the palette every call
+    // SDL_SetPaletteColors(SDL_CreateSurfacePalette(screenbuffer), &c, color, 1);
+
+    // NEW (FIXED): Retrieve the existing palette
+    SDL_Palette *palette = SDL_GetSurfacePalette(screenbuffer);
+    if (palette) {
+        SDL_SetPaletteColors(palette, &c, color, 1);
+    }
+    
     SDL_UnlockSurface(screenbuffer);
 }
 
@@ -445,22 +453,22 @@ static int LimitToRange(int val, int min, int max)
     }
 }
 
-static void GetDestRect(SDL_Rect *rect)
+static void GetDestRect(SDL_FRect *rect)
 {
     int w, h;
 
     //Check me
-    SDL_GetCurrentRenderOutputSize(renderer, &w, &h);
-    rect->x = (w - screenbuffer->w) / 2;
-    rect->y = (h - screenbuffer->h) / 2;
-    rect->w = screenbuffer->w;
-    rect->h = screenbuffer->h;
+    SDL_GetRenderOutputSize(renderer, &w, &h);
+    rect->x = (float)((w - screenbuffer->w) * 0.5f);
+    rect->y = (float)((h - screenbuffer->h) * 0.5f);
+    rect->w = (float)screenbuffer->w;
+    rect->h = (float)screenbuffer->h;
 }
 
 void TXT_UpdateScreenArea(int x, int y, int w, int h)
 {
     SDL_Texture *screentx;
-    SDL_Rect rect;
+    SDL_FRect rect;
     int x1, y1;
     int x_end;
     int y_end;
@@ -482,16 +490,18 @@ void TXT_UpdateScreenArea(int x, int y, int w, int h)
 
     SDL_UnlockSurface(screenbuffer);
 
-    SDL_SetTextureScaleMode(screentx, SDL_SCALEMODE_LINEAR);
-
     // TODO: This is currently creating a new texture every time we render
     // the screen; find a more efficient way to do it.
     screentx = SDL_CreateTextureFromSurface(renderer, screenbuffer);
 
+    SDL_SetTextureScaleMode(screentx, SDL_SCALEMODE_LINEAR);
+
     SDL_RenderClear(renderer);
     GetDestRect(&rect);
 
-    SDL_RenderTexture(renderer, screentx, NULL, NULL);
+    //SDL_RenderCopy(renderer, screentx, NULL, &rect);
+
+    SDL_RenderTexture(renderer, screentx, NULL, &rect);
     SDL_RenderPresent(renderer);
 
     SDL_DestroyTexture(screentx);
@@ -510,7 +520,7 @@ void TXT_GetMousePosition(int *x, int *y)
     float fx, fy;
     SDL_GetMouseState(&fx, &fy);
     *x = (int)fx;
-    *y = (int)fy; //fixme later
+    *y = (int)fy; //fix me later
 
     // Translate mouse position from 'pixel' position into character position.
     // We are working here in screen coordinates and not pixels, since this is
