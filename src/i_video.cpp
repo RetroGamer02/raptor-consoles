@@ -105,7 +105,7 @@ int video_display = 0;
 int window_width = 800;
 int window_height = 600;
 
-// Fullscreen mode, 0x0 for SDL_WINDOW_FULLSCREEN_DESKTOP.
+// Fullscreen mode, 0x0 for SDL_WINDOW_DESKTOP.
 
 int fullscreen_width = 0, fullscreen_height = 0;
 
@@ -274,9 +274,9 @@ static void SetShowCursor(bool show)
         SDL_GetRelativeMouseState(NULL, NULL);
 #else
         if (show)
-        SDL_ShowCursor();
+            SDL_ShowCursor();
         else
-        SDL_HideCursor();
+            SDL_HideCursor();
 #endif
     }
 }
@@ -319,7 +319,7 @@ static void HandleWindowEvent(SDL_WindowEvent *event)
 
     switch (event->type)
     {
-#if 0 // SDL2-TODO
+#if 0 // SDL3-TODO
         case SDL_ACTIVEEVENT:
             // need to update our focus state
             UpdateFocus();
@@ -354,10 +354,12 @@ static void HandleWindowEvent(SDL_WindowEvent *event)
         // and we dont move the mouse around if we aren't focused either.
 
         case SDL_EVENT_WINDOW_FOCUS_GAINED:
+        case SDL_EVENT_WINDOW_MOUSE_ENTER:
             window_focused = true;
             break;
 
         case SDL_EVENT_WINDOW_FOCUS_LOST:
+        case SDL_EVENT_WINDOW_MOUSE_LEAVE:
             window_focused = false;
             break;
 
@@ -482,58 +484,21 @@ void I_GetEvent(void)
                 break;
 
             case SDL_EVENT_WINDOW_EXPOSED:
-            palette_to_set = true;
-            break;
-
-        case SDL_EVENT_WINDOW_RESIZED:
-            need_resize = true;
-            last_resize_time = SDL_GetTicks();
-            break;
-
-        // Don't render the screen when the window is minimized:
-
-        case SDL_EVENT_WINDOW_MINIMIZED:
-            screenvisible = false;
-            break;
-
-        case SDL_EVENT_WINDOW_MAXIMIZED:
-        case SDL_EVENT_WINDOW_RESTORED:
-            screenvisible = true;
-            break;
-
-        // Update the value of window_focused when we get a focus event
-        //
-        // We try to make ourselves be well-behaved: the grab on the mouse
-        // is removed if we lose focus (such as a popup window appearing),
-        // and we dont move the mouse around if we aren't focused either.
-
-        case SDL_EVENT_WINDOW_FOCUS_GAINED:
-            window_focused = true;
-            break;
-
-        case SDL_EVENT_WINDOW_FOCUS_LOST:
-            window_focused = false;
-            break;
-
-        // We want to save the user's preferred monitor to use for running the
-        // game, so that next time we're run we start on the same display. So
-        // every time the window is moved, find which display we're now on and
-        // update the video_display config variable.
-
-        case SDL_EVENT_WINDOW_MOVED:
-            i = SDL_GetDisplayForWindow(screen);
-            if (i >= 0)
-            {
-                video_display = i;
-            }
-            break;
-
-            /*case SDL_WINDOWEVENT:
+            case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_MINIMIZED:
+            case SDL_EVENT_WINDOW_MAXIMIZED:
+            case SDL_EVENT_WINDOW_RESTORED:
+            case SDL_EVENT_WINDOW_FOCUS_GAINED:
+            case SDL_EVENT_WINDOW_FOCUS_LOST:
+            case SDL_EVENT_WINDOW_MOUSE_ENTER:
+            case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+            case SDL_EVENT_WINDOW_MOVED:
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
                 if (sdlevent.window.windowID == SDL_GetWindowID(screen))
                 {
                     HandleWindowEvent(&sdlevent.window);
                 }
-                break;*/
+                break;
 
             default:
                 break;
@@ -791,7 +756,7 @@ void I_FinishUpdate (void)
             // save the new window size.
             flags = SDL_GetWindowFlags(screen);
             //Check me
-            if (!(flags & SDL_WINDOW_FULLSCREEN))
+            if ((flags & SDL_WINDOW_FULLSCREEN) == 0)
             {
                 SDL_GetWindowSize(screen, &window_width, &window_height);
 
