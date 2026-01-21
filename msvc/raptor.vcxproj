@@ -182,14 +182,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x86;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x86;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL3.lib;winmm.lib;textscreen.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
@@ -203,7 +203,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -212,7 +212,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x86;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x86;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL3.lib;winmm.lib;textscreen.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>MSVCRTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -224,13 +224,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\include;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x64;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x64;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\lib\x64;</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL3.lib;winmm.lib;shell32.lib;gdi32.lib;user32.lib;textscreen.lib</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
@@ -243,7 +243,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\include;C:\Users\Skynet\source\libs\SDL3-devel-3.2.10-VC\SDL3-3.2.10\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include\TinySoundFont;..\include\textscreen\include;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\include;C:\Users\Skynet\source\libs\SDL3-devel-3.2.12-VC\SDL3-3.2.12\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4703;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -251,7 +251,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x64;..\include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x64;C:\Users\Skynet\source\libs\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\include\textscreen\libwin\x64;..\include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\lib\x64;C:\Users\Skynet\source\libs\SDL3-devel-3.2.12-VC\SDL3-3.2.12\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL3.lib;winmm.lib;shell32.lib;gdi32.lib;user32.lib;textscreen.lib</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
       <IgnoreSpecificDefaultLibraries>MSVCRTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>

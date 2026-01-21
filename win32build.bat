@@ -29,7 +29,7 @@ set arch="Release|x86"
 set archname=win32
 set buildfoldername=raptorx86
 set msvcfolder=msvc\Release
-set sdlfolder=include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x86\SDL3.dll
+set sdlfolder=include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\lib\x86\SDL3.dll
 goto:buildres
 
 :win64:
@@ -37,7 +37,7 @@ set arch="Release|x64"
 set archname=win64
 set buildfoldername=raptorx64
 set msvcfolder=msvc\x64\Release
-set sdlfolder=include\SDL3-devel-3.2.10-VC\SDL3-3.2.10\lib\x64\SDL3.dll
+set sdlfolder=include\SDL3-devel-3.2.12-VC\SDL3-3.2.12\lib\x64\SDL3.dll
 goto:buildres
 
 :buildres

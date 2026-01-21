@@ -16,7 +16,7 @@ if(ANDROID)
     include(FetchContent)
     FetchContent_Declare(
         SDL
-        URL            https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.10.zip
+        URL            https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.12.zip
         SOURCE_DIR     ${CMAKE_BINARY_DIR}/include/SDL3
         )
     set(BUILD_SHARED_LIBS ON)
@@ -33,14 +33,14 @@ if(ANDROID)
 elseif(WIN32)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     if(MSVC)
-        set(SDL3_DIR "include/SDL3-devel-3.2.10-VC/SDL3-3.2.10/cmake")
+        set(SDL3_DIR "include/SDL3-devel-3.2.12-VC/SDL3-3.2.12/cmake")
     else()
-        set(SDL3_DIR "include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/cmake")
+        set(SDL3_DIR "include/SDL3-devel-3.2.12-mingw/SDL3-3.2.12/cmake")
     endif()
-    find_package(SDL3 3.2.10 REQUIRED)
+    find_package(SDL3 3.2.12 REQUIRED)
     include_directories(${SDL3_INCLUDE_DIRS})
 else()
-    find_package(SDL3 3.2.10 REQUIRED)
+    find_package(SDL3 3.2.12 REQUIRED)
     include_directories(${SDL3_INCLUDE_DIRS})
 endif()
 
