@@ -405,8 +405,7 @@ static void I_ToggleFullScreen(void)
 
     if (fullscreen)
     {
-        //flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        SDL_SetWindowFullscreen(screen, false); //Check me
+        flags |= SDL_WINDOW_FULLSCREEN;
     }
 
     SDL_SetWindowFullscreen(screen, flags);
@@ -754,7 +753,7 @@ static void CreateUpscaledTexture(bool force)
     // which looks much softer and smoother than "nearest" but does a better
     // job at downscaling from the upscaled texture to screen.
 
-    SDL_SetTextureScaleMode(texture_upscaled, SDL_SCALEMODE_LINEAR);
+    SDL_SetTextureScaleMode(new_texture, SDL_SCALEMODE_LINEAR);
 
     new_texture = SDL_CreateTexture(renderer,
                                 pixel_format,
@@ -792,7 +791,7 @@ void I_FinishUpdate (void)
             // save the new window size.
             flags = SDL_GetWindowFlags(screen);
             //Check me
-            if (!SDL_GetWindowFullscreenMode(screen))
+            if (!(flags & SDL_WINDOW_FULLSCREEN))
             {
                 SDL_GetWindowSize(screen, &window_width, &window_height);
 
@@ -1478,7 +1477,7 @@ static void SetVideoMode(void)
     // the upscaled texture to "nearest", which is gritty and pixelated and
     // resembles software scaling pretty well.
 
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_LINEAR);
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
     // Create the intermediate texture that the RGBA surface gets loaded into.
     // The SDL_TEXTUREACCESS_STREAMING flag means that this texture's content
