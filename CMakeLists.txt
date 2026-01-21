@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.18)
 
 set(EXECUTABLE_OUTPUT_PATH "bin")
 set(CMAKE_CXX_FLAGS "-O3")
@@ -37,10 +37,10 @@ elseif(WIN32)
     else()
         set(SDL3_DIR "include/SDL3-devel-3.2.10-mingw/SDL3-3.2.10/cmake")
     endif()
-    find_package(SDL3 REQUIRED)
+    find_package(SDL3 3.2.10 REQUIRED)
     include_directories(${SDL3_INCLUDE_DIRS})
 else()
-    find_package(SDL3 REQUIRED)
+    find_package(SDL3 3.2.10 REQUIRED)
     include_directories(${SDL3_INCLUDE_DIRS})
 endif()
 
