@@ -109,6 +109,13 @@ set(SOURCE_SETUP_FILES
     )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    # Check if the current Android platform is older than API 26 (Android 8.0)
+    # ANDROID_PLATFORM usually defaults to the lowest supported by the NDK (e.g., 16 or 21)
+    if(NOT ANDROID_PLATFORM OR ANDROID_PLATFORM LESS 26)
+        message(STATUS "Targeting Android 8.0 (API 26) - Minimum version requirement for Raptor")
+        set(ANDROID_PLATFORM 26 CACHE STRING "Minimum Android API Level" FORCE)
+    endif()
+
     add_library( ${PROJECT_NAME} SHARED ${SOURCE_FILES})   
     target_link_libraries(raptor
         textscreen
@@ -125,6 +132,15 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         )
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # Check if the current macOS target version is older than 11.0
+    if(NOT CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "11.0")
+        message(STATUS "Targeting macOS 11.0 (Minimum version requirement for Raptor)")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS version" FORCE)
+    endif()
+
+    # For universal binaries (M1/M2/M3 and Intel support):
+    # set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
+
     find_library(AUDIO_TOOLBOX AudioToolbox)
     find_library(AUDIO_UNIT AudioUnit)
     find_library(FOUNDATION_LIBRARY Foundation)
@@ -136,6 +152,14 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         )
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    # Check if the current system/target version is older than Windows 7 SP1 (6.1)
+    if(CMAKE_SYSTEM_VERSION VERSION_LESS "6.1")
+        message(STATUS "Targeting Windows 7 SP1 (Minimum version requirement for Raptor)")
+        set(CMAKE_SYSTEM_VERSION 6.1 CACHE STRING "Target Windows 7 SP1" FORCE)
+    endif()
+    # Set Windows 7 SP1 (0x0601) as the minimum target
+    add_compile_definitions(_WIN32_WINNT=0x0601 WINVER=0x0601)
+
     add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
     target_sources(raptor PRIVATE rsrc/resource.rc)
     target_link_libraries(raptor
