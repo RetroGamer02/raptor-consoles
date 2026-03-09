@@ -1,4 +1,5 @@
 #ifdef __PPC__
+#ifndef __N64__
 #include "ppc.h"
 #include <dirent.h>
 #include <fcntl.h>
@@ -225,4 +226,5 @@ if (!fatInitDefault()) {
     
 #endif
 }
+#endif
 #endif

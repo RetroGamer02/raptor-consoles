@@ -21,6 +21,46 @@
 #include "fileids.h"
 #include "winids.h"
 
+#ifdef __N64__
+#include <libdragon.h>
+#include <eepromfs.h>
+#include <malloc.h>
+#include <stdio.h>
+
+#ifdef __N64__
+#define MAX_SAVE  3
+#else
+#define MAX_SAVE  10
+#endif
+
+typedef struct {
+    PLAYEROBJ plr;
+    OBJ objects[MAX_OBJS];
+    int obj_count;
+} SAVEGAME;
+
+// Define file records dynamically for the EEPROM FS initialization
+static const eepfs_entry_t eeprom_entries[MAX_SAVE + 1] = {
+    {"CHAR0000.FIL", sizeof(SAVEGAME)},
+    {"CHAR0001.FIL", sizeof(SAVEGAME)},
+    {"CHAR0002.FIL", sizeof(SAVEGAME)},
+    {"SETUP.INI",    312}
+};
+
+// Helper: Since eepromfs pre-allocates files and fills erased ones with 0x00, 
+// we check if a file holds data by reading its first byte.
+int RAP_FileExists(const char* filename) {
+    SAVEGAME temp_save;
+    const char *base = strrchr(filename, '/');
+    if (!base) base = strrchr(filename, '\\');
+    base = base ? base + 1 : filename;
+    if (eepfs_read(base, &temp_save, sizeof(SAVEGAME)) == EEPFS_ESUCCESS) {
+        return ((char*)&temp_save)[0] != 0;
+    }
+    return 0;
+}
+#endif
+
 #if defined (_WIN32)
 #include <io.h>
 #endif // _WIN32
@@ -31,8 +71,6 @@
 #include <windows.h>
 #define PATH_MAX MAX_PATH
 #endif // _MSC_VER
-
-#define MAX_SAVE  10
 
 char cdpath[PATH_MAX];
 char g_setup_ini[PATH_MAX];
@@ -145,7 +183,11 @@ RAP_AreSavedFiles(
         else
             sprintf(temp, fmt, loop);
         
-        if (!access(temp, 0))
+        #ifdef __N64__
+            if (RAP_FileExists(temp))
+        #else
+            if (!access(temp, 0))
+        #endif
             return 1;
     }
     
@@ -162,6 +204,22 @@ RAP_ReadFile(
     int sizerec                     // INPUT : number of bytes to read
 )
 {
+    #ifdef __N64__
+    SAVEGAME temp_save;
+    const char *base = strrchr(name, '/');
+    if (!base) base = strrchr(name, '\\');
+    base = base ? base + 1 : name;
+
+    if (eepfs_read(base, &temp_save, sizeof(SAVEGAME)) != EEPFS_ESUCCESS) {
+        WIN_Msg("File open Error");
+        return 0;
+    }
+    
+    memcpy(buffer, &temp_save, sizerec);
+    GLB_DeCrypt(gdmodestr, buffer, sizerec);
+    
+    return sizerec;
+    #else
     FILE *handle;
     handle = fopen(name, "rb");
     
@@ -178,6 +236,7 @@ RAP_ReadFile(
     fclose(handle);
     
     return sizerec;
+    #endif
 }
 
 /***************************************************************************
@@ -208,7 +267,11 @@ RAP_FFSaveFile(
         else
             sprintf(temp, fmt, loop);
         
+        #ifdef __N64__
+        if (!RAP_FileExists(temp))
+        #else
         if (access(temp, 0) != 0)
+        #endif
         {
             RAP_ClearPlayer();
             filepos = loop;
@@ -247,7 +310,23 @@ RAP_IsSaveFile(
             sprintf(temp, cdfmt, cdpath, loop);
         else
             sprintf(temp, fmt, loop);
-        
+        #ifdef __N64__
+        if (RAP_FileExists(temp)) {
+            SAVEGAME save;
+            const char *base = strrchr(temp, '/');
+            if (!base) base = strrchr(temp, '\\');
+            base = base ? base + 1 : temp;
+            
+            if (eepfs_read(base, &save, sizeof(SAVEGAME)) == EEPFS_ESUCCESS) {
+                tp = save.plr;
+                if (!strcmp(tp.name, in_plr->name) && !strcmp(tp.callsign, in_plr->callsign))
+                {
+                    rval = 1;
+                    break;
+                }
+            }
+        }
+        #else
         handle = fopen(temp, "rb");
         
         if (handle)
@@ -260,6 +339,7 @@ RAP_IsSaveFile(
                 break;
             }
         }
+        #endif
     }
     
     return rval;
@@ -299,6 +379,27 @@ RAP_LoadPlayer(
     else
         sprintf(filename, fmt, filepos);
     
+    #ifdef __N64__
+    SAVEGAME save;
+    const char *base = strrchr(filename, '/');
+    if (!base) base = strrchr(filename, '\\');
+    base = base ? base + 1 : filename;
+
+    if (eepfs_read(base, &save, sizeof(SAVEGAME)) != EEPFS_ESUCCESS) {
+        WIN_Msg("Load Player Error");
+        return 0;
+    }
+
+    plr = save.plr;
+    GLB_DeCrypt(gdmodestr, &plr, sizeof(plr));
+
+    for (loop = 0; loop < save.obj_count; loop++) {
+        inobj = save.objects[loop];
+        GLB_DeCrypt(gdmodestr, &inobj, sizeof(inobj));
+        if (!OBJS_Load(&inobj))
+            break;
+    }
+    #else
     handle = fopen(filename, "rb");
     
     if (!handle)
@@ -320,6 +421,7 @@ RAP_LoadPlayer(
     }
     
     fclose(handle);
+    #endif
     
     cur_game = plr.cur_game;
     game_wave[0] = plr.game_wave[0];
@@ -371,6 +473,7 @@ RAP_SavePlayer(
     else
         sprintf(filename, fmt, filepos);
 
+    #ifndef __N64__
     handle = fopen(filename, "wb");
     
     if (!handle)
@@ -378,6 +481,7 @@ RAP_SavePlayer(
         WIN_Msg("Save Player Error !!!");
         return 0;
     }
+    #endif
     
     plr.cur_game = cur_game;
     plr.game_wave[0] = game_wave[0];
@@ -391,9 +495,33 @@ RAP_SavePlayer(
     }
     
     GLB_EnCrypt(gdmodestr, &plr, sizeof(plr));
+    #ifdef __N64__
+    SAVEGAME save;
+    save.plr = plr;
+    save.obj_count = 0;
+
+    for (cur = first_objs.next; &last_objs != cur; cur = cur->next) {
+        save.objects[save.obj_count] = *cur;
+        GLB_EnCrypt(gdmodestr, &save.objects[save.obj_count], sizeof(OBJ));
+        save.obj_count++;
+    }
+
+    const char *base = strrchr(filename, '/');
+    if (!base) base = strrchr(filename, '\\');
+    base = base ? base + 1 : filename;
+
+    if (eepfs_write(base, &save, sizeof(SAVEGAME)) == EEPFS_ESUCCESS) {
+        rval = 1;
+    } else {
+        WIN_Msg("Save Player Error !!!");
+        rval = 0;
+    }
+    #else
     fwrite(&plr, 1, sizeof(plr), handle);
+    #endif
     GLB_DeCrypt(gdmodestr, &plr, sizeof(plr));
     
+    #ifndef __N64__
     for (cur = first_objs.next; &last_objs != cur; cur = cur->next)
     {
         GLB_EnCrypt(gdmodestr, cur, sizeof(OBJ));
@@ -404,6 +532,7 @@ RAP_SavePlayer(
     rval = 1;
     
     fclose(handle);
+    #endif
     
     return rval;
 }
@@ -510,7 +639,11 @@ RAP_LoadWin(
         else
             sprintf(temp, fmt, loop);
         
+        #ifdef __N64__
+        if (RAP_FileExists(temp))
+        #else
         if (!access(temp, 0))
+        #endif
         {
             if (pos == -1)
                 pos = loop;
@@ -656,7 +789,15 @@ RAP_LoadWin(
                 sprintf(temp, "Delete Pilot %s ?", tplr.callsign);
                 if (WIN_AskBool(temp))
                 {
+                    #ifdef __N64__
+                    // eepfs_erase zeroes the file but leaves its layout in the filesystem intact
+                    const char *base = strrchr(filenames[pos], '/');
+                    if (!base) base = strrchr(filenames[pos], '\\');
+                    base = base ? base + 1 : filenames[pos];
+                    eepfs_erase(base);
+                    #else
                     remove(filenames[pos]);
+                    #endif
                     WIN_Msg("Pilot Removed !");
                     filenames[pos][0] = 0;
                     pos++;
@@ -695,6 +836,18 @@ RAP_InitLoadSave(
     memset(cdpath, 0, sizeof(cdpath));
     
     cdflag = 0;
+
+    #ifdef __N64__
+    // Crucial: check if hardware is present before initializing FS
+    if (eeprom_present()) {
+        if (eepfs_init(eeprom_entries, MAX_SAVE + 1) != EEPFS_ESUCCESS) {
+             // Handle init error (e.g. wrong size eeprom)
+        }
+        if (!eepfs_verify_signature()) {
+            eepfs_wipe(); 
+        }
+    }
+    #endif
     
     char setupPath[PATH_MAX];
     strcpy(setupPath, gExeDir);

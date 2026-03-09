@@ -1,4 +1,4 @@
-#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+#if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -540,7 +540,7 @@ IPT_LoadPrefs(
     void
 )
 {
-    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+    #if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         opt_detail = INI_GetPreferenceLong("Setup", "Detail", 1);
         control = 2;
         haptic = 0;

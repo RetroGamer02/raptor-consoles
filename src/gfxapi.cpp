@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdint.h>
-#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+#if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -34,7 +34,11 @@ int update_start;
 
 void (*framehook)(void (*call)(void));
 
+#ifdef __N64__
+static int rap_timer_init = 0;
+#else
 static int timer_init = 0;
+#endif
 
 int retraceflag = 1;
 int fontspacing = 1;
@@ -54,7 +58,11 @@ void GFX_InitTimer(void)
     SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
 #endif
     SDL_Init(SDL_INIT_TIMER);
+    #ifdef __N64__
+    rap_timer_init = 1;
+    #else
     timer_init = 1;
+    #endif
 }
 
 #define GFX_RATE 70
@@ -67,8 +75,13 @@ GFX_UpdateTimer(
     void
 )
 {
+    #ifdef __N64__
+    if (!rap_timer_init)
+        return;
+    #else
     if (!timer_init)
         return;
+    #endif
     
     static int last;
     static int accm;

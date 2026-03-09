@@ -1,6 +1,12 @@
 #pragma once
 
+#ifdef __PPC__
+#ifdef __N64__
+#include "mips.h"
+#else
 #include "ppc.h"
+#endif
+#endif
 
 #define MAX_SHIELD 100
 #define MAX_SUPER  100

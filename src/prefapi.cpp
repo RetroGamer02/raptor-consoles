@@ -16,6 +16,24 @@ char* ltoa(long i, char* s, int dummy_radix) {
 
 static char ProfilePath[260];
 
+#ifdef __N64__
+#include <libdragon.h>
+#include <eepromfs.h>
+
+// Helper function to simulate fgets from a memory buffer
+static char* mem_fgets(char* str, int n, char** stream) {
+    if (!*stream || **stream == '\0') return NULL;
+    char* s = str;
+    while (--n > 0 && **stream) {
+        *s = **stream;
+        (*stream)++;
+        if (*s++ == '\n') break;
+    }
+    *s = '\0';
+    return str;
+}
+#endif
+
 /***************************************************************************
    GetPrivateProfileString() -
  ***************************************************************************/
@@ -29,6 +47,54 @@ GetPrivateProfileString(
     const char* file              // INPUT : File to retrieve data from
 )
 {
+    #ifdef __N64__
+    char eeprom_data[312];
+    memset(eeprom_data, 0, sizeof(eeprom_data));
+    
+    const char *base = strrchr(file, '/');
+    if (!base) base = strrchr(file, '\\');
+    base = base ? base + 1 : file;
+
+    if (eepfs_read(base, eeprom_data, sizeof(eeprom_data)) != EEPFS_ESUCCESS) {
+        if (def) { strncpy(buf, def, buflen); buf[buflen - 1] = '\0'; }
+        else buf[0] = '\0';
+        return 0;
+    }
+
+    char *line_ptr = eeprom_data;
+    char buffer[128];
+    char* token;
+    short found = 0;
+    short len;
+
+    while (!found && mem_fgets(buffer, sizeof(buffer), &line_ptr)) {
+        if (buffer[0] == '[') {
+            for (len = 0; buffer[len] != '\0' && buffer[len] != ']'; ++len) ;
+            if (buffer[len] != ']') continue;
+            buffer[len] = '\0';
+            if (strcmp(buffer + 1, section) == 0) found = 1;
+        }
+    }
+
+    while (found && mem_fgets(buffer, sizeof(buffer), &line_ptr)) {
+        if (buffer[0] == '[') found = 0;
+        else if ((token = strtok(buffer, "=\r\n")) != NULL) {
+            if (strcmp(token, option) == 0) {
+                token = strtok(NULL, "\r\n");
+                if (token) {
+                    strncpy(buf, token, buflen);
+                    buf[buflen - 1] = '\0';
+                } else buf[0] = '\0';
+                return 1;
+            }
+        }
+    }
+
+    if (def) { strncpy(buf, def, buflen); buf[buflen - 1] = '\0'; }
+    else buf[0] = '\0';
+    
+    return 0;
+    #else
     char buffer[128];
     char* token;
     FILE* fptr;
@@ -89,6 +155,7 @@ GetPrivateProfileString(
         buf[0] = '\0';
     
     return 0;
+    #endif
 }
 
 /***************************************************************************
@@ -102,6 +169,98 @@ WritePrivateProfileString(
     const char* file                 // INPUT : File to retrieve data from
 )
 {
+    #ifdef __N64__
+    char eeprom_data[312];
+    memset(eeprom_data, 0, sizeof(eeprom_data));
+    
+    const char *base = strrchr(file, '/');
+    if (!base) base = strrchr(file, '\\');
+    base = base ? base + 1 : file;
+
+    eepfs_read(base, eeprom_data, sizeof(eeprom_data));
+    
+    char new_data[312];
+    memset(new_data, 0, sizeof(new_data));
+    char* out_ptr = new_data;
+    char* in_ptr = eeprom_data;
+    
+    char line[128];
+    short in_section = 0;
+    short section_found = 0;
+    short option_found = 0;
+    
+    if (section == NULL || *section == '\0') return 0;
+
+    while (mem_fgets(line, sizeof(line), &in_ptr)) {
+        // Keep empty lines
+        if (line[0] == '\r' || line[0] == '\n') {
+            int len = strlen(line);
+            if ((out_ptr - new_data) + len < (int)sizeof(new_data)) {
+                strcpy(out_ptr, line);
+                out_ptr += len;
+            }
+            continue;
+        }
+        
+        if (line[0] == '[') {
+            if (in_section && !option_found && option && *option != '\0' && buf && *buf != '\0') {
+                int len = snprintf(out_ptr, sizeof(new_data) - (out_ptr - new_data), "%s=%s\r\n", option, buf);
+                out_ptr += len;
+                option_found = 1;
+            }
+            
+            in_section = 0;
+            char sec_name[64];
+            int i;
+            for (i = 0; line[i+1] != '\0' && line[i+1] != ']'; i++) {
+                sec_name[i] = line[i+1];
+            }
+            sec_name[i] = '\0';
+            
+            if (strcmp(sec_name, section) == 0) {
+                in_section = 1;
+                section_found = 1;
+                if (!option || *option == '\0') continue; // Deleting entire section
+            }
+        } else if (in_section) {
+            if (!option || *option == '\0') continue; // Deleting section items
+            
+            char opt_name[64];
+            int i;
+            for (i = 0; line[i] != '\0' && line[i] != '=' && line[i] != '\r' && line[i] != '\n'; i++) {
+                opt_name[i] = line[i];
+            }
+            opt_name[i] = '\0';
+            
+            if (strcmp(opt_name, option) == 0) {
+                option_found = 1;
+                if (buf && *buf != '\0') {
+                    // Update value
+                    int len = snprintf(out_ptr, sizeof(new_data) - (out_ptr - new_data), "%s=%s\r\n", option, buf);
+                    out_ptr += len;
+                }
+                continue; 
+            }
+        }
+        
+        // Copy standard lines
+        int len = strlen(line);
+        if ((out_ptr - new_data) + len < (int)sizeof(new_data)) {
+            strcpy(out_ptr, line);
+            out_ptr += len;
+        }
+    }
+    
+    // Append at the end if not found
+    if (!section_found && option && *option != '\0' && buf && *buf != '\0') {
+        snprintf(out_ptr, sizeof(new_data) - (out_ptr - new_data), "\r\n[%s]\r\n%s=%s\r\n", section, option, buf);
+    } else if (in_section && !option_found && option && *option != '\0' && buf && *buf != '\0') {
+        snprintf(out_ptr, sizeof(new_data) - (out_ptr - new_data), "%s=%s\r\n", option, buf);
+    }
+    
+    if (eepfs_write(base, new_data, sizeof(new_data)) == EEPFS_ESUCCESS) return 1;
+    return 0;
+    #else
     char buffer[128];
     char* token;
     FILE* fptr;
@@ -259,7 +418,7 @@ WritePrivateProfileString(
         #if defined (_MSC_VER)
         chsize(fileno(fptr), pos1);
         #endif
-        #ifdef __GNUC__
+        #if defined (__GNUC__) && !defined (__N64__)
         ftruncate(fileno(fptr), pos1);
         #endif
     }
@@ -302,6 +461,7 @@ WritePrivateProfileString(
     fclose(fptr);
     
     return 1;
+    #endif
 }
 
 /***************************************************************************
@@ -315,10 +475,37 @@ INI_InitPreference(
     if (profile)
         strcpy(ProfilePath, profile);
 
+    #ifdef __N64__
+    const char *base = strrchr(ProfilePath, '/');
+    if (!base) base = strrchr(ProfilePath, '\\');
+    base = base ? base + 1 : ProfilePath;
+
+    char buffer[312];
+    memset(buffer, 0, sizeof(buffer));
+    
+    if (eepfs_read(base, buffer, sizeof(buffer)) == EEPFS_ESUCCESS) {
+        // If the file is completely empty (filled with zeroes on erase), initialize the defaults.
+        if (buffer[0] == '\0') {
+            const char* default_ini =
+                "[Music]\r\n"
+                "Volume=0\r\n\r\n"
+                "[SoundFX]\r\n"
+                "Volume=40\r\n\r\n"
+                "[Setup]\r\n"
+                "Detail=1\r\n";
+                
+            strncpy(buffer, default_ini, sizeof(buffer) - 1);
+            eepfs_write(base, buffer, sizeof(buffer));
+        }
+        return 1;
+    }
+    return 0;
+    #else
     if (access(ProfilePath, 04) == 0)
         return 1;
-
+        
     return 0;
+    #endif
 }
 
 /***************************************************************************

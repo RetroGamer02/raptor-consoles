@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+#if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -27,7 +27,9 @@ int fx_volume;
 static int fx_init = 0;
 static int lockcount;
 
-#ifdef __GCN__
+#ifdef __N64__
+int fx_freq = 22050;
+#elif __GCN__
 int fx_freq = 22050;
 #elif __WII__
 int fx_freq = 22050;
@@ -106,13 +108,21 @@ SND_InitSound(
     if (fx_init)
         return 0;
 
+    #ifdef __N64__
+        SDL_AudioInit("n64");
+    #else
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-        return 0;
+        return 0;  
+    #endif
 
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
     spec.channels = 2;
+    #ifdef __N64__
+    spec.samples = 256;
+    #else
     spec.samples = 512;
+    #endif
     spec.callback = FX_Fill;
     spec.userdata = NULL;
 
@@ -173,7 +183,7 @@ SND_InitSound(
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+    #if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         fx_card = 5;
         fx_chans = 2;
     #else

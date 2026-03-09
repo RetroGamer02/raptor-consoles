@@ -1,3 +1,4 @@
+#ifndef __N64__
 #include "embeded_file_loader.h"
 
 
@@ -57,3 +58,4 @@ MemFILE* mfopen_FILE0001(const char* name) {
     mf->pos  = 0;
     return mf;
 }
+#endif

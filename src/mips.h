@@ -1,0 +1,155 @@
+#ifndef MIPS_H
+#define MIPS_H
+
+#ifdef __MIPS__
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+#ifdef __N64__
+#include <cstdint>
+#include <libdragon.h>
+#include <string.h>
+#include <SDL2/SDL.h>
+#endif
+#endif
+
+#ifdef __N64__
+#define PATH_MAX 256
+#endif
+
+//Generic file copy function.
+int cp(const char *to, const char *from);
+
+//Init the target system
+void sys_init();
+
+#define access checkFile
+
+class little_int16_t {
+public:
+    little_int16_t(int16_t value = 0) {
+        set_value(value);
+    }
+
+    int16_t get_value() const {
+        return (static_cast<int16_t>(data[0]) << 0) |
+               (static_cast<int16_t>(data[1]) << 8);
+    }
+
+    void set_value(int16_t value) {
+        data[0] = static_cast<uint8_t>(value >> 0);
+        data[1] = static_cast<uint8_t>(value >> 8);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const little_int16_t& obj) {
+        os << std::hex << obj.get_value();
+        return os;
+    }
+
+private:
+    uint8_t data[2];
+};
+
+class little_uint16_t {
+public:
+    little_uint16_t(uint16_t value = 0) {
+        set_value(value);
+    }
+
+    uint16_t get_value() const {
+        return (static_cast<uint16_t>(data[0]) << 0) |
+               (static_cast<uint16_t>(data[1]) << 8);
+    }
+
+    void set_value(uint16_t value) {
+        data[0] = static_cast<uint8_t>(value >> 0);
+        data[1] = static_cast<uint8_t>(value >> 8);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const little_uint16_t& obj) {
+        os << std::hex << obj.get_value();
+        return os;
+    }
+
+private:
+    uint8_t data[2];
+};
+
+class little_int32_t {
+public:
+    little_int32_t(int32_t value = 0) {
+        set_value(value);
+    }
+
+    int32_t get_value() const {
+        return (static_cast<int32_t>(data[0]) << 0) |
+               (static_cast<int32_t>(data[1]) << 8) |
+               (static_cast<int32_t>(data[2]) << 16) |
+               (static_cast<int32_t>(data[3]) << 24);
+    }
+
+    void set_value(int32_t value) {
+        data[0] = static_cast<uint8_t>(value >> 0);
+        data[1] = static_cast<uint8_t>(value >> 8);
+        data[2] = static_cast<uint8_t>(value >> 16);
+        data[3] = static_cast<uint8_t>(value >> 24);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const little_int32_t& obj) {
+        os << std::hex << obj.get_value();
+        return os;
+    }
+
+private:
+    uint8_t data[4];
+};
+
+class little_uint32_t {
+public:
+    little_uint32_t(uint32_t value = 0) {
+        set_value(value);
+    }
+
+    uint32_t get_value() const {
+        return (static_cast<uint32_t>(data[0]) << 0) |
+               (static_cast<uint32_t>(data[1]) << 8) |
+               (static_cast<uint32_t>(data[2]) << 16) |
+               (static_cast<uint32_t>(data[3]) << 24);
+    }
+
+    void set_value(uint32_t value) {
+        data[0] = static_cast<uint8_t>(value >> 0);
+        data[1] = static_cast<uint8_t>(value >> 8);
+        data[2] = static_cast<uint8_t>(value >> 16);
+        data[3] = static_cast<uint8_t>(value >> 24);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const little_uint32_t& obj) {
+        os << std::hex << obj.get_value();
+        return os;
+    }
+
+private:
+    uint8_t data[4];
+};
+
+extern char gExeDir[512];
+
+/*#ifdef __GCN__
+#define SDMC "sd:/"
+#define HDFS "fat:/"
+#define RAP_SD_DIR SDMC "apps/Raptor/"
+#define RAP_HD_DIR HDFS "apps/Raptor/"
+#elif __WII__
+#define SDMC "sd:/"
+#define HDFS "fat:/"
+#define RAP_SD_DIR "./"
+#define RAP_HD_DIR "./"
+#elif __WIIU__
+#define SDMC "fs:/vol/external01/"
+#define HDFS "fs:/vol/internal01/"
+#define RAP_SD_DIR SDMC "apps/Raptor/"
+#define RAP_HD_DIR HDFS "apps/Raptor/"
+#endif*/
+
+#endif

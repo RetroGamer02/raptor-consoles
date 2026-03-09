@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#if defined(__GCN__) || defined(__WII__) || defined(__WIIU__)
+#if defined(__N64__) || defined(__GCN__) || defined(__WII__) || defined(__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -44,6 +44,10 @@
 
 //#include <gx2/init.h>
 //#include <nn/socket.h>
+#endif
+
+#ifdef __N64__
+#include <libdragon.h>
 #endif
 
 #if defined(_WIN32)
@@ -207,7 +211,10 @@ InitScreen() - Prints the Init Screen
 void InitScreen(
     void)
 {
-#ifdef __GCN__
+#ifdef __N64__
+    printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
+    printf(" RAPTOR-N64: V1.0.0 by RetroGamer02\n");
+#elif __GCN__
     printf(" RAPTOR: Call Of The Shadows V1.2       (c)1994 Cygnus Studios\n");
     printf(" RAPTOR-Gamecube: V1.0.0 by RetroGamer02\n");
 #elif __WII__
@@ -258,6 +265,14 @@ void ShutDown(
 	//WHBProcShutdown();
 
     SYSLaunchMenu();
+    #elif __N64__
+    SDL_Quit();
+    GLB_FreeAll();
+    IPT_CloJoy(); // Close Joystick
+    SWD_End();    // Broken on real Xbox hardware
+    SDL_Quit();
+
+    free(g_highmem);
     #else
     closewindow();  // Close Main Window
     I_LASTSCR(mem); // Call to display ANSI Screen
@@ -1278,6 +1293,9 @@ void InitExeDir(int argc, char **argv)
 #elif __GCN__
         // GameCube: default to SD Gecko mount point
         strcpy(gExeDir, "sd:/");
+#elif __N64__
+        // N64: default to root of rom file system
+        strcpy(gExeDir, "sd:/");
 #elif __WIIU__
         // WiiU: default to root of first EXT device
         strcpy(gExeDir, "fs:/vol/external01/");
@@ -1300,7 +1318,7 @@ int main(
 
     var1 = getenv("S_HOST");
 
-#if defined(__PPC__)
+#if defined(__PPC__) || defined(__MIPS__)
     sys_init();
 #endif
     
@@ -1308,7 +1326,7 @@ int main(
 
     RAP_InitLoadSave();
 
-#if defined (__GCN__) || defined(__WII__) || defined(__WIIU__)
+#if defined (__N64__) || defined (__GCN__) || defined(__WII__) || defined(__WIIU__)
     if (access(RAP_SetupFilename(), 0))
     {
         printf("\n\n** You must run SETUP first! **\n");
@@ -1325,12 +1343,14 @@ int main(
 
     godmode = 0;
 
+    #ifndef __N64__
     if (var1 != NULL && !strcmp(var1, gdmodestr))
         godmode = 1;
     else
         godmode = 0;
+    #endif
 
-#if !defined (__GCN__) && !defined(__WII__) && !defined(__WIIU__)
+#if !defined (__N64__) && !defined (__GCN__) && !defined(__WII__) && !defined(__WIIU__)
     if (argv[1])
     {
         if (!strcmp(argv[1], "REC"))
@@ -1356,7 +1376,7 @@ int main(
 
     cur_diff = 0;
 
-#if defined(__GCN__) || defined(__WII__) || defined(__WIIU__)
+#if defined(__N64__) || defined(__GCN__) || defined(__WII__) || defined(__WIIU__)
     gameflag[0] = 1;
 
     char rapFILE0002Path[512];
@@ -1402,7 +1422,7 @@ int main(
             numfiles++;
     }
 
-#if !defined(__GCN__) && !defined(__WII__) && !defined(__WIIU__)
+#if !defined(__N64__) && !defined(__GCN__) && !defined(__WII__) && !defined(__WIIU__)
     if (access("FILE0000.GLB", 0) || !numfiles)
     {
         printf("All game data files NOT FOUND cannot proceed !!\n");
@@ -1501,7 +1521,7 @@ int main(
         fflush(stdout);
     }
 
-#if defined(__PPC__)
+#if defined(__PPC__) || defined(__MIPS__)
     GLB_InitSystem(gExeDir, 6, 0);
 #else
     GLB_InitSystem(argv[0], 6, 0);
@@ -1524,7 +1544,7 @@ int main(
     SND_InitSound();
     IPT_Init();
     GLB_FreeAll();
-#if !defined(__GCN__)
+#if !defined(__GCN__) && !defined(__N64__)
     RAP_InitMem();
 #endif
 

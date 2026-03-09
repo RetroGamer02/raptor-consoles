@@ -15,7 +15,7 @@
 //    Exit text-mode ENDOOM screen.
 //
 
-
+#ifndef __N64__
 #include <stdio.h>
 #include <string.h>
 
@@ -83,3 +83,4 @@ void I_LASTSCR(char* mem)
 
     TXT_Shutdown();
 }
+#endif

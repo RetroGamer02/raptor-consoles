@@ -1,3 +1,4 @@
+#ifndef __N64__
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -25,3 +26,4 @@ MemFILE* mfopen_FILE0000(const char* name);
 MemFILE* mfopen_FILE0001(const char* name);
 void loadViaMemFILE0000();
 void loadViaMemFILE0001();
+#endif

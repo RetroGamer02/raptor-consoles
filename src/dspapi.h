@@ -1,6 +1,12 @@
 #pragma once
 
+#ifdef __PPC__
+#ifdef __N64__
+#include "mips.h"
+#else
 #include "ppc.h"
+#endif
+#endif
 
 struct dsp_t {
     little_int16_t format;

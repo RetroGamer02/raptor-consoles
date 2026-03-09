@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <climits>
-#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+#if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_opengl.h"
 #else
@@ -113,7 +113,10 @@ int video_display = 0;
 
 // Screen width and height, from configuration file.
 
-#ifdef __GCN__
+#ifdef __N64__
+int window_width = 320;
+int window_height = 240;
+#elif __GCN__
 int window_width = 640;
 int window_height = 480;
 #elif __WII__
@@ -225,7 +228,11 @@ int screencoordpoint = 0;
 
 void VIDEO_LoadPrefs(void)
 {
-    #ifdef __GCN__
+    #ifdef __N64__
+        fullscreen = 1;
+        aspect_ratio_correct = 0;
+        txt_fullscreen = 1;
+    #elif __GCN__
         fullscreen = 1;
         aspect_ratio_correct = 0;
         txt_fullscreen = 1;
@@ -243,6 +250,20 @@ void VIDEO_LoadPrefs(void)
         txt_fullscreen = INI_GetPreferenceLong("Video", "txt_fullscreen", 0);
     #endif
 }
+
+#ifdef __N64__
+static SDL_Color last_palette[256];
+static uint16_t pal5551[256];
+static int palette_initialized = 0;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void SDL_N64_PumpAudio(void);
+#ifdef __cplusplus
+}
+#endif
+#endif
 
 static bool MouseShouldBeGrabbed()
 {
@@ -937,7 +958,122 @@ void I_GetEvent(void)
         } else {
             StickY = 0;
         }
-        
+    #elif __N64__
+    SDL_N64_PumpAudio(); //Normaly would not belong here.
+
+    joypad_poll();
+
+    if (joypad_is_connected(JOYPAD_PORT_1))
+    {
+        joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
+        joypad_buttons_t released = joypad_get_buttons_released(JOYPAD_PORT_1);
+        joypad_inputs_t input = joypad_get_inputs(JOYPAD_PORT_1);
+
+        if (pressed.start) {
+            Start = 1;
+        }
+        if (released.start) {
+            Start = 0;
+        }
+        if (pressed.a) {
+            AButton = 1;
+        }
+        if (released.a) {
+            AButton = 0;
+        }
+        if (pressed.b) {
+            BButton = 1;
+        }
+        if (released.b) {
+            BButton = 0;
+        }
+
+        if (pressed.l) {
+            LeftShoulder = 1;
+        }
+        if (released.l) {
+            LeftShoulder = 0;
+        }
+        if (pressed.r) {
+            RightShoulder = 1;
+        }
+        if (released.r) {
+            RightShoulder = 0;
+        }
+        if (pressed.z) {
+            XButton = 1;
+        }
+        if (released.z) {
+            XButton = 0;
+        }
+
+        /*if (pressed.c_up) {
+            
+        }
+        if (released.c_up) {
+            
+        }*/
+        if (pressed.c_right) {
+            YButton = 1;
+        }
+        if (released.c_right) {
+            YButton = 0;
+        }
+        if (pressed.c_down) {
+            XButton = 1;
+        }
+        if (released.c_down) {
+            XButton = 0;
+        }
+        if (pressed.c_left) {
+            Back = 1;
+        }
+        if (released.c_left) {
+            Back = 0;
+        }
+
+        if (pressed.d_up) {
+            Up = 1;
+        }
+        if (released.d_up) {
+            Up = 0;
+        }
+        if (pressed.d_down) {
+            Down = 1;
+        }
+        if (released.d_down) {
+            Down = 0;
+        }
+        if (pressed.d_left) {
+            Left = 1;
+        }
+        if (released.d_left) {
+            Left = 0;
+        }
+        if (pressed.d_right) {
+            Right = 1;
+        }
+        if (released.d_right) {
+            Right = 0;
+        }
+
+        int8_t n64StickX = input.stick_x;
+        int8_t n64StickY = input.stick_y * -1;
+
+        if (n64StickX >= 10 || n64StickX <= -10)
+        {
+            StickX = n64StickX;
+        } else {
+            StickX = 0;
+        }
+        if (n64StickY >= 10 || n64StickY <= -10)
+        {
+            StickY = n64StickY;
+        } else {
+            StickY = 0;
+        }
+
+    }
     #else
     extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
     extern void I_HandleMouseEvent(SDL_Event *sdlevent);
@@ -1277,7 +1413,9 @@ void I_FinishUpdate (void)
                 AdjustWindowSize();
                 SDL_SetWindowSize(screen, window_width, window_height);
             }
+            #ifndef __N64__
             CreateUpscaledTexture(false);
+            #endif
             need_resize = false;
             palette_to_set = true;
         }
@@ -1335,7 +1473,57 @@ void I_FinishUpdate (void)
     // Blit from the paletted 8-bit screen buffer to the intermediate
     // 32-bit RGBA buffer that we can load into the texture.
 
-    SDL_LowerBlit(screenbuffer, &blit_rect, argbbuffer, &blit_rect);
+    #ifdef __N64__
+    uint16_t *dst = ((uint16_t*)argbbuffer->pixels) + (20 * 320);
+    uint8_t *src = I_VideoBuffer;
+
+    // Use memcmp for a faster block comparison instead of a custom loop
+    if (!palette_initialized || memcmp(palette, last_palette, 256 * sizeof(SDL_Color)) != 0)
+    {
+        for (int i = 0; i < 256; i++)
+        {
+            SDL_Color col = palette[i];
+
+            pal5551[i] =
+                ((col.r >> 3) << 11) |
+                ((col.g >> 3) << 6)  |
+                ((col.b >> 3) << 1)  |
+                1;
+
+            last_palette[i] = col;
+        }
+
+        palette_initialized = 1;
+    }
+
+    uint64_t *dst64 = (uint64_t*)dst;
+    
+    // Cast src to 32-bit to read 4 pixels in one memory access
+    // NOTE: I_VideoBuffer must be 32-bit aligned in memory for this to work safely!
+    uint32_t *src32 = (uint32_t*)src; 
+    
+    int words = (SCREENWIDTH * SCREENHEIGHT) >> 2;
+
+    for (int i = 0; i < words; i++)
+    {
+        uint32_t pixel_block = src32[i];
+
+        // N64 is Big-Endian: extract indices using bitshifts.
+        // This keeps the work in CPU registers, avoiding multiple 8-bit memory loads.
+        uint16_t p0 = pal5551[ pixel_block >> 24 ];
+        uint16_t p1 = pal5551[(pixel_block >> 16) & 0xFF];
+        uint16_t p2 = pal5551[(pixel_block >> 8)  & 0xFF];
+        uint16_t p3 = pal5551[ pixel_block        & 0xFF];
+
+        dst64[i] =
+            ((uint64_t)p0 << 48) |
+            ((uint64_t)p1 << 32) |
+            ((uint64_t)p2 << 16) |
+            (uint64_t)p3;
+    }
+    #else
+        SDL_LowerBlit(screenbuffer, &blit_rect, argbbuffer, &blit_rect);
+    #endif
 
     // Update the intermediate texture with the contents of the RGBA buffer.
 
@@ -1343,12 +1531,14 @@ void I_FinishUpdate (void)
 
     // Make sure the pillarboxes are kept clear each frame.
 
+    #ifndef __N64__D
     SDL_RenderClear(renderer);
+    #endif
 
     // Render this intermediate texture into the upscaled texture
     // using "nearest" integer scaling.
 
-    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+    #if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
     // Finally, render this upscaled texture to screen using linear scaling.
 
     SDL_SetRenderTarget(renderer, NULL);
@@ -1666,9 +1856,11 @@ static void SetSDLVideoDriver(void)
     {
         char *env_string;
 
+        #ifndef __N64__
         env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
         putenv(env_string);
         free(env_string);
+        #endif
     }
 }
 
@@ -1752,7 +1944,11 @@ static void SetVideoMode(void)
     #else
     int w, h;
     int x, y;
+    #ifdef __N64__
+    uint32_t rmask, gmask, bmask, amask;
+    #else
     unsigned int rmask, gmask, bmask, amask;
+    #endif
     int bpp;
     int window_flags = 0, renderer_flags = 0;
     SDL_DisplayMode mode;
@@ -1824,7 +2020,7 @@ static void SetVideoMode(void)
     // The SDL_RENDERER_TARGETTEXTURE flag is required to render the
     // intermediate texture into the upscaled texture.
 
-    #if defined (__GCN__) || defined (__WII__)
+    #if defined (__N64__) || defined (__GCN__) || defined (__WII__)
     renderer_flags = 0;
     #else
     renderer_flags = SDL_RENDERER_TARGETTEXTURE;
@@ -1915,9 +2111,15 @@ static void SetVideoMode(void)
 
     if (screenbuffer == NULL)
     {
+        #ifdef __N64__
+        screenbuffer = SDL_CreateRGBSurface(0,
+                                            SCREENWIDTH, SCREENHEIGHT + 40, 8,
+                                            0, 0, 0, 0);
+        #else
         screenbuffer = SDL_CreateRGBSurface(0,
                                             SCREENWIDTH, SCREENHEIGHT, 8,
                                             0, 0, 0, 0);
+        #endif
         SDL_FillRect(screenbuffer, NULL, 0);
     }
 
@@ -1934,9 +2136,15 @@ static void SetVideoMode(void)
     {
         SDL_PixelFormatEnumToMasks(pixel_format, &bpp,
                                    &rmask, &gmask, &bmask, &amask);
+        #ifdef __N64__
+        argbbuffer = SDL_CreateRGBSurface(0,
+                                          SCREENWIDTH, SCREENHEIGHT + 40, bpp,
+                                          rmask, gmask, bmask, amask);
+        #else
         argbbuffer = SDL_CreateRGBSurface(0,
                                           SCREENWIDTH, SCREENHEIGHT, bpp,
                                           rmask, gmask, bmask, amask);
+        #endif
         SDL_FillRect(argbbuffer, NULL, 0);
     }
 
@@ -1955,16 +2163,25 @@ static void SetVideoMode(void)
     // The SDL_TEXTUREACCESS_STREAMING flag means that this texture's content
     // is going to change frequently.
 
+    #ifdef __N64__
+    texture = SDL_CreateTexture(renderer,
+                                pixel_format,
+                                SDL_TEXTUREACCESS_STREAMING,
+                                SCREENWIDTH, SCREENHEIGHT + 40);
+    #else
     texture = SDL_CreateTexture(renderer,
                                 pixel_format,
                                 SDL_TEXTUREACCESS_STREAMING,
                                 SCREENWIDTH, SCREENHEIGHT);
+    #endif
 
     // Initially create the upscaled texture for rendering to screen
 
-    #ifdef __WIIU__
+    #if defined (__WIIU__)
     CreateUpscaledTexture(false);
     #else
+    #endif
+    #ifndef __N64__
     CreateUpscaledTexture(true);
     #endif
     #endif
@@ -2018,7 +2235,9 @@ void I_InitGraphics(uint8_t *pal)
         unsigned int winid;
 
         sscanf(env, "0x%x", &winid);
+        #ifndef __N64__
         M_snprintf(winenv, sizeof(winenv), "SDL_WINDOWID=%u", winid);
+        #endif
 
         putenv(winenv);
     }
@@ -2142,11 +2361,19 @@ void I_GetMousePos(int *x, int *y)
     SDL_RenderGetViewport(renderer, &viewport);
     SDL_RenderGetScale(renderer, &sx, &sy);
 
+    #ifndef __N64__D
+    if (screencoordpoint)
+    {
+        sx *= 0.5f;
+        sy *= 0.5f;
+    }
+    #else
     if (screencoordpoint)
     {
         sx /= 2;
         sy /= 2;
     }
+    #endif
 
     *x = (int)(*x / sx) - viewport.x;
     *y = (int)(((*y / sy - viewport.y) * (float)SCREENHEIGHT) / actualheight);
@@ -2155,7 +2382,7 @@ void I_GetMousePos(int *x, int *y)
 
 void I_SetMousePos(int x, int y)
 {
-    #if !defined (SDL12) && !defined (__GCN__)
+    #if !defined (SDL12) && !defined (__N64__) && !defined (__GCN__)
     SDL_Rect viewport;
     float sx, sy;
     SDL_RenderGetViewport(renderer, &viewport);

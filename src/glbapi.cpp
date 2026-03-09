@@ -63,7 +63,9 @@ typedef struct
 	int      items;
 	union {
         FILE*   f;      // on-disk
+		#ifndef __N64__
         MemFILE* m;     // in-RAM
+		#endif
     } handle;
 	const char *permissions;
 }FILEDESC;
@@ -150,6 +152,58 @@ GLB_DeCrypt(
 	}
 }
 
+#ifdef __N64__4MB
+/* Try to allocate memory, evicting non-locked cached items if necessary */
+static char*
+try_alloc_with_eviction(ITEMINFO* target_ii, uint32_t size, FI_MODE mode)
+{
+    char* obj = NULL;
+    int attempts = 300; /* try a few times, evicting between attempts */
+
+    while (attempts--) {
+        if (fVmem) {
+            obj = (char*)VM_Malloc(size,
+                (target_ii->flags & ITF_LOCKED) ? NULL : &target_ii->vm_mem,
+                (mode == FI_CACHE) ? 0 : 1);
+        } else {
+            obj = (char*)calloc(size, 1);
+        }
+
+        if (obj)
+            return obj;
+
+        /* Evict one non-locked cached item (LRU or first found) to free memory */
+        for (int f = 0; f < num_glbs; ++f) {
+            ITEMINFO* it = filedesc[f].item;
+            for (int itn = 0; itn < filedesc[f].items; ++itn, ++it) {
+                if (it->vm_mem.obj && !(it->flags & ITF_LOCKED)) {
+                    /* Free it and mark as freed */
+                    if (fVmem)
+                        VM_Free(it->vm_mem.obj);
+                    else
+                        free(it->vm_mem.obj);
+                    it->vm_mem.obj = NULL;
+                    /* Hint VM that memory was touched/freed */
+                    if (fVmem)
+                        VM_Touch(&it->vm_mem);
+                    /* break to retry allocation sooner */
+                    goto retry_alloc;
+                }
+            }
+        }
+
+        /* Nothing left to evict; break out */
+        break;
+
+    retry_alloc:
+        ;
+    }
+
+    return NULL;
+}
+
+#endif
+
 /*------------------------------------------------------------------------
    GLB_FindFile() - Finds a file, opens it, and stores it's path
  ------------------------------------------------------------------------*/
@@ -180,7 +234,11 @@ GLB_FindFile(
 	* create a file name and attempt to open it local first, then if it
 	* fails use the exe path and try again.
 	*/
+	#ifdef __N64__
+	sprintf(filename, "rom:/%s%04u.GLB", prefix, filenum);
+	#else
 	sprintf(filename, "%s%04u.GLB", prefix, filenum);
+	#endif
 	if ((handle = fopen(filename, permissions)) == NULL)
 	{
 		sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
@@ -249,6 +307,7 @@ GLB_OpenFile(
 	return fd->handle.f;
 }
 
+#ifndef __N64__
 /*------------------------------------------------------------------------
    GLB_OpenFile() - Opens & Caches file handle
  ------------------------------------------------------------------------*/
@@ -273,6 +332,7 @@ GLB_OpenMemFile(
 		return fd->handle.m;
 	}
 }
+#endif
 
 /*------------------------------------------------------------------------
    GLB_CloseFiles() - Closes all cached files.
@@ -306,7 +366,9 @@ GLB_NumItems(
 	
 	union {
         FILE*   f;      // on-disk
+		#ifndef __N64__
         MemFILE* m;     // in-RAM
+		#endif
     } handle;
 
 	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
@@ -412,17 +474,29 @@ GLB_LoadMemIDT(
 	FILEDESC* fd               // INPUT: file to load
 )
 {
+	#ifdef __N64__
+	FILE *handle;
+	#else
 	MemFILE *handle;
+	#endif
 	int j;
 	int k;
 	int n;
 	KEYFILE key[10];
 	ITEMINFO* ii;
 
+	#ifdef __N64__
+	handle = fd->handle.f;
+	#else
 	handle = fd->handle.m;
+	#endif
 	ii = fd->item;
 
+	#ifdef __N64__
+	fseek(handle, sizeof(KEYFILE), SEEK_SET);
+	#else
 	memf_seek(handle, sizeof(KEYFILE), SEEK_SET);
+	#endif
 	
 	for (j = 0; j < fd->items; )
 	{
@@ -431,7 +505,11 @@ GLB_LoadMemIDT(
 		if (k > ASIZE(key))
 			k = ASIZE(key);
 
+		#ifdef __N64__
+		fread(key, sizeof(KEYFILE), k, handle);
+		#else
 		memf_read(key, sizeof(KEYFILE), k, handle);
+		#endif
 		
 		for (n = 0; n < k; n++)
 		{
@@ -549,7 +627,9 @@ GLB_Load(
 	//FILE *handle;
     union {
         FILE*   f;      // on-disk
+		#ifndef __N64__
         MemFILE* m;     // in-RAM
+		#endif
     } handle;
 	ITEMINFO* ii;
 
@@ -639,6 +719,42 @@ GLB_FetchItem(
 	if (mode == FI_LOCK)
 		ii->flags |= ITF_LOCKED;
 	
+	#ifdef __N64__4MB
+	if ((obj = ii->vm_mem.obj) == NULL)
+	{
+		ii->lock_cnt = 0;
+
+		if (ii->size == 0)
+			ii->vm_mem.obj = NULL;
+		else
+		{
+			/* Try to allocate, evicting other cached items if needed */
+			obj = try_alloc_with_eviction(ii, ii->size, mode);
+
+			if (mode == FI_LOCK && obj)
+				ii->lock_cnt = 1;
+
+			ii->vm_mem.obj = obj;
+
+			if (obj != NULL)
+			{
+				GLB_Load(obj, itm.id.filenum, itm.id.itemnum);
+			}
+		}
+	}
+	else if (mode == FI_LOCK && fVmem)
+	{
+		ii->lock_cnt++;
+		VM_Lock(obj);
+	}
+
+	/* If allocation still failed and caller requested resident memory, return NULL (caller must handle) */
+	if (ii->vm_mem.obj == NULL && mode != FI_CACHE)
+	{
+		/* Previously: EXIT_Error(...) */
+		return NULL;
+	}
+	#else
 	if ((obj = ii->vm_mem.obj) == NULL)
 	{
 		ii->lock_cnt = 0;
@@ -680,6 +796,7 @@ GLB_FetchItem(
 	{
 		EXIT_Error("GLB_FetchItem: failed on %d bytes, mode=%d.", ii->size, mode);
 	}
+	#endif
 	
 	if (mode == FI_DISCARD && fVmem)
 		VM_Touch(&ii->vm_mem);

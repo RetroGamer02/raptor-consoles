@@ -47,6 +47,11 @@
 #define PI 3.14159265358979323846
 #endif
 
+#ifdef __N64__
+#include <fmath.h>
+#define sin fm_sinf
+#endif
+
 namespace DBOPL {
 
 #define OPLRATE		((double)(14318180.0 / 288.0))

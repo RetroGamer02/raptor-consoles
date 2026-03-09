@@ -2,6 +2,7 @@
 #define PPC_H
 
 #ifdef __PPC__
+#ifndef __N64__
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -169,5 +170,6 @@ extern char gExeDir[512];
 #define RAP_HD_DIR HDFS "apps/Raptor/"
 #endif*/
 
+#endif
 #endif
 #endif
