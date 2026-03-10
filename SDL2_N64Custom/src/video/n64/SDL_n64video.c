@@ -191,19 +191,17 @@ N64_CreateWindow(_THIS, SDL_Window * window)
     if (!wdata) return SDL_OutOfMemory();
     window->driverdata = wdata;
 
-    bitdepth_t bitdepth = DEPTH_16_BPP;//(window->flags & SDL_WINDOW_OPENGL) ? DEPTH_16_BPP : PixelFormatToN64FMT(SDL_GetWindowPixelFormat(window));
-
-    // Modern Libdragon resolution selection
     resolution_t res = RESOLUTION_320x240; 
-    //if (window->w > 320) res = RESOLUTION_640x480;
+    if (window->w > 320) res = RESOLUTION_640x480;
 
-    /* Initialize display with 3 buffers for better performance in SDL */
-    display_init(res, bitdepth, 3, GAMMA_NONE, FILTERS_RESAMPLE); //ANTIALIAS_RESAMPLE
+    display_init(res, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE);
     
-    // Initialize RDPQ - Modern Libdragon requirement for fast 2D/3D
     rdpq_init();
 
     rdpq_mode_filter(FILTER_POINT);
+    rdpq_mode_antialias(AA_NONE);
+    rdpq_mode_dithering(DITHER_NONE_NONE);
+    rdpq_set_scissor(0, 0, window->w, window->h);
 
     SDL_SetKeyboardFocus(window);
     return 0;

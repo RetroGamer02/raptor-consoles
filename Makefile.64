@@ -11,7 +11,7 @@ SDL2_ROOT_DIR   = SDL2_N64Custom
 include $(SDL2_ROOT_DIR)/Makefile_sdl2.mk
 
 # --- Source Discovery ---
-SRC_DIRS        = src .
+SRC_DIRS        = src include/textscreen/include
 CFILES          := $(foreach d,$(SRC_DIRS),$(wildcard $(d)/*.c))
 CPPFILES        := $(foreach d,$(SRC_DIRS),$(wildcard $(d)/*.cpp))
 SRCS            := $(CFILES) $(CPPFILES) $(C_SDL_FILES)
@@ -19,10 +19,10 @@ OBJS            := $(SRCS:%.c=$(BUILD_DIR)/%.o)
 OBJS            := $(OBJS:%.cpp=$(BUILD_DIR)/%.o)
 
 # --- Include Paths ---
-INC_DIRS        = ./ src $(SDL2_ROOT_DIR)/include include/textscreen/include include/TimGM6mb include/TinySoundFont
+INC_DIRS        = src $(SDL2_ROOT_DIR)/include include/textscreen/include include/TimGM6mb include/TinySoundFont
 
 CUSTOM_FLAGS    = $(foreach d,$(INC_DIRS),-I$(CURDIR)/$(d)) \
-                  -Os -ffast-math -D__MIPS__ -D__N64__ \
+                  -O3 -ffast-math -D__MIPS__ -D__N64__ \
                   -Wno-error=missing-braces -Wno-error=strict-aliasing \
                   -Wno-error=incompatible-pointer-types -Wno-error=char-subscripts \
                   -Wno-error=maybe-uninitialized -Wno-error=format-overflow \

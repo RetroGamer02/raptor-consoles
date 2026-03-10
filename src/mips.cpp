@@ -93,17 +93,17 @@ void sys_init()
     dfs_init(DFS_DEFAULT_LOCATION);  // filesystem
     debug_init_sdfs("sd:/", 0);
 
-    #ifndef __N64__4MB
-    assert_memory_expanded(); //Must have expansion ram to run.
-    #endif
+    //#ifndef __N64__4MB
+    //assert_memory_expanded(); //Must have expansion ram to run.
+    //#endif
 
     timer_init();
     joypad_init();
     controller_init();
-    debug_init_isviewer();
+    //debug_init_isviewer();
     console_init();
     //console_set_render_mode(RENDER_MANUAL);
-    console_set_debug(false);
+    //console_set_debug(false);
     #endif
 }
 #endif

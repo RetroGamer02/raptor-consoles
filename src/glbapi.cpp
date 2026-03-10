@@ -63,7 +63,7 @@ typedef struct
 	int      items;
 	union {
         FILE*   f;      // on-disk
-		#ifndef __N64__
+		#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         MemFILE* m;     // in-RAM
 		#endif
     } handle;
@@ -152,7 +152,7 @@ GLB_DeCrypt(
 	}
 }
 
-#ifdef __N64__4MB
+#ifdef __N64__
 /* Try to allocate memory, evicting non-locked cached items if necessary */
 static char*
 try_alloc_with_eviction(ITEMINFO* target_ii, uint32_t size, FI_MODE mode)
@@ -307,7 +307,7 @@ GLB_OpenFile(
 	return fd->handle.f;
 }
 
-#ifndef __N64__
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 /*------------------------------------------------------------------------
    GLB_OpenFile() - Opens & Caches file handle
  ------------------------------------------------------------------------*/
@@ -366,7 +366,7 @@ GLB_NumItems(
 	
 	union {
         FILE*   f;      // on-disk
-		#ifndef __N64__
+		#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         MemFILE* m;     // in-RAM
 		#endif
     } handle;
@@ -474,10 +474,10 @@ GLB_LoadMemIDT(
 	FILEDESC* fd               // INPUT: file to load
 )
 {
-	#ifdef __N64__
-	FILE *handle;
-	#else
+	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 	MemFILE *handle;
+	#else
+	FILE *handle;
 	#endif
 	int j;
 	int k;
@@ -485,17 +485,17 @@ GLB_LoadMemIDT(
 	KEYFILE key[10];
 	ITEMINFO* ii;
 
-	#ifdef __N64__
-	handle = fd->handle.f;
-	#else
+	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 	handle = fd->handle.m;
+	#else
+	handle = fd->handle.f;
 	#endif
 	ii = fd->item;
 
-	#ifdef __N64__
-	fseek(handle, sizeof(KEYFILE), SEEK_SET);
-	#else
+	#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 	memf_seek(handle, sizeof(KEYFILE), SEEK_SET);
+	#else
+	fseek(handle, sizeof(KEYFILE), SEEK_SET);
 	#endif
 	
 	for (j = 0; j < fd->items; )
@@ -505,10 +505,10 @@ GLB_LoadMemIDT(
 		if (k > ASIZE(key))
 			k = ASIZE(key);
 
-		#ifdef __N64__
-		fread(key, sizeof(KEYFILE), k, handle);
-		#else
+		#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 		memf_read(key, sizeof(KEYFILE), k, handle);
+		#else
+		fread(key, sizeof(KEYFILE), k, handle);
 		#endif
 		
 		for (n = 0; n < k; n++)
@@ -627,7 +627,7 @@ GLB_Load(
 	//FILE *handle;
     union {
         FILE*   f;      // on-disk
-		#ifndef __N64__
+		#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         MemFILE* m;     // in-RAM
 		#endif
     } handle;
@@ -719,42 +719,6 @@ GLB_FetchItem(
 	if (mode == FI_LOCK)
 		ii->flags |= ITF_LOCKED;
 	
-	#ifdef __N64__4MB
-	if ((obj = ii->vm_mem.obj) == NULL)
-	{
-		ii->lock_cnt = 0;
-
-		if (ii->size == 0)
-			ii->vm_mem.obj = NULL;
-		else
-		{
-			/* Try to allocate, evicting other cached items if needed */
-			obj = try_alloc_with_eviction(ii, ii->size, mode);
-
-			if (mode == FI_LOCK && obj)
-				ii->lock_cnt = 1;
-
-			ii->vm_mem.obj = obj;
-
-			if (obj != NULL)
-			{
-				GLB_Load(obj, itm.id.filenum, itm.id.itemnum);
-			}
-		}
-	}
-	else if (mode == FI_LOCK && fVmem)
-	{
-		ii->lock_cnt++;
-		VM_Lock(obj);
-	}
-
-	/* If allocation still failed and caller requested resident memory, return NULL (caller must handle) */
-	if (ii->vm_mem.obj == NULL && mode != FI_CACHE)
-	{
-		/* Previously: EXIT_Error(...) */
-		return NULL;
-	}
-	#else
 	if ((obj = ii->vm_mem.obj) == NULL)
 	{
 		ii->lock_cnt = 0;
@@ -771,7 +735,17 @@ GLB_FetchItem(
 			}
 			else
 			{
+				#ifdef __N64__
+				if(get_memory_size() > 0x00400000)
+				{
+					obj = (char*)calloc(ii->size, sizeof(uint8_t));
+				} else {
+					/* Try to allocate, evicting other cached items if needed */
+					obj = try_alloc_with_eviction(ii, ii->size, mode);
+				}
+				#else
 				obj = (char*)calloc(ii->size, sizeof(uint8_t));
+				#endif
 			}
 			
 			if (mode == FI_LOCK)
@@ -796,7 +770,6 @@ GLB_FetchItem(
 	{
 		EXIT_Error("GLB_FetchItem: failed on %d bytes, mode=%d.", ii->size, mode);
 	}
-	#endif
 	
 	if (mode == FI_DISCARD && fVmem)
 		VM_Touch(&ii->vm_mem);

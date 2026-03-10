@@ -1856,11 +1856,9 @@ static void SetSDLVideoDriver(void)
     {
         char *env_string;
 
-        #ifndef __N64__
         env_string = M_StringJoin("SDL_VIDEODRIVER=", video_driver, NULL);
         putenv(env_string);
         free(env_string);
-        #endif
     }
 }
 
@@ -2235,9 +2233,7 @@ void I_InitGraphics(uint8_t *pal)
         unsigned int winid;
 
         sscanf(env, "0x%x", &winid);
-        #ifndef __N64__
         M_snprintf(winenv, sizeof(winenv), "SDL_WINDOWID=%u", winid);
-        #endif
 
         putenv(winenv);
     }

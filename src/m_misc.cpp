@@ -16,7 +16,6 @@
 // DESCRIPTION:
 //      Miscellaneous.
 //
-#ifndef __N64__
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -154,4 +153,3 @@ int M_snprintf(char *buf, size_t buf_len, const char *s, ...)
     va_end(args);
     return result;
 }
-#endif

@@ -266,13 +266,10 @@ void ShutDown(
 
     SYSLaunchMenu();
     #elif __N64__
-    SDL_Quit();
+    //closewindow();  // Close Main Window
+    //I_LASTSCR(mem); // Call to display ANSI Screen
     GLB_FreeAll();
     IPT_CloJoy(); // Close Joystick
-    SWD_End();    // Broken on real Xbox hardware
-    SDL_Quit();
-
-    free(g_highmem);
     #else
     closewindow();  // Close Main Window
     I_LASTSCR(mem); // Call to display ANSI Screen
@@ -1326,11 +1323,13 @@ int main(
 
     RAP_InitLoadSave();
 
-#if defined (__N64__) || defined (__GCN__) || defined(__WII__) || defined(__WIIU__)
+#if defined (__GCN__) || defined(__WII__) || defined(__WIIU__)
     if (access(RAP_SetupFilename(), 0))
     {
         printf("\n\n** You must run SETUP first! **\n");
     }
+#elif defined (__N64__)
+    RAP_SetupFilename();
 #else
     if (access(RAP_SetupFilename(), 0))
     {
@@ -1343,12 +1342,10 @@ int main(
 
     godmode = 0;
 
-    #ifndef __N64__
     if (var1 != NULL && !strcmp(var1, gdmodestr))
         godmode = 1;
     else
         godmode = 0;
-    #endif
 
 #if !defined (__N64__) && !defined (__GCN__) && !defined(__WII__) && !defined(__WIIU__)
     if (argv[1])

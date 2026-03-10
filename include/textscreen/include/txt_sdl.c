@@ -15,7 +15,7 @@
 // Text mode emulation in SDL
 //
 
-#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+#if defined (__N64__) ||  defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -272,7 +272,11 @@ int TXT_Init(void)
     if (TXT_SDLWindow == NULL)
         return 0;
 
+    #ifdef __N64__
+    renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, 0);
+    #else
     renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, SDL_RENDERER_PRESENTVSYNC);
+    #endif
 
     if (renderer == NULL)
         renderer = SDL_CreateRenderer(TXT_SDLWindow, -1, SDL_RENDERER_SOFTWARE);

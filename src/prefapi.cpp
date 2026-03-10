@@ -490,7 +490,7 @@ INI_InitPreference(
                 "[Music]\r\n"
                 "Volume=0\r\n\r\n"
                 "[SoundFX]\r\n"
-                "Volume=40\r\n\r\n"
+                "Volume=80\r\n\r\n"
                 "[Setup]\r\n"
                 "Detail=1\r\n";
                 
