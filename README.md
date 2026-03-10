@@ -6,7 +6,7 @@ Click on the thumbnail to watch some videos showing the project in action
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/Nt2HfchiudY/0.jpg)](https://www.youtube.com/channel/UCedmTTlonJK5DvkiMpA_teQ)
 ## Information
-Original Raptor Call Of The Shadows author Scott Host is working on a new modernized version of the classic called Raptor Remixed. If you are a Raptor fan it would be cool if you would support the project on Kickstarter. For more information visit [www.mking.com](https://www.mking.com)
+Original Raptor Call Of The Shadows author Scott Host is working on a new Raptor game! If you are a Raptor fan it would be cool if you would support him. For more information visit [www.mking.com](https://www.mking.com)
 
 ## Quick start
 Release builds are available for Windows, macOS and Android.
@@ -137,6 +137,7 @@ Also many thanks to [schellingb](https://github.com/schellingb) for the great Ti
 
 
  
+
 
 
 
