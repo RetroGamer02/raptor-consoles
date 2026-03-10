@@ -1,11 +1,9 @@
 #pragma once
 
 #ifdef __PPC__
-#ifdef __N64__
-#include "mips.h"
-#else
 #include "ppc.h"
-#endif
+#elif __N64__
+#include "mips.h"
 #endif
 
 #define G3D_DIST 200

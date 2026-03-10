@@ -536,7 +536,7 @@ GLB_UseVM(
 	void
 )
 {
-	#if defined(__PPC__)
+	#if defined(__PPC__) || defined(__MIPS__)
 	fVmem = 0;
 	#else
 	fVmem = 1;

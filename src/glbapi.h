@@ -2,11 +2,9 @@
 #include <stdint.h>
 
 #ifdef __PPC__
-#ifdef __N64__
-#include "mips.h"
-#else
 #include "ppc.h"
-#endif
+#elif __N64__
+#include "mips.h"
 #endif
 
 typedef struct

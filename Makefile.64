@@ -1,5 +1,3 @@
-# --- ROM Header Configuration (MUST BE AT THE TOP) ---
-# These variables must be set before including n64.mk
 TARGET          = Raptor-N64
 
 # Build paths
@@ -8,10 +6,8 @@ SOURCE_DIR      = .
 N64_MKDFS_ROOT  = data
 
 # --- SDL2 Configuration ---
-SDL2_ROOT_DIR   = SDL2_ReallyUnstable
-SDL2_BPP        = DEPTH_32_BPP
+SDL2_ROOT_DIR   = SDL2_N64Custom
 
-# Include the SDL2 logic first
 include $(SDL2_ROOT_DIR)/Makefile_sdl2.mk
 
 # --- Source Discovery ---
@@ -23,11 +19,10 @@ OBJS            := $(SRCS:%.c=$(BUILD_DIR)/%.o)
 OBJS            := $(OBJS:%.cpp=$(BUILD_DIR)/%.o)
 
 # --- Include Paths ---
-# Added $(SDL2_ROOT_DIR)/include to fix the SDL_config.h error
 INC_DIRS        = ./ src $(SDL2_ROOT_DIR)/include include/textscreen/include include/TimGM6mb include/TinySoundFont
 
 CUSTOM_FLAGS    = $(foreach d,$(INC_DIRS),-I$(CURDIR)/$(d)) \
-                  -Os -ffast-math -D__MIPS__ -D__N64__ -D__PPC__ \
+                  -Os -ffast-math -D__MIPS__ -D__N64__ \
                   -Wno-error=missing-braces -Wno-error=strict-aliasing \
                   -Wno-error=incompatible-pointer-types -Wno-error=char-subscripts \
                   -Wno-error=maybe-uninitialized -Wno-error=format-overflow \
@@ -39,12 +34,11 @@ CUSTOM_FLAGS    = $(foreach d,$(INC_DIRS),-I$(CURDIR)/$(d)) \
 include $(N64_INST)/include/n64.mk
 
 N64_ROM_TITLE   = "Raptor N64"
-N64_ROM_SAVETYPE = eeprom16k    # Vital for Everdrive V3 to know how to save
+N64_ROM_SAVETYPE = eeprom16k
 # N64_ROM_REGION  = E            # E=USA, P=PAL, J=Japan
 N64_ROM_REGIONFREE = true
 # N64_ROM_RTC     = false
 
-# Append flags after n64.mk to ensure N64_CFLAGS is already initialized
 N64_CFLAGS      += $(CUSTOM_FLAGS)
 N64_CXXFLAGS    += $(CUSTOM_FLAGS) -fno-rtti -fno-exceptions
 # N64_LDFLAGS     += -flto
