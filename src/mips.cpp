@@ -99,7 +99,7 @@ void sys_init()
 
     timer_init();
     joypad_init();
-    controller_init();
+    //controller_init();
     //debug_init_isviewer();
     console_init();
     //console_set_render_mode(RENDER_MANUAL);

@@ -28,7 +28,7 @@ static int fx_init = 0;
 static int lockcount;
 
 #ifdef __N64__
-int fx_freq = 22050;
+int fx_freq = 16000;
 #elif __GCN__
 int fx_freq = 22050;
 #elif __WII__
@@ -87,7 +87,7 @@ FX_Fill(
 {
     memset(stream, 0, len);
     int16_t *stream16 = (int16_t*)stream;
-    len /= 4;
+    len >>= 2;
     MUS_Mix(stream16, len);
     GSS_Mix(stream16, len);
     DSP_Mix(stream16, len);
@@ -117,10 +117,11 @@ SND_InitSound(
 
     spec.freq = fx_freq;
     spec.format = AUDIO_S16SYS;
-    spec.channels = 2;
     #ifdef __N64__
+    spec.channels = 2;
     spec.samples = 256;
     #else
+    spec.channels = 2;
     spec.samples = 512;
     #endif
     spec.callback = FX_Fill;
@@ -151,7 +152,7 @@ SND_InitSound(
     fx_device = SND_NONE;
 
     music_volume = INI_GetPreferenceLong("Music", "Volume", 127);
-    #if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+    #if defined (__N64__D) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
     music_card = M_SB;
     #else
     music_card = INI_GetPreferenceLong("Music", "CardType", M_NONE);

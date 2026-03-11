@@ -8,12 +8,9 @@
 #include <string.h>
 #include <malloc.h>
 
-#define N64_AUDIO_BUFFER 4096
-
 /* Define our private device data */
 typedef struct
 {
-    Uint8 *mixbuf;
     int initialized;
 } SDL_PrivateAudioData;
 
@@ -29,18 +26,9 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
 
     /* Force a format libdragon supports */
     this->spec.format = AUDIO_S16SYS;
-    this->spec.channels = 2;
+    this->spec.channels = 1;
 
     SDL_CalculateAudioSpec(&this->spec);
-
-    /*printf("spec.freq=%d samples=%d size=%d\n",
-    this->spec.freq,
-    this->spec.samples,
-    this->spec.size);*/
-
-    h->mixbuf = memalign(32, N64_AUDIO_BUFFER);
-    if (!h->mixbuf)
-        return SDL_OutOfMemory();
 
     audio_init(this->spec.freq, 4);
 
@@ -69,31 +57,26 @@ void SDL_N64_PumpAudio(void)
     if (!n64_audio_device || !SDL_AtomicGet(&n64_audio_device->enabled))
         return;
 
-    SDL_PrivateAudioData *h = (SDL_PrivateAudioData *)n64_audio_device->hidden;
-
     while (audio_can_write())
     {
         short *out = audio_write_begin();
-        int samples = audio_get_buffer_length();
-        int bytes = samples * 2 * sizeof(Sint16);
-
-        if (bytes > N64_AUDIO_BUFFER)
-            bytes = N64_AUDIO_BUFFER;
+        
+        /* audio_get_buffer_length returns stereo samples. Multiply by 4 bytes (2 channels * 16-bit) */
+        int bytes = audio_get_buffer_length() << 2; 
 
         if (n64_audio_device->callbackspec.callback)
         {
+            /* ZERO-COPY: Write directly into libdragon's DMA buffer */
             n64_audio_device->callbackspec.callback(
                 n64_audio_device->callbackspec.userdata,
-                h->mixbuf,
+                (Uint8 *)out,
                 bytes
             );
         }
         else
         {
-            SDL_memset(h->mixbuf, 0, bytes);
+            SDL_memset(out, 0, bytes);
         }
-
-        memcpy(out, h->mixbuf, bytes);
 
         audio_write_end();
     }
@@ -108,9 +91,6 @@ static void N64AUDIO_CloseDevice(SDL_AudioDevice *this)
 
     if (h->initialized)
         audio_close();
-
-    if (h->mixbuf)
-        free(h->mixbuf);
 
     SDL_free(h);
 
