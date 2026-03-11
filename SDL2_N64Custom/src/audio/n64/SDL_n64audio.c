@@ -25,7 +25,7 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
     if (!this->hidden)
         return SDL_OutOfMemory();
 
-    SDL_PrivateAudioData *h = this->hidden;
+    SDL_PrivateAudioData *h = (SDL_PrivateAudioData *)this->hidden;
 
     /* Force a format libdragon supports */
     this->spec.format = AUDIO_S16SYS;
@@ -69,7 +69,7 @@ void SDL_N64_PumpAudio(void)
     if (!n64_audio_device || !SDL_AtomicGet(&n64_audio_device->enabled))
         return;
 
-    SDL_PrivateAudioData *h = n64_audio_device->hidden;
+    SDL_PrivateAudioData *h = (SDL_PrivateAudioData *)n64_audio_device->hidden;
 
     while (audio_can_write())
     {
@@ -104,7 +104,7 @@ static void N64AUDIO_CloseDevice(SDL_AudioDevice *this)
     if (!this->hidden)
         return;
 
-    SDL_PrivateAudioData *h = this->hidden;
+    SDL_PrivateAudioData *h = (SDL_PrivateAudioData *)this->hidden;
 
     if (h->initialized)
         audio_close();

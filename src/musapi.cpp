@@ -226,7 +226,7 @@ MUS_Reset(
         music_chanvol[i] = 100;
         music_chanvol2[i] = 100;
         
-        if (i < music_channels || i == 15)
+        if (i < music_channels || i == 15) {
             if (music_device && music_device->ControllerEvent)
             {
                 int newvol = 100;
@@ -241,6 +241,7 @@ MUS_Reset(
                 
                 music_device->ControllerEvent(i, 3, newvol);
             }
+        }
             if (music_device && music_device->AllNotesOffEvent)
                 music_device->AllNotesOffEvent(i,0);
     }
@@ -361,8 +362,9 @@ MUS_Service(
                                 param = music_currentvol;
                             if (param > music_vol)
                                 param = music_vol;
-                            if (music_device && music_device->ControllerEvent)
+                            if (music_device && music_device->ControllerEvent) {
                                 music_device->ControllerEvent(chan, 3, param);
+                            }
                                 break;
 
                         default:

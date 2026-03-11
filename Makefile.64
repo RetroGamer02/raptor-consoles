@@ -23,12 +23,8 @@ INC_DIRS        = src $(SDL2_ROOT_DIR)/include include/textscreen/include includ
 
 CUSTOM_FLAGS    = $(foreach d,$(INC_DIRS),-I$(CURDIR)/$(d)) \
                   -O3 -ffast-math -D__MIPS__ -D__N64__ \
-                  -Wno-error=missing-braces -Wno-error=strict-aliasing \
-                  -Wno-error=incompatible-pointer-types -Wno-error=char-subscripts \
-                  -Wno-error=maybe-uninitialized -Wno-error=format-overflow \
-                  -Wno-error=misleading-indentation -Wno-error=sign-compare \
-                  -Wno-error=class-memaccess -Wno-error=uninitialized \
-                  -Wno-error=format= -Wno-error=use-after-free
+                  -Wno-error=maybe-uninitialized -Wno-error=sign-compare \
+                  -Wno-error=use-after-free
 
 # --- Libdragon Build System ---
 include $(N64_INST)/include/n64.mk

@@ -123,7 +123,9 @@ DEMO_StartRec(
 )
 {
     SND_Patch(FX_BONUS, 127);
-    memset(playback, 0, sizeof(playback));
+    //memset(playback, 0, sizeof(playback));
+    for (auto &p : playback)
+    p = {};
     demo_mode = DEMO_RECORD;
     cur_play = 1;
 }

@@ -638,8 +638,7 @@ N64_QueueCopy(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *textu
 static int
 N64_QueueCopyEx(SDL_Renderer *renderer, SDL_RenderCommand *cmd, SDL_Texture *texture,
                 const SDL_Rect *srcrect, const SDL_FRect *dstrect,
-                const double angle, const SDL_FPoint *center, const SDL_RendererFlip flip,
-                float scale_x, float scale_y)
+                const double angle, const SDL_FPoint *center, const SDL_RendererFlip flip)
 {
     // CopyEx adds rotation (angle) and flipping
     typedef struct {
@@ -815,7 +814,7 @@ N64_RenderReadPixels(SDL_Renderer *renderer, const SDL_Rect *rect,
 //     graphics_draw_text(disp, 10, 10, text);
 // }
 
-static int N64_RenderPresent(SDL_Renderer * renderer)
+void N64_RenderPresent(SDL_Renderer * renderer)
 {
     N64_RenderData *data = (N64_RenderData *) renderer->driverdata;
 
@@ -831,7 +830,7 @@ static int N64_RenderPresent(SDL_Renderer * renderer)
             rdpq_detach_show();
         }
     }
-    return 0;
+    return;
 }
 
 static void

@@ -2937,6 +2937,7 @@ SWD_GetFieldItemName(
     memcpy(item_name, curfld->item_name, 16);
 }
 
+#if 0
 /***************************************************************************
    SWD_SetWindowID () - Sets Window ID number
  ***************************************************************************/
@@ -2954,6 +2955,7 @@ SWD_SetWindowID(
     
     return old_id;
 }
+#endif
 
 /***************************************************************************
    SWD_GetWindowID () - Returns Window ID number
@@ -2987,6 +2989,7 @@ SWD_SetWindowFlag(
     return curwin->id.get_value();
 }
 
+#if 0
 /***************************************************************************
    SWD_SetWindowType () Sets Window TYPE number
  ***************************************************************************/
@@ -3004,6 +3007,7 @@ SWD_SetWindowType(
     
     return old_type;
 }
+#endif
 
 /***************************************************************************
    SWD_GetWindowType () - Returns Window TYPE number

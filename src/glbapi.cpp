@@ -444,7 +444,7 @@ GLB_LoadIDT(
 	{
 		k = fd->items - j;
 		
-		if (k > ASIZE(key))
+		if (k > (int)ASIZE(key))
 			k = ASIZE(key);
 
 		fread(key, sizeof(KEYFILE), k, handle);
@@ -502,7 +502,7 @@ GLB_LoadMemIDT(
 	{
 		k = fd->items - j;
 		
-		if (k > ASIZE(key))
+		if (k > (int)ASIZE(key))
 			k = ASIZE(key);
 
 		#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)

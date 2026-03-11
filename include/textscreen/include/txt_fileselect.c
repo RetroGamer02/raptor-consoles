@@ -676,7 +676,7 @@ static char *ExpandExtension(const char *orig)
     c = newext;
     for (i = 0; i < oldlen; ++i)
     {
-        if (isalpha(orig[i]))
+        if (isalpha((unsigned char)orig[i])) //Added (unsigned char)
         {
             *c++ = '[';
             *c++ = tolower(orig[i]);
