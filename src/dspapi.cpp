@@ -10,12 +10,8 @@ int dsp_cnt;
 int dsp_rsmp;
 int dsp_samp[2];
 
-#ifdef __N64__RSP
-// Bridge to our new hardware-accelerated mixer
+#ifdef __N64__RSP_ONLY
 extern "C" int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority);
-
-//int last_lvol = 0;
-//int last_rvol = 0;
 #endif
 
 uint16_t pitchtable[256] = {
@@ -313,7 +309,7 @@ DSP_StartPatch(
     int priority
 )
 {
-    #ifdef __N64__RSP
+    #ifdef __N64__RSP_ONLY
     /* Redirect to the RSP Mixer */
     return SFX_Play_RSP(dsp, sep, pitch, volume, priority);
     #elif __N64__SOFT_JUST_EFFECTS

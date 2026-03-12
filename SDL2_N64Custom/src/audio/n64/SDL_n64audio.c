@@ -34,7 +34,7 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
 
     audio_init(this->spec.freq, 6); //Was 4 now 6 for PAL Region compat
     
-    mixer_init(28); //Was 13
+    mixer_init(16); //12 for XM plus 4 for RSP Effects Channels same as default Raptor Setup
 
     h->mixbuf_size = this->spec.size;
     h->mixbuf = memalign(16, h->mixbuf_size);
@@ -87,7 +87,7 @@ void SDL_N64_PumpAudio(void)
         mixer_poll(out, samples);
 
         // 2. Process SDL SFX //
-        #ifndef __N64__RSP
+        #ifndef __N64__RSP_ONLY
         if (n64_audio_device->callbackspec.callback)
         {
             // Generate SDL audio into temp buffer //
@@ -97,33 +97,33 @@ void SDL_N64_PumpAudio(void)
                 bytes
             );
 
-            // 3. Fast Inline Mixing (Replaces SDL_MixAudioFormat) //
-            int16_t *dst = (int16_t *)out;
-            int16_t *src = (int16_t *)h->mixbuf;
-            int total_samples = samples << 1; // 2 channels per sample
+            // Tell GCC these memory regions absolutely do not overlap
+            int16_t * __restrict dst = (int16_t *)out;
+            const int16_t * __restrict src = (int16_t *)h->mixbuf;
+            int total_samples = samples << 1; 
             int i = 0;
-            
-            // Unroll by 4 to reduce loop overhead //
+
+            // True unrolling: no inner 'j' loop
             for (; i <= total_samples - 4; i += 4) 
             {
-                for(int j = 0; j < 4; j++) 
-                {
-                    int32_t mixed = dst[i+j] + src[i+j];
-                    
-                    // Branchless fast-path for clipping. 
-                    // +32768 shifts the valid range to 0-65535. 
-                    // Casting to uint32_t checks both over/underflow in one go.
-                    // The CPU will predict this branch perfectly 99% of the time. //
-                    if ((uint32_t)(mixed + 32768) > 65535) 
-                    {
-                        mixed = (mixed < 0) ? -32768 : 32767;
-                    }
-                    
-                    dst[i+j] = (int16_t)mixed;
-                }
+                int32_t m0 = dst[i]   + src[i];
+                int32_t m1 = dst[i+1] + src[i+1];
+                int32_t m2 = dst[i+2] + src[i+2];
+                int32_t m3 = dst[i+3] + src[i+3];
+
+                // Branchless clipping
+                if ((uint32_t)(m0 + 32768) > 65535) m0 = (m0 < 0) ? -32768 : 32767;
+                if ((uint32_t)(m1 + 32768) > 65535) m1 = (m1 < 0) ? -32768 : 32767;
+                if ((uint32_t)(m2 + 32768) > 65535) m2 = (m2 < 0) ? -32768 : 32767;
+                if ((uint32_t)(m3 + 32768) > 65535) m3 = (m3 < 0) ? -32768 : 32767;
+
+                dst[i]   = (int16_t)m0;
+                dst[i+1] = (int16_t)m1;
+                dst[i+2] = (int16_t)m2;
+                dst[i+3] = (int16_t)m3;
             }
-            
-            // Handle remaining tail samples //
+
+            // Handle tail samples cleanly
             for (; i < total_samples; i++) 
             {
                 int32_t mixed = dst[i] + src[i];

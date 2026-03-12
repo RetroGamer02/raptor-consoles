@@ -28,6 +28,29 @@
 xm64player_t raptor_xm;
 int N64_Mus = -1;
 extern uint16_t pitchtable[256];
+
+static const struct {
+    int id;
+    int mus_idx;
+    const char* path;
+} xm_tracks[] = {
+    {82, 1,  "rom:/Music/BOSS1_MUS.xm64"},
+    {83, 2,  "rom:/Music/BOSS2_MUS.xm64"},
+    {84, 3,  "rom:/Music/BOSS3_MUS.xm64"},
+    {85, 4,  "rom:/Music/BOSS3_MUS.xm64"},
+    {86, 15,  "rom:/Music/RINTRO_MUS.xm64"},
+    {87, 6,  "rom:/Music/MAINMENU_MUS.xm64"},
+    {88, 5,  "rom:/Music/HANGAR_MUS.xm64"},
+    {89, 7,  "rom:/Music/RAP1_MUS.xm64"},
+    {90, 8,  "rom:/Music/RAP2_MUS.xm64"},
+    {91, 9,  "rom:/Music/RAP3_MUS.xm64"},
+    {92, 10,  "rom:/Music/RAP4_MUS.xm64"},
+    {93, 11,  "rom:/Music/RAP5_MUS.xm64"},
+    {94, 12,  "rom:/Music/RAP6_MUS.xm64"},
+    {95, 13,  "rom:/Music/RAP7_MUS.xm64"},
+    {96, 14,  "rom:/Music/RAP8_MUS.xm64"},
+    {97, 0,  "rom:/Music/APOGEE_MUS.xm64"}
+};
 #endif
 
 int music_volume;
@@ -85,33 +108,29 @@ char cards[M_LAST][23] = {
     "Sound Blaster AWE 32",
 };
 
-#ifdef __N64__RSP
-
+#ifdef __N64__RSP_ONLY
 static waveform_t n64_waveforms[32];
 
 extern "C" {
 
 static void sfx_waveform_read(void *ctx, samplebuffer_t *sbuf, int wpos, int wlen, bool seeking) {
     dsp_t *dsp = (dsp_t *)ctx;
-
-    // Total sample count in DSP (minus header)
     int total_samples = dsp->length.get_value() - 16;
 
-    // If we've reached the end, do nothing
     if (wpos >= total_samples) return;
+    if (wpos + wlen > total_samples) wlen = total_samples - wpos;
 
-    // Clamp read to the end
-    if (wpos + wlen > total_samples) {
-        wlen = total_samples - wpos;
-    }
-
-    // Append space into the mixer sample buffer
     int8_t *dest = (int8_t *)samplebuffer_append(sbuf, wlen);
+    int8_t *src = (int8_t *)(dsp->data + 16) + wpos;
 
-    // Data is 8-bit unsigned in DSP; convert to signed
-    uint8_t *src = (uint8_t *)(dsp->data + 16) + wpos;
-    for (int i = 0; i < wlen; i++) {
-        dest[i] = (int8_t)((int)src[i] - 128);
+    // XOR mask to flip the MSB of four 8-bit values at once
+    const uint32_t mask = 0x80808080;
+    uint32_t *d32 = (uint32_t *)dest;
+    uint32_t *s32 = (uint32_t *)src;
+
+    int words = wlen >> 2;
+    for (int i = 0; i < words; i++) {
+        d32[i] = s32[i] ^ mask;
     }
 }
 
@@ -119,16 +138,16 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 {
     int channel = -1;
 
-    /*for (int i = 0; i < 16; i++)
+    for (int i = 13; i < 16; i++)
     {
         if (!mixer_ch_playing(i))
         {
             channel = i;
             break;
         }
-    }*/
+    }
 
-    channel = 0;
+    //channel = 13;
 
     if (channel == -1)
         return -1;
@@ -148,16 +167,17 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
     //wave->frequency = (float)dsp->freq.get_value();
     wave->read = sfx_waveform_read;
 
-    //float pitch_ratio = (float)pitchtable[pitch] / 256.0f;
-    float target_freq = 11025;//wave->frequency * pitch_ratio;
-
-    //mixer_ch_set_limits(channel, 8, wave->frequency, 0);
+    // pitchtable[pitch] appears to map to a 256-based scale
+    float pitch_ratio = (float)pitchtable[pitch] * 0.00390625f; // (1.0f / 256.0f)
+    float target_freq = 11025.0f;// * pitch_ratio; //Crashes Fixme!
 
     mixer_ch_play(channel, wave);
     mixer_ch_set_freq(channel, target_freq);
 
-    float sep_f = sep / 255.0f;
-    float vol_f = volume / 255.0f;
+    const float INV_255 = 0.00392156f; // (1.0f / 255.0f)
+
+    float sep_f = sep * INV_255;
+    float vol_f = volume * INV_255;
 
     float l_vol = vol_f * (1.0f - sep_f);
     float r_vol = vol_f * sep_f;
@@ -170,7 +190,7 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 // Stop a sound effect playing on a specific channel
 // Returns 0 if stopped successfully, -1 if invalid
 int SFX_Stop_RSP(int channel) {
-    if (channel < 0 || channel >= 16) return -1; // only first 16 SFX channels
+    if (channel < 13 || channel > 16) return -1; // only last 4 SFX channels
 
     if (mixer_ch_playing(channel)) {
         mixer_ch_stop(channel);      // immediately stop playback
@@ -182,7 +202,7 @@ int SFX_Stop_RSP(int channel) {
 
 // Optional: stop all SFX channels
 void SFX_StopAll_RSP() {
-    for (int i = 0; i < 16; i++) {
+    for (int i = 13; i < 16; i++) {
         SFX_Stop_RSP(i);
     }
 }
@@ -202,7 +222,7 @@ FX_Fill(
 {
     memset(stream, 0, len);
 
-    #ifndef __N64__RSP
+    #ifndef __N64__RSP_ONLY
     #ifdef __N64__SOFT_JUST_EFFECTS
     int16_t *stream16 = (int16_t*)stream;
     len >>= 2;
@@ -363,7 +383,7 @@ SND_InitSound(
         break;
     }
 
-    #ifdef __N64__RSP
+    #ifdef __N64__RSP_ONLY
     printf("SoundFx Enabled (Wav64)\n");
     #else
     printf("SoundFx Enabled (%s)\n", cards[fx_card]);
@@ -1174,7 +1194,7 @@ SND_StopPatch(
     
     curfld = &fx_items[type];
 
-    #ifdef __N64__RSP
+    #ifdef __N64__RSP_ONLY
     SFX_Stop_RSP(0);
     #endif
     
@@ -1199,7 +1219,7 @@ SND_StopPatches(
     
     curfld = fx_items;
 
-    #ifdef __N64__RSP
+    #ifdef __N64__RSP_ONLY
     SFX_StopAll_RSP();
     #endif
     
@@ -1271,91 +1291,14 @@ SND_PlaySong(
         if (N64_Mus != -1)
             xm64player_close(&raptor_xm);
 
-        switch (music_song)
-        {
-            case 82:
-                N64_Mus = 1;
-                xm64player_open(&raptor_xm, "rom:/Music/BOSS1_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
+        N64_Mus = -1;
+        for (int i = 0; i < sizeof(xm_tracks)/sizeof(xm_tracks[0]); i++) {
+            if (music_song == xm_tracks[i].id) {
+                N64_Mus = xm_tracks[i].mus_idx;
+                xm64player_open(&raptor_xm, xm_tracks[i].path);
+                xm64player_play(&raptor_xm, 0);
                 break;
-            case 83:
-                N64_Mus = 2;
-                xm64player_open(&raptor_xm, "rom:/Music/BOSS2_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 84:
-                N64_Mus = 3;
-                xm64player_open(&raptor_xm, "rom:/Music/BOSS3_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 85:
-                N64_Mus = 4;
-                xm64player_open(&raptor_xm, "rom:/Music/BOSS4_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 86:
-                N64_Mus = 15;
-                xm64player_open(&raptor_xm, "rom:/Music/RINTRO_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 87:
-                N64_Mus = 6;
-                xm64player_open(&raptor_xm, "rom:/Music/MAINMENU_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 88:
-                N64_Mus = 5;
-                xm64player_open(&raptor_xm, "rom:/Music/HANGAR_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 89:
-                N64_Mus = 7;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP1_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 90:
-                N64_Mus = 8;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP2_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 91:
-                N64_Mus = 9;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP3_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 92:
-                N64_Mus = 10;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP4_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 93:
-                N64_Mus = 11;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP5_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 94:
-                N64_Mus = 12;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP6_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 95:
-                N64_Mus = 13;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP7_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 96:
-                N64_Mus = 14;
-                xm64player_open(&raptor_xm, "rom:/Music/RAP8_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            case 97:
-                N64_Mus = 0;
-                xm64player_open(&raptor_xm, "rom:/Music/APOGEE_MUS.xm64");
-                xm64player_play(&raptor_xm, 16);
-                break;
-            default:
-                N64_Mus = -1;
-                break;
+            }
         }
 
         xm64player_set_loop(&raptor_xm, chainflag);
@@ -1365,7 +1308,7 @@ SND_PlaySong(
             xm64player_set_vol(&raptor_xm, 0.0f);
             static float fadeVol = 0.0f;
 
-            if (fadeVol < 1.0) {  // 1024 = full volume
+            if (fadeVol < 1.0) {  // 1.0 = full volume
                 fadeVol += 0.001f;     // adjust speed here
                 if (fadeVol > 1.0f) fadeVol = 1.0f;
                 xm64player_set_vol(&raptor_xm, fadeVol);
