@@ -235,7 +235,7 @@ GLB_FindFile(
 	* fails use the exe path and try again.
 	*/
 	#ifdef __N64__
-	sprintf(filename, "rom:/%s%04u.GLB", prefix, filenum);
+	sprintf(filename, "rom:/Shareware-Files/%s%04u.GLB", prefix, filenum);
 	#else
 	sprintf(filename, "%s%04u.GLB", prefix, filenum);
 	#endif
@@ -736,7 +736,7 @@ GLB_FetchItem(
 			else
 			{
 				#ifdef __N64__
-				if(get_memory_size() > 0x00400000)
+				if(get_memory_size() == 0x00800000)
 				{
 					obj = (char*)calloc(ii->size, sizeof(uint8_t));
 				} else {

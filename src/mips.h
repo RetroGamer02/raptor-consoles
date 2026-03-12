@@ -25,113 +25,90 @@ void sys_init();
 
 #define access checkFile
 
-class little_int16_t {
-public:
-    little_int16_t(int16_t value = 0) {
-        set_value(value);
+#pragma pack(push,1)
+
+struct little_int16_t {
+    uint8_t b0;
+    uint8_t b1;
+
+    inline little_int16_t(int16_t v = 0) { set_value(v); }
+
+    inline int16_t get_value() const {
+        return (int16_t)(b0 | (b1 << 8));
     }
 
-    int16_t get_value() const {
-        return (static_cast<int16_t>(data[0]) << 0) |
-               (static_cast<int16_t>(data[1]) << 8);
+    inline void set_value(int16_t v) {
+        b0 = v & 0xFF;
+        b1 = (v >> 8) & 0xFF;
     }
-
-    void set_value(int16_t value) {
-        data[0] = static_cast<uint8_t>(value >> 0);
-        data[1] = static_cast<uint8_t>(value >> 8);
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const little_int16_t& obj) {
-        os << std::hex << obj.get_value();
-        return os;
-    }
-
-private:
-    uint8_t data[2];
 };
 
-class little_uint16_t {
-public:
-    little_uint16_t(uint16_t value = 0) {
-        set_value(value);
+struct little_uint16_t {
+    uint8_t b0;
+    uint8_t b1;
+
+    inline little_uint16_t(uint16_t v = 0) { set_value(v); }
+
+    inline uint16_t get_value() const {
+        return b0 | (b1 << 8);
     }
 
-    uint16_t get_value() const {
-        return (static_cast<uint16_t>(data[0]) << 0) |
-               (static_cast<uint16_t>(data[1]) << 8);
+    inline void set_value(uint16_t v) {
+        b0 = v & 0xFF;
+        b1 = v >> 8;
     }
-
-    void set_value(uint16_t value) {
-        data[0] = static_cast<uint8_t>(value >> 0);
-        data[1] = static_cast<uint8_t>(value >> 8);
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const little_uint16_t& obj) {
-        os << std::hex << obj.get_value();
-        return os;
-    }
-
-private:
-    uint8_t data[2];
 };
 
-class little_int32_t {
-public:
-    little_int32_t(int32_t value = 0) {
-        set_value(value);
+struct little_int32_t {
+    uint8_t b0;
+    uint8_t b1;
+    uint8_t b2;
+    uint8_t b3;
+
+    inline little_int32_t(int32_t v = 0) { set_value(v); }
+
+    inline int32_t get_value() const {
+        return (int32_t)(
+            b0 |
+            (b1 << 8) |
+            (b2 << 16) |
+            (b3 << 24)
+        );
     }
 
-    int32_t get_value() const {
-        return (static_cast<int32_t>(data[0]) << 0) |
-               (static_cast<int32_t>(data[1]) << 8) |
-               (static_cast<int32_t>(data[2]) << 16) |
-               (static_cast<int32_t>(data[3]) << 24);
+    inline void set_value(int32_t v) {
+        b0 = v & 0xFF;
+        b1 = (v >> 8) & 0xFF;
+        b2 = (v >> 16) & 0xFF;
+        b3 = (v >> 24) & 0xFF;
     }
-
-    void set_value(int32_t value) {
-        data[0] = static_cast<uint8_t>(value >> 0);
-        data[1] = static_cast<uint8_t>(value >> 8);
-        data[2] = static_cast<uint8_t>(value >> 16);
-        data[3] = static_cast<uint8_t>(value >> 24);
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const little_int32_t& obj) {
-        os << std::hex << obj.get_value();
-        return os;
-    }
-
-private:
-    uint8_t data[4];
 };
 
-class little_uint32_t {
-public:
-    little_uint32_t(uint32_t value = 0) {
-        set_value(value);
+struct little_uint32_t {
+    uint8_t b0;
+    uint8_t b1;
+    uint8_t b2;
+    uint8_t b3;
+
+    inline little_uint32_t(uint32_t v = 0) { set_value(v); }
+
+    inline uint32_t get_value() const {
+        return
+            b0 |
+            (b1 << 8) |
+            (b2 << 16) |
+            (b3 << 24);
     }
 
-    uint32_t get_value() const {
-        return (static_cast<uint32_t>(data[0]) << 0) |
-               (static_cast<uint32_t>(data[1]) << 8) |
-               (static_cast<uint32_t>(data[2]) << 16) |
-               (static_cast<uint32_t>(data[3]) << 24);
+    inline void set_value(uint32_t v) {
+        b0 = v & 0xFF;
+        b1 = (v >> 8) & 0xFF;
+        b2 = (v >> 16) & 0xFF;
+        b3 = (v >> 24) & 0xFF;
     }
-
-    void set_value(uint32_t value) {
-        data[0] = static_cast<uint8_t>(value >> 0);
-        data[1] = static_cast<uint8_t>(value >> 8);
-        data[2] = static_cast<uint8_t>(value >> 16);
-        data[3] = static_cast<uint8_t>(value >> 24);
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const little_uint32_t& obj) {
-        os << std::hex << obj.get_value();
-        return os;
-    }
-
-private:
-    uint8_t data[4];
 };
+
+#pragma pack(pop)
 
 extern char gExeDir[512];
 

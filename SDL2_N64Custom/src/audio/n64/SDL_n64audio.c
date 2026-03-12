@@ -11,6 +11,8 @@
 /* Define our private device data */
 typedef struct
 {
+    Uint8 *mixbuf;
+    int mixbuf_size;
     int initialized;
 } SDL_PrivateAudioData;
 
@@ -26,11 +28,19 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
 
     /* Force a format libdragon supports */
     this->spec.format = AUDIO_S16SYS;
-    this->spec.channels = 1;
+    this->spec.channels = 2;
 
     SDL_CalculateAudioSpec(&this->spec);
 
-    audio_init(this->spec.freq, 4);
+    audio_init(this->spec.freq, 6); //Was 4 now 6 for PAL Region compat
+    
+    mixer_init(28); //Was 13
+
+    h->mixbuf_size = this->spec.size;
+    h->mixbuf = memalign(16, h->mixbuf_size);
+
+    if (!h->mixbuf)
+        return SDL_OutOfMemory();
 
     h->initialized = 1;
     n64_audio_device = this;
@@ -57,26 +67,74 @@ void SDL_N64_PumpAudio(void)
     if (!n64_audio_device || !SDL_AtomicGet(&n64_audio_device->enabled))
         return;
 
+    SDL_PrivateAudioData *h = (SDL_PrivateAudioData *)n64_audio_device->hidden;
+
     while (audio_can_write())
     {
         short *out = audio_write_begin();
-        
-        /* audio_get_buffer_length returns stereo samples. Multiply by 4 bytes (2 channels * 16-bit) */
-        int bytes = audio_get_buffer_length() << 2; 
 
+        int samples = audio_get_buffer_length();
+        int bytes = samples << 2;
+
+        /* CRITICAL: Prevent Buffer Overflow */
+        if (bytes > h->mixbuf_size) 
+        {
+            bytes = h->mixbuf_size;
+            samples = bytes >> 2; 
+        }
+
+        /* 1. Mix XM music directly into the hardware buffer */
+        mixer_poll(out, samples);
+
+        // 2. Process SDL SFX //
+        #ifndef __N64__RSP
         if (n64_audio_device->callbackspec.callback)
         {
-            /* ZERO-COPY: Write directly into libdragon's DMA buffer */
+            // Generate SDL audio into temp buffer //
             n64_audio_device->callbackspec.callback(
                 n64_audio_device->callbackspec.userdata,
-                (Uint8 *)out,
+                h->mixbuf, //
                 bytes
             );
+
+            // 3. Fast Inline Mixing (Replaces SDL_MixAudioFormat) //
+            int16_t *dst = (int16_t *)out;
+            int16_t *src = (int16_t *)h->mixbuf;
+            int total_samples = samples << 1; // 2 channels per sample
+            int i = 0;
+            
+            // Unroll by 4 to reduce loop overhead //
+            for (; i <= total_samples - 4; i += 4) 
+            {
+                for(int j = 0; j < 4; j++) 
+                {
+                    int32_t mixed = dst[i+j] + src[i+j];
+                    
+                    // Branchless fast-path for clipping. 
+                    // +32768 shifts the valid range to 0-65535. 
+                    // Casting to uint32_t checks both over/underflow in one go.
+                    // The CPU will predict this branch perfectly 99% of the time. //
+                    if ((uint32_t)(mixed + 32768) > 65535) 
+                    {
+                        mixed = (mixed < 0) ? -32768 : 32767;
+                    }
+                    
+                    dst[i+j] = (int16_t)mixed;
+                }
+            }
+            
+            // Handle remaining tail samples //
+            for (; i < total_samples; i++) 
+            {
+                int32_t mixed = dst[i] + src[i];
+                if ((uint32_t)(mixed + 32768) > 65535) 
+                {
+                    mixed = (mixed < 0) ? -32768 : 32767;
+                }
+                dst[i] = (int16_t)mixed;
+            }
         }
-        else
-        {
-            SDL_memset(out, 0, bytes);
-        }
+        #endif
 
         audio_write_end();
     }
@@ -107,14 +165,10 @@ static int N64AUDIO_Init(SDL_AudioDriverImpl *impl)
     impl->WaitDevice = N64AUDIO_WaitDevice;
     impl->GetDeviceBuf = N64AUDIO_GetDeviceBuf;
 
-    /* SDL will NOT spawn a thread */
     impl->ProvidesOwnCallbackThread = 1;
-
     impl->OnlyHasDefaultOutputDevice = 1;
-
     impl->HasCaptureSupport = 0;
-
-    impl->SkipMixerLock = 1; //Is required!
+    impl->SkipMixerLock = 1;
 
     return 1;
 }

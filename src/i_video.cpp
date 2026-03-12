@@ -963,117 +963,34 @@ void I_GetEvent(void)
 
     joypad_poll();
 
-    if (joypad_is_connected(JOYPAD_PORT_1))
-    {
-        joypad_buttons_t pressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
-        joypad_buttons_t released = joypad_get_buttons_released(JOYPAD_PORT_1);
-        joypad_inputs_t input = joypad_get_inputs(JOYPAD_PORT_1);
+    if (!joypad_is_connected(JOYPAD_PORT_1))
+        return;
 
-        if (pressed.start) {
-            Start = 1;
-        }
-        if (released.start) {
-            Start = 0;
-        }
-        if (pressed.a) {
-            AButton = 1;
-        }
-        if (released.a) {
-            AButton = 0;
-        }
-        if (pressed.b) {
-            BButton = 1;
-        }
-        if (released.b) {
-            BButton = 0;
-        }
+    joypad_buttons_t held = joypad_get_buttons_held(JOYPAD_PORT_1);
+    joypad_inputs_t input = joypad_get_inputs(JOYPAD_PORT_1);
 
-        if (pressed.l) {
-            LeftShoulder = 1;
-        }
-        if (released.l) {
-            LeftShoulder = 0;
-        }
-        if (pressed.r) {
-            RightShoulder = 1;
-        }
-        if (released.r) {
-            RightShoulder = 0;
-        }
-        if (pressed.z) {
-            XButton = 1;
-        }
-        if (released.z) {
-            XButton = 0;
-        }
+    /* Button state updates */
+    Start = held.start;
+    AButton = held.a;
+    BButton = held.b;
+    LeftShoulder = held.l;
+    RightShoulder = held.r;
+    XButton = held.z || held.c_down;
+    YButton = held.c_right;
+    Back = held.c_left;
 
-        /*if (pressed.c_up) {
-            
-        }
-        if (released.c_up) {
-            
-        }*/
-        if (pressed.c_right) {
-            YButton = 1;
-        }
-        if (released.c_right) {
-            YButton = 0;
-        }
-        if (pressed.c_down) {
-            XButton = 1;
-        }
-        if (released.c_down) {
-            XButton = 0;
-        }
-        if (pressed.c_left) {
-            Back = 1;
-        }
-        if (released.c_left) {
-            Back = 0;
-        }
+    Up = held.d_up;
+    Down = held.d_down;
+    Left = held.d_left;
+    Right = held.d_right;
 
-        if (pressed.d_up) {
-            Up = 1;
-        }
-        if (released.d_up) {
-            Up = 0;
-        }
-        if (pressed.d_down) {
-            Down = 1;
-        }
-        if (released.d_down) {
-            Down = 0;
-        }
-        if (pressed.d_left) {
-            Left = 1;
-        }
-        if (released.d_left) {
-            Left = 0;
-        }
-        if (pressed.d_right) {
-            Right = 1;
-        }
-        if (released.d_right) {
-            Right = 0;
-        }
+    /* Analog stick */
+    int8_t n64StickX = input.stick_x;
+    int8_t n64StickY = -input.stick_y;
 
-        int8_t n64StickX = input.stick_x;
-        int8_t n64StickY = input.stick_y * -1;
-
-        if (n64StickX >= 10 || n64StickX <= -10)
-        {
-            StickX = n64StickX;
-        } else {
-            StickX = 0;
-        }
-        if (n64StickY >= 10 || n64StickY <= -10)
-        {
-            StickY = n64StickY;
-        } else {
-            StickY = 0;
-        }
-
-    }
+    /* Deadzone */
+    StickX = (n64StickX > 9 || n64StickX < -9) ? n64StickX : 0;
+    StickY = (n64StickY > 9 || n64StickY < -9) ? n64StickY : 0;
     #else
     extern void I_HandleKeyboardEvent(SDL_Event *sdlevent);
     extern void I_HandleMouseEvent(SDL_Event *sdlevent);
@@ -1531,7 +1448,7 @@ void I_FinishUpdate (void)
 
     // Make sure the pillarboxes are kept clear each frame.
 
-    #ifndef __N64__D
+    #ifndef __N64__DISABLED
     SDL_RenderClear(renderer);
     #endif
 
@@ -2357,7 +2274,7 @@ void I_GetMousePos(int *x, int *y)
     SDL_RenderGetViewport(renderer, &viewport);
     SDL_RenderGetScale(renderer, &sx, &sy);
 
-    #ifndef __N64__D
+    #ifndef __N64__DISABLED
     if (screencoordpoint)
     {
         sx *= 0.5f;

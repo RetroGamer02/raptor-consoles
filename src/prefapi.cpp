@@ -488,7 +488,7 @@ INI_InitPreference(
         if (buffer[0] == '\0') {
             const char* default_ini =
                 "[Music]\r\n"
-                "Volume=0\r\n\r\n"
+                "Volume=100\r\n\r\n"
                 "[SoundFX]\r\n"
                 "Volume=80\r\n\r\n"
                 "[Setup]\r\n"

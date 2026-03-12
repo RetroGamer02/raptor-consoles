@@ -280,7 +280,7 @@ GFX_GetPalette(
 }
 
 /**************************************************************************
- GFX_FadeOut () - Fade Palette out to ( Red, Green , and Blue Value
+ GFX_FadeOut () - Fade Palette out to ( Red, Green , and Blue Value )
  **************************************************************************/
 void 
 GFX_FadeOut(
@@ -306,12 +306,23 @@ GFX_FadeOut(
         {
             loop = GFX_GetFrameCount() - now;
             
+#ifdef __N64__
+            // Convert division to fixed-point multiplier outside the loop
+            int mult = (loop << 16) / steps;
+            for (i = 0; i < 256; i++)
+            {
+                pal2[i * 3 + 0] = ((mult * (red - pal1[i * 3 + 0])) >> 16) + pal1[i * 3 + 0];
+                pal2[i * 3 + 1] = ((mult * (green - pal1[i * 3 + 1])) >> 16) + pal1[i * 3 + 1];
+                pal2[i * 3 + 2] = ((mult * (blue - pal1[i * 3 + 2])) >> 16) + pal1[i * 3 + 2];
+            }
+#else
             for (i = 0; i < 256; i++)
             {
                 pal2[i * 3 + 0] = loop * (red - pal1[i * 3 + 0]) / steps + pal1[i * 3 + 0];
                 pal2[i * 3 + 1] = loop * (green - pal1[i * 3 + 1]) / steps + pal1[i * 3 + 1];
                 pal2[i * 3 + 2] = loop * (blue - pal1[i * 3 + 2]) / steps + pal1[i * 3 + 2];
             }
+#endif
             
             GFX_SetPalette(pal2, 0);
             I_FinishUpdate();
@@ -354,10 +365,18 @@ GFX_FadeIn(
         {
             loop = GFX_GetFrameCount() - now;
             
+#ifdef __N64__
+            int mult = (loop << 16) / steps;
+            for (i = 0; i < 768; i++)
+            {
+                pal2[i] = ((mult * (palette[i] - pal1[i])) >> 16) + pal1[i];
+            }
+#else
             for (i = 0; i < 768; i++)
             {
                 pal2[i] = loop * (palette[i] - pal1[i]) / steps + pal1[i];
             }
+#endif
             
             GFX_SetPalette(pal2, 0);
             I_FinishUpdate();
@@ -392,10 +411,18 @@ GFX_FadeFrame(
 {
     int i;
     
+#ifdef __N64__
+    int mult = (cur_step << 16) / steps;
+    for (i = 0; i < 768; i++)
+    {
+        tpal2[i] = ((mult * (palette[i] - tpal1[i])) >> 16) + tpal1[i];
+    }
+#else
     for (i = 0; i < 768; i++)
     {
         tpal2[i] = ((palette[i] - tpal1[i]) * cur_step) / steps + tpal1[i];
     }
+#endif
     
     GFX_SetPalette(tpal2, 0);
 }
@@ -1001,19 +1028,50 @@ GFX_VLine(
     
     if (color < 0)
     {
+        int invert_color = color + 255;
+#ifdef __N64__
+        int fast_ly = ly & ~3;
+        for (int i = 0; i < fast_ly; i += 4)
+        {
+            *outbuf ^= invert_color; outbuf += SCREENWIDTH;
+            *outbuf ^= invert_color; outbuf += SCREENWIDTH;
+            *outbuf ^= invert_color; outbuf += SCREENWIDTH;
+            *outbuf ^= invert_color; outbuf += SCREENWIDTH;
+        }
+        for (int i = fast_ly; i < ly; i++)
+        {
+            *outbuf ^= invert_color; outbuf += SCREENWIDTH;
+        }
+#else
         while (ly--)
         {
-            *outbuf ^= (color + 255);
+            *outbuf ^= invert_color;
             outbuf += SCREENWIDTH;
         }
+#endif
     }
     else
     {
+#ifdef __N64__
+        int fast_ly = ly & ~3;
+        for (int i = 0; i < fast_ly; i += 4)
+        {
+            *outbuf = color; outbuf += SCREENWIDTH;
+            *outbuf = color; outbuf += SCREENWIDTH;
+            *outbuf = color; outbuf += SCREENWIDTH;
+            *outbuf = color; outbuf += SCREENWIDTH;
+        }
+        for (int i = fast_ly; i < ly; i++)
+        {
+            *outbuf = color; outbuf += SCREENWIDTH;
+        }
+#else
         while (ly--)
         {
             *outbuf = color;
             outbuf += SCREENWIDTH;
         }
+#endif
     }
 }
 
@@ -1057,6 +1115,46 @@ GFX_Line(
         maxloop = dely + 1;
     }
     
+#ifdef __N64__
+    // Keep a running pointer instead of recalculating x + ylookup[y]
+    char *ptr = &displaybuffer[x + ylookup[y]];
+    int y_stride = addy * SCREENWIDTH;
+
+    if (delx >= dely)
+    {
+        while (maxloop--)
+        {
+            if (x >= 0 && x < 320 && y >= 0 && y < 200) *ptr = color;
+            err += dely;
+            x += addx;
+            ptr += addx;
+            
+            if (err > 0)
+            {
+                err -= delx;
+                y += addy;
+                ptr += y_stride;
+            }
+        }
+    }
+    else
+    {
+        while (maxloop--)
+        {
+            if (x >= 0 && x <= 320 && y >= 0 && y < 200) *ptr = color;
+            err += delx;
+            y += addy;
+            ptr += y_stride;
+            
+            if (err > 0)
+            {
+                err -= dely;
+                x += addx;
+                ptr += addx;
+            }
+        }
+    }
+#else
     if (delx >= dely)
     {
         while (maxloop)
@@ -1095,6 +1193,7 @@ GFX_Line(
             }
         }
     }
+#endif
 }
 
 /*************************************************************************

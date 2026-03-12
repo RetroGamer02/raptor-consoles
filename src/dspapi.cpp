@@ -10,6 +10,14 @@ int dsp_cnt;
 int dsp_rsmp;
 int dsp_samp[2];
 
+#ifdef __N64__RSP
+// Bridge to our new hardware-accelerated mixer
+extern "C" int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority);
+
+//int last_lvol = 0;
+//int last_rvol = 0;
+#endif
+
 uint16_t pitchtable[256] = {
     0x0040, 0x0040, 0x0041, 0x0042, 0x0042, 0x0043,
     0x0044, 0x0045, 0x0045, 0x0046, 0x0047, 0x0048,
@@ -274,7 +282,7 @@ DSP_VolTable(
     int accm;
     int i;
 
-    val = - (vol / 2);
+    val = - (vol >> 1);
     step = vol >> 8;
     sub_step = vol & 255;
     accm = sub_step >> 1;
@@ -305,6 +313,90 @@ DSP_StartPatch(
     int priority
 )
 {
+    #ifdef __N64__RSP
+    /* Redirect to the RSP Mixer */
+    return SFX_Play_RSP(dsp, sep, pitch, volume, priority);
+    #elif __N64__SOFT_JUST_EFFECTS
+    int handle = (dsp_cnt++) & FXHAND_MASK;
+
+    int format = dsp->format.get_value();
+    int length = dsp->length.get_value();
+
+    if (format != 3 || length <= 32)
+        return -1;
+
+    SND_Lock();
+
+    channel_t *c0 = &dsp_channels[0];
+    channel_t *c1 = &dsp_channels[1];
+    channel_t *chan = NULL;
+
+    /* Fast free-channel check */
+    if (!c0->samples)
+        chan = c0;
+    else if (!c1->samples)
+        chan = c1;
+
+    /* Replacement logic */
+    if (!chan)
+    {
+        channel_t *best = c0;
+        channel_t *other = c1;
+
+        if (c1->priority > c0->priority ||
+            (c1->priority == c0->priority && c1->samples < c0->samples))
+        {
+            best = c1;
+            other = c0;
+        }
+
+        int lowpriority = best->priority;
+
+        if (lowpriority < priority || lowpriority == 0)
+        {
+            SND_Unlock();
+            return -1;
+        }
+
+        if (lowpriority == priority && best->dsp != dsp)
+        {
+            if (other->dsp == dsp)
+                best = other;
+        }
+
+        chan = best;
+    }
+
+    int freq = dsp->freq.get_value();
+    int samples = length - 32;
+
+    int step = (pitchtable[pitch] * freq + dsp_freq / 2) / dsp_freq;
+
+    int lvol = (pantable[255 - sep] * volume) >> 7;
+    int rvol = (pantable[sep] * volume) >> 7;
+
+    //if (lvol != last_lvol || rvol != last_rvol) {
+        DSP_VolTable(chan->voltable1, lvol);
+        DSP_VolTable(chan->voltable2, rvol);
+        //last_lvol = lvol;
+        //last_rvol = rvol;
+    //}
+
+    chan->dsp = dsp;
+    chan->data = dsp->data + 16;
+
+    chan->phase_sub_inc = step & 255;
+    chan->phase_sub = chan->phase_sub_inc >> 1;
+    chan->phase_inc = step >> 8;
+
+    chan->priority = priority;
+    chan->handle = handle;
+    chan->samples = (samples << 8) / step;
+
+    SND_Unlock();
+
+    return handle | FXHAND_DSP;
+    #else
     channel_t *chan = NULL;
     int i, lowpriority, samples, best, step, lvol, rvol;
     int handle = (dsp_cnt++) & FXHAND_MASK;
@@ -386,6 +478,7 @@ DSP_StartPatch(
     SND_Unlock();
     
     return handle | FXHAND_DSP;
+    #endif
 }
 
 /***************************************************************************

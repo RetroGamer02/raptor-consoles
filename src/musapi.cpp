@@ -50,6 +50,10 @@ struct mushead_t {
 };
 #pragma pack(pop)
 
+#ifdef __N64__XM
+extern xm64player_t raptor_xm;
+#endif
+
 /***************************************************************************
 MUS_SetupFader() -
  ***************************************************************************/
@@ -579,8 +583,16 @@ MUS_SongPlaying(
     void
 )
 {
+    #ifdef __N64__XM
+    if (raptor_xm.playing) {
+        music_active = 1;
+    } else {
+        music_active = 0;
+    }
+    #else
     if (!music_init)
         return 0;
+    #endif
     
     return music_active;
 }
@@ -643,6 +655,10 @@ MUS_SetVolume(
         return;
 
     music_currentvol = volume;
+
+    #ifdef __N64__XM
+        xm64player_set_vol(&raptor_xm, volume / 127.0f);
+    #endif
 }
 
 /***************************************************************************
