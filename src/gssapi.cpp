@@ -9,6 +9,7 @@
 #include "cards.h"
 #include "fx.h"
 
+#ifndef __N64__XM
 musdevice_t *gss_device;
 
 int gss_init;
@@ -45,13 +46,15 @@ GSS_Init(
     case M_NONE:
         gss_device = NULL;
         break;
-    
+
+    #ifndef __N64__XM
     case M_ADLIB:
     case M_PAS:
     case M_SB:
         gss_device = &mus_device_fm;
         break;
-    
+    #endif
+
     case M_WAVE:
     case M_CANVAS:
     case M_GMIDI:
@@ -357,3 +360,4 @@ GSS_PatchIsPlaying(
     
     return stat;
 }
+#endif

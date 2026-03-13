@@ -22,9 +22,9 @@ OBJS            := $(OBJS:%.cpp=$(BUILD_DIR)/%.o)
 INC_DIRS        = src $(SDL2_ROOT_DIR)/include include/textscreen/include include/TimGM6mb include/TinySoundFont
 
 CUSTOM_FLAGS    = $(foreach d,$(INC_DIRS),-I$(CURDIR)/$(d)) \
-                  -O3 -ffast-math -mno-abicalls \
-                  -fomit-frame-pointer -fno-exceptions \
-                  -D__MIPS__ -D__N64__ -D__N64__XM -D__N64__SOFT_JUST_EFFECTS \
+                  -O3 -ffast-math -fomit-frame-pointer \
+                  -funroll-loops -fmodulo-sched-allow-regmoves \
+                  -D__MIPS__ -D__N64__ -D__N64__XM -D__N64__RSP_ONLY \
                   -Wno-error=maybe-uninitialized -Wno-error=sign-compare \
                   -Wno-error=use-after-free
 
@@ -33,8 +33,8 @@ include $(N64_INST)/include/n64.mk
 
 N64_ROM_TITLE   = "Raptor N64"
 N64_ROM_SAVETYPE = eeprom16k
-# N64_ROM_REGION  = E            # E=USA, P=PAL, J=Japan
-N64_ROM_REGIONFREE = true
+N64_ROM_REGION  = E            # E=USA, P=PAL, J=Japan
+# N64_ROM_REGIONFREE = true
 # N64_ROM_RTC     = false
 
 N64_CFLAGS      += $(CUSTOM_FLAGS)

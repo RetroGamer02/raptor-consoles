@@ -37,7 +37,7 @@ SDL_TicksInit(void)
 void
 SDL_TicksQuit(void)
 {
-    fprintf(stderr, "SDL_TicksQuit\n");
+    //fprintf(stderr, "SDL_TicksQuit\n");
     ticks_started = SDL_FALSE;
 
     timer_close();

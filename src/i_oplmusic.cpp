@@ -16,6 +16,7 @@
 //   System interface for music.
 //
 
+#ifndef __N64__XM
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1368,3 +1369,4 @@ musdevice_t mus_device_fm = {
     ProgramChgEvent,
     AllOffEvent,
 };
+#endif

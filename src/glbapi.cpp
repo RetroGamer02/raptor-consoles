@@ -241,7 +241,13 @@ GLB_FindFile(
 	#endif
 	if ((handle = fopen(filename, permissions)) == NULL)
 	{
+		#ifdef __N64__
+		if(get_memory_size() == 0x00800000) {
+			sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
+		}
+		else
 		sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
+		#endif
 		if (handle == NULL)
 		{
 			if ((handle = fopen(filename, permissions)) == NULL)

@@ -32,6 +32,7 @@
 	//DUNNO Keyon in 4op, switch to 2op without keyoff.
 */
 
+#ifndef __N64__XM
 
 #include <cassert>
 #include <math.h>
@@ -1568,3 +1569,4 @@ void Handler::Init( Bitu rate ) {
 
 
 } // namespace DBOPL
+#endif

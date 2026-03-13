@@ -110,6 +110,7 @@ char cards[M_LAST][23] = {
 
 #ifdef __N64__RSP_ONLY
 static waveform_t n64_waveforms[32];
+int inturupted_channel = 13;
 
 extern "C" {
 
@@ -132,22 +133,41 @@ static void sfx_waveform_read(void *ctx, samplebuffer_t *sbuf, int wpos, int wle
     for (int i = 0; i < words; i++) {
         d32[i] = s32[i] ^ mask;
     }
+
+    // Process any remaining bytes that didn't fit neatly into a 32-bit chunk
+    int remainder = wlen & 3; 
+    if (remainder) {
+        int8_t *dtail = (int8_t *)(d32 + words);
+        int8_t *stail = (int8_t *)(s32 + words);
+        for (int i = 0; i < remainder; i++) {
+            dtail[i] = stail[i] ^ 0x80;
+        }
+    }
 }
 
 int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 {
     int channel = -1;
 
-    for (int i = 13; i < 16; i++)
+    for (int i = 13; i < 17; i++)
     {
         if (!mixer_ch_playing(i))
         {
             channel = i;
             break;
         }
+        if (i == 16) {
+            //Interupt a playing channel for a new sound if we must.
+            mixer_ch_stop(inturupted_channel);
+            channel = inturupted_channel;
+            if (inturupted_channel != 16)
+            inturupted_channel++;
+            else
+            inturupted_channel = 13;
+        }
     }
 
-    //channel = 13;
+    //printf("channel: %d\n", channel);
 
     if (channel == -1)
         return -1;
@@ -169,7 +189,13 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 
     // pitchtable[pitch] appears to map to a 256-based scale
     float pitch_ratio = (float)pitchtable[pitch] * 0.00390625f; // (1.0f / 256.0f)
-    float target_freq = 11025.0f;// * pitch_ratio; //Crashes Fixme!
+    
+    // Clamp the ratio to prevent a 0 Hz resampler crash in libdragon
+    if (pitch_ratio < 0.1f) pitch_ratio = 0.1f; 
+    
+    float target_freq = 11025.0f * pitch_ratio;
+    if (target_freq > fx_freq)
+        target_freq = fx_freq;
 
     mixer_ch_play(channel, wave);
     mixer_ch_set_freq(channel, target_freq);
@@ -202,7 +228,7 @@ int SFX_Stop_RSP(int channel) {
 
 // Optional: stop all SFX channels
 void SFX_StopAll_RSP() {
-    for (int i = 13; i < 16; i++) {
+    for (int i = 13; i < 17; i++) {
         SFX_Stop_RSP(i);
     }
 }
@@ -306,6 +332,7 @@ SND_InitSound(
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
 
+    #ifndef __N64__XM
     switch (music_card)
     {
     case M_ADLIB:
@@ -319,6 +346,7 @@ SND_InitSound(
         }
         break;
     }
+    #endif
 
     #ifdef __N64__XM
     if(get_memory_size() == 0x00800000)
@@ -336,7 +364,7 @@ SND_InitSound(
     }
 
     fx_volume = INI_GetPreferenceLong("SoundFX", "Volume", 127);
-    #if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+    #if (defined (__N64__) && !defined (__N64__RSP_ONLY)) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
         fx_card = 5;
         fx_chans = 2;
     #else
@@ -356,6 +384,7 @@ SND_InitSound(
         fx_device = SND_PC;
         break;
     
+    #ifndef __N64__XM
     case M_ADLIB:
         fx_device = SND_MIDI;
         if (!genmidi)
@@ -368,6 +397,7 @@ SND_InitSound(
             }
         }
         break;
+    #endif
     
     case M_GUS:
     case M_PAS:
@@ -384,6 +414,8 @@ SND_InitSound(
     }
 
     #ifdef __N64__RSP_ONLY
+    fx_device = SND_DIGITAL;
+    dig_flag = 1;
     printf("SoundFx Enabled (Wav64)\n");
     #else
     printf("SoundFx Enabled (%s)\n", cards[fx_card]);
@@ -402,8 +434,10 @@ SND_InitSound(
     else
         fx_channels = 1;
 
+    #ifndef __N64__XM
     if (fx_card == M_ADLIB || fx_card == M_WAVE || fx_card == M_CANVAS || fx_card == M_GMIDI)
         GSS_Init(fx_card, 0);
+    #endif
 
     #ifdef SDL12
     SDL_PauseAudio(0);
@@ -958,10 +992,17 @@ SFX_Playing(
 {
     switch (handle & FXHAND_TMASK)
     {
+    #ifndef __N64__RSP_ONLY
     case FXHAND_GSS1:
         return GSS_PatchIsPlaying(handle);
+    #endif
     case FXHAND_DSP:
-        return DSP_PatchIsPlaying(handle);
+        #ifdef __N64__RSP_ONLY
+            // Unpack the channel ID and check libdragon mixer
+            return mixer_ch_playing(handle & ~FXHAND_TMASK);
+        #else
+            return DSP_PatchIsPlaying(handle);
+        #endif
     }
     
     return 0;
@@ -986,11 +1027,19 @@ SFX_PlayPatch(
     case 0:
         break;
     
+    #ifndef __N64__RSP_ONLY
     case 1:
     case 2:
         return GSS_PlayPatch(patch, sep, pitch, vol, priority);
+    #endif
     case 3:
-        return DSP_StartPatch((dsp_t*)patch, sep, pitch, vol, priority);
+        #ifdef __N64__RSP_ONLY
+            int ch = SFX_Play_RSP((dsp_t*)patch, sep, pitch, vol, priority);
+            // Pack the channel ID into the handle
+            return (ch == -1) ? -1 : (FXHAND_DSP | ch); 
+        #else
+            return DSP_StartPatch((dsp_t*)patch, sep, pitch, vol, priority);
+        #endif
     }
     
     return -1;
@@ -999,20 +1048,22 @@ SFX_PlayPatch(
 /***************************************************************************
 SFX_StopPatch () -
  ***************************************************************************/
-void 
-SFX_StopPatch(
-    int handle
-)
-{
-    switch (handle & FXHAND_TMASK)
-    {
-    case FXHAND_GSS1:
+void SFX_StopPatch(int handle) {
+    if (handle == -1) return;
+
+    // Fast-path for N64/DSP sounds
+    if (handle & FXHAND_DSP) {
+        #ifdef __N64__RSP_ONLY
+            mixer_ch_stop(handle & ~FXHAND_TMASK);
+        #else
+            DSP_StopPatch(handle);
+        #endif
+        return;
+    }
+
+    // Fallback for GSS
+    if ((handle & FXHAND_TMASK) == FXHAND_GSS1) {
         GSS_StopPatch(handle);
-        break;
-    
-    case FXHAND_DSP:
-        DSP_StopPatch(handle);
-        break;
     }
 }
 
@@ -1193,10 +1244,6 @@ SND_StopPatch(
     DFX *curfld;
     
     curfld = &fx_items[type];
-
-    #ifdef __N64__RSP_ONLY
-    SFX_Stop_RSP(0);
-    #endif
     
     if (curfld->sid != -1)
     {
@@ -1295,6 +1342,7 @@ SND_PlaySong(
         for (int i = 0; i < sizeof(xm_tracks)/sizeof(xm_tracks[0]); i++) {
             if (music_song == xm_tracks[i].id) {
                 N64_Mus = xm_tracks[i].mus_idx;
+                //xm64player_open just being compiled in crashes with 4MB ram?!
                 xm64player_open(&raptor_xm, xm_tracks[i].path);
                 xm64player_play(&raptor_xm, 0);
                 break;

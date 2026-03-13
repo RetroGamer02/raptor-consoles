@@ -428,12 +428,14 @@ MUS_Init(
     case M_NONE:
         music_device = NULL;
         break;
-    
+
+    #ifndef __N64__XM
     case M_ADLIB:
     case M_PAS:
     case M_SB:
         music_device = &mus_device_fm;
         break;
+    #endif
     
     case M_WAVE:
     case M_CANVAS:

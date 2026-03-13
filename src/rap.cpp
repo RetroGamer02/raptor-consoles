@@ -173,6 +173,8 @@ FLATS *flatlib[4];
 // Todo check if needed on GCN or Wii
 #ifdef __3DS__
 const char *ctrRegAttention[] = {"**************************************************\n                   ATTENTION! \n This version of RAPTOR is a COMMERCIAL VERSION. \n         DO NOT upload this to any bulletin \n       boards or distribute it in any fashion. \n     Please report software piracy to the S.P.A \n         hotline by calling 1-800-388-PIR8.\n\n**************************************************"};
+#elif __N64__
+const char *n64RegAttention[] = {"***************************************************************                         ATTENTION!\n       This version of RAPTOR is a COMMERCIAL VERSION.\n DO NOT upload this to any bulletin boards or distribute it in\nany fashion. Please report software piracy to the S.P.A hotline                  by calling 1-800-388-PIR8.\n***************************************************************"};
 #elif __XBOX__
 const char *xboxRegAttention[] = {"***************************************************************                         ATTENTION!\n       This version of RAPTOR is a COMMERCIAL VERSION.\n DO NOT upload this to any bulletin boards or distribute it in\nany fashion. Please report software piracy to the S.P.A hotline                  by calling 1-800-388-PIR8.\n***************************************************************"};
 #endif
@@ -1386,6 +1388,18 @@ int main(
     strcpy(rapFILE0004Path, gExeDir);
     strcat(rapFILE0004Path, "FILE0004.GLB");
 
+    #ifdef __N64__
+    if(get_memory_size() == 0x00800000) {
+        if (!access(rapFILE0002Path, 0))
+        gameflag[1] = 1;
+
+        if (!access(rapFILE0003Path, 0) && !access(rapFILE0004Path, 0))
+        {
+            gameflag[2] = 1;
+            gameflag[3] = 1;
+        }
+    }
+    #else
     if (!access(rapFILE0002Path, 0))
         gameflag[1] = 1;
 
@@ -1394,6 +1408,7 @@ int main(
         gameflag[2] = 1;
         gameflag[3] = 1;
     }
+    #endif
 #else
     if (!access("FILE0001.GLB", 0))
         gameflag[0] = 1;
@@ -1529,6 +1544,8 @@ int main(
 // Todo check if needed on GCN or Wii
 #ifdef __3DS__
         printf("%s", ctrRegAttention[0]);
+#elif __N64__
+        printf("%s", n64RegAttention[0]);
 #elif __XBOX__
         printf("%s", xboxRegAttention[0]);
 #else

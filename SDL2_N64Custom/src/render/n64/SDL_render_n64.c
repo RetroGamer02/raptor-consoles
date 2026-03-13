@@ -75,13 +75,17 @@ typedef struct N64_RenderData
 {
     SDL_Texture *boundTarget;
     SDL_bool drawing;
-    SDL_Rect viewport;  // Add this to track the drawing offset
 
-    /* small draw-state cache to avoid redundant rdpq calls */
-    sprite_t      *last_sprite;
-    int            last_tlut;   /* -1 = unknown, 0 = TLUT_NONE, 1 = TLUT_RGBA16 */
-    int            last_mode;   /* 0 = unknown, 1 = standard, 2 = fill, ... */
-    SDL_BlendMode  last_blend;  /* NEW: Track the current hardware blend state */
+    int screen_w;
+    int screen_h;
+
+    SDL_Rect viewport;
+
+    sprite_t *last_sprite;
+    int last_tlut;
+    int last_mode;
+    SDL_BlendMode last_blend;
+
 } N64_RenderData;
 
 
@@ -172,6 +176,12 @@ static int
 PixelFormatToN64FMT(Uint32 format)
 {
     return FMT_RGBA16;
+}
+
+static inline void N64_GetDisplaySize(int *w, int *h)
+{
+    *w = display_get_width();
+    *h = display_get_height();
 }
 
 static inline uint16_t rgba8888_to_rgba5551(uint32_t c)
@@ -474,7 +484,9 @@ static int
 N64_QueueSetViewport(SDL_Renderer *renderer, SDL_RenderCommand *cmd)
 {
     // fprintf(stderr, "N64_QueueSetViewport\n");
-    return 0;  /* nothing to do in this backend. */
+    N64_RenderData *data = renderer->driverdata;
+    data->viewport = cmd->data.viewport.rect;
+    return 0;
 }
 
 static int
@@ -676,10 +688,8 @@ StartDrawing(SDL_Renderer *renderer)
     */
     if (!data->drawing) {
         surface_t *disp = display_get(); // This blocks until a backbuffer is available
-        if (disp) {
             rdpq_attach(disp, NULL);
             data->drawing = SDL_TRUE;
-        }
     }
 }
 
@@ -761,16 +771,23 @@ N64_RunCommandQueue(SDL_Renderer * renderer, SDL_RenderCommand *cmd, void *verti
 
                 if (data->last_mode != MODE_STANDARD) {
                     rdpq_set_mode_standard();
-                    //rdpq_set_mode_copy(0);
                     data->last_mode = MODE_STANDARD;
                 }
 
                 /* Disable N64 blender for opaque textures to double fillrate */
                 if (cmd->data.draw.texture->blendMode == SDL_BLENDMODE_NONE) {
-                    rdpq_mode_blender(0); // 0 disables blending
+                    if (data->last_blend != SDL_BLENDMODE_NONE) {
+                        rdpq_mode_blender(0);
+                        data->last_blend = SDL_BLENDMODE_NONE;
+                    }
                 } else {
                     // Restore standard alpha blending
                     rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY); 
+                }
+
+                if (data->last_blend != SDL_BLENDMODE_BLEND) {
+                    rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+                    data->last_blend = SDL_BLENDMODE_BLEND;
                 }
 
                 rdpq_blitparms_t parms = {
@@ -920,6 +937,8 @@ N64_CreateRenderer(SDL_Window *window, Uint32 flags)
     data->last_tlut = -1;
     data->last_mode = 0;
     data->last_blend = SDL_BLENDMODE_INVALID; /* NEW */
+
+    N64_GetDisplaySize(&data->screen_w, &data->screen_h);
 
     return renderer;
 }
