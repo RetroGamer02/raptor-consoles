@@ -22,7 +22,7 @@
 
 #ifdef __N64__
 #include <libdragon.h>
-#include <wav64.h>
+//#include <wav64.h>
 #include <mixer.h>
 #include <xm64.h>
 xm64player_t raptor_xm;
@@ -110,7 +110,7 @@ char cards[M_LAST][23] = {
 
 #ifdef __N64__RSP_ONLY
 static waveform_t n64_waveforms[32];
-int inturupted_channel = 13;
+int interrupted_channel = 0;
 
 extern "C" {
 
@@ -149,21 +149,21 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 {
     int channel = -1;
 
-    for (int i = 13; i < 17; i++)
+    for (int i = 0; i < 4; i++)
     {
         if (!mixer_ch_playing(i))
         {
             channel = i;
             break;
         }
-        if (i == 16) {
+        if (i == 3) {
             //Interupt a playing channel for a new sound if we must.
-            mixer_ch_stop(inturupted_channel);
-            channel = inturupted_channel;
-            if (inturupted_channel != 16)
-            inturupted_channel++;
+            mixer_ch_stop(interrupted_channel);
+            channel = interrupted_channel;
+            if (interrupted_channel != 3)
+            interrupted_channel++;
             else
-            inturupted_channel = 13;
+            interrupted_channel = 0;
         }
     }
 
@@ -216,7 +216,7 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 // Stop a sound effect playing on a specific channel
 // Returns 0 if stopped successfully, -1 if invalid
 int SFX_Stop_RSP(int channel) {
-    if (channel < 13 || channel > 16) return -1; // only last 4 SFX channels
+    if (channel < 0 || channel > 3) return -1; // only first 4 SFX channels
 
     if (mixer_ch_playing(channel)) {
         mixer_ch_stop(channel);      // immediately stop playback
@@ -228,7 +228,7 @@ int SFX_Stop_RSP(int channel) {
 
 // Optional: stop all SFX channels
 void SFX_StopAll_RSP() {
-    for (int i = 13; i < 17; i++) {
+    for (int i = 0; i < 4; i++) {
         SFX_Stop_RSP(i);
     }
 }
@@ -332,7 +332,7 @@ SND_InitSound(
     alsaclient = INI_GetPreferenceLong("Setup", "alsa_output_client", 128);
     alsaport = INI_GetPreferenceLong("Setup", "alsa_output_port", 0);
 
-    #ifndef __N64__XM
+    #ifdef __N64__OPLEMU
     switch (music_card)
     {
     case M_ADLIB:
@@ -384,7 +384,7 @@ SND_InitSound(
         fx_device = SND_PC;
         break;
     
-    #ifndef __N64__XM
+    #ifdef __N64__OPLEMU
     case M_ADLIB:
         fx_device = SND_MIDI;
         if (!genmidi)
@@ -434,7 +434,7 @@ SND_InitSound(
     else
         fx_channels = 1;
 
-    #ifndef __N64__XM
+    #ifdef __N64__OPLEMU
     if (fx_card == M_ADLIB || fx_card == M_WAVE || fx_card == M_CANVAS || fx_card == M_GMIDI)
         GSS_Init(fx_card, 0);
     #endif
@@ -992,7 +992,7 @@ SFX_Playing(
 {
     switch (handle & FXHAND_TMASK)
     {
-    #ifndef __N64__RSP_ONLY
+    #ifdef __N64__OPLEMU
     case FXHAND_GSS1:
         return GSS_PatchIsPlaying(handle);
     #endif
@@ -1027,7 +1027,7 @@ SFX_PlayPatch(
     case 0:
         break;
     
-    #ifndef __N64__RSP_ONLY
+    #ifdef __N64__OPLEMU
     case 1:
     case 2:
         return GSS_PlayPatch(patch, sep, pitch, vol, priority);
@@ -1344,7 +1344,7 @@ SND_PlaySong(
                 N64_Mus = xm_tracks[i].mus_idx;
                 //xm64player_open just being compiled in crashes with 4MB ram?!
                 xm64player_open(&raptor_xm, xm_tracks[i].path);
-                xm64player_play(&raptor_xm, 0);
+                xm64player_play(&raptor_xm, 4);
                 break;
             }
         }

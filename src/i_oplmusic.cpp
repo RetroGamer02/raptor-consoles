@@ -16,7 +16,7 @@
 //   System interface for music.
 //
 
-#ifndef __N64__XM
+#ifdef __N64__OPLEMU
 
 #include <stdio.h>
 #include <stdlib.h>

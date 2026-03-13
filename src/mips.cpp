@@ -91,9 +91,9 @@ void sys_init()
 {
     #ifdef __N64__
     dfs_init(DFS_DEFAULT_LOCATION);  // filesystem
-    if(get_memory_size() == 0x00800000) {
-        debug_init_sdfs("sd:/", 0);
-    }
+    //if(get_memory_size() == 0x00800000) {
+    debug_init_sdfs("sd:/", 0);
+    //}
 
     timer_init();
     joypad_init();

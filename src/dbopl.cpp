@@ -32,7 +32,7 @@
 	//DUNNO Keyon in 4op, switch to 2op without keyoff.
 */
 
-#ifndef __N64__XM
+#ifdef __N64__OPLEMU
 
 #include <cassert>
 #include <math.h>

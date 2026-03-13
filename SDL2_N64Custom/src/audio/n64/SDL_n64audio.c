@@ -32,9 +32,13 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
 
     SDL_CalculateAudioSpec(&this->spec);
 
-    audio_init(this->spec.freq, 3); //Was 4 now 6 for PAL Region compat
-    
-    mixer_init(17); //12 for XM plus 4 for RSP Effects Channels same as default Raptor Setup
+    if(get_memory_size() == 0x00800000) {
+        audio_init(this->spec.freq, 3); //Raise PAL Region compat?
+        mixer_init(16); //4 for RSP Effects Channels plus 12 for XM same as default Raptor Setup
+    } else {
+        audio_init(this->spec.freq, 2);
+        mixer_init(4);
+    }
 
     h->mixbuf_size = this->spec.size;
     h->mixbuf = memalign(16, h->mixbuf_size);

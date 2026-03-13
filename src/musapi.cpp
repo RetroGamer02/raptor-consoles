@@ -429,7 +429,7 @@ MUS_Init(
         music_device = NULL;
         break;
 
-    #ifndef __N64__XM
+    #ifdef __N64__OPLEMU
     case M_ADLIB:
     case M_PAS:
     case M_SB:
