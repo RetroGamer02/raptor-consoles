@@ -32,7 +32,7 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
 
     SDL_CalculateAudioSpec(&this->spec);
 
-    audio_init(this->spec.freq, 2); //Was 4 now 6 for PAL Region compat
+    audio_init(this->spec.freq, 3); //Was 4 now 6 for PAL Region compat
     
     mixer_init(17); //12 for XM plus 4 for RSP Effects Channels same as default Raptor Setup
 
