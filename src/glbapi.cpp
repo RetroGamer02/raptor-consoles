@@ -13,6 +13,10 @@
 #include "embeded_file_loader.h"
 //#endif
 
+#ifdef __N64__
+#include <malloc.h>
+#endif
+
 #if defined (_WIN32)
 #include <io.h>
 #endif // _WIN32
@@ -161,16 +165,12 @@ try_alloc_with_eviction(ITEMINFO* target_ii, uint32_t size, FI_MODE mode)
     int attempts = 300; /* try a few times, evicting between attempts */
 
     while (attempts--) {
-        if (fVmem) {
-            obj = (char*)VM_Malloc(size,
-                (target_ii->flags & ITF_LOCKED) ? NULL : &target_ii->vm_mem,
-                (mode == FI_CACHE) ? 0 : 1);
-        } else {
-            obj = (char*)calloc(size, 1);
-        }
+        obj = (char*)calloc(size, 1);
 
         if (obj)
             return obj;
+
+		//printf("Current Free Memory: %u\n",mallinfo().fordblks);
 
         /* Evict one non-locked cached item (LRU or first found) to free memory */
         for (int f = 0; f < num_glbs; ++f) {
@@ -178,14 +178,8 @@ try_alloc_with_eviction(ITEMINFO* target_ii, uint32_t size, FI_MODE mode)
             for (int itn = 0; itn < filedesc[f].items; ++itn, ++it) {
                 if (it->vm_mem.obj && !(it->flags & ITF_LOCKED)) {
                     /* Free it and mark as freed */
-                    if (fVmem)
-                        VM_Free(it->vm_mem.obj);
-                    else
-                        free(it->vm_mem.obj);
+                    free(it->vm_mem.obj);
                     it->vm_mem.obj = NULL;
-                    /* Hint VM that memory was touched/freed */
-                    if (fVmem)
-                        VM_Touch(&it->vm_mem);
                     /* break to retry allocation sooner */
                     goto retry_alloc;
                 }
@@ -733,6 +727,15 @@ GLB_FetchItem(
 			ii->vm_mem.obj = NULL;
 		else
 		{
+			#ifdef __N64__
+			if(get_memory_size() == 0x00800000)
+			{
+				obj = (char*)calloc(ii->size, sizeof(uint8_t));
+			} else {
+				/* Try to allocate, evicting other cached items if needed */
+				obj = try_alloc_with_eviction(ii, ii->size, mode);
+			}
+			#else
 			if (fVmem)
 			{
 				obj = (char*)VM_Malloc(ii->size,
@@ -741,18 +744,9 @@ GLB_FetchItem(
 			}
 			else
 			{
-				#ifdef __N64__
-				if(get_memory_size() == 0x00800000)
-				{
-					obj = (char*)calloc(ii->size, sizeof(uint8_t));
-				} else {
-					/* Try to allocate, evicting other cached items if needed */
-					obj = try_alloc_with_eviction(ii, ii->size, mode);
-				}
-				#else
 				obj = (char*)calloc(ii->size, sizeof(uint8_t));
-				#endif
 			}
+			#endif
 			
 			if (mode == FI_LOCK)
 				ii->lock_cnt = 1;
@@ -765,11 +759,13 @@ GLB_FetchItem(
 			}
 		}
 	}
+	#ifndef __N64__
 	else if (mode == FI_LOCK && fVmem)
 	{
 		ii->lock_cnt++;
 		VM_Lock(obj);
 	}
+	#endif
 	
 
 	if (ii->vm_mem.obj == NULL && mode != FI_CACHE)
@@ -777,8 +773,10 @@ GLB_FetchItem(
 		EXIT_Error("GLB_FetchItem: failed on %d bytes, mode=%d.", ii->size, mode);
 	}
 	
+	#ifndef __N64__
 	if (mode == FI_DISCARD && fVmem)
 		VM_Touch(&ii->vm_mem);
+	#endif
 
 	return ii->vm_mem.obj;
 }
@@ -838,6 +836,9 @@ GLB_UnlockItem(
 	ii = filedesc[itm.id.filenum].item;
 	ii += itm.id.itemnum;
 
+	#ifdef __N64__
+	ii->flags &= ~ITF_LOCKED;
+	#else
 	if (ii->vm_mem.obj != NULL && fVmem)
 	{
 		if (ii->lock_cnt)
@@ -854,6 +855,7 @@ GLB_UnlockItem(
 	{
 		ii->flags &= ~ITF_LOCKED;
 	}
+	#endif
 }
 
 /***************************************************************************
@@ -1011,9 +1013,11 @@ GLB_FreeItem(
 	{
 		ii->flags &= ~ITF_LOCKED;
 		
+		#ifndef __N64__
 		if (fVmem)
 			VM_Free(ii->vm_mem.obj);
 		else
+		#endif
 			free(ii->vm_mem.obj);
 		
 		ii->vm_mem.obj = NULL;
@@ -1040,9 +1044,11 @@ GLB_FreeAll(
 		{
 			if (ii->vm_mem.obj && (ii->flags & ITF_LOCKED) == 0)
 			{
+				#ifndef __N64__
 				if (fVmem)
 					VM_Free(ii->vm_mem.obj);
 				else
+				#endif
 					free(ii->vm_mem.obj);
 				
 				ii->vm_mem.obj = NULL;

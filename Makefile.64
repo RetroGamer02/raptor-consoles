@@ -1,4 +1,4 @@
-TARGET          = Raptor-N64-8MB
+TARGET          = Raptor-N64
 
 # Build paths
 BUILD_DIR       = build-n64
@@ -40,6 +40,8 @@ N64_ROM_REGION  = E            # E=USA, P=PAL, J=Japan
 N64_CFLAGS      += $(CUSTOM_FLAGS)
 N64_CXXFLAGS    += $(CUSTOM_FLAGS) -fno-rtti -fno-exceptions
 # N64_LDFLAGS     += -flto
+
+N64_TOOLFLAGS   += --size 8M
 
 # --- Rules ---
 default: $(TARGET).z64

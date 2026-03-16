@@ -138,6 +138,7 @@ VideoBootStrap N64_bootstrap = {
 int
 N64_VideoInit(_THIS)
 {
+    display_close();
     /* Initialize Libdragon Joypads (Modern replacement for controller_init) */
     joypad_init();
 

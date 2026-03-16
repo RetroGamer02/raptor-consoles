@@ -1,3 +1,4 @@
+#ifndef __N64__
 #include <stdio.h>
 #include <stdint.h>
 #include "common.h"
@@ -442,3 +443,4 @@ VM_Unlock(
         }
     }
 }
+#endif

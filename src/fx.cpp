@@ -149,18 +149,23 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 {
     int channel = -1;
 
-    for (int i = 0; i < 4; i++)
+    char max_effect_channels = 3;
+
+    if(get_memory_size() == 0x00800000)
+        max_effect_channels = 4;
+
+    for (int i = 0; i < max_effect_channels; i++)
     {
         if (!mixer_ch_playing(i))
         {
             channel = i;
             break;
         }
-        if (i == 3) {
+        if (i == max_effect_channels -1) {
             //Interupt a playing channel for a new sound if we must.
             mixer_ch_stop(interrupted_channel);
             channel = interrupted_channel;
-            if (interrupted_channel != 3)
+            if (interrupted_channel != max_effect_channels -1)
             interrupted_channel++;
             else
             interrupted_channel = 0;
@@ -1303,13 +1308,13 @@ SND_PlaySong(
     #ifdef __N64__XM
     if(get_memory_size() == 0x00400000)
         return;
-    #else
+    #endif
+
     if (music_volume <= 1)
         return;
     
     if (music_song == item)
         return;
-    #endif
     
     if (music_song != -1)
     {
@@ -1335,21 +1340,20 @@ SND_PlaySong(
     {
         music_song = item;
         #ifdef __N64__XM
-        if (N64_Mus != -1)
+        if (N64_Mus != -1) {
             xm64player_close(&raptor_xm);
+        }
 
         N64_Mus = -1;
         for (int i = 0; i < sizeof(xm_tracks)/sizeof(xm_tracks[0]); i++) {
             if (music_song == xm_tracks[i].id) {
                 N64_Mus = xm_tracks[i].mus_idx;
-                //xm64player_open just being compiled in crashes with 4MB ram?!
                 xm64player_open(&raptor_xm, xm_tracks[i].path);
+                xm64player_set_loop(&raptor_xm, chainflag);
                 xm64player_play(&raptor_xm, 4);
                 break;
             }
         }
-
-        xm64player_set_loop(&raptor_xm, chainflag);
 
         /*if (fadeflag) //Untested
         {

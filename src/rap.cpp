@@ -257,7 +257,7 @@ void ShutDown(
     SDL_Quit();
     GLB_FreeAll();
     IPT_CloJoy(); // Close Joystick
-    SWD_End();    // Broken on real Xbox hardware
+    SWD_End();
     SDL_Quit();
 
     free(g_highmem);
@@ -268,10 +268,7 @@ void ShutDown(
 
     SYSLaunchMenu();
     #elif __N64__
-    //closewindow();  // Close Main Window
-    //I_LASTSCR(mem); // Call to display ANSI Screen
     GLB_FreeAll();
-    IPT_CloJoy(); // Close Joystick
     #else
     closewindow();  // Close Main Window
     I_LASTSCR(mem); // Call to display ANSI Screen
@@ -281,7 +278,7 @@ void ShutDown(
     WUPC_Shutdown();
     WPAD_Shutdown();
     #endif
-    SWD_End();    // Broken on real Xbox hardware
+    SWD_End();
     SDL_Quit();
 
     free(g_highmem);
@@ -1483,7 +1480,9 @@ int main(
     bday[5].year = 1996;
     bday[5].name = "Paul R.";
 
+    #ifndef __N64__ //Not sure if this actualy saves ram
     RAP_Bday();
+    #endif
 
     if (bday_num != -1)
         printf("Birthday() = %s\n", bday[bday_num].name);

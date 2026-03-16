@@ -309,10 +309,7 @@ DSP_StartPatch(
     int priority
 )
 {
-    #ifdef __N64__RSP_ONLY
-    /* Redirect to the RSP Mixer */
-    return SFX_Play_RSP(dsp, sep, pitch, volume, priority);
-    #elif __N64__SOFT_JUST_EFFECTS
+    #ifdef __N64__SOFT_JUST_EFFECTS
     int handle = (dsp_cnt++) & FXHAND_MASK;
 
     int format = dsp->format.get_value();

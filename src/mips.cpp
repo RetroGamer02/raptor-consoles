@@ -90,16 +90,15 @@ int checkFile(const char* path, int mode)
 void sys_init()
 {
     #ifdef __N64__
-    dfs_init(DFS_DEFAULT_LOCATION);  // filesystem
-    //if(get_memory_size() == 0x00800000) {
+    dfs_init(DFS_DEFAULT_LOCATION);
     debug_init_sdfs("sd:/", 0);
-    //}
 
     timer_init();
     joypad_init();
     console_init();
 
-    //debug_init_isviewer();
+    debug_init_isviewer();
+    debug_init_usblog();
     //console_set_render_mode(RENDER_MANUAL);
     //console_set_debug(false);
     #endif

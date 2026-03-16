@@ -7,7 +7,9 @@
 #include <string.h>
 #ifdef __N64__
 #include <cstdint>
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 #include <string.h>
 #include <SDL2/SDL.h>
 #endif
@@ -15,6 +17,7 @@
 
 #ifdef __N64__
 #define PATH_MAX 256
+#define printf(...) debugf(__VA_ARGS__)
 #endif
 
 //Generic file copy function.

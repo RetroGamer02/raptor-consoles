@@ -30,7 +30,9 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 #include <malloc.h>
 
 /* N64 renderer implementation, based on the PGE  */

@@ -4,7 +4,9 @@
 #include "../SDL_audio_c.h"
 #include "../SDL_sysaudio.h"
 
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 #include <string.h>
 #include <malloc.h>
 
@@ -37,7 +39,7 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
         mixer_init(16); //4 for RSP Effects Channels plus 12 for XM same as default Raptor Setup
     } else {
         audio_init(this->spec.freq, 2);
-        mixer_init(4);
+        mixer_init(3);
     }
 
     h->mixbuf_size = this->spec.size;

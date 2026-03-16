@@ -22,7 +22,9 @@
 
 #ifdef SDL_TIMER_N64
 
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 
 static SDL_bool ticks_started = SDL_FALSE;
 
