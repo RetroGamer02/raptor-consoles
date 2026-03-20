@@ -728,13 +728,8 @@ GLB_FetchItem(
 		else
 		{
 			#ifdef __N64__
-			if(get_memory_size() == 0x00800000)
-			{
-				obj = (char*)calloc(ii->size, sizeof(uint8_t));
-			} else {
 				/* Try to allocate, evicting other cached items if needed */
 				obj = try_alloc_with_eviction(ii, ii->size, mode);
-			}
 			#else
 			if (fVmem)
 			{

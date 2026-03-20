@@ -37,7 +37,7 @@ static const struct {
     {82, 1,  "rom:/Music/BOSS1_MUS.xm64"},
     {83, 2,  "rom:/Music/BOSS2_MUS.xm64"},
     {84, 3,  "rom:/Music/BOSS3_MUS.xm64"},
-    {85, 4,  "rom:/Music/BOSS3_MUS.xm64"},
+    {85, 4,  "rom:/Music/BOSS4_MUS.xm64"},
     {86, 15,  "rom:/Music/RINTRO_MUS.xm64"},
     {87, 6,  "rom:/Music/MAINMENU_MUS.xm64"},
     {88, 5,  "rom:/Music/HANGAR_MUS.xm64"},
@@ -45,11 +45,11 @@ static const struct {
     {90, 8,  "rom:/Music/RAP2_MUS.xm64"},
     {91, 9,  "rom:/Music/RAP3_MUS.xm64"},
     {92, 10,  "rom:/Music/RAP4_MUS.xm64"},
-    {93, 11,  "rom:/Music/RAP5_MUS.xm64"},
+    {93, 11,  "rom:/Music/RAP5_MUS_SLIM.xm64"},
     {94, 12,  "rom:/Music/RAP6_MUS.xm64"},
     {95, 13,  "rom:/Music/RAP7_MUS.xm64"},
-    {96, 14,  "rom:/Music/RAP8_MUS.xm64"},
-    {97, 0,  "rom:/Music/APOGEE_MUS.xm64"}
+    {96, 14,  "rom:/Music/RAP8_MUS_SLIM.xm64"},
+    {97, 0,  "rom:/Music/APOGEE_MUS_SLIM.xm64"}
 };
 #endif
 
@@ -61,7 +61,7 @@ static int fx_init = 0;
 static int lockcount;
 
 #ifdef __N64__
-int fx_freq = 16000;
+int fx_freq = 14700;
 #elif __GCN__
 int fx_freq = 22050;
 #elif __WII__
@@ -225,7 +225,6 @@ int SFX_Stop_RSP(int channel) {
 
     if (mixer_ch_playing(channel)) {
         mixer_ch_stop(channel);      // immediately stop playback
-        memset(&n64_waveforms[channel], 0, sizeof(waveform_t)); // clear waveform
     }
 
     return 0;
@@ -1341,6 +1340,7 @@ SND_PlaySong(
         music_song = item;
         #ifdef __N64__XM
         if (N64_Mus != -1) {
+            rspq_wait(); // Wait for RSP to finish mixing before freeing memory
             xm64player_close(&raptor_xm);
         }
 

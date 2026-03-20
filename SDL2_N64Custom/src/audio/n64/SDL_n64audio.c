@@ -30,13 +30,13 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
 
     /* Force a format libdragon supports */
     this->spec.format = AUDIO_S16SYS;
-    this->spec.channels = 1;
+    this->spec.channels = 2;
 
     SDL_CalculateAudioSpec(&this->spec);
 
     if(get_memory_size() == 0x00800000) {
-        audio_init(this->spec.freq, 3); //Raise PAL Region compat?
-        mixer_init(16); //4 for RSP Effects Channels plus 12 for XM same as default Raptor Setup
+        audio_init(this->spec.freq, 4); //Raise PAL Region compat?
+        mixer_init(14); //4 for RSP Effects Channels plus 10 for XM
     } else {
         audio_init(this->spec.freq, 2);
         mixer_init(3);
@@ -83,11 +83,11 @@ void SDL_N64_PumpAudio(void)
         int bytes = samples << 2;
 
         /* CRITICAL: Prevent Buffer Overflow */
-        /*if (bytes > h->mixbuf_size) 
+        if (bytes > h->mixbuf_size) 
         {
             bytes = h->mixbuf_size;
             samples = bytes >> 2; 
-        }*/
+        }
 
         /* 1. Mix XM music directly into the hardware buffer */
         mixer_poll(out, samples);
@@ -153,8 +153,10 @@ static void N64AUDIO_CloseDevice(SDL_AudioDevice *this)
 
     SDL_PrivateAudioData *h = (SDL_PrivateAudioData *)this->hidden;
 
-    if (h->initialized)
+    if (h->initialized) {
+        mixer_close();
         audio_close();
+    }
 
     SDL_free(h);
 
