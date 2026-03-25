@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -151,7 +151,7 @@ int SFX_Play_RSP(dsp_t *dsp, int sep, int pitch, int volume, int priority)
 
     char max_effect_channels = 3;
 
-    if(get_memory_size() == 0x00800000)
+    if(get_memory_size() >= 0x00800000)
         max_effect_channels = 4;
 
     for (int i = 0; i < max_effect_channels; i++)
@@ -353,7 +353,7 @@ SND_InitSound(
     #endif
 
     #ifdef __N64__XM
-    if(get_memory_size() == 0x00800000)
+    if(get_memory_size() >= 0x00800000)
         printf("Music Enabled (XM64)\n");
     else
         printf("Music Enabled (%s)\n", cards[music_card]);
@@ -1305,7 +1305,7 @@ SND_PlaySong(
     char *song;
     
     #ifdef __N64__XM
-    if(get_memory_size() == 0x00400000)
+    if(get_memory_size() < 0x00800000)
         return;
     #endif
 
@@ -1340,16 +1340,16 @@ SND_PlaySong(
         music_song = item;
         #ifdef __N64__XM
         if (N64_Mus != -1) {
-            rspq_wait(); // Wait for RSP to finish mixing before freeing memory
+			rspq_wait(); // Wait for RSP to finish mixing before freeing memory
             xm64player_close(&raptor_xm);
-        }
+		}
 
         N64_Mus = -1;
         for (int i = 0; i < sizeof(xm_tracks)/sizeof(xm_tracks[0]); i++) {
             if (music_song == xm_tracks[i].id) {
                 N64_Mus = xm_tracks[i].mus_idx;
                 xm64player_open(&raptor_xm, xm_tracks[i].path);
-                xm64player_set_loop(&raptor_xm, chainflag);
+				xm64player_set_loop(&raptor_xm, chainflag);
                 xm64player_play(&raptor_xm, 4);
                 break;
             }

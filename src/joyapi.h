@@ -1,4 +1,4 @@
-#if defined (__N64__) || defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
+#if defined (__GCN__) || defined (__WII__) || defined (__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"

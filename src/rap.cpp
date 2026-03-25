@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#if defined(__N64__) || defined(__GCN__) || defined(__WII__) || defined(__WIIU__)
+#if defined(__GCN__) || defined(__WII__) || defined(__WIIU__)
 #include "SDL2/SDL.h"
 #else
 #include "SDL.h"
@@ -174,7 +174,7 @@ FLATS *flatlib[4];
 #ifdef __3DS__
 const char *ctrRegAttention[] = {"**************************************************\n                   ATTENTION! \n This version of RAPTOR is a COMMERCIAL VERSION. \n         DO NOT upload this to any bulletin \n       boards or distribute it in any fashion. \n     Please report software piracy to the S.P.A \n         hotline by calling 1-800-388-PIR8.\n\n**************************************************"};
 #elif __N64__
-const char *n64RegAttention[] = {"***************************************************************                         ATTENTION!\n       This version of RAPTOR is a COMMERCIAL VERSION.\n DO NOT upload this to any bulletin boards or distribute it in\nany fashion. Please report software piracy to the S.P.A hotline                  by calling 1-800-388-PIR8.\n***************************************************************"};
+const char *n64RegAttention[] = {"***************************************************************                         ATTENTION!\n       This version of RAPTOR is a COMMERCIAL VERSION.\n DO NOT upload this to any bulletin boards or distribute it in\nany fashion. Please report software piracy to the S.P.A hotline                  by calling 1-800-388-PIR8.\n***************************************************************\n"};
 #elif __XBOX__
 const char *xboxRegAttention[] = {"***************************************************************                         ATTENTION!\n       This version of RAPTOR is a COMMERCIAL VERSION.\n DO NOT upload this to any bulletin boards or distribute it in\nany fashion. Please report software piracy to the S.P.A hotline                  by calling 1-800-388-PIR8.\n***************************************************************"};
 #endif
@@ -1386,7 +1386,7 @@ int main(
     strcat(rapFILE0004Path, "FILE0004.GLB");
 
     #ifdef __N64__
-    if(get_memory_size() == 0x00800000) {
+    if(get_memory_size() >= 0x00800000) {
         if (!access(rapFILE0002Path, 0))
         gameflag[1] = 1;
 

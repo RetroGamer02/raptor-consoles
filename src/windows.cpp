@@ -625,6 +625,7 @@ WIN_AskExit(
     void
 )
 {
+    #ifndef __N64__
     if (WIN_AskBool("EXIT TO DOS"))
     {
         SND_FadeOutSong();
@@ -684,6 +685,7 @@ WIN_AskExit(
         ShutDown(0);
         EXIT_Clean();
     }
+    #endif
 }
 
 /***************************************************************************

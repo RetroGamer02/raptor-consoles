@@ -58,7 +58,7 @@ N64_Destroy(SDL_VideoDevice * device)
 static SDL_VideoDevice *
 N64_Create()
 {
-    fprintf(stderr, "N64_Create\n");
+    //fprintf(stderr, "N64_Create\n");
     SDL_VideoDevice *device;
     SDL_VideoData *phdata;
 
@@ -138,7 +138,6 @@ VideoBootStrap N64_bootstrap = {
 int
 N64_VideoInit(_THIS)
 {
-    display_close();
     /* Initialize Libdragon Joypads (Modern replacement for controller_init) */
     joypad_init();
 

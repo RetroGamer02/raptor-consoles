@@ -22,9 +22,7 @@
 
 #ifdef SDL_JOYSTICK_N64
 
-#define stack_t libdragon_stack_t
 #include <libdragon.h>
-#undef stack_t
 
 #include "SDL_joystick.h"
 #include "../SDL_sysjoystick.h"

@@ -171,6 +171,7 @@ try_alloc_with_eviction(ITEMINFO* target_ii, uint32_t size, FI_MODE mode)
             return obj;
 
 		//printf("Current Free Memory: %u\n",mallinfo().fordblks);
+		//while(1){console_render();}
 
         /* Evict one non-locked cached item (LRU or first found) to free memory */
         for (int f = 0; f < num_glbs; ++f) {
@@ -236,7 +237,7 @@ GLB_FindFile(
 	if ((handle = fopen(filename, permissions)) == NULL)
 	{
 		#ifdef __N64__
-		if(get_memory_size() == 0x00800000) {
+		if(get_memory_size() >= 0x00800000) {
 			sprintf(filename, "%s%s%04u.GLB", exePath, prefix, filenum);
 		}
 		#else
@@ -728,8 +729,13 @@ GLB_FetchItem(
 		else
 		{
 			#ifdef __N64__
+			if(get_memory_size() >= 0x00800000)
+			{
+				obj = (char*)calloc(ii->size, sizeof(uint8_t));
+			} else {
 				/* Try to allocate, evicting other cached items if needed */
 				obj = try_alloc_with_eviction(ii, ii->size, mode);
+			}
 			#else
 			if (fVmem)
 			{

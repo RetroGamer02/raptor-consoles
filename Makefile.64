@@ -11,7 +11,7 @@ SDL2_ROOT_DIR   = SDL2_N64Custom
 include $(SDL2_ROOT_DIR)/Makefile_sdl2.mk
 
 # --- Source Discovery ---
-SRC_DIRS        = src include/textscreen/include
+SRC_DIRS        = src include/textscreen/include SDL2_N64Custom/include/
 CFILES          := $(foreach d,$(SRC_DIRS),$(wildcard $(d)/*.c))
 CPPFILES        := $(foreach d,$(SRC_DIRS),$(wildcard $(d)/*.cpp))
 SRCS            := $(CFILES) $(CPPFILES) $(C_SDL_FILES)
@@ -41,7 +41,7 @@ N64_CFLAGS      += $(CUSTOM_FLAGS)
 N64_CXXFLAGS    += $(CUSTOM_FLAGS) -fno-rtti -fno-exceptions
 # N64_LDFLAGS     += -flto
 
-N64_TOOLFLAGS   += --size 8M
+N64_TOOLFLAGS   += --size 12M
 
 # --- Rules ---
 default: $(TARGET).z64

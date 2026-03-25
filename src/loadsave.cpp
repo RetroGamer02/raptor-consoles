@@ -44,7 +44,7 @@ static const eepfs_entry_t eeprom_entries[MAX_SAVE + 1] = {
     {"CHAR0000.FIL", sizeof(SAVEGAME)},
     {"CHAR0001.FIL", sizeof(SAVEGAME)},
     {"CHAR0002.FIL", sizeof(SAVEGAME)},
-    {"SETUP.INI",    312}
+    {"SETUP.INI",    311}
 };
 
 // Helper: Since eepromfs pre-allocates files and fills erased ones with 0x00, 
@@ -838,15 +838,21 @@ RAP_InitLoadSave(
     cdflag = 0;
 
     #ifdef __N64__
-    // Crucial: check if hardware is present before initializing FS
+    int eepfsres = -99; 
     if (eeprom_present()) {
-        if (eepfs_init(eeprom_entries, MAX_SAVE + 1) != EEPFS_ESUCCESS) {
-             // Handle init error (e.g. wrong size eeprom)
+        eepfsres = eepfs_init(eeprom_entries, MAX_SAVE + 1);
+        if (eepfsres == EEPFS_ESUCCESS) {
+            printf("\nN64 EEPROM INIT SUCCESS\n");
+        } else if (eepfsres == EEPFS_EBADFS) {
+            printf("\nERROR DATA WONT FIT IN EEPROM!\n");
+        } else {
+            printf("\nERROR RETURN CODE %d!\n", eepfsres);
         }
+
         if (!eepfs_verify_signature()) {
             eepfs_wipe(); 
         }
-    }
+	}
     #endif
     
     char setupPath[PATH_MAX];
