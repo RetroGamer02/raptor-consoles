@@ -97,10 +97,10 @@ void sys_init()
     joypad_init();
     console_init();
 
+    #ifdef __N64__DEBUG
     debug_init_isviewer();
     debug_init_usblog();
-    //console_set_render_mode(RENDER_MANUAL);
-    //console_set_debug(false);
+    #endif
     #endif
 }
 #endif

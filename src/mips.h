@@ -15,7 +15,9 @@
 
 #ifdef __N64__
 #define PATH_MAX 256
+#ifdef __N64__DEBUG
 #define printf(...) debugf(__VA_ARGS__)
+#endif
 #endif
 
 //Generic file copy function.

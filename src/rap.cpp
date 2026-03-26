@@ -267,8 +267,6 @@ void ShutDown(
 	//WHBProcShutdown();
 
     SYSLaunchMenu();
-    #elif __N64__
-    GLB_FreeAll();
     #else
     closewindow();  // Close Main Window
     I_LASTSCR(mem); // Call to display ANSI Screen
@@ -1291,7 +1289,7 @@ void InitExeDir(int argc, char **argv)
         strcpy(gExeDir, "sd:/");
 #elif __N64__
         // N64: default to root of rom file system
-        strcpy(gExeDir, "sd:/");
+        strcpy(gExeDir, "sd:/Raptor-Files/");
 #elif __WIIU__
         // WiiU: default to root of first EXT device
         strcpy(gExeDir, "fs:/vol/external01/");
