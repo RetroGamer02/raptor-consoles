@@ -659,7 +659,7 @@ MUS_SetVolume(
     music_currentvol = volume;
 
     #ifdef __N64__XM
-        xm64player_set_vol(&raptor_xm, volume / 127.0f);
+    xm64player_set_vol(&raptor_xm, volume / 127.0f);
     #endif
 }
 

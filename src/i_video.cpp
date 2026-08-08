@@ -28,6 +28,18 @@
 #include "SDL_opengl.h"
 #endif
 
+#ifdef __N64__
+#include <n64sys.h>   // get_tv_type(), tv_type_t, TV_PAL
+
+static inline int N64_VerticalPad(void)
+{
+    //return (get_tv_type() == TV_PAL) ? 88 : 40;   // 200+88=288 (PAL), 200+40=240 (NTSC/MPAL)
+    if (get_tv_type() == TV_PAL) return 88;
+    else if (get_tv_type() == TV_MPAL) return 88;
+    else return 40;
+}
+#endif
+
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -229,9 +241,12 @@ int screencoordpoint = 0;
 void VIDEO_LoadPrefs(void)
 {
     #ifdef __N64__
-        fullscreen = 1;
+        fullscreen = 0;
         aspect_ratio_correct = 0;
         txt_fullscreen = 1;
+        window_height = SCREENHEIGHT + N64_VerticalPad();   // 240 NTSC/MPAL, 288 PAL
+        fullscreen_width  = window_width;
+        fullscreen_height = window_height;
     #elif __GCN__
         fullscreen = 1;
         aspect_ratio_correct = 0;
@@ -2028,7 +2043,7 @@ static void SetVideoMode(void)
     {
         #ifdef __N64__
         screenbuffer = SDL_CreateRGBSurface(0,
-                                            SCREENWIDTH, SCREENHEIGHT + 40, 8,
+                                            SCREENWIDTH, SCREENHEIGHT + N64_VerticalPad(), 8,
                                             0, 0, 0, 0);
         #else
         screenbuffer = SDL_CreateRGBSurface(0,
@@ -2053,7 +2068,7 @@ static void SetVideoMode(void)
                                    &rmask, &gmask, &bmask, &amask);
         #ifdef __N64__
         argbbuffer = SDL_CreateRGBSurface(0,
-                                          SCREENWIDTH, SCREENHEIGHT + 40, bpp,
+                                          SCREENWIDTH, SCREENHEIGHT + N64_VerticalPad(), bpp,
                                           rmask, gmask, bmask, amask);
         #else
         argbbuffer = SDL_CreateRGBSurface(0,
@@ -2082,7 +2097,7 @@ static void SetVideoMode(void)
     texture = SDL_CreateTexture(renderer,
                                 pixel_format,
                                 SDL_TEXTUREACCESS_STREAMING,
-                                SCREENWIDTH, SCREENHEIGHT + 40);
+                                SCREENWIDTH, SCREENHEIGHT + N64_VerticalPad());
     #else
     texture = SDL_CreateTexture(renderer,
                                 pixel_format,

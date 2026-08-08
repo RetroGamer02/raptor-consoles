@@ -41,10 +41,10 @@ typedef struct {
 
 // Define file records dynamically for the EEPROM FS initialization
 static const eepfs_entry_t eeprom_entries[MAX_SAVE + 1] = {
-    {"CHAR0000.FIL", sizeof(SAVEGAME)},
-    {"CHAR0001.FIL", sizeof(SAVEGAME)},
-    {"CHAR0002.FIL", sizeof(SAVEGAME)},
-    {"SETUP.INI",    311}
+    {.path ="CHAR0000.FIL", .size = sizeof(SAVEGAME), .checksum = true, .backup = false},
+    {.path ="CHAR0001.FIL", .size = sizeof(SAVEGAME), .checksum = true, .backup = false},
+    {.path ="CHAR0002.FIL", .size = sizeof(SAVEGAME), .checksum = true, .backup = false},
+    {.path ="SETUP.INI",    .size = 80,               .checksum = true, .backup = true}
 };
 
 // Helper: Since eepromfs pre-allocates files and fills erased ones with 0x00, 

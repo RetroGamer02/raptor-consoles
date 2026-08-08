@@ -25,7 +25,9 @@
 #include "../../SDL_internal.h"
 #include "../SDL_sysvideo.h"
 
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 
 typedef struct SDL_VideoData
 {

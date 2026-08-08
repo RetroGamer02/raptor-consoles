@@ -26,6 +26,10 @@
 
 #include "../../events/SDL_events_c.h"
 
+#define stack_t libdragon_stack_t
+#include <libdragon.h>
+#undef stack_t
+
 void
 N64_PumpEvents(_THIS)
 {

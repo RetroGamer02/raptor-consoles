@@ -1156,6 +1156,19 @@ Do_Game(
             retraceflag = 0;
         }
 
+        #ifdef __N64__
+        if (joypad_is_connected(JOYPAD_PORT_1)) {
+            joypad_buttons_t held = joypad_get_buttons_held(JOYPAD_PORT_1);
+            if (held.r & held.c_up & held.z)
+            {
+                OBJS_Add(S_DEATH_RAY);
+                OBJS_Add(S_ENERGY);
+                OBJS_Add(S_ENERGY);
+                OBJS_Add(S_ENERGY);
+                plr.score = 0;
+            }
+        }
+        #else
         if (reg_flag && KBD_Key(SC_BACKSPACE))
         {
             OBJS_Add(S_DEATH_RAY);
@@ -1164,6 +1177,7 @@ Do_Game(
             OBJS_Add(S_ENERGY);
             plr.score = 0;
         }
+        #endif
 
         if (init_flag)
         {

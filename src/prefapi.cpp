@@ -48,7 +48,7 @@ GetPrivateProfileString(
 )
 {
     #ifdef __N64__
-    char eeprom_data[312];
+    char eeprom_data[80];
     memset(eeprom_data, 0, sizeof(eeprom_data));
     
     const char *base = strrchr(file, '/');
@@ -170,7 +170,7 @@ WritePrivateProfileString(
 )
 {
     #ifdef __N64__
-    char eeprom_data[312];
+    char eeprom_data[80];
     memset(eeprom_data, 0, sizeof(eeprom_data));
     
     const char *base = strrchr(file, '/');
@@ -179,7 +179,7 @@ WritePrivateProfileString(
 
     eepfs_read(base, eeprom_data, sizeof(eeprom_data));
     
-    char new_data[312];
+    char new_data[80];
     memset(new_data, 0, sizeof(new_data));
     char* out_ptr = new_data;
     char* in_ptr = eeprom_data;
@@ -480,25 +480,23 @@ INI_InitPreference(
     if (!base) base = strrchr(ProfilePath, '\\');
     base = base ? base + 1 : ProfilePath;
 
-    char buffer[312];
+    char buffer[80];
     memset(buffer, 0, sizeof(buffer));
     
-    if (eepfs_read(base, buffer, sizeof(buffer)) == EEPFS_ESUCCESS) {
-        // If the file is completely empty (filled with zeroes on erase), initialize the defaults.
-        if (buffer[0] == '\0') {
-            const char* default_ini =
-                "[Music]\r\n"
-                "Volume=100\r\n\r\n"
-                "[SoundFX]\r\n"
-                "Volume=80\r\n\r\n"
-                "[Setup]\r\n"
-                "Detail=1\r\n";
-                
-            strncpy(buffer, default_ini, sizeof(buffer) - 1);
-            eepfs_write(base, buffer, sizeof(buffer));
-        }
+    if (buffer[0] == '\0') {
+        const char* default_ini =
+            "[Music]\r\n"
+            "Volume=100\r\n\r\n"
+            "[SoundFX]\r\n"
+            "Volume=80\r\n\r\n"
+            "[Setup]\r\n"
+            "Detail=1\r\n";
+            
+        strncpy(buffer, default_ini, sizeof(buffer) - 1);
+        eepfs_write(base, buffer, sizeof(buffer));
         return 1;
     }
+        
     return 0;
     #else
     if (access(ProfilePath, 04) == 0)

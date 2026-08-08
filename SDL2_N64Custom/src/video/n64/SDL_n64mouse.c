@@ -24,6 +24,10 @@
 
 #include "SDL_n64mouse_c.h"
 
+#define stack_t libdragon_stack_t
+#include <libdragon.h>
+#undef stack_t
+
 /* The implementation dependent data for the window manager cursor */
 struct WMcursor {
     int unused;

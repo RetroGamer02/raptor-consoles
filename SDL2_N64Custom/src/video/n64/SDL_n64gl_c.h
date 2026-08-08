@@ -24,7 +24,9 @@
 
 #include "SDL_n64video.h"
 
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 
 typedef struct SDL_GLDriverData {
    display_context_t disp;

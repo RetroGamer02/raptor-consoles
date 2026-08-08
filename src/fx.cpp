@@ -34,22 +34,22 @@ static const struct {
     int mus_idx;
     const char* path;
 } xm_tracks[] = {
-    {82, 1,  "rom:/Music/BOSS1_MUS.xm64"},
-    {83, 2,  "rom:/Music/BOSS2_MUS.xm64"},
-    {84, 3,  "rom:/Music/BOSS3_MUS.xm64"},
-    {85, 4,  "rom:/Music/BOSS4_MUS.xm64"},
-    {86, 15,  "rom:/Music/RINTRO_MUS.xm64"},
-    {87, 6,  "rom:/Music/MAINMENU_MUS.xm64"},
-    {88, 5,  "rom:/Music/HANGAR_MUS.xm64"},
-    {89, 7,  "rom:/Music/RAP1_MUS.xm64"},
-    {90, 8,  "rom:/Music/RAP2_MUS.xm64"},
-    {91, 9,  "rom:/Music/RAP3_MUS.xm64"},
-    {92, 10,  "rom:/Music/RAP4_MUS.xm64"},
-    {93, 11,  "rom:/Music/RAP5_MUS_SLIM.xm64"},
-    {94, 12,  "rom:/Music/RAP6_MUS.xm64"},
-    {95, 13,  "rom:/Music/RAP7_MUS.xm64"},
-    {96, 14,  "rom:/Music/RAP8_MUS_SLIM.xm64"},
-    {97, 0,  "rom:/Music/APOGEE_MUS_SLIM.xm64"}
+    {82, 1,  "rom:/Music/BOSS1.xm64"},
+    {83, 2,  "rom:/Music/BOSS2.xm64"},
+    {84, 3,  "rom:/Music/BOSS3.xm64"},
+    {85, 4,  "rom:/Music/BOSS4.xm64"},
+    {86, 15,  "rom:/Music/RINTRO.xm64"},
+    {87, 6,  "rom:/Music/MAINMENU.xm64"},
+    {88, 5,  "rom:/Music/HANGAR.xm64"},
+    {89, 7,  "rom:/Music/RAP1.xm64"},
+    {90, 8,  "rom:/Music/RAP2.xm64"},
+    {91, 9,  "rom:/Music/RAP3.xm64"},
+    {92, 10,  "rom:/Music/RAP4.xm64"},
+    {93, 11,  "rom:/Music/RAP5.xm64"},
+    {94, 12,  "rom:/Music/RAP6.xm64"},
+    {95, 13,  "rom:/Music/RAP7.xm64"},
+    {96, 14,  "rom:/Music/RAP8.xm64"},
+    {97, 0,  "rom:/Music/APOGEE.xm64"}
 };
 #endif
 
@@ -61,7 +61,7 @@ static int fx_init = 0;
 static int lockcount;
 
 #ifdef __N64__
-int fx_freq = 14700;
+int fx_freq = 16000; //14700;
 #elif __GCN__
 int fx_freq = 22050;
 #elif __WII__
@@ -1350,7 +1350,14 @@ SND_PlaySong(
                 N64_Mus = xm_tracks[i].mus_idx;
                 xm64player_open(&raptor_xm, xm_tracks[i].path);
 				xm64player_set_loop(&raptor_xm, chainflag);
-                xm64player_play(&raptor_xm, 4);
+                #ifdef __N64__DEBUG
+                printf("Playing: %d\n", xm_tracks[i].mus_idx);
+                #endif
+                #ifdef __N64__SOFT_JUST_EFFECTS
+                    xm64player_play(&raptor_xm, 2);
+                #else
+                    xm64player_play(&raptor_xm, 4);
+                #endif
                 break;
             }
         }

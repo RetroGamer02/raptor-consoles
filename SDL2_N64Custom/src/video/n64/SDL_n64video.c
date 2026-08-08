@@ -146,9 +146,10 @@ N64_VideoInit(_THIS)
     SDL_zero(current_mode);
     SDL_zero(display);
 
+    bool pal = (get_tv_type() == TV_PAL);
     current_mode.w = 320;
-    current_mode.h = 240;
-    current_mode.refresh_rate = 60;
+    current_mode.h = pal ? 288 : 240;
+    current_mode.refresh_rate = pal ? 50 : 60;
     current_mode.format = SDL_PIXELFORMAT_RGBA5551; // Standard N64 16-bit
 
     display.desktop_mode = current_mode;
@@ -187,15 +188,23 @@ N64_SetDisplayMode(_THIS, SDL_VideoDisplay * display, SDL_DisplayMode * mode)
 int
 N64_CreateWindow(_THIS, SDL_Window * window)
 {
+    display_close();
     SDL_WindowData *wdata = (SDL_WindowData *) SDL_calloc(1, sizeof(SDL_WindowData));
     if (!wdata) return SDL_OutOfMemory();
     window->driverdata = wdata;
 
-    resolution_t res = RESOLUTION_320x240; 
-    if (window->w > 320) res = RESOLUTION_640x480;
+    resolution_t res = {
+        .width      = window->w,
+        .height     = window->h,
+        .interlaced = (window->w > 320)   // matches libdragon's own preset convention
+    };
 
     display_init(res, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE);
     
+    //printf ("%lu/%lu\n", display_get_width(), display_get_height());
+
+    //wait_ms(5000);
+
     rdpq_init();
 
     rdpq_mode_filter(FILTER_POINT);

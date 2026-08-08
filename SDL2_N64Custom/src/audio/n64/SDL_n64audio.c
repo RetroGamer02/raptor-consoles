@@ -4,7 +4,9 @@
 #include "../SDL_audio_c.h"
 #include "../SDL_sysaudio.h"
 
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 #include <string.h>
 #include <malloc.h>
 
@@ -34,7 +36,11 @@ static int N64AUDIO_OpenDevice(SDL_AudioDevice *this, void *handle, const char *
 
     if(get_memory_size() >= 0x00800000) {
         audio_init(this->spec.freq, 3); //Raise PAL Region compat?
-        mixer_init(14); //4 for RSP Effects Channels plus 10 for XM
+        #ifdef __N64__SOFT_JUST_EFFECTS
+            mixer_init(14);
+        #else
+            mixer_init(16); //4 for RSP Effects Channels plus 12 for XM
+        #endif
     } else {
         audio_init(this->spec.freq, 2);
         mixer_init(3);

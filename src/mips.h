@@ -7,7 +7,9 @@
 #include <string.h>
 #ifdef __N64__
 #include <cstdint>
+#define stack_t libdragon_stack_t
 #include <libdragon.h>
+#undef stack_t
 #include <string.h>
 #include <SDL.h>
 #endif
